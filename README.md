@@ -1,4 +1,7 @@
 # PIM - Vendora
+
+[![Laravel Forge Site Deployment Status](https://img.shields.io/endpoint?url=https%3A%2F%2Fforge.laravel.com%2Fsite-badges%2F1b2146f4-9226-424e-a3d3-b052f3a1efc4&style=plastic)](https://forge.laravel.com/servers/700036/sites/2039238)
+
 TBA
 
 ## Table of Contents
