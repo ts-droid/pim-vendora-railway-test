@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Customer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+// 556677889901
+
+class CustomerController extends Controller
+{
+    public function get(Request $request)
+    {
+        $filter = [];
+
+        foreach ((new Customer)->getFillable() as $attribute) {
+            if ($request->get($attribute)) {
+                $filter[] = [$attribute, 'LIKE', '%' . $request->get($attribute) . '%'];
+            }
+        }
+
+        if ($filter) {
+            $customers = Customer::where($filter)->get();
+        }
+        else {
+            $customers = Customer::all();
+        }
+
+        return ApiResponseController::success($customers->toArray());
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'external_id' => 'required|string',
+            'customer_number' => 'required|string',
+            'vat_number' => 'required|string',
+            'org_number' => 'required|string',
+            'name' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $customer = Customer::create([
+            'external_id' => $request->external_id,
+            'customer_number' => $request->customer_number,
+            'vat_number' => $request->vat_number,
+            'org_number' => $request->org_number,
+            'name' => $request->name
+        ]);
+
+        return ApiResponseController::success([$customer->toArray()]);
+    }
+
+    public function update(Request $request, Customer $customer)
+    {
+        foreach ($request->all() as $key => $value) {
+            if (isset($customer->{$key})) {
+                $customer->{$key} = $value;
+            }
+        }
+
+        $customer->save();
+
+        return ApiResponseController::success([$customer->toArray()]);
+    }
+}
