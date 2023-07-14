@@ -18,6 +18,12 @@ Route::get('/', function () {
 });
 
 Route::prefix('/visma')->group(function() {
+    Route::get('/status', function() {
+        $vismaController = new \App\Http\Controllers\VismaNetController();
+
+        die($vismaController->isActive() ? 'Integration is active.' : 'Integration is not active.');
+    });
+
     Route::any('/activate', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
 

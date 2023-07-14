@@ -151,6 +151,22 @@ class VismaNetController extends Controller
     }
 
     /**
+     * Returns true if the app is authenticated.
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        $data = $this->getPagedResult('/v1/organization');
+
+        if (!$data) {
+            return false;
+        }
+
+        return (count($data) > 0);
+    }
+
+    /**
      * Returns paged result from the API.
      *
      * @param string $endpoint
@@ -191,7 +207,7 @@ class VismaNetController extends Controller
      * @param string $accessToken
      * @return array|mixed
      */
-    private function callAPI(string $method, string $endpoint, array $params, string $accessToken = '')
+    private function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '')
     {
         if ($this->callCount > 0) {
             sleep(self::SLEEP_TIME);
