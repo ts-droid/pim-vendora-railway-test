@@ -74,6 +74,7 @@ class VismaNetController extends Controller
         $params = [];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_fetch');
+        $updatedAfter = '';
 
         if ($updatedAfter) {
             $params['lastModifiedDateTime'] = $updatedAfter;
@@ -87,11 +88,11 @@ class VismaNetController extends Controller
 
             foreach ($customers as $customer) {
                 $customerData = [
-                    'external_id' => $customer['internalId'] ?? null,
-                    'customer_number' => $customer['number'] ?? null,
-                    'vat_number' => $customer['vatRegistrationId'] ?? null,
-                    'org_number' => $customer['corporateId'] ?? null,
-                    'name' => $customer['name'] ?? null,
+                    'external_id' => (string) ($customer['internalId'] ?? ''),
+                    'customer_number' => (string) ($customer['number'] ?? ''),
+                    'vat_number' => (string) ($customer['vatRegistrationId'] ?? ''),
+                    'org_number' => (string) ($customer['corporateId'] ?? ''),
+                    'name' => (string) ($customer['name'] ?? ''),
                 ];
 
                 // Require vat number to fetch
@@ -106,7 +107,7 @@ class VismaNetController extends Controller
 
                 if (!$existingCustomers) {
                     // Create new customer
-                    $customerController->store(new Request($customerData));
+                    $response = $customerController->store(new Request($customerData));
                 }
                 else {
                     // Update existing customer
