@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -79,7 +80,7 @@ class VismaNetController extends Controller
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
-        $customers = $this->getPagedResult('/v1/customers', $params);
+        $customers = $this->getPagedResult('/v1/customer', $params);
 
         if ($customers) {
             $customerController = new CustomerController();
@@ -98,9 +99,10 @@ class VismaNetController extends Controller
                     continue;
                 }
 
-                $existingCustomers = $customerController->get(new Request([
+                $response = $customerController->get(new Request([
                     'vat_number' => $customerData['vat_number']
                 ]));
+                $existingCustomers = ApiResponseController::getDataFromResponse($response);
 
                 if (!$existingCustomers) {
                     // Create new customer
@@ -108,7 +110,8 @@ class VismaNetController extends Controller
                 }
                 else {
                     // Update existing customer
-                    $customerController->update(new Request($customerData), $existingCustomers[0]);
+                    $existingCustomer = Customer::find($existingCustomers[0]['id']);
+                    $customerController->update(new Request($customerData), $existingCustomer);
                 }
             }
         }
