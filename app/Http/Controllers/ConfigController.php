@@ -19,6 +19,6 @@ class ConfigController extends Controller
 
     public static function getConfig(string $config): string
     {
-        return Config::where('config', $config)->pluck('content')->first();
+        return (string) Config::where('config', $config)->pluck('content')->first() ?: '';
     }
 }
