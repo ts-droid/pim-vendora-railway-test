@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\SalesPerson;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class SalesPersonController extends Controller
+{
+    public function get(Request $request)
+    {
+        $filter = $this->getModelFilter(SalesPerson::class, $request);
+
+        if ($filter) {
+            $salesPersons = SalesPerson::where($filter)->get();
+        }
+        else {
+            $salesPersons = SalesPerson::all();
+        }
+
+        return ApiResponseController::success($salesPersons->toArray());
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'external_id' => 'required|string',
+            'name' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $salesPerson = SalesPerson::create([
+            'external_id' => $request->external_id,
+            'name' => $request->name
+        ]);
+
+        return ApiResponseController::success([$salesPerson->toArray()]);
+    }
+
+    public function update(Request $request, SalesPerson $salesPerson)
+    {
+        foreach ($request->all() as $key => $value) {
+            if (isset($salesPerson->{$key})) {
+                $salesPerson->{$key} = $value;
+            }
+        }
+
+        $salesPerson->save();
+
+        return ApiResponseController::success([$salesPerson->toArray()]);
+    }
+}

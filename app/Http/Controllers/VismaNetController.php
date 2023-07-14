@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Customer;
+use App\Models\SalesPerson;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -58,6 +61,291 @@ class VismaNetController extends Controller
     public function fetchAll(): void
     {
         $this->fetchCustomers();
+
+        $this->fetchSalesPersons();
+
+        $this->fetchSuppliers();
+
+        $this->fetchArticles('2000-01-01 00:00:00'); // Always fetch all articles to also fetch stock
+
+        // TODO: customer invoices
+
+        // TODO: purchase invoices
+
+        // TODO: inventory receipts
+
+        // TODO: currency rates
+    }
+
+    /**
+     * Fetches articles from Visma.net updated after the given date.
+     * If no date is given, the last updated date is fetched from the database.
+     *
+     * @param string $updatedAfter
+     * @return void
+     */
+    public function fetchArticles(string $updatedAfter = ''): void
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [
+            'expandSupplierDetails' => true,
+            'addCostPriceStatistics' => true,
+        ];
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_article_fetch');
+
+        if ($updatedAfter) {
+            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTimeCondition'] = '>';
+        }
+
+        $articles = $this->getPagedResult('/v1/inventory', $params);
+
+        if ($articles) {
+            $articleController = new ArticleController();
+
+            foreach ($articles as $article) {
+                $articleData = [
+                    'external_id' => (string) ($article['inventoryId'] ?? ''),
+                    'article_number' => (string) ($article['inventoryNumber'] ?? ''),
+                    'description' => (string) ($article['description'] ?? ''),
+                    'supplier_number' => (string) ($article['supplierDetails'][0]['supplierId'] ?? ''),
+                    'cost_price_avg' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
+                    'hs_code' => (string) ($article['intrastat']['cN8'] ?? ''),
+                    'origin_country' => (string) ($article['intrastat']['countryOfOrigin'] ?? ''),
+                    'weight' => (float) ($article['packaging']['baseItemWeight'] ?? 0),
+                    'stock' => 0,
+                ];
+
+                // Fetch stock
+                $warehouseDetails = $article['warehouseDetails'] ?? [];
+                foreach ($warehouseDetails as $warehouse) {
+                    $articleData['stock'] += (int) ($warehouse['available'] ?? 0);
+                }
+
+                // Fetch cross-references
+                $crossReferences = $article['crossReferences'] ?? [];
+                foreach ($crossReferences as $crossReference) {
+                    switch ($crossReference['alternateType'] ?? '') {
+                        case 'VPN':
+                            $articleData['wright_article_number'] = (string) ($crossReference['alternateID'] ?? '');
+                            break;
+
+                        case 'Barcode':
+                            $articleData['ean'] = (string) ($crossReference['alternateID'] ?? '');
+                            break;
+                    }
+                }
+
+                // Fetch attributes
+                $attributes = $article['attributes'] ?? [];
+                foreach ($attributes as $attribute) {
+                    switch ($attribute['id'] ?? '') {
+                        case 'AFPI':
+                            $articleData['inner_box'] = (int) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'ANTINKART':
+                            $articleData['master_box'] = (int) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLFRPB':
+                            $articleData['width'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLFRPH':
+                            $articleData['height'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLFRPD':
+                            $articleData['depth'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'MASTKARTB':
+                            $articleData['master_box_width'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'MASTKARTH':
+                            $articleData['master_box_height'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'MASTKARTD':
+                            $articleData['master_box_depth'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLINKB':
+                            $articleData['inner_box_width'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLINKH':
+                            $articleData['inner_box_height'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'STRLINKD':
+                            $articleData['inner_box_depth'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'VIKTMAST':
+                            $articleData['master_box_weight'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'VIKTIK':
+                            $articleData['inner_box_weight'] = (float) ($attribute['value'] ?? 0);
+                            break;
+
+                        case 'VARUMÄRKE':
+                            $articleData['brand'] = (string) ($attribute['value'] ?? '');
+                            break;
+
+                        case 'WEBBSHOP':
+                            $articleData['is_webshop'] = (int) ($attribute['value'] ?? 0);
+                            break;
+                    }
+                }
+
+                // Require article number to fetch
+                if (!$articleData['article_number']) {
+                    continue;
+                }
+
+                $response = $articleController->get(new Request([
+                    'article_number' => $articleData['article_number']
+                ]));
+                $existingArticles = ApiResponseController::getDataFromResponse($response);
+
+                if (!$existingArticles) {
+                    // Create new article
+                    $articleController->store(new Request($articleData));
+                }
+                else {
+                    // Update existing article
+                    $existingArticle = Article::find($existingArticles[0]['id']);
+                    $articleController->update(new Request($articleData), $existingArticle);
+                }
+            }
+        }
+
+        ConfigController::setConfigs(['vismanet_last_article_fetch' => $fetchTime]);
+    }
+
+    /**
+     * Fetches suppliers from Visma.net updated after the given date.
+     * If no date is given, the last updated date is fetched from the database.
+     *
+     * @param string $updatedAfter
+     * @return void
+     */
+    public function fetchSuppliers(string $updatedAfter = ''): void
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [];
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_supplier_fetch');
+
+        if ($updatedAfter) {
+            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTimeCondition'] = '>';
+        }
+
+        $suppliers = $this->getPagedResult('/v1/supplier', $params);
+
+        if ($suppliers) {
+            $supplierController = new SupplierController();
+
+            foreach ($suppliers as $supplier) {
+                $supplierData = [
+                    'external_id' => (string) ($supplier['internalId'] ?? ''),
+                    'number' => (string) ($supplier['number'] ?? ''),
+                    'vat_number' => (string) ($supplier['vatRegistrationId'] ?? ''),
+                    'org_number' => (string) ($supplier['corporateId'] ?? ''),
+                    'name' => (string) ($supplier['name'] ?? ''),
+                    'class_description' => (string) ($supplier['supplierClass']['description'] ?? ''),
+                    'credit_terms_description' => (string) ($supplier['creditTerms']['description'] ?? ''),
+                    'currency' => (string) ($supplier['currencyId'] ?? ''),
+                    'language' => (string) ($supplier['documentLanguage'] ?? ''),
+                ];
+
+                // Require supplier number to fetch
+                if (!$supplierData['number']) {
+                    continue;
+                }
+
+                $response = $supplierController->get(new Request([
+                    'number' => $supplierData['number']
+                ]));
+                $existingSuppliers = ApiResponseController::getDataFromResponse($response);
+
+                if (!$existingSuppliers) {
+                    // Create new supplier
+                    $supplierController->store(new Request($supplierData));
+                }
+                else {
+                    // Update existing supplier
+                    $existingSupplier = Supplier::find($existingSuppliers[0]['id']);
+                    $supplierController->update(new Request($supplierData), $existingSupplier);
+                }
+            }
+        }
+
+        ConfigController::setConfigs(['vismanet_last_supplier_fetch' => $fetchTime]);
+    }
+
+    /**
+     * Fetches sales persons from Visma.net updated after the given date.
+     * If no date is given, the last updated date is fetched from the database.
+     *
+     * @param string $updatedAfter
+     * @return void
+     */
+    public function fetchSalesPersons(string $updatedAfter = ''): void
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_persons_fetch');
+
+        $customerController = new CustomerController();
+        $salesPersonController = new SalesPersonController();
+
+        $response = $customerController->get(new Request());
+
+        $customers = ApiResponseController::getDataFromResponse($response);
+
+        foreach ($customers as $customer) {
+            if ($updatedAfter && $updatedAfter < $customer['updated_at']) {
+                continue;
+            }
+
+            $salesPersons = $this->getPagedResult('/v1/customer/' . $customer['customer_number'] . '/salespersons');
+
+            if (!$salesPersons) {
+                continue;
+            }
+
+            foreach ($salesPersons as $salesPerson) {
+                $salesPersonData = [
+                    'external_id' => (string) ($salesPerson['salePersonID'] ?? ''),
+                    'name' => (string) ($salesPerson['name'] ?? ''),
+                ];
+
+                $response = $salesPersonController->get(new Request([
+                    'external_id' => $salesPersonData['external_id']
+                ]));
+                $existingSalesPersons = ApiResponseController::getDataFromResponse($response);
+
+                if (!$existingSalesPersons) {
+                    // Create new sales person
+                    $salesPersonController->store(new Request($salesPersonData));
+                }
+                else {
+                    // Update existing sales person
+                    $existingSalesPerson = SalesPerson::find($existingSalesPersons[0]['id']);
+                    $salesPersonController->update(new Request($salesPersonData), $existingSalesPerson);
+                }
+            }
+        }
+
+        ConfigController::setConfigs(['vismanet_last_sales_persons_fetch' => $fetchTime]);
     }
 
     /**
@@ -106,7 +394,7 @@ class VismaNetController extends Controller
 
                 if (!$existingCustomers) {
                     // Create new customer
-                    $response = $customerController->store(new Request($customerData));
+                    $customerController->store(new Request($customerData));
                 }
                 else {
                     // Update existing customer
