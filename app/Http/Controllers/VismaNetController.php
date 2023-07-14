@@ -70,14 +70,14 @@ class VismaNetController extends Controller
     {
         $fetchTime = date('Y-m-d H:i:s');
 
-        if (!$updatedAfter) {
-            $updatedAfter = ConfigController::getConfig('vismanet_last_customer_fetch');
-        }
+        $params = [];
 
-        $params = [
-            'lastModifiedDateTime' => $updatedAfter,
-            'lastModifiedDateTimeCondition' => '>'
-        ];
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_fetch');
+
+        if ($updatedAfter) {
+            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTimeCondition'] = '>';
+        }
 
         $customers = $this->getPagedResult('/v1/customers', $params);
 
