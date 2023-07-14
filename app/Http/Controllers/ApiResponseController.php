@@ -24,4 +24,10 @@ class ApiResponseController extends Controller
             'error_message' => $errorMessage,
         ]);
     }
+
+    public static function getDataFromResponse($response)
+    {
+        $response = json_decode($response->content(), true);
+        return $response['data'];
+    }
 }
