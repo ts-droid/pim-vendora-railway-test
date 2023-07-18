@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Article;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class ArticleController extends Controller
+{
+    public function get(Request $request)
+    {
+        $filter = $this->getModelFilter(Article::class, $request);
+
+        if ($filter) {
+            $articles = Article::where($filter)->get();
+        }
+        else {
+            $articles = Article::all();
+        }
+
+        return ApiResponseController::success($articles->toArray());
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'external_id' => 'required|string',
+            'article_number' => 'required|string',
+            'description' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $article = Article::create([
+            'external_id' => $request->external_id,
+            'article_number' => $request->article_number,
+            'description' => $request->description,
+            'ean' => (string) ($request->ean ?? ''),
+            'wright_article_number' => (string) ($request->wright_article_number ?? ''),
+            'supplier_number' => (string) ($request->supplier_number ?? ''),
+            'cost_price_avg' => (float) ($request->cost_price_avg ?? 0),
+            'stock' => (int) ($request->stock ?? 0),
+            'hs_code' => (string) ($request->hs_code ?? ''),
+            'origin_country' => (string) ($request->origin_country ?? ''),
+            'inner_box' => (int) ($request->inner_box ?? 0),
+            'master_box' => (int) ($request->master_box ?? 0),
+            'width' => (float) ($request->width ?? 0),
+            'height' => (float) ($request->height ?? 0),
+            'depth' => (float) ($request->depth ?? 0),
+            'master_box_width' => (float) ($request->master_box_width ?? 0),
+            'master_box_height' => (float) ($request->master_box_height ?? 0),
+            'master_box_depth' => (float) ($request->master_box_depth ?? 0),
+            'inner_box_width' => (float) ($request->inner_box_width ?? 0),
+            'inner_box_height' => (float) ($request->inner_box_height ?? 0),
+            'inner_box_depth' => (float) ($request->inner_box_depth ?? 0),
+            'weight' => (float) ($request->weight ?? 0),
+            'master_box_weight' => (float) ($request->master_box_weight ?? 0),
+            'inner_box_weight' => (float) ($request->inner_box_weight ?? 0),
+            'brand' => (string) ($request->brand ?? ''),
+            'is_webshop' => (int) ($request->is_webshop ?? 0),
+        ]);
+
+        return ApiResponseController::success([$article->toArray()]);
+    }
+
+    public function update(Request $request, Article $article)
+    {
+        $fillables = (new Article)->getFillable();
+
+        foreach ($request->all() as $key => $value) {
+            if (in_array($key, $fillables)) {
+                $article->{$key} = $value;
+            }
+        }
+
+        $article->save();
+
+        return ApiResponseController::success([$article->toArray()]);
+    }
+}

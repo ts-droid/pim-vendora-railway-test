@@ -6,19 +6,11 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-// 556677889901
-
 class CustomerController extends Controller
 {
     public function get(Request $request)
     {
-        $filter = [];
-
-        foreach ((new Customer)->getFillable() as $attribute) {
-            if ($request->get($attribute)) {
-                $filter[] = [$attribute, 'LIKE', '%' . $request->get($attribute) . '%'];
-            }
-        }
+        $filter = $this->getModelFilter(Customer::class, $request);
 
         if ($filter) {
             $customers = Customer::where($filter)->get();
@@ -59,8 +51,10 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
+        $fillables = (new Customer)->getFillable();
+
         foreach ($request->all() as $key => $value) {
-            if (isset($customer->{$key})) {
+            if (in_array($key, $fillables)) {
                 $customer->{$key} = $value;
             }
         }
