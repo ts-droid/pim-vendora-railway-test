@@ -51,8 +51,10 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
+        $fillables = (new Customer)->getFillable();
+
         foreach ($request->all() as $key => $value) {
-            if (isset($customer->{$key})) {
+            if (in_array($key, $fillables)) {
                 $customer->{$key} = $value;
             }
         }

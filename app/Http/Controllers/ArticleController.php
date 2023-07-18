@@ -70,8 +70,10 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
+        $fillables = (new Article)->getFillable();
+
         foreach ($request->all() as $key => $value) {
-            if (isset($article->{$key})) {
+            if (in_array($key, $fillables)) {
                 $article->{$key} = $value;
             }
         }

@@ -59,8 +59,10 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
+        $fillables = (new Supplier)->getFillable();
+
         foreach ($request->all() as $key => $value) {
-            if (isset($supplier->{$key})) {
+            if (in_array($key, $fillables)) {
                 $supplier->{$key} = $value;
             }
         }

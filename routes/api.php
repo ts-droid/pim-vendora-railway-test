@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerInvoiceController;
+use App\Http\Controllers\InventoryReceiptController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
@@ -35,6 +39,30 @@ Route::prefix('/v1')->middleware(['api.key'])->group(function() {
         Route::get('/', [SupplierController::class, 'get'])->name('suppliers.get');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::post('/{salesPerson}', [SupplierController::class, 'update'])->name('suppliers.update');
+    });
+
+    Route::prefix('/articles')->group(function() {
+        Route::get('/', [ArticleController::class, 'get'])->name('articles.get');
+        Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
+        Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
+    });
+
+    Route::prefix('/customer-invoices')->group(function() {
+        Route::get('/', [CustomerInvoiceController::class, 'get'])->name('customerInvoices.get');
+        Route::post('/', [CustomerInvoiceController::class, 'store'])->name('customerInvoices.store');
+        Route::post('/{customerInvoice}', [CustomerInvoiceController::class, 'update'])->name('customerInvoices.update');
+    });
+
+    Route::prefix('/purchase-orders')->group(function() {
+        Route::get('/', [PurchaseOrderController::class, 'get'])->name('purchaseOrders.get');
+        Route::post('/', [PurchaseOrderController::class, 'store'])->name('purchaseOrders.store');
+        Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
+    });
+
+    Route::prefix('/inventory-receipts')->group(function() {
+        Route::get('/', [InventoryReceiptController::class, 'get'])->name('inventoryReceipts.get');
+        Route::post('/', [InventoryReceiptController::class, 'store'])->name('inventoryReceipts.store');
+        Route::post('/{inventoryReceipt}', [InventoryReceiptController::class, 'update'])->name('inventoryReceipts.update');
     });
 
 });

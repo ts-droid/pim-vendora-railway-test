@@ -21,7 +21,7 @@ Route::prefix('/visma')->group(function() {
     Route::get('/test', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
 
-        $vismaController->fetchArticles();
+        $vismaController->fetchInventoryReceipts('2023-07-12 00:00:00');
 
         die();
     });

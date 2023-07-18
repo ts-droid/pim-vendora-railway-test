@@ -45,8 +45,10 @@ class SalesPersonController extends Controller
 
     public function update(Request $request, SalesPerson $salesPerson)
     {
+        $fillables = (new SalesPerson)->getFillable();
+
         foreach ($request->all() as $key => $value) {
-            if (isset($salesPerson->{$key})) {
+            if (in_array($key, $fillables)) {
                 $salesPerson->{$key} = $value;
             }
         }
