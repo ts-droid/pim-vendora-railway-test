@@ -41,4 +41,22 @@ class Controller extends BaseController
 
         return $filter;
     }
+
+    public function getQueryWithFilter($model, $filter)
+    {
+        $query = $model::query();
+
+        if (!$filter) {
+            return $query;
+        }
+
+        foreach ($filter as $item) {
+            if (count($item) === 2) {
+                $query->whereIn($item[0], $item[1]);
+            }
+            else {
+                $query->where($item[0], $item[1], $item[2]);
+            }
+        }
+    }
 }
