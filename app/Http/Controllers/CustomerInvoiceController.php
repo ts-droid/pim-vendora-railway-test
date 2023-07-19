@@ -14,14 +14,10 @@ class CustomerInvoiceController extends Controller
         $filter = $this->getModelFilter(CustomerInvoice::class, $request);
 
         if ($filter) {
-            $invoices = CustomerInvoice::where($filter)->get();
+            $invoices = CustomerInvoice::where($filter)->with('lines')->get();
         }
         else {
-            $invoices = CustomerInvoice::all();
-        }
-
-        foreach ($invoices as &$invoice) {
-            $invoice->lines = $invoice->lines;
+            $invoices = CustomerInvoice::with('lines')->all();
         }
 
         return ApiResponseController::success($invoices->toArray());
