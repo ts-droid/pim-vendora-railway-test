@@ -13,16 +13,9 @@ class InventoryReceiptController extends Controller
     {
         $filter = $this->getModelFilter(InventoryReceipt::class, $request);
 
-        if ($filter) {
-            $receipts = InventoryReceipt::where($filter)->get();
-        }
-        else {
-            $receipts = InventoryReceipt::all();
-        }
+        $query = $this->getQueryWithFilter(InventoryReceipt::class, $filter);
 
-        foreach ($receipts as &$receipt) {
-            $receipt->lines = $receipt->lines;
-        }
+        $receipts = $query->with('lines')->get();
 
         return ApiResponseController::success($receipts->toArray());
     }

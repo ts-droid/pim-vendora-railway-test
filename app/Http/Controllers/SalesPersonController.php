@@ -12,12 +12,9 @@ class SalesPersonController extends Controller
     {
         $filter = $this->getModelFilter(SalesPerson::class, $request);
 
-        if ($filter) {
-            $salesPersons = SalesPerson::where($filter)->get();
-        }
-        else {
-            $salesPersons = SalesPerson::all();
-        }
+        $query = $this->getQueryWithFilter(SalesPerson::class, $filter);
+
+        $salesPersons = $query->get();
 
         return ApiResponseController::success($salesPersons->toArray());
     }

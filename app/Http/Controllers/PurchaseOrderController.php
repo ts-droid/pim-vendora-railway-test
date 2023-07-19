@@ -13,16 +13,9 @@ class PurchaseOrderController extends Controller
     {
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);
 
-        if ($filter) {
-            $orders = PurchaseOrder::where($filter)->get();
-        }
-        else {
-            $orders = PurchaseOrder::all();
-        }
+        $query = $this->getQueryWithFilter(PurchaseOrder::class, $filter);
 
-        foreach ($orders as &$order) {
-            $order->lines = $order->lines;
-        }
+        $orders = $query->with('lines')->get();
 
         return ApiResponseController::success($orders->toArray());
     }

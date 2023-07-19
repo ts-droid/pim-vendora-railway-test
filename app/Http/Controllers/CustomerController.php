@@ -12,12 +12,9 @@ class CustomerController extends Controller
     {
         $filter = $this->getModelFilter(Customer::class, $request);
 
-        if ($filter) {
-            $customers = Customer::where($filter)->get();
-        }
-        else {
-            $customers = Customer::all();
-        }
+        $query = $this->getQueryWithFilter(Customer::class, $filter);
+
+        $customers = $query->get();
 
         return ApiResponseController::success($customers->toArray());
     }
