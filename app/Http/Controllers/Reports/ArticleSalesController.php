@@ -16,7 +16,7 @@ class ArticleSalesController extends Controller
         // Required parameters
         $startDate = explode(',', $request->get('start_date', ''));
         $endDate = explode(',', $request->get('end_date', ''));
-        $numPeriods = min($startDate, $endDate);
+        $numPeriods = min(count($startDate), count($endDate));
 
         // Optional parameters
         $customerVATNumbers = explode(',', $request->get('customer_vat_numbers', ''));
