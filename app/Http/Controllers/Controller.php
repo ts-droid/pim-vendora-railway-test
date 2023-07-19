@@ -18,6 +18,10 @@ class Controller extends BaseController
             if ($request->get($attribute)) {
                 $value = $request->get($attribute);
 
+                if (!$value) {
+                    continue;
+                }
+
                 if ($attribute == 'date' && str_contains($value, ',')) {
                     list($date1, $date2) = explode(',', $value);
 
