@@ -12,12 +12,9 @@ class ArticleController extends Controller
     {
         $filter = $this->getModelFilter(Article::class, $request);
 
-        if ($filter) {
-            $articles = Article::where($filter)->get();
-        }
-        else {
-            $articles = Article::all();
-        }
+        $query = $this->getQueryWithFilter(Article::class, $filter);
+
+        $articles = $query->get();
 
         return ApiResponseController::success($articles->toArray());
     }

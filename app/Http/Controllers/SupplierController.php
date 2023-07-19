@@ -12,12 +12,9 @@ class SupplierController extends Controller
     {
         $filter = $this->getModelFilter(Supplier::class, $request);
 
-        if ($filter) {
-            $suppliers = Supplier::where($filter)->get();
-        }
-        else {
-            $suppliers = Supplier::all();
-        }
+        $query = $this->getQueryWithFilter(Supplier::class, $filter);
+
+        $suppliers = $query->get();
 
         return ApiResponseController::success($suppliers->toArray());
     }
