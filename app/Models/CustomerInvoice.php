@@ -22,6 +22,6 @@ class CustomerInvoice extends Model
 
     public function lines(): HasMany
     {
-        return $this->hasMany(CustomerInvoiceLine::class, 'customer_invoice_id', 'id')->with('article');
+        return $this->hasMany(CustomerInvoiceLine::class, 'customer_invoice_id', 'id')->with('article', 'sales_person');
     }
 }

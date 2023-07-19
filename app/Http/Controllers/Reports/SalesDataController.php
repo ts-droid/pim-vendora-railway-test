@@ -46,7 +46,7 @@ class SalesDataController extends Controller
             foreach ($invoices as $invoice) {
                 foreach ($invoice['lines'] as $line) {
                     // Filter by supplier
-                    if ($suppliers && !in_array($line['article']['supplier']['name'], $suppliers)) {
+                    if ($suppliers && !in_array(($line['article']['supplier']['name'] ?? ''), $suppliers)) {
                         continue;
                     }
 
