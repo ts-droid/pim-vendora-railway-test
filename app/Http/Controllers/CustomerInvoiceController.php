@@ -15,7 +15,7 @@ class CustomerInvoiceController extends Controller
 
         $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
 
-        $invoices = $query->with('lines')->get();
+        $invoices = $query->with('customer', 'lines')->get();
 
         return ApiResponseController::success($invoices->toArray());
     }
