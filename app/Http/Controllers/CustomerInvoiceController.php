@@ -14,7 +14,7 @@ class CustomerInvoiceController extends Controller
         $filter = $this->getModelFilter(CustomerInvoice::class, $request);
 
         if ($filter) {
-            $query = CustomerInvoice::where('1', '=', '1');
+            $query = CustomerInvoice::where('id', '>', '0');
 
             foreach ($filter as $item) {
                 if (count($item) == 2) {
