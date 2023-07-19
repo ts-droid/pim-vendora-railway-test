@@ -66,10 +66,16 @@ class CustomerController extends Controller
 
     public function VATNumberToCustomerNumber(array $VATNumbers)
     {
-        $customerNumbers = Customer::whereIn('vat_number', $VATNumbers)->pluck('customer_number')->toArray();
+        $VATNumbers = array_filter($VATNumbers);
 
-        $customerNumbers = array_filter($customerNumbers);
+        if (!$VATNumbers) {
+            return [];
+        }
 
-        return $customerNumbers;
+        return Customer::whereIn('vat_number', $VATNumbers)
+            ->where('customer_number', '!=', '')
+            ->whereNotNull('customer_number')
+            ->pluck('customer_number')
+            ->toArray();
     }
 }

@@ -14,7 +14,18 @@ class CustomerInvoiceController extends Controller
         $filter = $this->getModelFilter(CustomerInvoice::class, $request);
 
         if ($filter) {
-            $invoices = CustomerInvoice::where($filter)->with('lines')->get();
+            $query = CustomerInvoice::where('1', '=', '1');
+
+            foreach ($filter as $item) {
+                if (count($item) == 2) {
+                    $query->whereIn($item[0], $item[1]);
+                }
+                else {
+                    $query->where($item[0], $item[1], $item[2]);
+                }
+            }
+
+            $invoices = $query->with('lines')->get();
         }
         else {
             $invoices = CustomerInvoice::with('lines')->all();
