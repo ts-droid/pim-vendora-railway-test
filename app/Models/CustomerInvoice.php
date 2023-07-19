@@ -20,6 +20,11 @@ class CustomerInvoice extends Model
         'amount',
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_number', 'customer_number');
+    }
+
     public function lines(): HasMany
     {
         return $this->hasMany(CustomerInvoiceLine::class, 'customer_invoice_id', 'id')->with('article', 'sales_person');
