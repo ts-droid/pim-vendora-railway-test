@@ -63,4 +63,13 @@ class CustomerController extends Controller
 
         return ApiResponseController::success([$customer->toArray()]);
     }
+
+    public function VATNumberToCustomerNumber(array $VATNumbers)
+    {
+        $customerNumbers = Customer::whereIn('vat_number', $VATNumbers)->pluck('customer_number')->toArray();
+
+        $customerNumbers = array_filter($customerNumbers);
+
+        return $customerNumbers;
+    }
 }
