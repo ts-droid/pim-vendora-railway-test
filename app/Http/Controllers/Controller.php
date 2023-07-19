@@ -29,7 +29,12 @@ class Controller extends BaseController
                     $filter[] = [$attribute, '<=', $date2];
                 }
                 else {
-                    $filter[] = [$attribute, 'LIKE', '%' . $value . '%'];
+                    if (is_array($value)) {
+                        $filter[] = [$attribute, $value];
+                    }
+                    else {
+                        $filter[] = [$attribute, 'LIKE', '%' . $value . '%'];
+                    }
                 }
             }
         }
