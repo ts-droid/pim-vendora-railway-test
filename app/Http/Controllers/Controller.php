@@ -16,7 +16,17 @@ class Controller extends BaseController
 
         foreach ((new $model)->getFillable() as $attribute) {
             if ($request->get($attribute)) {
-                $filter[] = [$attribute, 'LIKE', '%' . $request->get($attribute) . '%'];
+                $value = $request->get($attribute);
+
+                if ($attribute == 'date' && str_contains($value, ',')) {
+                    list($date1, $date2) = explode(',', $value);
+
+                    $filter[] = [$attribute, '>=', $date1];
+                    $filter[] = [$attribute, '<=', $date2];
+                }
+                else {
+                    $filter[] = [$attribute, 'LIKE', '%' . $value . '%'];
+                }
             }
         }
 

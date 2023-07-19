@@ -23,4 +23,9 @@ class CustomerInvoiceLine extends Model
         'cost',
         'sales_person_id'
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number')->with('supplier');
+    }
 }

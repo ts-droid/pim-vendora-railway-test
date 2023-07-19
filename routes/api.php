@@ -5,6 +5,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\Reports\ArticleSalesController;
+use App\Http\Controllers\Reports\SalesDataController;
 use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
@@ -63,6 +65,17 @@ Route::prefix('/v1')->middleware(['api.key'])->group(function() {
         Route::get('/', [InventoryReceiptController::class, 'get'])->name('inventoryReceipts.get');
         Route::post('/', [InventoryReceiptController::class, 'store'])->name('inventoryReceipts.store');
         Route::post('/{inventoryReceipt}', [InventoryReceiptController::class, 'update'])->name('inventoryReceipts.update');
+    });
+
+    Route::prefix('/reports')->group(function() {
+        Route::get('/sales-data', [SalesDataController::class, 'index'])->name('reports.salesData');
+        Route::get('/article-sales', [ArticleSalesController::class, 'index'])->name('reports.articleSales');
+
+        // TODO /top-articles
+
+        // TODO /top-customers
+
+        // TODO /top-sales-persons
     });
 
 });
