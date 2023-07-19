@@ -58,5 +58,7 @@ class Controller extends BaseController
                 $query->where($item[0], $item[1], $item[2]);
             }
         }
+
+        return $query;
     }
 }
