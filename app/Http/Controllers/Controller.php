@@ -33,6 +33,15 @@ class Controller extends BaseController
                         $filter[] = [$attribute, $value];
                     }
                     else {
+                        if (str_contains($value, '*')) {
+                            if (strlen($value) > 1) {
+                                $value = str_replace('*', '%', $value);
+                            }
+                        }
+                        else {
+                            $value = '%' . $value . '%';
+                        }
+
                         $filter[] = [$attribute, 'LIKE', '%' . $value . '%'];
                     }
                 }
