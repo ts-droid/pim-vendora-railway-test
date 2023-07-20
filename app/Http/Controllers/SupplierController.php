@@ -25,12 +25,7 @@ class SupplierController extends Controller
             'external_id' => 'required|string',
             'number' => 'required|string',
             'vat_number' => 'required|string',
-            'org_number' => 'required|string',
             'name' => 'required|string',
-            'class_description' => 'required|string',
-            'credit_terms_description' => 'required|string',
-            'currency' => 'required|string',
-            'language' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -43,12 +38,12 @@ class SupplierController extends Controller
             'external_id' => $request->external_id,
             'number' => $request->number,
             'vat_number' => $request->vat_number,
-            'org_number' => $request->org_number,
+            'org_number' => ($request->org_number ?? ''),
             'name' => $request->name,
-            'class_description' => $request->class_description,
-            'credit_terms_description' => $request->credit_terms_description,
-            'currency' => $request->currency,
-            'language' => $request->language,
+            'class_description' => ($request->class_description ?? ''),
+            'credit_terms_description' => ($request->credit_terms_description ?? ''),
+            'currency' => ($request->currency ?? ''),
+            'language' => ($request->language ?? ''),
         ]);
 
         return ApiResponseController::success([$supplier->toArray()]);
