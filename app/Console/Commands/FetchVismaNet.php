@@ -12,7 +12,7 @@ class FetchVismaNet extends Command
      *
      * @var string
      */
-    protected $signature = 'visma:fetch';
+    protected $signature = 'visma:fetch {type=all}';
 
     /**
      * The console command description.
@@ -26,7 +26,19 @@ class FetchVismaNet extends Command
      */
     public function handle()
     {
+        $type = $this->argument('type') ?: 'all';
+
         $vismaNetController = new VismaNetController();
-        $vismaNetController->fetchAll();
+
+        switch ($type) {
+            case 'suppliers':
+                $vismaNetController->fetchSuppliers();
+                break;
+
+            case 'all':
+            default:
+                $vismaNetController->fetchAll();
+                break;
+        }
     }
 }
