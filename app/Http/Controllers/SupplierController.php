@@ -24,7 +24,6 @@ class SupplierController extends Controller
         $validator = Validator::make($request->all(), [
             'external_id' => 'required|string',
             'number' => 'required|string',
-            'vat_number' => 'required|string',
             'name' => 'required|string',
         ]);
 
@@ -37,7 +36,7 @@ class SupplierController extends Controller
         $supplier = Supplier::create([
             'external_id' => $request->external_id,
             'number' => $request->number,
-            'vat_number' => $request->vat_number,
+            'vat_number' => ($request->vat_number ?? ''),
             'org_number' => ($request->org_number ?? ''),
             'name' => $request->name,
             'class_description' => ($request->class_description ?? ''),
