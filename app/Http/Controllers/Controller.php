@@ -34,9 +34,11 @@ class Controller extends BaseController
                     }
                     else {
                         if (str_contains($value, '*')) {
-                            if (strlen($value) > 1) {
-                                $value = str_replace('*', '%', $value);
+                            if (strlen($value) === 1) {
+                                continue;
                             }
+
+                            $value = str_replace('*', '%', $value);
                         }
                         else {
                             $value = '%' . $value . '%';
