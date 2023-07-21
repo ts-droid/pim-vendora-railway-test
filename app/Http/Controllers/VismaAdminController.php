@@ -38,8 +38,7 @@ class VismaAdminController extends Controller
             'SELECT *
             FROM OOF
             WHERE DOKTYP = \'F\'
-                AND MAKUL = 0
-            LIMIT 500'
+                AND MAKUL = 0'
         );
 
         if (!$documents) {
