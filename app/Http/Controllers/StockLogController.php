@@ -7,6 +7,17 @@ use Illuminate\Http\Request;
 
 class StockLogController extends Controller
 {
+    public function get(Request $request)
+    {
+        $filter = $this->getModelFilter(StockLog::class, $request);
+
+        $query = $this->getQueryWithFilter(StockLog::class, $filter);
+
+        $stockLogs = $query->get();
+
+        return ApiResponseController::success($stockLogs->toArray());
+    }
+
     public function logStock(string $articleNumber, int $stock): void
     {
         // Do not log if the stock is the same

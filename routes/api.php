@@ -11,6 +11,7 @@ use App\Http\Controllers\Reports\TopArticlesController;
 use App\Http\Controllers\Reports\TopCustomersController;
 use App\Http\Controllers\Reports\TopSalesPersonsController;
 use App\Http\Controllers\SalesPersonController;
+use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,10 @@ Route::prefix('/v1')->middleware(['api.key'])->group(function() {
         Route::get('/', [InventoryReceiptController::class, 'get'])->name('inventoryReceipts.get');
         Route::post('/', [InventoryReceiptController::class, 'store'])->name('inventoryReceipts.store');
         Route::post('/{inventoryReceipt}', [InventoryReceiptController::class, 'update'])->name('inventoryReceipts.update');
+    });
+
+    Route::prefix('/stock-log')->group(function() {
+        Route::get('/', [StockLogController::class, 'get'])->name('stockLog.get');
     });
 
     Route::prefix('/reports')->group(function() {
