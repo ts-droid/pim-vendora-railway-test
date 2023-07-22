@@ -14,7 +14,7 @@ class ArticleController extends Controller
 
         $query = $this->getQueryWithFilter(Article::class, $filter);
 
-        $articles = $query->get();
+        $articles = $query->with('stock_logs')->get();
 
         return ApiResponseController::success($articles->toArray());
     }
@@ -62,6 +62,10 @@ class ArticleController extends Controller
             'is_webshop' => (int) ($request->is_webshop ?? 0),
         ]);
 
+        // Log the stock
+        $stockLogController = new StockLogController();
+        $stockLogController->logStock($article->article_number, $article->stock);
+
         return ApiResponseController::success([$article->toArray()]);
     }
 
@@ -76,6 +80,10 @@ class ArticleController extends Controller
         }
 
         $article->save();
+
+        // Log the stock
+        $stockLogController = new StockLogController();
+        $stockLogController->logStock($article->article_number, $article->stock);
 
         return ApiResponseController::success([$article->toArray()]);
     }
