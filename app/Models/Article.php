@@ -42,4 +42,9 @@ class Article extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_number', 'number');
     }
+
+    public function stock_logs()
+    {
+        return $this->hasMany(StockLog::class, 'article_number', 'article_number');
+    }
 }
