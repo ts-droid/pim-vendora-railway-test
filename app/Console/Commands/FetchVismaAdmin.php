@@ -12,7 +12,7 @@ class FetchVismaAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'visma-admin:fetch';
+    protected $signature = 'visma-admin:fetch {type=all}';
 
     /**
      * The console command description.
@@ -26,7 +26,19 @@ class FetchVismaAdmin extends Command
      */
     public function handle()
     {
+        $type = $this->argument('type') ?: 'all';
+
         $vismaAdminController = new VismaAdminController();
-        $vismaAdminController->fetchAll();
+
+        switch ($type) {
+            case 'invoices':
+                $vismaAdminController->fetchCustomerInvoices();
+                break;
+
+            case 'all':
+            default:
+                $vismaAdminController->fetchAll();
+                break;
+        }
     }
 }
