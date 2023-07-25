@@ -26,10 +26,10 @@ class CurrencyRateController extends Controller
             'from_currency' => 'required|string',
             'to_currency' => 'required|string',
             'type' => 'required|string',
-            'rate' => 'required|float',
+            'rate' => 'required',
             'date' => 'required|string',
-            'mult_div' => 'required|float',
-            'rate_reciprocal' => 'required|float',
+            'mult_div' => 'required|string',
+            'rate_reciprocal' => 'required',
         ]);
 
         if ($validator->fails()) {
