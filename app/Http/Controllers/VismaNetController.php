@@ -88,7 +88,7 @@ class VismaNetController extends Controller
      */
     public function fetchCurrencyRates(): void
     {
-        $rows = $this->getPagedResult('GET', '/v2/currencyrate');
+        $rows = $this->getPagedResult('/v2/currencyrate');
 
         if (!$rows) {
             return;
