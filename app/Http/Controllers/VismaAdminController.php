@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class VismaAdminController extends Controller
@@ -48,11 +49,23 @@ class VismaAdminController extends Controller
         $invoiceController = new CustomerInvoiceController();
 
         foreach ($documents as $document) {
+            $VATNumber = (string) $document->MOMSREGNR;
+            $customerNumber = (string) $document->KUNDNR;
+
+            // Try to connect to existing customer by VAT-number
+            if ($VATNumber) {
+                $customer = Customer::where('vat_number', $VATNumber)->first();
+
+                if ($customer) {
+                    $customerNumber = $customer->customer_number;
+                }
+            }
+
             $invoiceData = [
                 'invoice_number' => (string) $document->DOKNR,
                 'date' => (string) $document->DATUM1,
                 'status' => '',
-                'customer_number' => (string) $document->KUNDNR,
+                'customer_number' => $customerNumber,
                 'credit_terms' => '',
                 'currency' => strtolower($document->VALUTAKOD),
                 'amount' => 0,
