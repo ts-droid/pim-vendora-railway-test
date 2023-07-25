@@ -35,6 +35,10 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchSuppliers();
                 break;
 
+            case 'currency':
+                $vismaNetController->fetchCurrencyRates();
+                break;
+
             case 'all':
             default:
                 $vismaNetController->fetchAll();

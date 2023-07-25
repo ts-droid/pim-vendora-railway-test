@@ -16,8 +16,28 @@ class PurchaseOrderController extends Controller
         $query = $this->getQueryWithFilter(PurchaseOrder::class, $filter);
 
         $orders = $query->with('lines')->get();
+        $orders = $orders->toArray();
 
-        return ApiResponseController::success($orders->toArray());
+        // Convert results to requested currency
+        $convertToCurrency = $request->get('convert_to_currency', '');
+        if ($convertToCurrency) {
+
+            $currencyConverter = new CurrencyConvertController();
+
+            foreach ($orders as &$order) {
+                // Convert main order
+                $currencyConverter->convertArray($order, ['amount'], 'SEK', $convertToCurrency, $order['date']);
+
+                // Convert order lines
+                if ($order['lines']) {
+                    foreach ($order['lines'] as &$line) {
+                        $currencyConverter->convertArray($line, ['unit_cost', 'amount'], 'SEK', $convertToCurrency, $order['date']);
+                    }
+                }
+            }
+        }
+
+        return ApiResponseController::success($orders);
     }
 
     public function store(Request $request)

@@ -16,8 +16,29 @@ class CustomerInvoiceController extends Controller
         $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
 
         $invoices = $query->with('customer', 'lines')->get();
+        $invoices = $invoices->toArray();
 
-        return ApiResponseController::success($invoices->toArray());
+        // Convert results to requested currency
+        $convertToCurrency = $request->get('convert_to_currency', '');
+        if ($convertToCurrency) {
+
+            $currencyConverter = new CurrencyConvertController();
+
+            foreach ($invoices as &$invoice) {
+                // Convert main invoice
+                $currencyConverter->convertArray($invoice, ['amount'], 'SEK', $convertToCurrency, $invoice['date']);
+
+                // Convert invoice lines
+                if ($invoice['lines']) {
+                    foreach ($invoice['lines'] as &$line) {
+                        $currencyConverter->convertArray($line, ['unit_price', 'amount', 'cost'], 'SEK', $convertToCurrency, $invoice['date']);
+                    }
+                }
+            }
+
+        }
+
+        return ApiResponseController::success($invoices);
     }
 
     public function store(Request $request)

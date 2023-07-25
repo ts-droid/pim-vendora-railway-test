@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\CurrencyRate;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\InventoryReceipt;
@@ -77,7 +78,51 @@ class VismaNetController extends Controller
 
         $this->fetchInventoryReceipts();
 
-        // TODO: currency rates
+        $this->fetchCurrencyRates();
+    }
+
+    /**
+     * Fetches currency rate history from Visma.net and stores it locally
+     *
+     * @return void
+     */
+    public function fetchCurrencyRates(): void
+    {
+        $rows = $this->getPagedResult('GET', '/v2/currencyrate');
+
+        if (!$rows) {
+            return;
+        }
+
+        $currencyRateController = new CurrencyRateController();
+
+        foreach ($rows as $data) {
+            $currencyRateData = [
+                'external_id' => (string) ($data['id'] ?? ''),
+                'from_currency' => (string) ($data['fromCurrencyId'] ?? ''),
+                'to_currency' => (string) ($data['toCurrencyId'] ?? ''),
+                'type' => (string) ($data['rateType'] ?? ''),
+                'rate' => (float) ($data['rate'] ?? 0),
+                'date' => date('Y-m-d', strtotime($data['effectiveDate'] ?? '')),
+                'mult_div' => (string) ($data['multDiv'] ?? ''),
+                'rate_reciprocal' => (float) ($data['rateReciprocal'] ?? 0),
+            ];
+
+            $response = $currencyRateController->get(new Request([
+                'external_id' => $currencyRateData['external_id']
+            ]));
+            $existingCurrencyRate = ApiResponseController::getDataFromResponse($response);
+
+            if (!$existingCurrencyRate) {
+                // Create new currency rate
+                $currencyRateController->store(new Request($currencyRateData));
+            }
+            else {
+                // Update existing currency rate
+                $existingCurrencyRate = CurrencyRate::find($existingCurrencyRate[0]['id']);
+                $currencyRateController->update(new Request($currencyRateData), $existingCurrencyRate);
+            }
+        }
     }
 
     /**
