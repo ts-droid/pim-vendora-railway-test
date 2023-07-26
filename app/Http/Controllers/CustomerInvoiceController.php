@@ -21,7 +21,7 @@ class CustomerInvoiceController extends Controller
 
         $query->with('customer', 'lines')->chunkById($chunkSize, function ($invoices) {
             foreach ($invoices as $invoice) {
-                $this->invoices[] = $invoice;
+                $this->invoices[] = $invoice->toArray();
             }
         });
 
