@@ -79,7 +79,8 @@ class VismaAdminController extends Controller
 
             // Do not overwrite existing invoices
             $response = $invoiceController->get(new Request([
-                'invoice_number' => $invoiceData['invoice_number']
+                'invoice_number' => $invoiceData['invoice_number'],
+                'page_size' => 0
             ]));
             $existingInvoices = ApiResponseController::getDataFromResponse($response);
 

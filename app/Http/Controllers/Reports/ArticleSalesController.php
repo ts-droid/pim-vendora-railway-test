@@ -37,6 +37,7 @@ class ArticleSalesController extends Controller
             $response = $invoiceController->get(new Request([
                 'date' => $startDate[$i] . ',' . $endDate[$i],
                 'customer_number' => $customerController->VATNumberToCustomerNumber($customerVATNumbers),
+                'page_size' => 0
             ]));
 
             $invoices = ApiResponseController::getDataFromResponse($response);
