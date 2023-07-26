@@ -9,14 +9,21 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerInvoiceController extends Controller
 {
+    private array $invoices = [];
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(CustomerInvoice::class, $request);
 
         $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
 
-        $invoices = $query->with('customer', 'lines')->get();
-        $invoices = $invoices->toArray();
+        $chunkSize = env('DB_CHUNK_SIZE', 100);
+
+        $query->with('customer', 'lines')->chunkById($chunkSize, function ($invoices) {
+            foreach ($invoices as $invoice) {
+                $this->invoices[] = $invoice;
+            }
+        });
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
@@ -24,7 +31,7 @@ class CustomerInvoiceController extends Controller
 
             $currencyConverter = new CurrencyConvertController();
 
-            foreach ($invoices as &$invoice) {
+            foreach ($this->invoices as &$invoice) {
                 // Convert main invoice
                 $currencyConverter->convertArray($invoice, ['amount'], 'SEK', $convertToCurrency, $invoice['date']);
 
@@ -38,7 +45,7 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        return ApiResponseController::success($invoices);
+        return ApiResponseController::success($this->invoices);
     }
 
     public function store(Request $request)
