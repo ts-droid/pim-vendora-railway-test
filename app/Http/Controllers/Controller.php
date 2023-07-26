@@ -41,10 +41,10 @@ class Controller extends BaseController
                             $value = str_replace('*', '%', $value);
                         }
                         else {
-                            $value = '%' . $value . '%';
+                            $value = $value . '%';
                         }
 
-                        $filter[] = [$attribute, 'LIKE', '%' . $value . '%'];
+                        $filter[] = [$attribute, 'LIKE', $value];
                     }
                 }
             }
