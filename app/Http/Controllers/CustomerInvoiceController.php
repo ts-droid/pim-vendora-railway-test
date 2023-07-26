@@ -21,9 +21,9 @@ class CustomerInvoiceController extends Controller
 
         $invoices = $paginator->items();
         if ($invoices) {
-            array_walk($invoices, function (&$invoice) {
+            foreach ($invoices as &$invoice) {
                 $invoice->toArray();
-            });
+            }
         }
 
         // Convert results to requested currency
