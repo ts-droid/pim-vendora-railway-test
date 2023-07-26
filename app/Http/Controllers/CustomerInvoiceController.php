@@ -9,21 +9,16 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerInvoiceController extends Controller
 {
-    private array $invoices = [];
-
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(CustomerInvoice::class, $request);
 
         $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
 
-        $chunkSize = env('DB_CHUNK_SIZE', 100);
+        $paginator = $query->with('customer', 'lines')->simplePaginate($request->get('page_size', 500));
 
-        $query->with('customer', 'lines')->chunkById($chunkSize, function ($invoices) {
-            foreach ($invoices as $invoice) {
-                $this->invoices[] = $invoice->toArray();
-            }
-        });
+        $invoices = $paginator->items();
+        $invoices = array_map([$invoices[0], 'toArray'], $invoices);
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
@@ -31,7 +26,7 @@ class CustomerInvoiceController extends Controller
 
             $currencyConverter = new CurrencyConvertController();
 
-            foreach ($this->invoices as &$invoice) {
+            foreach ($invoices as &$invoice) {
                 // Convert main invoice
                 $currencyConverter->convertArray($invoice, ['amount'], 'SEK', $convertToCurrency, $invoice['date']);
 
@@ -45,7 +40,11 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        return ApiResponseController::success($this->invoices);
+        return ApiResponseController::success([
+            'invoices' => $invoices,
+            'page' => $paginator->currentPage(),
+            'next_page' => $paginator->hasMorePages() ? ($paginator->currentPage() + 1) : null,
+        ]);
     }
 
     public function store(Request $request)
