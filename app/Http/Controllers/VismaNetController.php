@@ -324,7 +324,8 @@ class VismaNetController extends Controller
                 }
 
                 $response = $invoiceController->get(new Request([
-                    'invoice_number' => $invoiceData['invoice_number']
+                    'invoice_number' => $invoiceData['invoice_number'],
+                    'page_size' => 0
                 ]));
                 $existingInvoice = ApiResponseController::getDataFromResponse($response);
 

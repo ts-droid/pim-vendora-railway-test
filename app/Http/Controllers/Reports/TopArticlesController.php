@@ -29,7 +29,8 @@ class TopArticlesController extends Controller
 
         for ($i = 0;$i < $numPeriods;$i++) {
             $response = $invoiceController->get(new Request([
-                'date' => $startDate[$i] . ',' . $endDate[$i]
+                'date' => $startDate[$i] . ',' . $endDate[$i],
+                'page_size' => 0
             ]));
 
             $invoices = ApiResponseController::getDataFromResponse($response);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CustomerInvoice;
 use App\Models\CustomerInvoiceLine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class CustomerInvoiceController extends Controller
@@ -15,10 +16,13 @@ class CustomerInvoiceController extends Controller
 
         $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
 
-        $paginator = $query->with('customer', 'lines')->simplePaginate($request->get('page_size', 500));
+        $pageSize = $request->get('page_size', 5000);
+        $paginator = $query->with('customer', 'lines')->simplePaginate($pageSize ?: 1_000_000);
 
         $invoices = $paginator->items();
-        $invoices = array_map([$invoices[0], 'toArray'], $invoices);
+        if ($invoices) {
+            $invoices = array_map([$invoices[0], 'toArray'], $invoices);
+        }
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');

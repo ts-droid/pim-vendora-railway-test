@@ -28,6 +28,11 @@ class ApiResponseController extends Controller
     public static function getDataFromResponse($response)
     {
         $response = json_decode($response->content(), true);
+
+        if (isset($response['data']['results']) && is_array($response['data']['results'])) {
+            return $response['data']['results'];
+        }
+
         return $response['data'];
     }
 }

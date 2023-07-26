@@ -31,6 +31,10 @@ class FetchVismaNet extends Command
         $vismaNetController = new VismaNetController();
 
         switch ($type) {
+            case 'invoices':
+                $vismaNetController->fetchCustomerInvoices();
+                break;
+
             case 'suppliers':
                 $vismaNetController->fetchSuppliers();
                 break;
