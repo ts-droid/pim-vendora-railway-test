@@ -41,7 +41,7 @@ class CustomerInvoiceController extends Controller
         }
 
         return ApiResponseController::success([
-            'invoices' => $invoices,
+            'results' => $invoices,
             'page' => $paginator->currentPage(),
             'next_page' => $paginator->hasMorePages() ? ($paginator->currentPage() + 1) : null,
         ]);
