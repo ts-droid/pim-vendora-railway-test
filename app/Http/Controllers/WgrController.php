@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Article;
+use Illuminate\Http\Request;
+
+class WgrController extends Controller
+{
+    private string $apiDomain;
+
+    private string $apiUsername;
+
+    private string $apiPassword;
+
+    function __construct()
+    {
+        $this->apiDomain = env('WGR_API_DOMAIN', '');
+        $this->apiUsername = env('WGR_API_USERNAME', '');
+        $this->apiPassword = env('WGR_API_PASSWORD', '');
+    }
+
+    /**
+     * Fetches all data from the WGR API
+     *
+     * @return void
+     */
+    public function fetchAll(): void
+    {
+        $this->fetchProductData();
+    }
+
+    /**
+     * Fetches product data from the WGR API
+     *
+     * @param string $updatedAfter
+     * @return void
+     */
+    public function fetchProductData(string $updatedAfter = ''): void
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [
+            'getImages' => true,
+        ];
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('wgr_last_article_fetch');
+
+        if ($updatedAfter) {
+            $params['updatedFrom'] = $updatedAfter;
+        }
+
+        $products = $this->makeRequest('Article.get', $params);
+        $products = $products[0]['result'] ?? [];
+
+        $articleController = new ArticleController();
+
+        foreach ($products as $productData) {
+            $articleNumber = $productData['articleNumber'] ?? '';
+
+            $article = Article::where('article_number', $articleNumber)->first();
+
+            if (!$article) {
+                continue;
+            }
+
+            // Fetch article data from API response
+            $articleData = [
+                'video' => $productData['embedVideo'] ?? '',
+                'images' => []
+            ];
+
+            // Currency fields
+            foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
+                $articleData['rek_price_' . $currency] = $productData['price_' . $currency] ?? 0;
+            }
+
+            // Language fields
+            foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+                $articleData['shop_title_' . $language] = $productData['title_' . $language] ?? '';
+                $articleData['shop_description_' . $language] = $productData['description_' . $language] ?? '';
+            }
+
+            // Images
+            foreach (($productData['images'] ?? []) as $image) {
+                $articleData['images'][] = $this->apiDomain . '/images/' . ($image['isZoomable'] ? 'zoom' : 'normal') . '/' . $image['filename'];
+            }
+
+            // Update the article
+            $articleController->update(new Request($articleData), $article);
+        }
+
+        ConfigController::setConfigs(['wgr_last_article_fetch' => $fetchTime]);
+    }
+
+
+    /**
+     * Makes a request to the WGR API and returns the result
+     *
+     * @param string $method
+     * @param array $params
+     * @return array
+     */
+    public function makeRequest(string $method, array $params = []): array
+    {
+        $request = [
+            [
+                'jsonrpc' => '2.0',
+                'method' => $method,
+                'params' => $params
+            ]
+        ];
+
+        $requestBody = json_encode($request);
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->apiDomain . '/api/v1/');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_USERPWD, $this->apiUsername . ':' . $this->apiPassword);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $requestBody);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        list($responseHeaders, $responseBody) = explode("\r\n\r\n", $response, 2);
+
+        $responseData = json_decode($responseBody, true);
+
+        return is_array($responseData) ? $responseData : [];
+    }
+}

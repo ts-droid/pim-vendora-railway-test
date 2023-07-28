@@ -51,6 +51,8 @@ Route::prefix('/v1')->middleware(['api.key'])->group(function() {
         Route::get('/', [ArticleController::class, 'get'])->name('articles.get');
         Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
         Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
+
+        Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
     });
 
     Route::prefix('/customer-invoices')->group(function() {
