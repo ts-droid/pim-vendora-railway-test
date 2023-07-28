@@ -40,6 +40,10 @@ class CustomerInvoiceController extends Controller
                 if ($invoice['lines']) {
                     foreach ($invoice['lines'] as &$line) {
                         $currencyConverter->convertArray($line, ['unit_price', 'amount', 'cost'], 'SEK', $convertToCurrency, $invoice['date']);
+
+                        if ($line['article'] ?? null) {
+                            $currencyConverter->convertArray($line['article'], ['cost_price_avg', 'external_cost'], 'SEK', $convertToCurrency, date('Y-m-d'));
+                        }
                     }
                 }
             }

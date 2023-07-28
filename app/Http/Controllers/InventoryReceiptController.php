@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\InventoryReceiptUpdated;
 use App\Models\InventoryReceipt;
 use App\Models\InventoryReceiptLine;
 use Illuminate\Http\Request;
@@ -57,6 +58,11 @@ class InventoryReceiptController extends Controller
             ]);
         }
 
+        // Dispatch updated event
+        InventoryReceiptUpdated::dispatch(
+            InventoryReceipt::find($receipt->id)
+        );
+
         return ApiResponseController::success($receipt->toArray());
     }
 
@@ -91,6 +97,11 @@ class InventoryReceiptController extends Controller
                 $receiptLine->save();
             }
         }
+
+        // Dispatch updated event
+        InventoryReceiptUpdated::dispatch(
+            InventoryReceipt::find($receipt->id)
+        );
 
         return ApiResponseController::success($receipt->toArray());
     }

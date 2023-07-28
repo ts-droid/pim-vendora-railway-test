@@ -17,6 +17,7 @@ class Article extends Model
         'wright_article_number',
         'supplier_number',
         'cost_price_avg',
+        'external_cost',
         'stock',
         'hs_code',
         'origin_country',
