@@ -29,8 +29,8 @@ class Controller extends BaseController
                     $filter[] = [$attribute, '<=', $date2];
                 }
                 else {
-                    if (is_array($value)) {
-                        $filter[] = [$attribute, $value];
+                    if (str_contains($value, ',')) {
+                        $filter[] = [$attribute, explode(',', $value)];
                     }
                     else {
                         if (str_contains($value, '*')) {
