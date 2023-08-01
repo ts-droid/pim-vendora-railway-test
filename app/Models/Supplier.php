@@ -19,5 +19,6 @@ class Supplier extends Model
         'credit_terms_description',
         'currency',
         'language',
+        'is_supplier',
     ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -43,6 +44,7 @@ class SupplierController extends Controller
             'credit_terms_description' => ($request->credit_terms_description ?? ''),
             'currency' => ($request->currency ?? ''),
             'language' => ($request->language ?? ''),
+            'is_supplier' => (int) ($request->is_supplier ?? 0),
         ]);
 
         return ApiResponseController::success([$supplier->toArray()]);
@@ -61,5 +63,25 @@ class SupplierController extends Controller
         $supplier->save();
 
         return ApiResponseController::success([$supplier->toArray()]);
+    }
+
+    public function markSuppliers()
+    {
+        $suppliers = Supplier::all();
+
+        if (!$suppliers) {
+            return;
+        }
+
+        foreach ($suppliers as $supplier) {
+
+            $hasArticles = Article::where('supplier_number', '=', $supplier->number)
+                ->where('is_webshop', '=', 1)
+                ->exists();
+
+            $isSupplier = $hasArticles ? 1 : 0;
+
+            $this->update(new Request(['is_supplier' => $isSupplier]), $supplier);
+        }
     }
 }
