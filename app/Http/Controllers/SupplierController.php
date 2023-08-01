@@ -78,7 +78,7 @@ class SupplierController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $supplierIDs = explode(',', $request->id);
+        $supplierIDs = $request->id;
 
         for ($i = 0;$i < count($supplierIDs);$i++) {
             $supplier = Supplier::find($supplierIDs[$i]);
