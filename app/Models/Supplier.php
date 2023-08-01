@@ -15,6 +15,7 @@ class Supplier extends Model
         'vat_number',
         'org_number',
         'name',
+        'brand_name',
         'class_description',
         'credit_terms_description',
         'currency',
