@@ -40,6 +40,7 @@ class SupplierController extends Controller
             'vat_number' => ($request->vat_number ?? ''),
             'org_number' => ($request->org_number ?? ''),
             'name' => $request->name,
+            'brand_name' => ($request->brand_name ?? ''),
             'class_description' => ($request->class_description ?? ''),
             'credit_terms_description' => ($request->credit_terms_description ?? ''),
             'currency' => ($request->currency ?? ''),
@@ -63,6 +64,44 @@ class SupplierController extends Controller
         $supplier->save();
 
         return ApiResponseController::success([$supplier->toArray()]);
+    }
+
+    public function updateMany(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $supplierIDs = explode(',', $request->id);
+
+        for ($i = 0;$i < count($supplierIDs);$i++) {
+            $supplier = Supplier::find($supplierIDs[$i]);
+
+            if (!$supplier) {
+                continue;
+            }
+
+            $updateData = [];
+
+            $fillables = (new Supplier)->getFillable();
+            foreach ($request->all() as $key => $value) {
+                if (in_array($key, $fillables)) {
+                    $value = explode(',', $value);
+
+                    $updateData[$key] = $value[$i] ?? $value[0];
+                }
+            }
+
+            $supplier->update(new Request($updateData), $supplier);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function markSuppliers()
