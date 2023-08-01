@@ -26,7 +26,7 @@ class CustomerController extends Controller
             'customer_number' => 'required|string',
             'vat_number' => 'required|string',
             'org_number' => 'required|string',
-            'name' => 'required|string'
+            'name' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -40,7 +40,8 @@ class CustomerController extends Controller
             'customer_number' => $request->customer_number,
             'vat_number' => $request->vat_number,
             'org_number' => $request->org_number,
-            'name' => $request->name
+            'name' => $request->name,
+            'country' => (string) ($request->country ?? '')
         ]);
 
         return ApiResponseController::success([$customer->toArray()]);

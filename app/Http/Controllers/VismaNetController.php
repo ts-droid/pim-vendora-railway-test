@@ -652,6 +652,7 @@ class VismaNetController extends Controller
                     'vat_number' => (string) ($customer['vatRegistrationId'] ?? ''),
                     'org_number' => (string) ($customer['corporateId'] ?? ''),
                     'name' => (string) ($customer['name'] ?? ''),
+                    'country' => (string) ($customer['mainAddress']['country']['name'] ?? '')
                 ];
 
                 // Require vat number to fetch
