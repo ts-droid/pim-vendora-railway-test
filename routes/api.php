@@ -44,8 +44,8 @@ Route::prefix('/v1')->middleware(['api.key'])->group(function() {
     Route::prefix('/suppliers')->group(function() {
         Route::get('/', [SupplierController::class, 'get'])->name('suppliers.get');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
-        Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
+        Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
     });
 
     Route::prefix('/articles')->group(function() {
