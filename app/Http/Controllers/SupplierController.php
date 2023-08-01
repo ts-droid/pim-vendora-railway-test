@@ -92,13 +92,11 @@ class SupplierController extends Controller
             $fillables = (new Supplier)->getFillable();
             foreach ($request->all() as $key => $value) {
                 if (in_array($key, $fillables)) {
-                    $value = explode(',', $value);
-
                     $updateData[$key] = $value[$i] ?? $value[0];
                 }
             }
 
-            $supplier->update(new Request($updateData), $supplier);
+            $this->update(new Request($updateData), $supplier);
         }
 
         return ApiResponseController::success();
