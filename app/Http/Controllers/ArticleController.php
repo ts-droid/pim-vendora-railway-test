@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
@@ -17,6 +19,15 @@ class ArticleController extends Controller
         $articles = $query->with('stock_logs')->get();
 
         return ApiResponseController::success($articles->toArray());
+    }
+
+    public function getImages(Request $request, Article $article)
+    {
+        $images = ArticleImage::where('article_id', $article->id)
+            ->orderBy('list_order', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($images->toArray());
     }
 
     public function store(Request $request)
@@ -85,6 +96,53 @@ class ArticleController extends Controller
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
 
+        // Upload images
+        if (isset($request->images) && is_array($request->images)) {
+            $listOrder = 0;
+
+            foreach ($request->images as $imageURL) {
+                $this->uploadArticleImage($article, $imageURL, $listOrder++);
+            }
+        }
+
         return ApiResponseController::success([$article->toArray()]);
+    }
+
+    public function uploadArticleImage(Article $article, string $url, int $listOrder = 0): void
+    {
+        // Extract the filename from the URL
+        $path = parse_url(trim($url), PHP_URL_PATH);
+        $filename = $article->id . basename($path);
+
+        // Remove existing image with the same filename
+        $existingImage = ArticleImage::where('filename', $filename)
+            ->where('article_id', $article->id)
+            ->first();
+
+        if ($existingImage) {
+            $this->deleteArticleImage($existingImage);
+        }
+
+        // Fetch the image from the URL
+        $imageContent = file_get_contents($url);
+
+        // Save the image to the storage
+        Storage::disk('public')->put($filename, $imageContent);
+
+        // Save the image int the database
+        ArticleImage::create([
+            'article_id' => $article->id,
+            'filename' => $filename,
+            'path_url' => 'storage/' . $filename,
+            'size' => Storage::disk('public')->size($filename),
+            'list_order' => $listOrder
+        ]);
+    }
+
+    public function deleteArticleImage(ArticleImage $articleImage): void
+    {
+        Storage::disk('public')->delete($articleImage->filename);
+
+        $articleImage->delete();
     }
 }

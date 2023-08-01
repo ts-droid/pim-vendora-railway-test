@@ -483,6 +483,11 @@ class VismaNetController extends Controller
 
                 if (!$existingArticles) {
                     // Create new article
+
+                    foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+                        $articleData['shop_title_' .  $language] = $articleData['description'];
+                    }
+
                     $articleController->store(new Request($articleData));
                 }
                 else {
