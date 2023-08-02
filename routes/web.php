@@ -18,14 +18,6 @@ Route::get('/', function () {
 });
 
 Route::prefix('/visma')->group(function() {
-    Route::get('/test', function() {
-        $vismaController = new \App\Http\Controllers\VismaNetController();
-
-        $vismaController->fetchSuppliers('2023-01-01 00:00:00');
-
-        die();
-    });
-
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
 
