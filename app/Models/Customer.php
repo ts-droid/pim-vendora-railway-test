@@ -14,6 +14,7 @@ class Customer extends Model
         'customer_number',
         'vat_number',
         'org_number',
-        'name'
+        'name',
+        'country'
     ];
 }
