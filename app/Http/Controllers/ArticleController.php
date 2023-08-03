@@ -114,6 +114,13 @@ class ArticleController extends Controller
         $path = parse_url(trim($url), PHP_URL_PATH);
         $filename = $article->id . basename($path);
 
+		// Fetch the image from the URL
+		$imageContent = @file_get_contents($url);
+
+		if (!$imageContent) {
+			return;
+		}
+
         // Remove existing image with the same filename
         $existingImage = ArticleImage::where('filename', $filename)
             ->where('article_id', $article->id)
@@ -122,9 +129,6 @@ class ArticleController extends Controller
         if ($existingImage) {
             $this->deleteArticleImage($existingImage);
         }
-
-        // Fetch the image from the URL
-        $imageContent = file_get_contents($url);
 
         // Save the image to the storage
         Storage::disk('public')->put($filename, $imageContent);
