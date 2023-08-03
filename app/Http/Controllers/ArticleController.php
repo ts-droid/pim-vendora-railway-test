@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ArticleImage;
+use App\Models\Customer;
+use App\Models\CustomerInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -149,4 +151,37 @@ class ArticleController extends Controller
 
         $articleImage->delete();
     }
+
+	public function getRetailers(Request $request, Article $article)
+	{
+		$days = (int) $request->get('days', 60);
+
+		// Fetch invoices within the period
+		$invoices = CustomerInvoice::where('date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+			->get();
+
+		if (!$invoices) {
+			return ApiResponseController::success([]);
+		}
+
+		$retailers = [];
+
+		foreach ($invoices as $invoice) {
+			foreach ($invoice->lines as $invoiceLine) {
+				if ($invoiceLine->article_number == $article->article_number) {
+					// Matching article found, this customer is a retailer
+
+					$customer = Customer::where('customer_number', $invoice->customer_number)->first();
+
+					if ($customer) {
+						$retailers[] = $customer->toArray();
+					}
+
+					continue 2;
+				}
+			}
+		}
+
+		return ApiResponseController::success($retailers);
+	}
 }
