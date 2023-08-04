@@ -15,6 +15,9 @@ class Customer extends Model
         'vat_number',
         'org_number',
         'name',
-        'country'
+        'country',
+        'shop_url',
+        'logo_path',
+        'logo_url'
     ];
 }
