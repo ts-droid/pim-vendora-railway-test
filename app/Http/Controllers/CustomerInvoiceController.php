@@ -169,35 +169,6 @@ class CustomerInvoiceController extends Controller
             $whereQuery = 'WHERE ' . $whereQuery;
         }
 
-        $invoices = DB::select(
-            'SELECT ci.*
-            FROM customer_invoices AS ci
-            ' . $whereQuery . '
-            ORDER BY ci.date DESC
-            LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
-        );
-
-        $salesPersons = DB::select(
-            'SELECT *
-            FROM sales_people'
-        );
-
-        // Set invoice ID as array key and filter out data from invoices
-        $invoiceIDs = [];
-        $customerNumbers = [];
-
-        $newInvoices = [];
-        foreach ($invoices as $invoice) {
-            $invoice = (array) $invoice;
-            $newInvoices[$invoice['id']] = $invoice;
-
-            $invoiceIDs[] = $invoice['id'];
-            $customerNumbers[] = $invoice['customer_number'];
-        }
-        $invoices = $newInvoices;
-
-
-        // Fetch and add invoices lines to invoices
         $articleFields = [];
         $articleFillables = (new Article)->getFillable();
         foreach ($articleFillables as $articleFillable) {
@@ -218,38 +189,62 @@ class CustomerInvoiceController extends Controller
             $supplierFields[] = $supplierFillable;
         }
 
-        // article_number (article_number)
+        $invoices = DB::select(
+            'SELECT ci.*
+            FROM customer_invoices AS ci
+            ' . $whereQuery . '
+            ORDER BY ci.date DESC
+            LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
+        );
+
+        $salesPersons = DB::select(
+            'SELECT *
+            FROM sales_people'
+        );
+
         $articles = DB::select(
             'SELECT ' . implode(',', $articleFields) . '
             FROM articles'
         );
 
-        $newArticles = [];
-        foreach ($articles as $article) {
-            $article = (array) $article;
-            $newArticles[$article['article_number']] = $article;
-        }
-        $articles = $newArticles;
-
-        // number (supplier_number)
         $suppliers = DB::select(
             'SELECT ' . implode(',', $supplierFields) . '
             FROM suppliers'
         );
 
-        $newSuppliers = [];
-        foreach ($suppliers as $supplier) {
-            $supplier = (array) $supplier;
-            $newSuppliers[$supplier['number']] = $supplier;
-        }
-        $suppliers = $newSuppliers;
-
-        $invoicesLines = DB::select(
+        $customers = DB::select(
             'SELECT *
-            FROM customer_invoice_lines
-            WHERE customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
+            FROM customers'
         );
 
+        $invoices = $this->setValueAsKey($invoices, 'id');
+        $articles = $this->setValueAsKey($articles, 'article_number');
+        $suppliers = $this->setValueAsKey($suppliers, 'number');
+        $customers = $this->setValueAsKey($customers, 'customer_number');
+
+
+        // Store invoiceID's in a temporary table
+        $invoiceIDs = array_keys($invoices);
+
+        $tmpTableName = 'temporary_ids_' . time();
+
+        DB::statement('CREATE TEMPORARY TABLE ' . $tmpTableName . ' (id INT NOT NULL, PRIMARY KEY (id))');
+
+        foreach ($invoiceIDs as $invoiceID) {
+            DB::table($tmpTableName)->insert(['id' => $invoiceID]);
+        }
+
+        // Fetch the relevant invoice lines
+        $invoicesLines = DB::select(
+            'SELECT cil.*
+            FROM customer_invoice_lines AS cil
+            INNER JOIN ' . $tmpTableName . ' AS tmp ON tmp.id = cil.customer_invoice_id'
+        );
+
+        // Drop the temporary table
+        DB::statement('DROP TEMPORARY TABLE ' . $tmpTableName);
+
+        // Connect data to the invoice lines
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
 
@@ -273,21 +268,7 @@ class CustomerInvoiceController extends Controller
             $invoices[$invoicesLine['customer_invoice_id']]['lines'][] = $invoicesLine;
         }
 
-
-        // Fetch and add customers to invoices
-        $customers = DB::select(
-            'SELECT *
-            FROM customers
-            WHERE customer_number IN (\'' . implode('\',\'', $customerNumbers) . '\')'
-        );
-
-        $newCustomers = [];
-        foreach ($customers as $customer) {
-            $customer = (array) $customer;
-            $newCustomers[$customer['customer_number']] = $customer;
-        }
-        $customers = $newCustomers;
-
+        // Connect customers to the invoices
         foreach ($invoices as &$invoice) {
             $invoice['customer'] = $customers[$invoice['customer_number']] ?? null;
         }
@@ -297,5 +278,18 @@ class CustomerInvoiceController extends Controller
         $invoices = array_values($invoices);
 
         return $invoices;
+    }
+
+
+    private function setValueAsKey(array $array, string $key)
+    {
+        $newArray = [];
+
+        foreach ($array as $item) {
+            $item = (array) $item;
+            $newArray[$item[$key]] = $item;
+        }
+
+        return $newArray;
     }
 }
