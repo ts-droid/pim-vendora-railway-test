@@ -12,7 +12,10 @@ class CustomerInvoiceController extends Controller
 {
     public function get(Request $request)
     {
-        $invoices = $this->getRows($request);
+        $page = (int) $request->get('page', 1);
+        $pageSize = (int) $request->get('page_size', 1000);
+
+        $invoices = $this->getRows($request, $page, $pageSize);
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
@@ -38,7 +41,10 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        return ApiResponseController::success($invoices);
+        return ApiResponseController::success([
+            'results' => $invoices,
+            'next_page' => ((count($invoices) == $pageSize) ? ($page + 1) : null),
+        ]);
     }
 
     public function store(Request $request)
@@ -123,7 +129,7 @@ class CustomerInvoiceController extends Controller
         return ApiResponseController::success([$invoice->toArray()]);
     }
 
-    private function getRows(Request $request)
+    private function getRows(Request $request, int $page, int $pageSize)
     {
         $whereQuery = '';
 
@@ -164,18 +170,13 @@ class CustomerInvoiceController extends Controller
             'SELECT ci.*
             FROM customer_invoices AS ci
             ' . $whereQuery . '
-            ORDER BY ci.date DESC'
-        );
-
-        $invoicesLines = DB::select(
-            'SELECT cil.*
-            FROM customer_invoices AS ci
-            LEFT JOIN customer_invoice_lines AS cil ON cil.customer_invoice_id = ci.id
-            ' . $whereQuery
+            ORDER BY ci.date DESC
+            LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
         );
 
 
-        // Set invoice ID as array key and filter out customer numbers
+        // Set invoice ID as array key and filter out data from invoices
+        $invoiceIDs = [];
         $customerNumbers = [];
 
         $newInvoices = [];
@@ -183,12 +184,19 @@ class CustomerInvoiceController extends Controller
             $invoice = (array) $invoice;
             $newInvoices[$invoice['id']] = $invoice;
 
+            $invoiceIDs[] = $invoice['id'];
             $customerNumbers[] = $invoice['customer_number'];
         }
         $invoices = $newInvoices;
 
 
-        // Add invoices lines to invoices
+        // Fetch and add invoices lines to invoices
+        $invoicesLines = DB::select(
+            'SELECT *
+            FROM customer_invoice_lines
+            WHERE customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
+        );
+
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
 
