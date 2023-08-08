@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\CustomerInvoice;
 use App\Models\CustomerInvoiceLine;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -43,6 +45,7 @@ class CustomerInvoiceController extends Controller
 
         return ApiResponseController::success([
             'results' => $invoices,
+            'page' => $page,
             'next_page' => ((count($invoices) == $pageSize) ? ($page + 1) : null),
         ]);
     }
@@ -174,6 +177,10 @@ class CustomerInvoiceController extends Controller
             LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
         );
 
+        $salesPersons = DB::select(
+            'SELECT *
+            FROM sales_people'
+        );
 
         // Set invoice ID as array key and filter out data from invoices
         $invoiceIDs = [];
@@ -191,14 +198,53 @@ class CustomerInvoiceController extends Controller
 
 
         // Fetch and add invoices lines to invoices
+        $articleFields = (new Article)->getFillable();
+        foreach ($articleFields as &$articleField) {
+            $articleField = 'a.' . $articleField . ' AS a_' . $articleField;
+        }
+
+        $supplierFields = (new Supplier)->getFillable();
+        foreach ($supplierFields as &$supplierField) {
+            $supplierField = 's.' . $supplierField . ' AS s_' . $supplierField;
+        }
+
         $invoicesLines = DB::select(
-            'SELECT *
-            FROM customer_invoice_lines
-            WHERE customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
+            'SELECT cil.*,
+                ' . implode(',', $articleFields) . ',
+                ' . implode(',', $supplierFields) . '
+            FROM customer_invoice_lines AS cil
+            LEFT JOIN articles AS a ON a.article_number = cil.article_number
+            LEFT JOIN suppliers AS s ON s.number = a.supplier_number
+            WHERE cil.customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
         );
 
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
+
+            //$invoicesLine['sales_person_id'];
+
+            $invoicesLine['article'] = [];
+            $invoicesLine['supplier'] = [];
+            $invoicesLine['sales_person'] = null;
+
+            foreach ($invoicesLine as $key => $value) {
+               if (str_starts_with($key, 'a_')) {
+                   $invoicesLine['article'][substr($key, 2)] = $value;
+                   unset($invoicesLine[$key]);
+               }
+
+               if (str_starts_with($key, 's_')) {
+                   $invoicesLine['supplier'][substr($key, 2)] = $value;
+                   unset($invoicesLine[$key]);
+               }
+            }
+
+            foreach ($salesPersons as $salesPerson) {
+                if ($invoicesLine['sales_person_id'] == $salesPerson->external_id) {
+                    $invoicesLine['sales_person'] = (array) $salesPerson;
+                    break;
+                }
+            }
 
             $invoice = $invoices[$invoicesLine['customer_invoice_id']];
 
