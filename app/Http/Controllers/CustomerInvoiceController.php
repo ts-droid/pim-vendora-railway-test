@@ -229,7 +229,7 @@ class CustomerInvoiceController extends Controller
             $invoicesLine = (array) $invoicesLine;
 
             $invoicesLine['article'] = [];
-            $invoicesLine['supplier'] = [];
+            $invoicesLine['article']['supplier'] = [];
             $invoicesLine['sales_person'] = null;
 
             foreach ($invoicesLine as $key => $value) {
@@ -239,7 +239,7 @@ class CustomerInvoiceController extends Controller
                }
 
                if (str_starts_with($key, 's_')) {
-                   $invoicesLine['supplier'][substr($key, 2)] = $value;
+                   $invoicesLine['article']['supplier'][substr($key, 2)] = $value;
                    unset($invoicesLine[$key]);
                }
             }
