@@ -25,11 +25,12 @@ class ArticleController extends Controller
 
             $newArticles = [];
             foreach ($articles as $article) {
-                $newArticle = new \stdClass();
+                $article = $article->toArray();
+                $newArticle = [];
 
                 foreach ($fields as $field) {
-                    if (isset($article->{$field})) {
-                        $newArticle->{$field} = $article->{$field};
+                    if (isset($article[$field])) {
+                        $newArticle[$field] = $article[$field];
                     }
                 }
 
@@ -37,8 +38,11 @@ class ArticleController extends Controller
             }
             $articles = $newArticles;
         }
+        else {
+            $articles->toArray();
+        }
 
-        return ApiResponseController::success($articles->toArray());
+        return ApiResponseController::success($articles);
     }
 
     public function getImages(Request $request, Article $article)
