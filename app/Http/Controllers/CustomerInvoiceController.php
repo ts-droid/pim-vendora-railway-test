@@ -38,7 +38,7 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        return ApiResponseController::success([$invoices]);
+        return ApiResponseController::success($invoices);
     }
 
     public function store(Request $request)
