@@ -198,51 +198,64 @@ class CustomerInvoiceController extends Controller
 
 
         // Fetch and add invoices lines to invoices
-        $articleFields = (new Article)->getFillable();
-        foreach ($articleFields as &$articleField) {
-            if (str_contains($articleField, 'shop_description')
-                || str_contains($articleField, 'shop_title')
-                || str_contains($articleField, 'width')
-                || str_contains($articleField, 'height')
-                || str_contains($articleField, 'depth')) {
+        $articleFields = [];
+        $articleFillables = (new Article)->getFillable();
+        foreach ($articleFillables as $articleFillable) {
+            if (str_contains($articleFillable, 'shop_description')
+                || str_contains($articleFillable, 'shop_title')
+                || str_contains($articleFillable, 'width')
+                || str_contains($articleFillable, 'height')
+                || str_contains($articleFillable, 'depth')) {
                 continue;
             }
-            $articleField = 'a.' . $articleField . ' AS a_' . $articleField;
+
+            $articleFields[] = $articleFillable;
         }
 
-        $supplierFields = (new Supplier)->getFillable();
-        foreach ($supplierFields as &$supplierField) {
-            $supplierField = 's.' . $supplierField . ' AS s_' . $supplierField;
+        $supplierFields = [];
+        $supplierFillables = (new Supplier)->getFillable();
+        foreach ($supplierFillables as $supplierFillable) {
+            $supplierFields[] = $supplierFillable;
         }
+
+        // article_number (article_number)
+        $articles = DB::select(
+            'SELECT ' . implode(',', $articleFields) . '
+            FROM articles'
+        );
+
+        $newArticles = [];
+        foreach ($articles as $article) {
+            $article = (array) $article;
+            $newArticles[$article['article_number']] = $article;
+        }
+        $articles = $newArticles;
+
+        // number (supplier_number)
+        $suppliers = DB::select(
+            'SELECT ' . implode(',', $supplierFields) . '
+            FROM suppliers'
+        );
+
+        $newSuppliers = [];
+        foreach ($suppliers as $supplier) {
+            $supplier = (array) $supplier;
+            $newSuppliers[$supplier['number']] = $supplier;
+        }
+        $suppliers = $newSuppliers;
 
         $invoicesLines = DB::select(
-            'SELECT cil.*,
-                ' . implode(',', $articleFields) . ',
-                ' . implode(',', $supplierFields) . '
-            FROM customer_invoice_lines AS cil
-            LEFT JOIN articles AS a ON a.article_number = cil.article_number
-            LEFT JOIN suppliers AS s ON s.number = a.supplier_number
-            WHERE cil.customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
+            'SELECT *
+            FROM customer_invoice_lines
+            WHERE customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
         );
 
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
 
-            $invoicesLine['article'] = [];
-            $invoicesLine['article']['supplier'] = [];
+            $invoicesLine['article'] = $articles[$invoicesLine['article_number']] ?? null;
+            $invoicesLine['article']['supplier'] = $suppliers[$invoicesLine['article']['supplier_number'] ?? ''] ?? null;
             $invoicesLine['sales_person'] = null;
-
-            foreach ($invoicesLine as $key => $value) {
-               if (str_starts_with($key, 'a_')) {
-                   $invoicesLine['article'][substr($key, 2)] = $value;
-                   unset($invoicesLine[$key]);
-               }
-
-               if (str_starts_with($key, 's_')) {
-                   $invoicesLine['article']['supplier'][substr($key, 2)] = $value;
-                   unset($invoicesLine[$key]);
-               }
-            }
 
             foreach ($salesPersons as $salesPerson) {
                 if ($invoicesLine['sales_person_id'] == $salesPerson->external_id) {
