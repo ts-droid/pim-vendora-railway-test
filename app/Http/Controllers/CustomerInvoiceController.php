@@ -12,19 +12,7 @@ class CustomerInvoiceController extends Controller
 {
     public function get(Request $request)
     {
-        $filter = $this->getModelFilter(CustomerInvoice::class, $request);
-
-        $query = $this->getQueryWithFilter(CustomerInvoice::class, $filter);
-
-        $pageSize = $request->get('page_size', 5000);
-        $paginator = $query->with('customer', 'lines')->simplePaginate($pageSize ?: 1_000_000);
-
-        $invoices = $paginator->items();
-        if ($invoices) {
-            array_walk($invoices, function (&$invoice) {
-                $invoice = $invoice->toArray();
-            });
-        }
+        $invoices = $this->getRows($request);
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
@@ -50,11 +38,7 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        return ApiResponseController::success([
-            'results' => $invoices,
-            'page' => $paginator->currentPage(),
-            'next_page' => $paginator->hasMorePages() ? ($paginator->currentPage() + 1) : null,
-        ]);
+        return ApiResponseController::success([$invoices]);
     }
 
     public function store(Request $request)
@@ -137,5 +121,109 @@ class CustomerInvoiceController extends Controller
         }
 
         return ApiResponseController::success([$invoice->toArray()]);
+    }
+
+    private function getRows(Request $request)
+    {
+        $whereQuery = '';
+
+        // Date filter
+        if ($request->has('date')) {
+            $date = $request->get('date');
+
+            if (str_contains($date, ',')) {
+                list($date1, $date2) = explode(',', $date);
+
+                $whereQuery .= ' AND ci.date BETWEEN \'' . $date1 . '\' AND \'' . $date2 . '\'';
+            }
+            else {
+                $whereQuery .= ' AND ci.date = \'' . $date . '\'';
+            }
+        }
+
+        // Customer number filter
+        if ($request->has('customer_number')) {
+            $customerNumber = $request->get('customer_number');
+
+            if (str_contains($customerNumber, ',')) {
+                $customerNumbers = explode(',', $customerNumber);
+
+                $whereQuery .= ' AND ci.customer_number IN (\'' . implode('\',\'', $customerNumbers) . '\')';
+            }
+            else {
+                $whereQuery .= ' AND ci.customer_number = \'' . $customerNumber . '\'';
+            }
+        }
+
+        if ($whereQuery) {
+            $whereQuery = substr($whereQuery, 5);
+            $whereQuery = 'WHERE ' . $whereQuery;
+        }
+
+        $invoices = DB::select(
+            'SELECT ci.*
+            FROM customer_invoices AS ci
+            ' . $whereQuery . '
+            ORDER BY ci.date DESC'
+        );
+
+        $invoicesLines = DB::select(
+            'SELECT cil.*
+            FROM customer_invoices AS ci
+            LEFT JOIN customer_invoice_lines AS cil ON cil.customer_invoice_id = ci.id
+            ' . $whereQuery
+        );
+
+
+        // Set invoice ID as array key and filter out customer numbers
+        $customerNumbers = [];
+
+        $newInvoices = [];
+        foreach ($invoices as $invoice) {
+            $invoice = (array) $invoice;
+            $newInvoices[$invoice['id']] = $invoice;
+
+            $customerNumbers[] = $invoice['customer_number'];
+        }
+        $invoices = $newInvoices;
+
+
+        // Add invoices lines to invoices
+        foreach ($invoicesLines as $invoicesLine) {
+            $invoicesLine = (array) $invoicesLine;
+
+            $invoice = $invoices[$invoicesLine['customer_invoice_id']];
+
+            if (!isset($invoice['lines'])) {
+                $invoice['lines'] = [];
+            }
+
+            $invoices[$invoicesLine['customer_invoice_id']]['lines'][] = $invoicesLine;
+        }
+
+
+        // Fetch and add customers to invoices
+        $customers = DB::select(
+            'SELECT *
+            FROM customers
+            WHERE customer_number IN (\'' . implode('\',\'', $customerNumbers) . '\')'
+        );
+
+        $newCustomers = [];
+        foreach ($customers as $customer) {
+            $customer = (array) $customer;
+            $newCustomers[$customer['customer_number']] = $customer;
+        }
+        $customers = $newCustomers;
+
+        foreach ($invoices as &$invoice) {
+            $invoice['customer'] = $customers[$invoice['customer_number']] ?? null;
+        }
+
+
+        // Reset the key to be the index
+        $invoices = array_values($invoices);
+
+        return $invoices;
     }
 }
