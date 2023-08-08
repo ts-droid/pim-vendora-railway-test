@@ -218,9 +218,9 @@ class CustomerInvoiceController extends Controller
         );
 
         $invoices = $this->setValueAsKey($invoices, 'id');
-        //$articles = $this->setValueAsKey($articles, 'article_number');
-        //$suppliers = $this->setValueAsKey($suppliers, 'number');
-        //$customers = $this->setValueAsKey($customers, 'customer_number');
+        $articles = $this->setValueAsKey($articles, 'article_number');
+        $suppliers = $this->setValueAsKey($suppliers, 'number');
+        $customers = $this->setValueAsKey($customers, 'customer_number');
 
 
         // Store invoiceID's in a temporary table
@@ -248,7 +248,6 @@ class CustomerInvoiceController extends Controller
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
 
-            /*
             $invoicesLine['article'] = $articles[$invoicesLine['article_number']] ?? null;
             $invoicesLine['article']['supplier'] = $suppliers[$invoicesLine['article']['supplier_number'] ?? ''] ?? null;
             $invoicesLine['sales_person'] = null;
@@ -261,7 +260,6 @@ class CustomerInvoiceController extends Controller
             }
 
             $invoice = $invoices[$invoicesLine['customer_invoice_id']];
-            */
 
             if (!isset($invoice['lines'])) {
                 $invoice['lines'] = [];
@@ -271,9 +269,9 @@ class CustomerInvoiceController extends Controller
         }
 
         // Connect customers to the invoices
-        /*foreach ($invoices as &$invoice) {
+        foreach ($invoices as &$invoice) {
             $invoice['customer'] = $customers[$invoice['customer_number']] ?? null;
-        }*/
+        }
 
 
         // Reset the key to be the index
