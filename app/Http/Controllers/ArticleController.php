@@ -20,6 +20,24 @@ class ArticleController extends Controller
 
         $articles = $query->with('stock_logs')->get();
 
+        if ($request->has('only_fields')) {
+            $fields = explode(',', $request->only_fields);
+
+            $newArticles = [];
+            foreach ($articles as $article) {
+                $newArticle = new \stdClass();
+
+                foreach ($fields as $field) {
+                    if (isset($article->{$field})) {
+                        $newArticle->{$field} = $article->{$field};
+                    }
+                }
+
+                $newArticles[] = $newArticle;
+            }
+            $articles = $newArticles;
+        }
+
         return ApiResponseController::success($articles->toArray());
     }
 
