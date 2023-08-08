@@ -39,7 +39,7 @@ class ArticleController extends Controller
             $articles = $newArticles;
         }
         else {
-            $articles->toArray();
+            $articles = $articles->toArray();
         }
 
         return ApiResponseController::success($articles);
