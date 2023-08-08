@@ -200,6 +200,13 @@ class CustomerInvoiceController extends Controller
         // Fetch and add invoices lines to invoices
         $articleFields = (new Article)->getFillable();
         foreach ($articleFields as &$articleField) {
+            if (str_contains($articleField, 'shop_description')
+                || str_contains($articleField, 'shop_title')
+                || str_contains($articleField, 'width')
+                || str_contains($articleField, 'height')
+                || str_contains($articleField, 'depth')) {
+                continue;
+            }
             $articleField = 'a.' . $articleField . ' AS a_' . $articleField;
         }
 
@@ -220,8 +227,6 @@ class CustomerInvoiceController extends Controller
 
         foreach ($invoicesLines as $invoicesLine) {
             $invoicesLine = (array) $invoicesLine;
-
-            //$invoicesLine['sales_person_id'];
 
             $invoicesLine['article'] = [];
             $invoicesLine['supplier'] = [];
