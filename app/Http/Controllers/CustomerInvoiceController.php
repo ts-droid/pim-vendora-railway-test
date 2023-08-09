@@ -21,7 +21,7 @@ class CustomerInvoiceController extends Controller
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
-        if ($convertToCurrency) {
+        if ($convertToCurrency && false) {
 
             $currencyConverter = new CurrencyConvertController();
 
