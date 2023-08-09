@@ -16,7 +16,6 @@ class CustomerInvoiceController extends Controller
     {
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('page_size', 1000);
-        $pageSize = 10000;
 
         $invoices = $this->getRows($request, $page, $pageSize);
 
