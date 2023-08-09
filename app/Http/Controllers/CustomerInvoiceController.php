@@ -252,11 +252,12 @@ class CustomerInvoiceController extends Controller
         $customers = $this->setValueAsKey($customers, 'customer_number');
         $performanceLogController->end('customers_key_as_value');
 
-        $performanceLogController->start('store_tmp_ids');
+        //$performanceLogController->start('store_tmp_ids');
 
         // Store invoiceID's in a temporary table
         $invoiceIDs = array_keys($invoices);
 
+        /*
         $tmpTableName = 'temporary_ids_' . time();
 
         DB::statement('CREATE TEMPORARY TABLE ' . $tmpTableName . ' (id INT NOT NULL, PRIMARY KEY (id))');
@@ -264,23 +265,30 @@ class CustomerInvoiceController extends Controller
         foreach ($invoiceIDs as $invoiceID) {
             DB::table($tmpTableName)->insert(['id' => $invoiceID]);
         }
+        */
 
-        $performanceLogController->end('store_tmp_ids');
+        //$performanceLogController->end('store_tmp_ids');
         $performanceLogController->start('fetch_invoice_lines');
 
         // Fetch the relevant invoice lines
-        $invoicesLines = DB::select(
+        /*$invoicesLines = DB::select(
             'SELECT cil.*
             FROM customer_invoice_lines AS cil
             INNER JOIN ' . $tmpTableName . ' AS tmp ON tmp.id = cil.customer_invoice_id'
+        );*/
+
+        $invoicesLines = DB::select(
+            'SELECT cil.*
+            FROM customer_invoice_lines AS cil
+            WHERE cil.customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
         );
 
         $performanceLogController->end('fetch_invoice_lines');
 
         // Drop the temporary table
-        $performanceLogController->start('remove_tmp_ids');
+        /*$performanceLogController->start('remove_tmp_ids');
         DB::statement('DROP TEMPORARY TABLE ' . $tmpTableName);
-        $performanceLogController->end('remove_tmp_ids');
+        $performanceLogController->end('remove_tmp_ids');*/
 
         $performanceLogController->start('connect_data_to_lines');
 
