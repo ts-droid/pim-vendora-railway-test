@@ -252,6 +252,10 @@ class CustomerInvoiceController extends Controller
         $customers = $this->setValueAsKey($customers, 'customer_number');
         $performanceLogController->end('customers_key_as_value');
 
+        $performanceLogController->start('');
+        $salesPersons = $this->setValueAsKey($salesPersons, 'external_id');
+        $performanceLogController->end('');
+
         //$performanceLogController->start('store_tmp_ids');
 
         // Store invoiceID's in a temporary table
@@ -298,14 +302,7 @@ class CustomerInvoiceController extends Controller
 
             $invoicesLine['article'] = $articles[$invoicesLine['article_number']] ?? null;
             $invoicesLine['article']['supplier'] = $suppliers[$invoicesLine['article']['supplier_number'] ?? ''] ?? null;
-            $invoicesLine['sales_person'] = null;
-
-            foreach ($salesPersons as $salesPerson) {
-                if ($invoicesLine['sales_person_id'] == $salesPerson->external_id) {
-                    $invoicesLine['sales_person'] = (array) $salesPerson;
-                    break;
-                }
-            }
+            $invoicesLine['sales_person'] = $salesPersons[$invoicesLine['sales_person_id'] ?? ''] ?? null;
 
             $invoice = $invoices[$invoicesLine['customer_invoice_id']];
 
