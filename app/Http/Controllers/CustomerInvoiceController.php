@@ -275,7 +275,7 @@ class CustomerInvoiceController extends Controller
             INNER JOIN ' . $tmpTableName . ' AS tmp ON tmp.id = cil.customer_invoice_id'
         );
 
-        $performanceLogController->end('end_invoice_lines');
+        $performanceLogController->end('fetch_invoice_lines');
 
         // Drop the temporary table
         $performanceLogController->start('remove_tmp_ids');
