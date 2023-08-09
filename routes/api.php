@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('/v1')->middleware(['api.key'])->group(function() {
+Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/customers')->group(function() {
         Route::get('/', [CustomerController::class, 'get'])->name('customers.get');

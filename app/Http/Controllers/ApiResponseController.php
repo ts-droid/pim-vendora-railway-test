@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ApiResponseController extends Controller
 {
-    public static function success(array $data = []): JsonResponse
+    public static function success(array $data = [])
     {
         return response()->json([
             'success' => true,
