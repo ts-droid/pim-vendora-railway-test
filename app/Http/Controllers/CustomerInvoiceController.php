@@ -46,7 +46,7 @@ class CustomerInvoiceController extends Controller
 
         }
 
-        $performanceLogController->start('end');
+        $performanceLogController->end('request');
 
         return ApiResponseController::success([
             'results' => $invoices,
