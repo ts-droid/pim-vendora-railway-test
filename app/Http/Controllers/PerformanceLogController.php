@@ -26,6 +26,11 @@ class PerformanceLogController extends Controller
             return;
         }
 
+        // Sort the log by duration, the longest duration will be at the start of the array.
+        usort($this->log, function($a, $b) {
+            return $b['duration'] <=> $a['duration'];
+        });
+
         if ($this->log && count($this->log) > 0) {
             $this->clear();
             Storage::disk('local')->put(self::LOG_FILE, json_encode($this->log));
