@@ -40,6 +40,7 @@ class PerformanceLogController extends Controller
     public function start(string $key)
     {
         $this->log[$key] = [
+            'key' => $key,
             'start' => microtime(true),
             'end' => null,
             'duration' => null,
