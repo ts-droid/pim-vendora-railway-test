@@ -134,6 +134,8 @@ class CustomerInvoiceController extends Controller
 
     private function getRows(Request $request, int $page, int $pageSize)
     {
+        $performanceLogController = new PerformanceLogController();
+
         $whereQuery = '';
 
         // Date filter
@@ -189,6 +191,8 @@ class CustomerInvoiceController extends Controller
             $supplierFields[] = $supplierFillable;
         }
 
+        $performanceLogController->start('invoices');
+
         $invoices = DB::select(
             'SELECT ci.*
             FROM customer_invoices AS ci
@@ -197,31 +201,58 @@ class CustomerInvoiceController extends Controller
             LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
         );
 
+        $performanceLogController->end('invoices');
+        $performanceLogController->start('sales_people');
+
         $salesPersons = DB::select(
             'SELECT *
             FROM sales_people'
         );
+
+        $performanceLogController->end('sales_people');
+        $performanceLogController->start('articles');
 
         $articles = DB::select(
             'SELECT ' . implode(',', $articleFields) . '
             FROM articles'
         );
 
+        $performanceLogController->end('articles');
+        $performanceLogController->start('suppliers');
+
         $suppliers = DB::select(
             'SELECT ' . implode(',', $supplierFields) . '
             FROM suppliers'
         );
+
+        $performanceLogController->end('suppliers');
+        $performanceLogController->start('customers');
 
         $customers = DB::select(
             'SELECT *
             FROM customers'
         );
 
-        $invoices = $this->setValueAsKey($invoices, 'id');
-        $articles = $this->setValueAsKey($articles, 'article_number');
-        $suppliers = $this->setValueAsKey($suppliers, 'number');
-        $customers = $this->setValueAsKey($customers, 'customer_number');
+        $performanceLogController->end('customers');
 
+
+        $performanceLogController->start('invoices_key_as_value');
+        $invoices = $this->setValueAsKey($invoices, 'id');
+        $performanceLogController->end('invoices_key_as_value');
+
+        $performanceLogController->start('articles_key_as_value');
+        $articles = $this->setValueAsKey($articles, 'article_number');
+        $performanceLogController->end('articles_key_as_value');
+
+        $performanceLogController->start('suppliers_key_as_value');
+        $suppliers = $this->setValueAsKey($suppliers, 'number');
+        $performanceLogController->end('suppliers_key_as_value');
+
+        $performanceLogController->start('customers_key_as_value');
+        $customers = $this->setValueAsKey($customers, 'customer_number');
+        $performanceLogController->end('customers_key_as_value');
+
+        $performanceLogController->start('store_tmp_ids');
 
         // Store invoiceID's in a temporary table
         $invoiceIDs = array_keys($invoices);
@@ -234,6 +265,9 @@ class CustomerInvoiceController extends Controller
             DB::table($tmpTableName)->insert(['id' => $invoiceID]);
         }
 
+        $performanceLogController->end('store_tmp_ids');
+        $performanceLogController->start('fetch_invoice_lines');
+
         // Fetch the relevant invoice lines
         $invoicesLines = DB::select(
             'SELECT cil.*
@@ -241,8 +275,14 @@ class CustomerInvoiceController extends Controller
             INNER JOIN ' . $tmpTableName . ' AS tmp ON tmp.id = cil.customer_invoice_id'
         );
 
+        $performanceLogController->end('end_invoice_lines');
+
         // Drop the temporary table
+        $performanceLogController->start('remove_tmp_ids');
         DB::statement('DROP TEMPORARY TABLE ' . $tmpTableName);
+        $performanceLogController->end('remove_tmp_ids');
+
+        $performanceLogController->start('connect_data_to_lines');
 
         // Connect data to the invoice lines
         foreach ($invoicesLines as $invoicesLine) {
@@ -268,14 +308,22 @@ class CustomerInvoiceController extends Controller
             $invoices[$invoicesLine['customer_invoice_id']]['lines'][] = $invoicesLine;
         }
 
+        $performanceLogController->end('connect_data_to_lines');
+        $performanceLogController->start('connect_data_to_invoice');
+
         // Connect customers to the invoices
         foreach ($invoices as &$invoice) {
             $invoice['customer'] = $customers[$invoice['customer_number']] ?? null;
         }
 
+        $performanceLogController->end('connect_data_to_invoice');
+
+        $performanceLogController->start('array_values');
 
         // Reset the key to be the index
         $invoices = array_values($invoices);
+
+        $performanceLogController->end('array_values');
 
         return $invoices;
     }
