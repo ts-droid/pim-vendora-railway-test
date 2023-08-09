@@ -20,6 +20,7 @@ Route::get('/', function () {
 
 Route::prefix('/performance-log')->group(function() {
     Route::get('/view', [PerformanceLogController::class, 'view']);
+    Route::get('/clear', [PerformanceLogController::class, 'clear']);
 });
 
 Route::prefix('/visma')->group(function() {
