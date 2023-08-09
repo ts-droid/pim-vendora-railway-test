@@ -9,17 +9,24 @@ class PerformanceLogController extends Controller
 {
     const LOG_FILE = 'performance_log.txt';
 
+    private bool $isActive = true;
+
     private bool $overwrite = false;
 
     private array $log = [];
 
-    function __construct(bool $overwrite = false)
+    function __construct(bool $overwrite = false, bool $isActive = true)
     {
+        $this->isActive = $isActive;
         $this->overwrite = $overwrite;
     }
 
     function __destruct()
     {
+        if (!$this->isActive) {
+            return;
+        }
+
         $content = Storage::disk('local')->get(self::LOG_FILE);
 
         if ($content && !$this->overwrite) {
@@ -39,6 +46,10 @@ class PerformanceLogController extends Controller
 
     public function start(string $key)
     {
+        if (!$this->isActive) {
+            return;
+        }
+
         $this->log[$key] = [
             'key' => $key,
             'start' => microtime(true),
@@ -49,6 +60,10 @@ class PerformanceLogController extends Controller
 
     public function end(string $key)
     {
+        if (!$this->isActive) {
+            return;
+        }
+
         if (isset($this->log[$key])) {
             $this->log[$key]['end'] = microtime(true);
             $this->log[$key]['duration'] = round($this->log[$key]['end'] - $this->log[$key]['start'], 8);

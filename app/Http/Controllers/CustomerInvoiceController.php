@@ -14,6 +14,9 @@ class CustomerInvoiceController extends Controller
 {
     public function get(Request $request)
     {
+        $performanceLogController = new PerformanceLogController();
+        $performanceLogController->start('request');
+
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('page_size', 1000);
 
@@ -42,6 +45,8 @@ class CustomerInvoiceController extends Controller
             }
 
         }
+
+        $performanceLogController->start('end');
 
         return ApiResponseController::success([
             'results' => $invoices,
@@ -134,7 +139,7 @@ class CustomerInvoiceController extends Controller
 
     private function getRows(Request $request, int $page, int $pageSize)
     {
-        $performanceLogController = new PerformanceLogController();
+        $performanceLogController = new PerformanceLogController(false, false);
 
         $whereQuery = '';
 
