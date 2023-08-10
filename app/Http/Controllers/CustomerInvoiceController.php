@@ -201,7 +201,7 @@ class CustomerInvoiceController extends Controller
         $invoiceLineFields = ['*'];
 
         if ($simpleData) {
-            $invoiceFields = ['id', 'date'];
+            $invoiceFields = ['id', 'date', 'customer_number'];
             $articleFields = ['id', 'article_number', 'supplier_number'];
             $supplierFields = ['id', 'number', 'name'];
             $invoiceLineFields = ['id', 'customer_invoice_id', 'sales_person_id', 'amount', 'cost', 'quantity', 'article_number', 'description'];
