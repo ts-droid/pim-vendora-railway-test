@@ -92,7 +92,7 @@ class SupplierController extends Controller
             $fillables = (new Supplier)->getFillable();
             foreach ($request->all() as $key => $value) {
                 if (in_array($key, $fillables)) {
-                    $value = $value[$i] ?? $value[0];
+                    $value = $value[$i] ?? '';
                     $updateData[$key] = is_null($value) ? '' : $value;
                 }
             }
