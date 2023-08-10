@@ -19,8 +19,9 @@ class CustomerInvoiceController extends Controller
 
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('page_size', 1000);
+        $simpleData = (bool) $request->get('simple_data', 0);
 
-        $invoices = $this->getRows($request, $page, $pageSize);
+        $invoices = $this->getRows($request, $page, $pageSize, $simpleData);
 
         // Convert results to requested currency
         $convertToCurrency = $request->get('convert_to_currency', '');
@@ -137,7 +138,7 @@ class CustomerInvoiceController extends Controller
         return ApiResponseController::success([$invoice->toArray()]);
     }
 
-    private function getRows(Request $request, int $page, int $pageSize)
+    private function getRows(Request $request, int $page, int $pageSize, bool $simpleData = false)
     {
         $performanceLogController = new PerformanceLogController(false, false);
 
@@ -150,10 +151,10 @@ class CustomerInvoiceController extends Controller
             if (str_contains($date, ',')) {
                 list($date1, $date2) = explode(',', $date);
 
-                $whereQuery .= ' AND ci.date BETWEEN \'' . $date1 . '\' AND \'' . $date2 . '\'';
+                $whereQuery .= ' AND date BETWEEN \'' . $date1 . '\' AND \'' . $date2 . '\'';
             }
             else {
-                $whereQuery .= ' AND ci.date = \'' . $date . '\'';
+                $whereQuery .= ' AND date = \'' . $date . '\'';
             }
         }
 
@@ -164,10 +165,10 @@ class CustomerInvoiceController extends Controller
             if (str_contains($customerNumber, ',')) {
                 $customerNumbers = explode(',', $customerNumber);
 
-                $whereQuery .= ' AND ci.customer_number IN (\'' . implode('\',\'', $customerNumbers) . '\')';
+                $whereQuery .= ' AND customer_number IN (\'' . implode('\',\'', $customerNumbers) . '\')';
             }
             else {
-                $whereQuery .= ' AND ci.customer_number = \'' . $customerNumber . '\'';
+                $whereQuery .= ' AND customer_number = \'' . $customerNumber . '\'';
             }
         }
 
@@ -196,13 +197,24 @@ class CustomerInvoiceController extends Controller
             $supplierFields[] = $supplierFillable;
         }
 
+        $invoiceFields = ['*'];
+        $invoiceLineFields = ['*'];
+
+        if ($simpleData) {
+            $invoiceFields = ['id', 'date'];
+            $articleFields = ['id', 'supplier_number'];
+            $supplierFields = ['id', 'name'];
+            $invoiceLineFields = ['id', 'customer_invoice_id', 'sales_person_id', 'amount', 'cost', 'quantity', 'article_number', 'description'];
+        }
+
+
         $performanceLogController->start('invoices');
 
         $invoices = DB::select(
-            'SELECT ci.*
-            FROM customer_invoices AS ci
+            'SELECT ' . implode(',', $invoiceFields) . '
+            FROM customer_invoices
             ' . $whereQuery . '
-            ORDER BY ci.date DESC
+            ORDER BY date DESC
             LIMIT ' . $pageSize . ' OFFSET ' . (($page - 1) * $pageSize)
         );
 
@@ -287,9 +299,9 @@ class CustomerInvoiceController extends Controller
         );*/
 
         $invoicesLines = DB::select(
-            'SELECT cil.*
-            FROM customer_invoice_lines AS cil
-            WHERE cil.customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
+            'SELECT ' . implode(',', $invoiceLineFields) . '
+            FROM customer_invoice_lines
+            WHERE customer_invoice_id IN (' . implode(',', $invoiceIDs) . ')'
         );
 
         $performanceLogController->end('fetch_invoice_lines');
