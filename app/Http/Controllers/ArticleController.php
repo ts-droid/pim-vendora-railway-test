@@ -186,9 +186,15 @@ class ArticleController extends Controller
 			return ApiResponseController::success([]);
 		}
 
+        $customerNumbers = [];
 		$retailers = [];
 
 		foreach ($invoices as $invoice) {
+            // Skip invoice if customer is already found
+            if (in_array($invoice->customer_number, $customerNumbers)) {
+                continue;
+            }
+
 			foreach ($invoice->lines as $invoiceLine) {
 				if ($invoiceLine->article_number == $article->article_number) {
 					// Matching article found, this customer is a retailer
@@ -196,6 +202,7 @@ class ArticleController extends Controller
 					$customer = Customer::where('customer_number', $invoice->customer_number)->first();
 
 					if ($customer) {
+                        $customerNumbers[] = $invoice->customer_number;
 						$retailers[] = $customer->toArray();
 					}
 
