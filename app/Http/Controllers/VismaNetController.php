@@ -70,7 +70,7 @@ class VismaNetController extends Controller
 
         $this->fetchSuppliers();
 
-        $this->fetchArticles('2023-01-01 00:00:00'); // Always fetch all articles to also fetch stock
+        $this->fetchArticles('', true); // Always fetch all articles to also fetch stock
 
         $this->fetchCustomerInvoices();
 
@@ -351,7 +351,7 @@ class VismaNetController extends Controller
      * @param string $updatedAfter
      * @return void
      */
-    public function fetchArticles(string $updatedAfter = ''): void
+    public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
         $fetchTime = date('Y-m-d H:i:s');
 
@@ -361,6 +361,10 @@ class VismaNetController extends Controller
         ];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_article_fetch');
+
+        if ($forceUpdate) {
+            $updatedAfter = '';
+        }
 
         if ($updatedAfter) {
             $params['lastModifiedDateTime'] = $updatedAfter;
