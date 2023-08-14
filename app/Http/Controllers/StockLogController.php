@@ -13,7 +13,7 @@ class StockLogController extends Controller
 
         $query = $this->getQueryWithFilter(StockLog::class, $filter);
 
-        $stockLogs = $query->get();
+        $stockLogs = $query->orderBy('created_at', 'DESC')->get();
 
         return ApiResponseController::success($stockLogs->toArray());
     }
