@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\InventoryReceiptController;
+use App\Http\Controllers\MarketingContentController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Reports\ArticleSalesController;
 use App\Http\Controllers\Reports\SalesDataController;
@@ -39,6 +40,14 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [SalesPersonController::class, 'get'])->name('salesPersons.get');
         Route::post('/', [SalesPersonController::class, 'store'])->name('salesPersons.store');
         Route::post('/{salesPerson}', [SalesPersonController::class, 'update'])->name('salesPersons.update');
+    });
+
+    Route::prefix('/marketing-content')->group(function() {
+        Route::prefix('/article')->group(function() {
+            Route::get('/', [MarketingContentController::class, 'articleGet'])->name('marketingContent.article.get');
+            Route::post('/', [MarketingContentController::class, 'articleStore'])->name('marketingContent.article.store');
+            Route::post('/{articleMarketingContent}', [MarketingContentController::class, 'articleUpdate'])->name('marketingContent.article.update');
+        });
     });
 
     Route::prefix('/suppliers')->group(function() {
