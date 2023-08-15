@@ -48,4 +48,11 @@ class MarketingContentController extends Controller
 
         return ApiResponseController::success($articleMarketingContent->toArray());
     }
+
+    public function articleDelete(Request $request, ArticleMarketingContent $articleMarketingContent)
+    {
+        $articleMarketingContent->delete();
+
+        return ApiResponseController::success();
+    }
 }

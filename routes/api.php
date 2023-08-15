@@ -47,6 +47,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
             Route::get('/', [MarketingContentController::class, 'articleGet'])->name('marketingContent.article.get');
             Route::post('/', [MarketingContentController::class, 'articleStore'])->name('marketingContent.article.store');
             Route::post('/{articleMarketingContent}', [MarketingContentController::class, 'articleUpdate'])->name('marketingContent.article.update');
+            Route::post('/{articleMarketingContent}/delete', [MarketingContentController::class, 'articleDelete'])->name('marketingContent.article.delete');
         });
     });
 
