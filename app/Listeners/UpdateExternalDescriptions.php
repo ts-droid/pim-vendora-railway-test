@@ -52,7 +52,7 @@ class UpdateExternalDescriptions
         $data = [];
 
         foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
-            $data['description_' . $language] = $event->article->{'shop_description_' . $language};
+            $data['description_' . $language] = (string) $event->article->{'shop_description_' . $language};
         }
 
         $wgrController->updateArticle($event->article->article_number, $data);
