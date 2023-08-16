@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\ArticleUpdated;
 use App\Events\InventoryReceiptUpdated;
 use App\Listeners\UpdateArticleExternalCost;
+use App\Listeners\UpdateExternalDescriptions;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InventoryReceiptUpdated::class => [
             UpdateArticleExternalCost::class,
+        ],
+        ArticleUpdated::class => [
+            UpdateExternalDescriptions::class
         ],
     ];
 

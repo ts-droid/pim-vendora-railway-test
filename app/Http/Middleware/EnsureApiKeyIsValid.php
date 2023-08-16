@@ -6,6 +6,7 @@ use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\ApiResponseController;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureApiKeyIsValid
@@ -21,7 +22,7 @@ class EnsureApiKeyIsValid
 
         $apiKeyController = new ApiKeyController();
 
-        if (!$apiKeyController->validateKey($apiKey)) {
+        if (!$apiKeyController->validateKey($apiKey) && !App::environment('local')) {
             return ApiResponseController::error('Invalid API key.');
         }
 

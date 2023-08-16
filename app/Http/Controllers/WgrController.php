@@ -93,6 +93,17 @@ class WgrController extends Controller
         ConfigController::setConfigs(['wgr_last_article_fetch' => $fetchTime]);
     }
 
+    /**
+     * Updates an article in the WGR API
+     * Docs: https://www.reseller.vendora.se/api/docs/#article-set
+     *
+     * @return void
+     */
+    public function updateArticle(string $articleNumber, array $data = [])
+    {
+        $params = array_merge(['articleNumber' => $articleNumber], $data);
+        $this->makeRequest('Article.set', $params);
+    }
 
     /**
      * Makes a request to the WGR API and returns the result
