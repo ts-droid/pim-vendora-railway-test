@@ -71,7 +71,7 @@ class CustomerController extends Controller
             }
 
             if (in_array($key, $fillables)) {
-                $customer->{$key} = $value;
+                $customer->{$key} = is_null($value) ? '' : $value;
             }
         }
 
