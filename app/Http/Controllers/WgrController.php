@@ -66,7 +66,9 @@ class WgrController extends Controller
 
             // Fetch article data from API response
             $articleData = [
-                'video' => $productData['embedVideo'] ?? '',
+                'video' => ($productData['embedVideo'] ?? ''),
+                'webshop_created_at' => $productData['timeCreated'] ?? '',
+                'review_links' => $productData['reviewLinksJSON'] ?? '[]',
                 'images' => []
             ];
 

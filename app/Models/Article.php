@@ -48,6 +48,9 @@ class Article extends Model
         'inner_box_weight',
         'brand',
         'is_webshop',
+        'sales_30_days',
+        'webshop_created_at',
+        'review_links',
     ];
 
     public function supplier()

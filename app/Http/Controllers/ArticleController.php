@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\CustomerInvoiceLine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -219,4 +220,43 @@ class ArticleController extends Controller
 
 		return ApiResponseController::success($retailers);
 	}
+
+    public function calculateSalesVolume()
+    {
+        $articles = Article::all();
+
+        if (!$articles) {
+            return;
+        }
+
+        // Load all invoices within the last 30 days and summarize the sales per article
+        $articlesSummary = [];
+
+        $invoices = CustomerInvoice::where('date', '>=', date('Y-m-d', strtotime('-30 days')))
+            ->get();
+
+        foreach (($invoices ?: []) as $invoice) {
+            foreach (($invoice->lines ?: []) as $invoiceLine) {
+                if (!isset($articlesSummary[$invoiceLine->article_number])) {
+                    $articlesSummary[$invoiceLine->article_number] = [
+                        'quantity' => 0,
+                    ];
+                }
+
+                $articlesSummary[$invoiceLine->article_number]['quantity'] += $invoiceLine->quantity;
+            }
+        }
+
+        // Update each article using the above summary
+        foreach ($articles as $article) {
+            $articleSummary = $articlesSummary[$article->article_number] ?? null;
+
+            if (!$articleSummary) {
+                continue;
+            }
+
+            $article->sales_30_days = $articleSummary['quantity'];
+            $article->save();
+        }
+    }
 }

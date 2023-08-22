@@ -17,6 +17,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('wgr:fetch')->dailyAt('05:00');
 
+        $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
+
         $schedule->call(function() {
             $supplierController = new SupplierController();
             $supplierController->markSuppliers();
