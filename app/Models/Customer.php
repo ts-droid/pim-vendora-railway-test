@@ -17,6 +17,7 @@ class Customer extends Model
         'name',
         'country',
         'shop_url',
+        'shop_search_url',
         'logo_path',
         'logo_url'
     ];
