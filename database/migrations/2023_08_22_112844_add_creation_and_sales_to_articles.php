@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('articles', function (Blueprint $table) {
             $table->integer('sales_30_days')->default(0)->after('is_webshop');
             $table->string('webshop_created_at')->default('')->after('sales_30_days');
-            $table->json('review_links')->default('[]')->after('webshop_created_at');
+            $table->json('review_links')->nullable()->default(null)->after('webshop_created_at');
         });
     }
 
