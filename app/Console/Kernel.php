@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
+
+
         $schedule->command('visma:fetch')->dailyAt('02:00');
 
         $schedule->command('wgr:fetch')->dailyAt('05:00');

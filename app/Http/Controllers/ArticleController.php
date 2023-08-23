@@ -97,6 +97,15 @@ class ArticleController extends Controller
             'inner_box_weight' => (float) ($request->inner_box_weight ?? 0),
             'brand' => (string) ($request->brand ?? ''),
             'is_webshop' => (int) ($request->is_webshop ?? 0),
+            'sales_30_days' => (int) ($request->sales_30_days ?? 0),
+            'webshop_created_at' => (string) ($request->webshop_created_at ?? ''),
+            'review_links' => (string) ($request->review_links ?? '[]'),
+            'meta_title_sv' => (string) ($request->meta_title_sv ?? ''),
+            'meta_title_en' => (string) ($request->meta_title_en ?? ''),
+            'meta_title_da' => (string) ($request->meta_title_da ?? ''),
+            'meta_description_sv' => (string) ($request->meta_description_sv ?? ''),
+            'meta_description_en' => (string) ($request->meta_description_en ?? ''),
+            'meta_description_da' => (string) ($request->meta_description_da ?? ''),
         ]);
 
         // Log the stock

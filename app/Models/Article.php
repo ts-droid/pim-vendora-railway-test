@@ -51,6 +51,12 @@ class Article extends Model
         'sales_30_days',
         'webshop_created_at',
         'review_links',
+        'meta_title_sv',
+        'meta_title_en',
+        'meta_title_da',
+        'meta_description_sv',
+        'meta_description_en',
+        'meta_description_da',
     ];
 
     public function supplier()
