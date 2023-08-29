@@ -227,6 +227,17 @@ class ArticleController extends Controller
 			}
 		}
 
+        // Always add "Vendora / Lifestylestore" as a retailer
+        if (!in_array('vendora', $customerNumbers)) {
+
+            $customer = Customer::where('customer_number', 'vendora')->first();
+
+            if ($customer) {
+                $customerNumbers[] = 'vendora';
+                $retailers[] = $customer;
+            }
+        }
+
 		return ApiResponseController::success($retailers);
 	}
 
