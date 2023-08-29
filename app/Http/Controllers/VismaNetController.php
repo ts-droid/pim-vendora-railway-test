@@ -323,7 +323,7 @@ class VismaNetController extends Controller
                     ];
                 }
 
-                $existingInvoice = CustomerInvoice::where('invoice_number', $invoiceData['invoice_number'])->exists();
+                $existingInvoice = CustomerInvoice::where('invoice_number', $invoiceData['invoice_number'])->first();
 
                 if (!$existingInvoice) {
                     // Create new order
@@ -331,7 +331,6 @@ class VismaNetController extends Controller
                 }
                 else {
                     // Update existing order
-                    $existingInvoice = CustomerInvoice::find($existingInvoice[0]['id']);
                     $invoiceController->update(new Request($invoiceData), $existingInvoice);
                 }
             }
