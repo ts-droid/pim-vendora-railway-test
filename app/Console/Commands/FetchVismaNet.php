@@ -51,6 +51,14 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchArticles('', true);
                 break;
 
+            case 'purchase-orders':
+                $vismaNetController->fetchPurchaseOrders();
+                break;
+
+            case 'inventory-receipts':
+                $vismaNetController->fetchInventoryReceipts();
+                break;
+
             case 'all':
             default:
                 $vismaNetController->fetchAll();
