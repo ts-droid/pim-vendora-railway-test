@@ -323,11 +323,7 @@ class VismaNetController extends Controller
                     ];
                 }
 
-                $response = $invoiceController->get(new Request([
-                    'invoice_number' => $invoiceData['invoice_number'],
-                    'page_size' => 0
-                ]));
-                $existingInvoice = ApiResponseController::getDataFromResponse($response);
+                $existingInvoice = CustomerInvoice::where('invoice_number', $invoiceData['invoice_number'])->exists();
 
                 if (!$existingInvoice) {
                     // Create new order
