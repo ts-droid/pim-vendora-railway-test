@@ -75,6 +75,7 @@ class WgrController extends Controller
             // Currency fields
             foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
                 $articleData['rek_price_' . $currency] = $productData['price_' . $currency] ?? 0;
+                $articleData['retail_price_' . $currency] = $productData['retailPrice_' . $currency] ?? 0;
             }
 
             // Language fields
