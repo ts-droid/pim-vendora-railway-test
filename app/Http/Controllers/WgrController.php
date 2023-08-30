@@ -28,6 +28,8 @@ class WgrController extends Controller
     public function fetchAll(): void
     {
         $this->fetchProductData();
+
+        StatusIndicatorController::ping('WGR sync', 86400);
     }
 
     /**
