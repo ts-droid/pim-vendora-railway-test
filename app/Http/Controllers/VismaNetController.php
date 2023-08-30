@@ -79,6 +79,8 @@ class VismaNetController extends Controller
         $this->fetchInventoryReceipts();
 
         $this->fetchCurrencyRates();
+
+        StatusIndicatorController::ping('Visma.net sync', 86400);
     }
 
     /**

@@ -12,6 +12,7 @@ use App\Http\Controllers\Reports\TopArticlesController;
 use App\Http\Controllers\Reports\TopCustomersController;
 use App\Http\Controllers\Reports\TopSalesPersonsController;
 use App\Http\Controllers\SalesPersonController;
+use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
@@ -87,6 +88,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/stock-log')->group(function() {
         Route::get('/', [StockLogController::class, 'get'])->name('stockLog.get');
+    });
+
+    Route::prefix('/status-indicators')->group(function() {
+        Route::get('/', [StatusIndicatorController::class, 'getAll']);
     });
 
     Route::prefix('/reports')->group(function() {
