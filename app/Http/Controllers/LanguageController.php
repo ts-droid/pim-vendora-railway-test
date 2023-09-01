@@ -64,8 +64,6 @@ class LanguageController extends Controller
             }
         }
 
-        dd($languageColumns);
-
         // Add the new language columns
         foreach ($languageColumns as $table => $columns) {
             foreach ($columns as $column) {
