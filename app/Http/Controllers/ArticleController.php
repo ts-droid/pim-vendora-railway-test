@@ -70,7 +70,7 @@ class ArticleController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $article = Article::create([
+        $data = [
             'external_id' => $request->external_id,
             'article_number' => $request->article_number,
             'description' => $request->description,
@@ -109,13 +109,16 @@ class ArticleController extends Controller
             'sales_30_days' => (int) ($request->sales_30_days ?? 0),
             'webshop_created_at' => (string) ($request->webshop_created_at ?? ''),
             'review_links' => (string) ($request->review_links ?? '[]'),
-            'meta_title_sv' => (string) ($request->meta_title_sv ?? ''),
-            'meta_title_en' => (string) ($request->meta_title_en ?? ''),
-            'meta_title_da' => (string) ($request->meta_title_da ?? ''),
-            'meta_description_sv' => (string) ($request->meta_description_sv ?? ''),
-            'meta_description_en' => (string) ($request->meta_description_en ?? ''),
-            'meta_description_da' => (string) ($request->meta_description_da ?? ''),
-        ]);
+        ];
+
+        foreach (LanguageController::SUPPORTED_LANGUAGES as $locale) {
+            $data['shop_title_' . $locale] = (string) ($request->{'shop_title_' . $locale} ?? '');
+            $data['shop_description_' . $locale] = (string) ($request->{'shop_description_' . $locale} ?? '');
+            $data['meta_title_' . $locale] = (string) ($request->{'meta_title_' . $locale} ?? '');
+            $data['meta_description_' . $locale] = (string) ($request->{'meta_description_' . $locale} ?? '');
+        }
+
+        $article = Article::create($data);
 
         // Log the stock
         $stockLogController = new StockLogController();
