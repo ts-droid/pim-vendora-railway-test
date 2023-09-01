@@ -13,6 +13,7 @@ class ArticleMarketingContent extends Model
         'title_sv',
         'title_en',
         'title_da',
+        'title_no',
         'system',
         'message',
     ];

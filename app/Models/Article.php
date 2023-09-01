@@ -29,9 +29,11 @@ class Article extends Model
         'shop_title_sv',
         'shop_title_en',
         'shop_title_da',
+        'shop_title_no',
         'shop_description_sv',
         'shop_description_en',
         'shop_description_da',
+        'shop_description_no',
         'video',
         'stock',
         'hs_code',
@@ -58,9 +60,11 @@ class Article extends Model
         'meta_title_sv',
         'meta_title_en',
         'meta_title_da',
+        'meta_title_no',
         'meta_description_sv',
         'meta_description_en',
         'meta_description_da',
+        'meta_description_no',
     ];
 
     public function supplier()
