@@ -23,11 +23,12 @@ class WgrController extends Controller
     /**
      * Fetches all data from the WGR API
      *
+     * @param boolean $forceAll
      * @return void
      */
-    public function fetchAll(): void
+    public function fetchAll(bool $forceAll = false): void
     {
-        $this->fetchProductData();
+        $this->fetchProductData($forceAll ? '' : null);
 
         StatusIndicatorController::ping('WGR sync', 86400);
     }
@@ -35,10 +36,10 @@ class WgrController extends Controller
     /**
      * Fetches product data from the WGR API
      *
-     * @param string $updatedAfter
+     * @param mixed $updatedAfter
      * @return void
      */
-    public function fetchProductData(string $updatedAfter = ''): void
+    public function fetchProductData(mixed $updatedAfter = null): void
     {
         $fetchTime = date('Y-m-d H:i:s');
 
@@ -46,7 +47,9 @@ class WgrController extends Controller
             'getImages' => true,
         ];
 
-        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('wgr_last_article_fetch');
+        if (is_null($updatedAfter)) {
+            $updatedAfter = ConfigController::getConfig('wgr_last_article_fetch');
+        }
 
         if ($updatedAfter) {
             $params['updatedFrom'] = $updatedAfter;

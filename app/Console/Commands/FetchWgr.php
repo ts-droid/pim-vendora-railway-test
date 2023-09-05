@@ -12,7 +12,7 @@ class FetchWgr extends Command
      *
      * @var string
      */
-    protected $signature = 'wgr:fetch';
+    protected $signature = 'wgr:fetch {type=updated}';
 
     /**
      * The console command description.
@@ -26,7 +26,11 @@ class FetchWgr extends Command
      */
     public function handle()
     {
+        $type = $this->argument('type') ?: 'updated';
+
+        $forceAll = $type === 'all';
+
         $wgrController = new WgrController();
-        $wgrController->fetchAll();
+        $wgrController->fetchAll($forceAll);
     }
 }
