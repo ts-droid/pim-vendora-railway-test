@@ -78,7 +78,7 @@ class WgrController extends Controller
             $articleData = [
                 'video' => ($productData['embedVideo'] ?? ''),
                 'webshop_created_at' => $productData['timeCreated'] ?? '',
-                'review_links' => $productData['reviewLinksJSON'] ?? '[]',
+                'review_links' => json_encode(json_decode($productData['reviewLinksJSON'], true)),
                 'images' => []
             ];
 
