@@ -30,10 +30,12 @@ class Article extends Model
         'shop_title_en',
         'shop_title_da',
         'shop_title_no',
+        'shop_title_fi',
         'shop_description_sv',
         'shop_description_en',
         'shop_description_da',
         'shop_description_no',
+        'shop_description_fi',
         'video',
         'stock',
         'hs_code',
@@ -61,10 +63,12 @@ class Article extends Model
         'meta_title_en',
         'meta_title_da',
         'meta_title_no',
+        'meta_title_fi',
         'meta_description_sv',
         'meta_description_en',
         'meta_description_da',
         'meta_description_no',
+        'meta_description_fi',
     ];
 
     public function supplier()

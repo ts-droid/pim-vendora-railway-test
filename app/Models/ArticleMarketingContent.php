@@ -14,6 +14,7 @@ class ArticleMarketingContent extends Model
         'title_en',
         'title_da',
         'title_no',
+        'title_fi',
         'system',
         'message',
     ];
