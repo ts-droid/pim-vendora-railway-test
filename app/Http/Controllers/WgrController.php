@@ -24,11 +24,15 @@ class WgrController extends Controller
      * Fetches all data from the WGR API
      *
      * @param boolean $forceAll
+     * @param boolean $skipImages
      * @return void
      */
-    public function fetchAll(bool $forceAll = false): void
+    public function fetchAll(bool $forceAll = false, bool $skipImages = false): void
     {
-        $this->fetchProductData($forceAll ? '' : null);
+        $this->fetchProductData(
+            ($forceAll ? '' : null),
+            $skipImages
+        );
 
         StatusIndicatorController::ping('WGR sync', 86400);
     }
@@ -37,9 +41,10 @@ class WgrController extends Controller
      * Fetches product data from the WGR API
      *
      * @param mixed $updatedAfter
+     * @param boolean $skipImages
      * @return void
      */
-    public function fetchProductData(mixed $updatedAfter = null): void
+    public function fetchProductData(mixed $updatedAfter = null, bool $skipImages = false): void
     {
         $fetchTime = date('Y-m-d H:i:s');
 
@@ -90,8 +95,10 @@ class WgrController extends Controller
             }
 
             // Images
-            foreach (($productData['images'] ?? []) as $image) {
-                $articleData['images'][] = $this->apiDomain . '/images/' . ($image['isZoomable'] ? 'zoom' : 'normal') . '/' . $image['filename'];
+            if (!$skipImages) {
+                foreach (($productData['images'] ?? []) as $image) {
+                    $articleData['images'][] = $this->apiDomain . '/images/' . ($image['isZoomable'] ? 'zoom' : 'normal') . '/' . $image['filename'];
+                }
             }
 
             // Update the article

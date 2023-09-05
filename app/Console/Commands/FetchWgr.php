@@ -12,7 +12,7 @@ class FetchWgr extends Command
      *
      * @var string
      */
-    protected $signature = 'wgr:fetch {type=updated}';
+    protected $signature = 'wgr:fetch {type=updated} {skipImages=0}';
 
     /**
      * The console command description.
@@ -26,11 +26,12 @@ class FetchWgr extends Command
      */
     public function handle()
     {
-        $type = $this->argument('type') ?: 'updated';
+        $type = $this->argument('type');
+        $skipImages = (int) $this->argument('skipImages');
 
         $forceAll = $type === 'all';
 
         $wgrController = new WgrController();
-        $wgrController->fetchAll($forceAll);
+        $wgrController->fetchAll($forceAll, $skipImages);
     }
 }
