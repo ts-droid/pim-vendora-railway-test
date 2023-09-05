@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 
 class LanguageController extends Controller
 {
-    const SUPPORTED_LANGUAGES = ['sv', 'en', 'da', 'no'];
+    const SUPPORTED_LANGUAGES = ['sv', 'en', 'da', 'no', 'fi'];
 
     public function localeToTitle(string $locale): string
     {
@@ -23,6 +23,8 @@ class LanguageController extends Controller
                 return 'Danish';
             case 'no':
                 return 'Norwegian';
+            case 'fi':
+                return 'Finnish';
             default:
                 return '';
         }
