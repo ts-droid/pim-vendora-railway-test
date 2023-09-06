@@ -44,6 +44,24 @@ class ArticleController extends Controller
             $articles = $articles->toArray();
         }
 
+        // Convert results to requested currency
+        $convertedCurrency = $request->get('covert_to_currency', '');
+        if ($convertedCurrency) {
+
+            $currencyConverter = new CurrencyConvertController();
+
+            foreach ($articles as &$article) {
+                $currencyConverter->convertArray(
+                    $article,
+                    ['cost_price_avg', 'external_cost'],
+                    'SEK',
+                    $convertedCurrency,
+                    date('Y-m-d')
+                );
+            }
+
+        }
+
         return ApiResponseController::success($articles);
     }
 
