@@ -45,7 +45,7 @@ class ArticleController extends Controller
         }
 
         // Convert results to requested currency
-        $convertedCurrency = $request->get('covert_to_currency', '');
+        $convertedCurrency = $request->get('convert_to_currency', '');
         if ($convertedCurrency) {
 
             $currencyConverter = new CurrencyConvertController();
