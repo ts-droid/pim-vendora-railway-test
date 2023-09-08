@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\InventoryReceiptController;
+use App\Http\Controllers\LanguageApiController;
 use App\Http\Controllers\MarketingContentController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Reports\ArticleSalesController;
@@ -30,6 +31,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
+
+    Route::prefix('/languages')->group(function() {
+
+        Route::get('/get/all', [LanguageApiController::class, 'getAll'])->name('languages.getAll');
+        Route::get('/get/active', [LanguageApiController::class, 'getActive'])->name('languages.getActive');
+        Route::get('/get/{languageCode}', [LanguageApiController::class, 'getByCode'])->name('languages.getByCode');
+        Route::any('/activate/{languageCode}', [LanguageApiController::class, 'activateLanguage'])->name('languages.activateLanguage');
+        Route::any('/deactivate/{languageCode}', [LanguageApiController::class, 'deactivateLanguage'])->name('languages.deactivateLanguage');
+        Route::post('/create', [LanguageApiController::class, 'createLanguage'])->name('languages.createLanguage');
+    });
 
     Route::prefix('/customers')->group(function() {
         Route::get('/', [CustomerController::class, 'get'])->name('customers.get');

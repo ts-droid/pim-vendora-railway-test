@@ -9,13 +9,9 @@ class ArticleMarketingContent extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'title_sv',
-        'title_en',
-        'title_da',
-        'title_no',
-        'title_fi',
-        'system',
-        'message',
+    protected $guarded = [
+        'id',
+        'updated_at',
+        'created_at',
     ];
 }
