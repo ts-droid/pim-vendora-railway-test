@@ -38,7 +38,7 @@ class MarketingContentController extends Controller
 
     public function articleUpdate(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
-        $fillables = (new ArticleMarketingContent)->getFillable();
+        $fillables = get_model_attributes(ArticleMarketingContent::class);
 
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
