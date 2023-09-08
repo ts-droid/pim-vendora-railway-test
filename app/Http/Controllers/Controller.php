@@ -15,10 +15,7 @@ class Controller extends BaseController
     {
         $filter = [];
 
-        $attributes = (new $model)->getFillable();
-        if (!$attributes) {
-            $attributes = Schema::getColumnListing((new $model)->getTable());
-        }
+        $attributes = get_model_attributes($model);
 
         foreach ($attributes as $attribute) {
             if ($request->get($attribute)) {

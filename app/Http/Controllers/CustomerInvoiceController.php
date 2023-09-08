@@ -176,7 +176,7 @@ class CustomerInvoiceController extends Controller
         }
 
         $articleFields = [];
-        $articleFillables = (new Article)->getFillable();
+        $articleFillables = get_model_attributes(Article::class);
         foreach ($articleFillables as $articleFillable) {
             if (str_contains($articleFillable, 'shop_description')
                 || str_contains($articleFillable, 'shop_title')

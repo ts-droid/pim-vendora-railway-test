@@ -149,7 +149,7 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
-        $fillables = (new Article)->getFillable();
+        $fillables = get_model_attributes(Article::class);
 
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
