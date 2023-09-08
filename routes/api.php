@@ -16,6 +16,7 @@ use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,13 +34,16 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/languages')->group(function() {
-
         Route::get('/get/all', [LanguageApiController::class, 'getAll'])->name('languages.getAll');
         Route::get('/get/active', [LanguageApiController::class, 'getActive'])->name('languages.getActive');
         Route::get('/get/{languageCode}', [LanguageApiController::class, 'getByCode'])->name('languages.getByCode');
         Route::any('/activate/{languageCode}', [LanguageApiController::class, 'activateLanguage'])->name('languages.activateLanguage');
         Route::any('/deactivate/{languageCode}', [LanguageApiController::class, 'deactivateLanguage'])->name('languages.deactivateLanguage');
         Route::post('/create', [LanguageApiController::class, 'createLanguage'])->name('languages.createLanguage');
+    });
+
+    Route::prefix('/translate')->group(function() {
+        Route::post('/', [TranslationController::class, 'translateRequest'])->name('translate');
     });
 
     Route::prefix('/customers')->group(function() {

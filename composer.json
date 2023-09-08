@@ -6,13 +6,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "ext-curl": "*",
+        "ext-pdo": "*",
+        "deeplcom/deepl-php": "^1.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.2",
-        "laravel/tinker": "^2.8",
-	  "ext-pdo": "*",
-	  "ext-curl": "*"
-	},
+        "laravel/tinker": "^2.8"
+    },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
