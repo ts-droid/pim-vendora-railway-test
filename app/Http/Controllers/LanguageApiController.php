@@ -112,6 +112,7 @@ class LanguageApiController extends Controller
             'title' => 'required|string',
             'title_local' => 'required|string',
             'default_currency' => 'required|string',
+            'country_code' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -127,6 +128,7 @@ class LanguageApiController extends Controller
             $request->title,
             $request->title_local,
             $request->default_currency,
+            $request->country_code,
         );
 
         if (!$language) {

@@ -74,9 +74,10 @@ class LanguageController extends Controller
      * @param string $title
      * @param string $titleLocal
      * @param string $defaultCurrency
+     * @param string $countryCode
      * @return Language|bool
      */
-    public function createLanguage(string $languageCode, string $title, string $titleLocal, string $defaultCurrency): Language|bool
+    public function createLanguage(string $languageCode, string $title, string $titleLocal, string $defaultCurrency, string $countryCode): Language|bool
     {
         $languageCodeExists = Language::where('language_code', $languageCode)->exists();
 
@@ -89,6 +90,7 @@ class LanguageController extends Controller
             'title' => $title,
             'title_local' => $titleLocal,
             'default_currency' => $defaultCurrency,
+            'country_code' => $countryCode,
             'is_active' => 0,
         ]);
 

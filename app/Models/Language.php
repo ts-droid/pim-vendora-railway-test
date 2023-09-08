@@ -14,6 +14,7 @@ class Language extends Model
         'title',
         'title_local',
         'default_currency',
+        'country_code',
         'is_active',
     ];
 }
