@@ -89,7 +89,9 @@ class WgrController extends Controller
             }
 
             // Language fields
-            foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+            $languages = (new LanguageController())->getAllLanguages();
+
+            foreach ($languages as $language) {
                 $articleData['shop_title_' . $language] = $productData['title_' . $language] ?? '';
                 $articleData['shop_description_' . $language] = $productData['description_' . $language] ?? '';
             }

@@ -12,15 +12,6 @@ use Illuminate\Support\Facades\Schema;
 
 class LanguageController extends Controller
 {
-    // TODO: Replace the usage of this
-    const SUPPORTED_LANGUAGES = ['sv', 'en', 'da', 'no', 'fi'];
-
-
-
-
-
-
-
     const DEFAULT_LANGUAGE = 'sv';
 
     /**
@@ -170,7 +161,7 @@ class LanguageController extends Controller
      */
     private function addLanguageColumn(string $tableName, string $columnName, string $locale, string $columnType, bool $nullable, mixed $default)
     {
-        $orgColumnName = $columnName . '_' . self::SUPPORTED_LANGUAGES[0];
+        $orgColumnName = $columnName . '_' . self::DEFAULT_LANGUAGE;
         $newColumnName = $columnName . '_' . $locale;
 
         $parameters = [];
@@ -189,42 +180,5 @@ class LanguageController extends Controller
         Schema::table($tableName, function (Blueprint $table) use ($columnType, $newColumnName, $orgColumnName, $parameters, $nullable, $default) {
             $table->addColumn($columnType, $newColumnName, $parameters)->nullable($nullable)->default($default)->after($orgColumnName);
         });
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // TODO: Replace the usage of this
-    public function localeToTitle(string $locale): string
-    {
-        switch ($locale) {
-            case 'sv':
-                return 'Swedish';
-            case 'en':
-                return 'English';
-            case 'da':
-                return 'Danish';
-            case 'no':
-                return 'Norwegian';
-            case 'fi':
-                return 'Finnish';
-            default:
-                return '';
-        }
     }
 }

@@ -25,7 +25,9 @@ class UpdateExternalDescriptions
     {
         $updated = false;
 
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $language) {
             if (isset($event->changes['shop_description_' . $language])) {
                 $updated = true;
                 break;
@@ -51,7 +53,9 @@ class UpdateExternalDescriptions
 
         $data = [];
 
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $language) {
             $data['description_' . $language] = (string) $event->article->{'shop_description_' . $language};
         }
 

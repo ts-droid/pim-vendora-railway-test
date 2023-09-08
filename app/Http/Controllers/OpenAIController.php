@@ -19,9 +19,11 @@ class OpenAIController extends Controller
     public function translate(string $text, string $fromLocale, string $toLocale): string
     {
         $languageController = new LanguageController();
+        $fromLanguage = $languageController->getLanguageByCode($fromLocale);
+        $toLanguage = $languageController->getLanguageByCode($toLocale);
 
         return $this->chatCompletion(
-            'You will be provided with a sentence in ' . $languageController->localeToTitle($fromLocale) . ', and your task is to translate it into ' . $languageController->localeToTitle($toLocale) . '.',
+            'You will be provided with a sentence in ' . ($fromLanguage->title ?? '') . ', and your task is to translate it into ' . ($toLanguage->title ?? '') . '.',
             $text,
         );
     }
@@ -36,7 +38,9 @@ class OpenAIController extends Controller
             $baseLocale => $text
         ];
 
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $locale) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
             if ($locale == $baseLocale) {
                 continue;
             }

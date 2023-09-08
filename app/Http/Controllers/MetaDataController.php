@@ -53,7 +53,9 @@ class MetaDataController extends Controller
         $response = $this->openAIController->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
 
         // Save the title to the product
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $locale) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
             $article->{'meta_title_' . $locale} = $response[$locale] ?? '';
         }
 
@@ -74,7 +76,9 @@ class MetaDataController extends Controller
         $response = $this->openAIController->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
 
         // Save the description to the product
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $locale) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
             $article->{'meta_description_' . $locale} = $response[$locale] ?? '';
         }
 

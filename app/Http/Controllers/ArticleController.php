@@ -129,7 +129,9 @@ class ArticleController extends Controller
             'review_links' => (string) ($request->review_links ?? '[]'),
         ];
 
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $locale) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
             $data['shop_title_' . $locale] = (string) ($request->{'shop_title_' . $locale} ?? '');
             $data['shop_description_' . $locale] = (string) ($request->{'shop_description_' . $locale} ?? '');
             $data['meta_title_' . $locale] = (string) ($request->{'meta_title_' . $locale} ?? '');

@@ -25,7 +25,9 @@ class MarketingContentController extends Controller
             'message' => ($request->message ?? ''),
         ];
 
-        foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $language) {
             $data['title_' . $language] = ($request->{'title_' . $language} ?? '');
         }
 

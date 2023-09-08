@@ -370,6 +370,8 @@ class VismaNetController extends Controller
 
         $articles = $this->getPagedResult('/v1/inventory', $params);
 
+        $languages = (new LanguageController())->getAllLanguages();
+
         if ($articles) {
             $articleController = new ArticleController();
 
@@ -485,7 +487,7 @@ class VismaNetController extends Controller
                 if (!$existingArticles) {
                     // Create new article
 
-                    foreach (LanguageController::SUPPORTED_LANGUAGES as $language) {
+                    foreach ($languages as $language) {
                         $articleData['shop_title_' .  $language] = $articleData['description'];
                     }
 
