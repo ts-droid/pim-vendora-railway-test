@@ -43,8 +43,8 @@ class TranslationController extends Controller
 
 
         $strings = $request->strings;
-        $sourceLang = $request->sourceLang;
-        $targetLang = $request->targetLang;
+        $sourceLang = $request->source_lang;
+        $targetLang = $request->target_lang;
         $isHTML = (bool) ($request->is_html ?? 0);
 
         if (!is_array($strings)) {
