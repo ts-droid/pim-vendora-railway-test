@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Schema;
 
 class Controller extends BaseController
 {
@@ -14,7 +15,12 @@ class Controller extends BaseController
     {
         $filter = [];
 
-        foreach ((new $model)->getFillable() as $attribute) {
+        $attributes = (new $model)->getFillable();
+        if (!$attributes) {
+            $attributes = Schema::getColumnListing((new $model)->getTable());
+        }
+
+        foreach ($attributes as $attribute) {
             if ($request->get($attribute)) {
                 $value = $request->get($attribute);
 
