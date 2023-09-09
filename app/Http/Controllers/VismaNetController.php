@@ -488,7 +488,7 @@ class VismaNetController extends Controller
                     // Create new article
 
                     foreach ($languages as $language) {
-                        $articleData['shop_title_' .  $language] = $articleData['description'];
+                        $articleData['shop_title_' .  $language->language_code] = $articleData['description'];
                     }
 
                     $articleController->store(new Request($articleData));

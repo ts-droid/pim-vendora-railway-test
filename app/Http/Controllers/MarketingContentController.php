@@ -28,7 +28,7 @@ class MarketingContentController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $language) {
-            $data['title_' . $language] = ($request->{'title_' . $language} ?? '');
+            $data['title_' . $language->language_code] = ($request->{'title_' . $language->language_code} ?? '');
         }
 
         $articleMarketingContent = ArticleMarketingContent::create($data);

@@ -132,10 +132,10 @@ class ArticleController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            $data['shop_title_' . $locale] = (string) ($request->{'shop_title_' . $locale} ?? '');
-            $data['shop_description_' . $locale] = (string) ($request->{'shop_description_' . $locale} ?? '');
-            $data['meta_title_' . $locale] = (string) ($request->{'meta_title_' . $locale} ?? '');
-            $data['meta_description_' . $locale] = (string) ($request->{'meta_description_' . $locale} ?? '');
+            $data['shop_title_' . $locale->language_code] = (string) ($request->{'shop_title_' . $locale->language_code} ?? '');
+            $data['shop_description_' . $locale->language_code] = (string) ($request->{'shop_description_' . $locale->language_code} ?? '');
+            $data['meta_title_' . $locale->language_code] = (string) ($request->{'meta_title_' . $locale->language_code} ?? '');
+            $data['meta_description_' . $locale->language_code] = (string) ($request->{'meta_description_' . $locale->language_code} ?? '');
         }
 
         $article = Article::create($data);

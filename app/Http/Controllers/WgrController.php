@@ -92,8 +92,8 @@ class WgrController extends Controller
             $languages = (new LanguageController())->getAllLanguages();
 
             foreach ($languages as $language) {
-                $articleData['shop_title_' . $language] = $productData['title_' . $language] ?? '';
-                $articleData['shop_description_' . $language] = $productData['description_' . $language] ?? '';
+                $articleData['shop_title_' . $language->language_code] = $productData['title_' . $language->language_code] ?? '';
+                $articleData['shop_description_' . $language->language_code] = $productData['description_' . $language->language_code] ?? '';
             }
 
             // Images

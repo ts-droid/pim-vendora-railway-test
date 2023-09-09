@@ -45,7 +45,7 @@ class OpenAIController extends Controller
                 continue;
             }
 
-            $translations[$locale] = $this->translate($text, $baseLocale, $locale);
+            $translations[$locale->language_code] = $this->translate($text, $baseLocale, $locale->language_code);
         }
 
         return $translations;

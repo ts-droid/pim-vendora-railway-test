@@ -56,7 +56,7 @@ class MetaDataController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            $article->{'meta_title_' . $locale} = $response[$locale] ?? '';
+            $article->{'meta_title_' . $locale->language_code} = $response[$locale->language_code] ?? '';
         }
 
         $article->save();
@@ -79,7 +79,7 @@ class MetaDataController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            $article->{'meta_description_' . $locale} = $response[$locale] ?? '';
+            $article->{'meta_description_' . $locale->language_code} = $response[$locale->language_code] ?? '';
         }
 
         $article->save();

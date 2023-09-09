@@ -28,7 +28,7 @@ class UpdateExternalDescriptions
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $language) {
-            if (isset($event->changes['shop_description_' . $language])) {
+            if (isset($event->changes['shop_description_' . $language->language_code])) {
                 $updated = true;
                 break;
             }
@@ -56,7 +56,7 @@ class UpdateExternalDescriptions
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $language) {
-            $data['description_' . $language] = (string) $event->article->{'shop_description_' . $language};
+            $data['description_' . $language->language_code] = (string) $event->article->{'shop_description_' . $language->language_code};
         }
 
         $wgrController->updateArticle($event->article->article_number, $data);
