@@ -617,6 +617,16 @@ class VismaNetController extends Controller
                     $existingSalesPerson = SalesPerson::find($existingSalesPersons[0]['id']);
                     $salesPersonController->update(new Request($salesPersonData), $existingSalesPerson);
                 }
+
+                // Connect to the customer if this is the default sales person
+                if ($salesPerson['isDefault'] ?? false) {
+                    $customerData = [
+                        'sales_person_id' => $salesPersonData['external_id']
+                    ];
+
+                    $existingCustomer = Customer::find($customer['id']);
+                    $customerController->update(new Request($customerData), $existingCustomer);
+                }
             }
         }
 
@@ -655,7 +665,7 @@ class VismaNetController extends Controller
                     'vat_number' => (string) ($customer['vatRegistrationId'] ?? ''),
                     'org_number' => (string) ($customer['corporateId'] ?? ''),
                     'name' => (string) ($customer['name'] ?? ''),
-                    'country' => (string) ($customer['mainAddress']['country']['id'] ?? '')
+                    'country' => (string) ($customer['mainAddress']['country']['id'] ?? ''),
                 ];
 
                 // Require vat number to fetch

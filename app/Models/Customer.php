@@ -19,6 +19,7 @@ class Customer extends Model
         'shop_url',
         'shop_search_url',
         'logo_path',
-        'logo_url'
+        'logo_url',
+        'sales_person_id',
     ];
 }
