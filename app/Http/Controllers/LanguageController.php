@@ -53,6 +53,11 @@ class LanguageController extends Controller
      */
     public function activateLanguage(Language $language)
     {
+        $language->is_active = 1;
+        $language->save();
+
+        // TODO: Push activation to WGR
+
         return $language;
     }
 
@@ -64,6 +69,11 @@ class LanguageController extends Controller
      */
     public function deactivateLanguage(Language $language)
     {
+        $language->is_active = 0;
+        $language->save();
+
+        // TODO: Push deactivation to WGR
+
         return $language;
     }
 
