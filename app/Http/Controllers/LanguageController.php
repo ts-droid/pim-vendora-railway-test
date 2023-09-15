@@ -14,6 +14,10 @@ class LanguageController extends Controller
 {
     const DEFAULT_LANGUAGE = 'sv';
 
+    const SUPPORTED_EXTERNAL_LANGUAGES = [
+        'wgr' => ['sv', 'en', 'no', 'fi', 'da', 'de', 'es'],
+    ];
+
     /**
      * Returns all languages
      *
@@ -57,6 +61,9 @@ class LanguageController extends Controller
         $language->save();
 
         // TODO: Push activation to WGR
+        if (in_array($language->language_code, self::SUPPORTED_EXTERNAL_LANGUAGES['wgr'])) {
+
+        }
 
         return $language;
     }
@@ -73,6 +80,9 @@ class LanguageController extends Controller
         $language->save();
 
         // TODO: Push deactivation to WGR
+        if (in_array($language->language_code, self::SUPPORTED_EXTERNAL_LANGUAGES['wgr'])) {
+
+        }
 
         return $language;
     }
