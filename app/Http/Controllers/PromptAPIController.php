@@ -62,6 +62,15 @@ class PromptAPIController extends Controller
         return ApiResponseController::success($prompt->toArray());
     }
 
+    public function getAll(Request $request)
+    {
+        $prompts = Prompt::orderBy('name', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($prompts->toArray());
+    }
+
     public function get(Request $request, Prompt $prompt)
     {
         $promptController = new PromptController();
