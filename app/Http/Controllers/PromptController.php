@@ -28,12 +28,12 @@ class PromptController extends Controller
             ->get();
     }
 
-    public function getBySystemCode(string $systemCode): Prompt
+    public function getBySystemCode(string $systemCode): Prompt|null
     {
         return Prompt::where('system_code', $systemCode)->first();
     }
 
-    public function get(int $promptID): Prompt
+    public function get(int $promptID): Prompt|null
     {
         return Prompt::where('id', $promptID)->first();
     }
