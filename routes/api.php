@@ -45,6 +45,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/prompt')->group(function() {
         Route::post('/execute', [PromptAPIController::class, 'execute'])->name('prompt.execute');
+        Route::post('/get-executable', [PromptAPIController::class, 'getExecutable'])->name('prompt.getExecutable');
         Route::post('/store', [PromptAPIController::class, 'store'])->name('prompt.store');
         Route::get('/get', [PromptAPIController::class, 'getAll'])->name('prompt.getAll');
         Route::get('/get/{prompt}', [PromptAPIController::class, 'get'])->name('prompt.get');

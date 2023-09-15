@@ -65,7 +65,7 @@ class PromptController extends Controller
         return $prompt;
     }
 
-    private function replaceInputs(string $string, array $inputs): string
+    public function replaceInputs(string $string, array $inputs): string
     {
         foreach ($inputs as $key => $value) {
             $string = str_replace('{' . $key . '}', $value, $string);

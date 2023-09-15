@@ -8,6 +8,42 @@ use Illuminate\Support\Facades\Validator;
 
 class PromptAPIController extends Controller
 {
+    public function getExecutable(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'prompt' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $promptController = new PromptController();
+
+        $prompt = $promptController->get($request->input('prompt'));
+
+        if (!$prompt) {
+            $prompt =  $promptController->getBySystemCode($request->input('prompt'));
+        }
+
+        if (!$prompt) {
+            return ApiResponseController::error('Prompt not found');
+        }
+
+        $inputs = $request->input('inputs');
+        $inputs = $inputs ? json_decode($inputs, true) : [];
+
+        $prompt->system = $this->replaceInputs($prompt->system, $inputs);
+        $prompt->message = $this->replaceInputs($prompt->message, $inputs);
+
+        return ApiResponseController::success([
+            'system' => $prompt->system,
+            'message' => $prompt->message,
+        ]);
+    }
+
     public function execute(Request $request)
     {
         $validator = Validator::make($request->all(), [
