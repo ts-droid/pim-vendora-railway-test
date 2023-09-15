@@ -59,7 +59,7 @@ class PromptController extends Controller
         $prompt->name = $name;
         $prompt->system = $system;
         $prompt->message = $message;
-        $prompt->inputs = json_encode($inputs);
+        $prompt->inputs = json_encode(array_filter($inputs));
         $prompt->save();
 
         return $prompt;
