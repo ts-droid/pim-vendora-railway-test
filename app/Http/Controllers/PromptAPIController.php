@@ -22,10 +22,10 @@ class PromptAPIController extends Controller
 
         $promptController = new PromptController();
 
-        $prompt = $promptController->get($request->input('prompt'));
+        $prompt = $promptController->get((int) $request->input('prompt'));
 
         if (!$prompt) {
-            $prompt =  $promptController->getBySystemCode($request->input('prompt'));
+            $prompt =  $promptController->getBySystemCode((string) $request->input('prompt'));
         }
 
         if (!$prompt) {
