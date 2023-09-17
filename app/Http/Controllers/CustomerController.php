@@ -15,7 +15,15 @@ class CustomerController extends Controller
 
         $query = $this->getQueryWithFilter(Customer::class, $filter);
 
-        $customers = $query->get();
+        $page = (int) $request->input('page', -1);
+        $pageSize = (int) $request->input('page_size', 100);
+
+        if ($page) {
+            $customers = $query->paginate($pageSize, ['*'], 'page', $page);
+        }
+        else {
+            $customers = $query->get();
+        }
 
         return ApiResponseController::success($customers->toArray());
     }
