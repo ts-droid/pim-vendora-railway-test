@@ -155,6 +155,13 @@ class CustomerController extends Controller
             $customer->sales_last_30_days = (float) ($customerSummary[$customer->customer_number]['sales'] ?? 0);
             $customer->save();
         }
+
+        // Special update for LifeStyleStore
+        $customer = Customer::where('customer_number', 'vendora')->first();
+        if ($customer) {
+            $customer->sales_last_30_days = 100_000_000;
+            $customer->save();
+        }
     }
 
     private function uploadLogo(string $url)
