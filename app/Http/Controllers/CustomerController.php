@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\CustomerInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -15,13 +16,18 @@ class CustomerController extends Controller
 
         $query = $this->getQueryWithFilter(Customer::class, $filter);
 
-        $pageNumber = (int) $request->input('page_number', 0);
-        $pageSize = (int) $request->input('page_size', 100);
+        $orderBy = $request->input('order_by', '');
+        $orderByDirection = $request->input('order_by_direction', 'ASC');
+        $pageNumber = (int)$request->input('page_number', 0);
+        $pageSize = (int)$request->input('page_size', 100);
+
+        if ($orderBy) {
+            $query->orderBy($orderBy, $orderByDirection);
+        }
 
         if ($pageNumber > 0) {
             $customers = $query->paginate($pageSize, ['*'], 'page_number', $pageNumber);
-        }
-        else {
+        } else {
             $customers = $query->get();
         }
 
@@ -50,8 +56,8 @@ class CustomerController extends Controller
             'vat_number' => $request->vat_number,
             'org_number' => $request->org_number,
             'name' => $request->name,
-            'country' => (string) ($request->country ?? ''),
-            'shop_url' => (string) ($request->shop_url ?? ''),
+            'country' => (string)($request->country ?? ''),
+            'shop_url' => (string)($request->shop_url ?? ''),
         ];
 
         // Upload logo?
@@ -116,6 +122,39 @@ class CustomerController extends Controller
             ->whereNotNull('customer_number')
             ->pluck('customer_number')
             ->toArray();
+    }
+
+    public function calculateSales()
+    {
+        $customers = Customer::all();
+
+        if (!$customers) {
+            return;
+        }
+
+        // Load all invoices within the last 30 days and summarize the sales per customer
+        $customerSummary = [];
+
+        $invoices = CustomerInvoice::where('date', '>=', date('Y-m-d', strtotime('-30 days')))
+            ->get();
+
+        foreach (($invoices ?: []) as $invoice) {
+            foreach (($invoice->lines ?: []) as $invoiceLine) {
+                if (!isset($customerSummary[$invoice->customer_number])) {
+                    $customerSummary[$invoice->customer_number] = [
+                        'sales' => 0,
+                    ];
+                }
+
+                $customerSummary[$invoice->customer_number]['sales'] += $invoiceLine->amount;
+            }
+        }
+
+        // Update each customer with the sales
+        foreach ($customers as $customer) {
+            $customer->sales_last_30_days = (float) ($customerSummary[$customer->customer_number]['sales'] ?? 0);
+            $customer->save();
+        }
     }
 
     private function uploadLogo(string $url)
