@@ -20,7 +20,6 @@ class CustomerController extends Controller
 
         if ($page > 0) {
             $customers = $query->paginate($pageSize, ['*'], 'page', $page);
-            $customers = $customers->data;
         }
         else {
             $customers = $query->get();
