@@ -15,11 +15,11 @@ class CustomerController extends Controller
 
         $query = $this->getQueryWithFilter(Customer::class, $filter);
 
-        $page = (int) $request->input('page', 0);
+        $pageNumber = (int) $request->input('page_number', 0);
         $pageSize = (int) $request->input('page_size', 100);
 
-        if ($page > 0) {
-            $customers = $query->paginate($pageSize, ['*'], 'page', $page);
+        if ($pageNumber > 0) {
+            $customers = $query->paginate($pageSize, ['*'], 'page_number', $pageNumber);
         }
         else {
             $customers = $query->get();
