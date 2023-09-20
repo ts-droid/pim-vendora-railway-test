@@ -272,6 +272,7 @@ class CustomerInvoiceController extends Controller
         // Connect customers to the invoices
         foreach ($invoices as &$invoice) {
             $invoice['customer'] = $customers[$invoice['customer_number']] ?? null;
+            $invoice['customer']['sales_person'] = $salesPersons[$invoice['customer']['sales_person_id'] ?? ''] ?? null;
         }
 
         // Reset the key to be the index
