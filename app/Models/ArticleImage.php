@@ -9,11 +9,9 @@ class ArticleImage extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'article_id',
-        'filename',
-        'path_url',
-        'size',
-        'list_order'
+    protected $guarded = [
+        'id',
+        'updated_at',
+        'created_at',
     ];
 }

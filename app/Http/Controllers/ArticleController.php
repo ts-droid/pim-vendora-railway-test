@@ -74,6 +74,21 @@ class ArticleController extends Controller
         return ApiResponseController::success($images->toArray());
     }
 
+    public function updateImage(Request $request, Article $article, ArticleImage $articleImage)
+    {
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
+            if ($request->has('alt_text_' . $locale)) {
+                $articleImage->{'alt_text_' . $locale} = $request->{'alt_text_' . $locale};
+            }
+        }
+
+        $articleImage->save();
+
+        return ApiResponseController::success($articleImage->toArray());
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -194,26 +209,31 @@ class ArticleController extends Controller
 			return;
 		}
 
-        // Remove existing image with the same filename
+        // Save the image to the storage
+        Storage::disk('public')->put($filename, $imageContent);
+
+        $imageSize = Storage::disk('public')->size($filename);
+
         $existingImage = ArticleImage::where('filename', $filename)
             ->where('article_id', $article->id)
             ->first();
 
         if ($existingImage) {
-            $this->deleteArticleImage($existingImage);
+            // Update existing image if the filename is the same
+            $existingImage->update([
+                'size' => $imageSize
+            ]);
         }
-
-        // Save the image to the storage
-        Storage::disk('public')->put($filename, $imageContent);
-
-        // Save the image int the database
-        ArticleImage::create([
-            'article_id' => $article->id,
-            'filename' => $filename,
-            'path_url' => 'storage/' . $filename,
-            'size' => Storage::disk('public')->size($filename),
-            'list_order' => $listOrder
-        ]);
+        else {
+            // Create a new image
+            ArticleImage::create([
+                'article_id' => $article->id,
+                'filename' => $filename,
+                'path_url' => 'storage/' . $filename,
+                'size' => $imageSize,
+                'list_order' => $listOrder
+            ]);
+        }
     }
 
     public function deleteArticleImage(ArticleImage $articleImage): void
