@@ -79,8 +79,8 @@ class ArticleController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            if ($request->has('alt_text_' . $locale)) {
-                $articleImage->{'alt_text_' . $locale} = $request->{'alt_text_' . $locale};
+            if ($request->has('alt_text_' . $locale->language_code)) {
+                $articleImage->{'alt_text_' . $locale->language_code} = $request->{'alt_text_' . $locale->language_code};
             }
         }
 
