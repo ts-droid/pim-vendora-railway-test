@@ -92,7 +92,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/retailers', [ArticleController::class, 'getRetailers'])->name('articles.getRetailers');
 
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
-        Route::get('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
+        Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
     });
 
     Route::prefix('/customer-invoices')->group(function() {
