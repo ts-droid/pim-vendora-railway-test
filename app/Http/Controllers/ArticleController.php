@@ -8,6 +8,7 @@ use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\CustomerInvoiceLine;
+use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -218,10 +219,15 @@ class ArticleController extends Controller
             ->where('article_id', $article->id)
             ->first();
 
+        // Check if the image has a solid background color
+        $filepath = storage_path('/app/public/' . $filename);
+        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($filepath);
+
         if ($existingImage) {
             // Update existing image if the filename is the same
             $existingImage->update([
-                'size' => $imageSize
+                'size' => $imageSize,
+                'solid_background' => $solidBackground ? 1 : 0,
             ]);
         }
         else {
@@ -231,6 +237,7 @@ class ArticleController extends Controller
                 'filename' => $filename,
                 'path_url' => 'storage/' . $filename,
                 'size' => $imageSize,
+                'solid_background' => $solidBackground ? 1 : 0,
                 'list_order' => $listOrder
             ]);
         }
