@@ -221,7 +221,7 @@ class ArticleController extends Controller
 
         // Check if the image has a solid background color
         $filepath = storage_path('/app/public/' . $filename);
-        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($filepath);
+        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($filepath, 'topbar');
 
         if ($existingImage) {
             // Update existing image if the filename is the same
