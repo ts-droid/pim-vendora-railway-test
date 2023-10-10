@@ -14,28 +14,37 @@ class ImageBackgroundAnalyzer
      */
     public static function hasSolidBackground(string $filepath, $checkType = 'corners'): bool
     {
+        if (!file_exists($filepath)) {
+            return false;
+        }
+
         $extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
 
         switch ($extension) {
             case 'png':
-                $image = imagecreatefrompng($filepath);
+                $image = @imagecreatefrompng($filepath);
                 break;
 
             case 'jpg':
             case 'jpeg':
-                $image = imagecreatefromjpeg($filepath);
+                $image = @imagecreatefromjpeg($filepath);
                 break;
 
             case 'webp':
-                $image = imagecreatefromwebp($filepath);
+                $image = @imagecreatefromwebp($filepath);
                 break;
 
             case 'gif':
-                $image = imagecreatefromgif($filepath);
+                $image = @imagecreatefromgif($filepath);
                 break;
 
             default:
-                die('Unsupported image format.');
+                $image = null;
+                break;
+        }
+
+        if (!$image) {
+            return false;
         }
 
         list($width, $height) = getimagesize($filepath);
