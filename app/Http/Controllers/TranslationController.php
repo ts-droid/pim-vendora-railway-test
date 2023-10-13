@@ -71,15 +71,13 @@ class TranslationController extends Controller
 
         if ($isHTML) {
             $options['tag_handling'] = 'html';
-
-			foreach ($strings as &$string) {
-				$string = str_replace(array("\r", "\n"), '', $string);
-			}
         }
 
         $translations = [];
 
         foreach ($strings as $string) {
+			$string = str_replace(array("\r", "\n"), '', $string);
+
             try {
                 $translation = (string) $this->translator->translateText(
                     $string,
