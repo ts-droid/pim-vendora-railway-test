@@ -76,7 +76,7 @@ class TranslationController extends Controller
         $translations = [];
 
         foreach ($strings as $string) {
-			$string = str_replace(array("\r", "\n"), '', $string);
+			$string = preg_replace( '/\r|\n/', '', $string);
 
             try {
                 $translation = (string) $this->translator->translateText(
