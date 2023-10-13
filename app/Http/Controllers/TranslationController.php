@@ -71,6 +71,10 @@ class TranslationController extends Controller
 
         if ($isHTML) {
             $options['tag_handling'] = 'html';
+
+			foreach ($strings as &$string) {
+				$string = str_replace(array("\r", "\n"), '', $string);
+			}
         }
 
         $translations = [];
