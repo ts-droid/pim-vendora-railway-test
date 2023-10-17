@@ -49,7 +49,12 @@ class ArticleController extends Controller
             $articleCategoryController = new ArticleCategoryController();
 
             foreach ($articles as &$article) {
-                $article['categories'] = $articleCategoryController->getCategoryTree($article['category_ids']);
+
+                $article['categories'] = [];
+
+                if ($article['category_ids'] && is_array($article['category_ids'])) {
+                    $article['categories'] = $articleCategoryController->getCategoryTree($article['category_ids']);
+                }
             }
         }
 
