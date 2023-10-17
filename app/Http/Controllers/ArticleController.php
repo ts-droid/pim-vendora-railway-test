@@ -45,6 +45,14 @@ class ArticleController extends Controller
             $articles = $articles->toArray();
         }
 
+        if (empty($fields) || in_array('category_ids', $fields)) {
+            $articleCategoryController = new ArticleCategoryController();
+
+            foreach ($articles as &$article) {
+                $article['categories'] = $articleCategoryController->getCategoryTree($article['category_ids']);
+            }
+        }
+
         // Convert results to requested currency
         $convertedCurrency = $request->get('convert_to_currency', '');
         if ($convertedCurrency) {

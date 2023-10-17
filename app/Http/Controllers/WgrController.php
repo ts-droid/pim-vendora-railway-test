@@ -106,9 +106,44 @@ class WgrController extends Controller
 
             // Update the article
             $articleController->update(new Request($articleData), $article);
+
+            // Categories
+            if ($productData['categories']) {
+                $categoryIDs = $this->importCategories($productData['categories']);
+
+                // Connect the article to the categories
+                $article->update([
+                    'category_ids' => $categoryIDs,
+                ]);
+            }
         }
 
         ConfigController::setConfigs(['wgr_last_article_fetch' => $fetchTime]);
+    }
+
+    public function importCategories(array $categories, int $parentID = 0)
+    {
+        $categoryController = new ArticleCategoryController();
+
+        $categoryIDs = [];
+
+        foreach ($categories as $item) {
+            $category = $categoryController->getCategoryByTitle($item['title_en'] ?? '');
+
+            if (!$category) {
+                $category = $categoryController->createCategory($item['title_en'] ?? '', $parentID);
+            }
+
+            $categoryIDs[] = $category->id;
+
+            if ($item['children']) {
+                $childrenIDs = $this->importCategories($item['children'], $category->id);
+
+                $categoryIDs = array_merge($categoryIDs, $childrenIDs);
+            }
+        }
+
+        return $categoryIDs;
     }
 
     /**

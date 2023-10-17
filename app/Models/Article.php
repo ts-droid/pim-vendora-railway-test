@@ -15,6 +15,10 @@ class Article extends Model
         'created_at',
     ];
 
+    protected $casts = [
+        'category_ids' => 'array',
+    ];
+
     public function supplier()
     {
         return $this->belongsTo(Supplier::class, 'supplier_number', 'number');
