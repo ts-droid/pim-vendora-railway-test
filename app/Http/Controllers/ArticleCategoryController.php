@@ -69,6 +69,8 @@ class ArticleCategoryController extends Controller
             }
         }
 
-        return $category->update($updateData);
+        $category->update($updateData);
+
+        return $category;
     }
 }
