@@ -130,8 +130,11 @@ class WgrController extends Controller
         foreach ($categories as $item) {
             $category = $categoryController->getCategoryByTitle(($item['title_en'] ?? ''), $parentID);
 
-            if (!$category) {
-                $category = $categoryController->createCategory($item['title_en'] ?? '', $parentID);
+            if ($category) {
+                $category = $categoryController->updateCategory($category, $item);
+            }
+            else {
+                $category = $categoryController->createCategory($item, $parentID);
             }
 
             $categoryIDs[] = $category->id;

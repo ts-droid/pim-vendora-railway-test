@@ -36,11 +36,39 @@ class ArticleCategoryController extends Controller
         return $articleCategory ?: null;
     }
 
-    public function createCategory(string $title, int $parentID)
+    public function createCategory(array $data, int $parentID)
     {
-        return ArticleCategory::create([
-            'title_en' => $title,
+        $createData = [
             'parent_id' => $parentID,
-        ]);
+        ];
+
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
+            $value = $data['title_' . $locale->language_code] ?? null;
+
+            if ($value) {
+                $createData['title_' . $locale->language_code] = $value;
+            }
+        }
+
+        return ArticleCategory::create($createData);
+    }
+
+    public function updateCategory(ArticleCategory $category, array $data)
+    {
+        $updateData = [];
+
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $locale) {
+            $value = $data['title_' . $locale->language_code] ?? null;
+
+            if ($value) {
+                $updateData['title_' . $locale->language_code] = $value;
+            }
+        }
+
+        return ArticleCategory::update($updateData);
     }
 }
