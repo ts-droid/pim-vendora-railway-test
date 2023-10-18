@@ -41,17 +41,35 @@ class TranslationController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-
         $strings = $request->strings;
         $sourceLang = $request->source_lang;
         $targetLang = $request->target_lang;
         $isHTML = (bool) ($request->is_html ?? 0);
 
+        $excludes = [];
+        if ($request->has('excludes')) {
+            $excludes = $request->excludes ?: [];
+        }
+
         if (!is_array($strings)) {
             $strings = [$strings];
         }
 
+        // Replace excludes with placeholders
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($strings);$j++) {
+                $strings[$j] = str_replace($excludes[$i], '[VARIABLE_' . $i . ']', $strings[$j]);
+            }
+        }
+
         $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML);
+
+        // Replace placeholders with excludes
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($translations);$j++) {
+                $translations[$j] = str_replace('[VARIABLE_' . $i . ']', $excludes[$i], $translations[$j]);
+            }
+        }
 
         return ApiResponseController::success($translations);
     }
