@@ -28,6 +28,23 @@ class StatusIndicatorController extends Controller
         $statusIndicator->save();
     }
 
+    public function pingRequest(Request $request)
+    {
+        $title = $request->get('title');
+        $validForSeconds = (int) $request->get('valid_for_seconds');
+
+        if (!$title) {
+            return ApiResponseController::error('Missing parameter "title".');
+        }
+        if (!$validForSeconds) {
+            return ApiResponseController::error('Missing parameter "valid_for_seconds".');
+        }
+
+        self::ping($title, $validForSeconds);
+
+        return ApiResponseController::success([]);
+    }
+
     public function getAll()
     {
         $statusIndicators = StatusIndicator::orderBy('title', 'ASC')->get();

@@ -119,6 +119,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/status-indicators')->group(function() {
         Route::get('/', [StatusIndicatorController::class, 'getAll']);
+        Route::post('/ping', [StatusIndicatorController::class, 'pingRequest']);
     });
 
     Route::prefix('/reports')->group(function() {
