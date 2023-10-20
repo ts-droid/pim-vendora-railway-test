@@ -157,6 +157,7 @@ class ArticleController extends Controller
             'webshop_created_at' => (string) ($request->webshop_created_at ?? ''),
             'review_links' => (string) ($request->review_links ?? '[]'),
             'is_hidden' => (int) ($request->is_hidden ?? 0),
+            'category_ids' => [],
         ];
 
         $languages = (new LanguageController())->getAllLanguages();
