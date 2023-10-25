@@ -694,6 +694,16 @@ class VismaNetController extends Controller
     }
 
     /**
+     * Returns the visma.net shipment data
+     * @param string $shipmentNumber
+     * @return array
+     */
+    public function getShipment(string $shipmentNumber): array
+    {
+        return $this->callAPI('GET', '/v1/shipment/' . $shipmentNumber);
+    }
+
+    /**
      * Handles the oauth2 callback.
      *
      * @param Request $request

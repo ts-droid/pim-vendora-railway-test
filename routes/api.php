@@ -14,6 +14,7 @@ use App\Http\Controllers\Reports\TopArticlesController;
 use App\Http\Controllers\Reports\TopCustomersController;
 use App\Http\Controllers\Reports\TopSalesPersonsController;
 use App\Http\Controllers\SalesPersonController;
+use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
@@ -111,6 +112,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [InventoryReceiptController::class, 'get'])->name('inventoryReceipts.get');
         Route::post('/', [InventoryReceiptController::class, 'store'])->name('inventoryReceipts.store');
         Route::post('/{inventoryReceipt}', [InventoryReceiptController::class, 'update'])->name('inventoryReceipts.update');
+    });
+
+    Route::prefix('/shipments')->group(function() {
+        Route::get('/visma', [ShipmentController::class, 'getVisma'])->name('shipments.getVisma');
     });
 
     Route::prefix('/stock-log')->group(function() {
