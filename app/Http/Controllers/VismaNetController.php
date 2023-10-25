@@ -704,6 +704,42 @@ class VismaNetController extends Controller
     }
 
     /**
+     * Returns the visma.net customer data
+     * @param string $customerNumber
+     * @return array|mixed
+     */
+    public function getCustomer(string $customerNumber)
+    {
+        return $this->callAPI('GET', '/v1/customer/' . $customerNumber);
+    }
+
+    /**
+     * Returns the visma.net article data
+     * @param string $articleNumber
+     * @return array|mixed
+     */
+    public function getInventoryItem(string $articleNumber)
+    {
+        return $this->callAPI('GET', '/v1/inventory/' . $articleNumber);
+    }
+
+    /**
+     * Returns the visma.net sales order data
+     * @param string $orderType
+     * @param string $orderNumber
+     * @return array|mixed
+     */
+    public function getSalesOrder(string $orderType, string $orderNumber)
+    {
+        $endpoint = '/v1/salesorder/' . $orderNumber;
+        if ($orderType) {
+            $endpoint = '/v1/salesorder/' . $orderType . '/' . $orderNumber;
+        }
+
+        return $this->callAPI('GET', $endpoint);
+    }
+
+    /**
      * Handles the oauth2 callback.
      *
      * @param Request $request
