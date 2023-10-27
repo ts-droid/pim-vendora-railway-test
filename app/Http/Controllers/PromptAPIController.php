@@ -100,7 +100,8 @@ class PromptAPIController extends Controller
 
     public function getAll(Request $request)
     {
-        $prompts = Prompt::orderBy('name', 'ASC')
+        $prompts = Prompt::orderBy('group', 'ASC')
+			->orderBy('name', 'ASC')
             ->orderBy('id', 'ASC')
             ->get();
 
