@@ -7,15 +7,21 @@ use Illuminate\Http\Request;
 
 class PromptController extends Controller
 {
-    public function execute(int $promptID, array $inputs = []): string
+    public function execute(int $promptID, array $inputs = [], string $customInstructions = ''): string
     {
         $prompt = $this->get($promptID);
 
         $prompt->system = $this->replaceInputs($prompt->system, $inputs);
         $prompt->message = $this->replaceInputs($prompt->message, $inputs);
 
+        $system = $prompt->system;
+
+        if ($customInstructions) {
+            $system .= PHP_EOL . PHP_EOL . $customInstructions;
+        }
+
         $openAIController = new OpenAIController();
-        $response = $openAIController->chatCompletion($prompt->system, $prompt->message);
+        $response = $openAIController->chatCompletion($system, $prompt->message);
 
         return $response;
     }
