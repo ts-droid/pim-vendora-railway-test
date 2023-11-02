@@ -22,5 +22,6 @@ class Customer extends Model
         'logo_url',
         'sales_person_id',
         'sales_last_30_days',
+        'is_hidden',
     ];
 }
