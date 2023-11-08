@@ -54,7 +54,7 @@ class OpenAIController extends Controller
     public function chatCompletion(string $system, string $message): string
     {
         $request = [
-            'model' => 'gpt-4-1106-preview',
+            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
             'messages' => [
                 [
                     'role' => 'system',

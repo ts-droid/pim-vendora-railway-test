@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArticleMarketingContent;
+use App\Models\Language;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MarketingContentController extends Controller
 {
@@ -56,5 +58,87 @@ class MarketingContentController extends Controller
         $articleMarketingContent->delete();
 
         return ApiResponseController::success();
+    }
+
+    public function articleStream(Request $request, ArticleMarketingContent $articleMarketingContent)
+    {
+        $languageCode = $request->get('language_code', 'en');
+        $productName = $request->get('product_name');
+        $productDescription = $request->get('product_description');
+        $brand = $request->get('brand');
+
+        $language = Language::where('language_code', $languageCode)->first();
+
+        $languageTitle = $language ? $language->title : $languageCode;
+
+        // Remove brand name from product title
+        if ($brand) {
+            $productName = trim(str_ireplace($brand, '', $productName));
+        }
+
+        $variables = [
+            'product_name' => $productName,
+            'product_description' => $productDescription,
+            'brand' => $brand,
+            'language' => $languageTitle,
+        ];
+
+        $system = $this->replaceVariables($articleMarketingContent->system, $variables);
+        $message = $this->replaceVariables($articleMarketingContent->message, $variables);
+
+        $postData = [
+            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $system,
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $message,
+                ]
+            ],
+            'stream' => true,
+        ];
+
+        // Stream the response from OpenAI to the client
+        $response = new StreamedResponse(function() use ($postData) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, (env('OPEN_AI_ENDPOINT') . '/v1/chat/completions'));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . env('OPEN_AI_KEY')
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
+                echo "data: " . $data . "\n\n";
+                ob_flush();
+                flush();
+                return strlen($data);
+            });
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+
+        return $response;
+    }
+
+    /**
+     * Replaces variables in a string
+     *
+     * @param string $string
+     * @param array $variables
+     * @return array|string|string[]
+     */
+    private function replaceVariables(string $string, array $variables)
+    {
+        foreach ($variables as $key => $value) {
+            $string = str_replace('{' . $key . '}', $value, $string);
+        }
+
+        return $string;
     }
 }
