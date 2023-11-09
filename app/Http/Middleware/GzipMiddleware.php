@@ -8,6 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GzipMiddleware
 {
+    private array $except = [
+        '/api/v1/marketing-content/article'
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -15,6 +19,18 @@ class GzipMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $route = $request->route();
+
+        if ($route) {
+            $path = '/' . $route->path();
+
+            foreach ($this->except as $except) {
+                if (str_starts_with($path, $except)) {
+                    return $next($request);
+                }
+            }
+        }
+
         $response = $next($request);
         $content = $response->content();
         $data = gzencode($content, 9);
