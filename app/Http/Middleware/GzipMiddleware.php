@@ -19,18 +19,6 @@ class GzipMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $route = $request->route();
-
-        if ($route) {
-            $path = '/' . $route->path();
-
-            foreach ($this->except as $except) {
-                if (str_starts_with($path, $except)) {
-                    return $next($request);
-                }
-            }
-        }
-
         $response = $next($request);
         $content = $response->content();
         $data = gzencode($content, 9);
