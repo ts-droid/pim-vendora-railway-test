@@ -101,6 +101,8 @@ class MarketingContentController extends Controller
             'stream' => true,
         ];
 
+        ob_end_clean();
+
         // Stream the response from OpenAI to the client
         $response = new StreamedResponse(function() use ($postData) {
             $ch = curl_init();
@@ -110,7 +112,6 @@ class MarketingContentController extends Controller
                 'Authorization: Bearer ' . env('OPEN_AI_KEY')
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
                 echo "data: " . $data . "\n\n";
                 //echo $data;
