@@ -11,6 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureApiKeyIsValid
 {
+    private array $except = [
+        '/api/v1/marketing-content/article'
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -18,6 +22,12 @@ class EnsureApiKeyIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
+        foreach ($this->except as $except) {
+            if (str_starts_with(('/' . $request->path()), $except)) {
+                return $next($request);
+            }
+        }
+
         $apiKey = (string) $request->get('api_key', '');
 
         $apiKeyController = new ApiKeyController();
