@@ -62,6 +62,8 @@ class MarketingContentController extends Controller
 
     public function articleStream(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
+        set_time_limit(0);
+
         $languageCode = $request->post('language_code', 'en');
         $productName = $request->post('product_name');
         $productDescription = $request->post('product_description');
@@ -101,24 +103,33 @@ class MarketingContentController extends Controller
             'stream' => true,
         ];
 
-        ob_end_clean();
-
         // Stream the response from OpenAI to the client
         $response = new StreamedResponse(function() use ($postData) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, (env('OPEN_AI_ENDPOINT') . '/v1/chat/completions'));
+            $ch = curl_init((env('OPEN_AI_ENDPOINT') . '/v1/chat/completions'));
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . env('OPEN_AI_KEY')
             ]);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
-                echo "data: " . $data . "\n\n";
-                //echo $data;
+                echo $data;
                 ob_flush();
                 flush();
                 return strlen($data);
             });
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+
+            curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                dd('Curl error: ' . curl_error($ch));
+            }
+
+            curl_close($ch);
         });
 
         $response->headers->set('Content-Type', 'text/event-stream');
