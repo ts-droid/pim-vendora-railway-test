@@ -19,6 +19,12 @@ class GzipMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        foreach ($this->except as $except) {
+            if (str_starts_with(('/' . $request->path()), $except)) {
+                return $next($request);
+            }
+        }
+
         $response = $next($request);
         $content = $response->content();
         $data = gzencode($content, 9);
