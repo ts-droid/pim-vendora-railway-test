@@ -64,10 +64,10 @@ class MarketingContentController extends Controller
     {
         set_time_limit(0);
 
-        $languageCode = $request->post('language_code', 'en');
-        $productName = $request->post('product_name');
-        $productDescription = $request->post('product_description');
-        $brand = $request->post('brand');
+        $languageCode = $request->json()->get('language_code', 'en');
+        $productName = $request->json()->get('product_name');
+        $productDescription = $request->json()->get('product_description');
+        $brand = $request->json()->get('brand');
 
         $language = Language::where('language_code', $languageCode)->first();
 
