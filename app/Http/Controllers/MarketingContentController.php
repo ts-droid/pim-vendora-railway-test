@@ -62,10 +62,10 @@ class MarketingContentController extends Controller
 
     public function articleStream(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
-        $languageCode = $request->get('language_code', 'en');
-        $productName = $request->get('product_name');
-        $productDescription = $request->get('product_description');
-        $brand = $request->get('brand');
+        $languageCode = $request->post('language_code', 'en');
+        $productName = $request->post('product_name');
+        $productDescription = $request->post('product_description');
+        $brand = $request->post('brand');
 
         $language = Language::where('language_code', $languageCode)->first();
 
