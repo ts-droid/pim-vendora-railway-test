@@ -64,6 +64,10 @@ class MarketingContentController extends Controller
     {
         set_time_limit(0);
 
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         $languageCode = $request->json()->get('language_code', 'en');
         $productName = $request->json()->get('product_name');
         $productDescription = $request->json()->get('product_description');
