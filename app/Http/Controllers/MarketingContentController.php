@@ -112,7 +112,8 @@ class MarketingContentController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
-                echo "data: " . $data . "\n\n";
+                //echo "data: " . $data . "\n\n";
+                echo $data;
                 ob_flush();
                 flush();
                 return strlen($data);
