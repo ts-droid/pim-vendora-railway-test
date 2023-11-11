@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\DoSpacesController;
 use App\Models\ArticleImage;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Console\Command;
@@ -32,8 +33,9 @@ class UpdateImageBackgroundCheck extends Command
         foreach ($images as $image) {
             $this->line('Processing: ' . $image->filename);
 
-            $filepath = storage_path('/app/public/' . $image->filename);
-            $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($filepath, 'topbar');
+            $content = DoSpacesController::getContent($image->filename);
+
+            $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($content, 'topbar');
 
             $image->update([
                 'solid_background' => $solidBackground ? 1 : 0

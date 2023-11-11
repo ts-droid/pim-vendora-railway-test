@@ -14,9 +14,6 @@ class CustomerInvoiceController extends Controller
 {
     public function get(Request $request)
     {
-        $performanceLogController = new PerformanceLogController();
-        $performanceLogController->start('request');
-
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('page_size', 1000);
         $simpleData = (bool) $request->get('simple_data', 0);
@@ -46,8 +43,6 @@ class CustomerInvoiceController extends Controller
             }
 
         }
-
-        $performanceLogController->end('request');
 
         return ApiResponseController::success([
             'results' => $invoices,
