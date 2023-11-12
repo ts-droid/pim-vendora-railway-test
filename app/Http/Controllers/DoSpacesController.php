@@ -21,7 +21,7 @@ class DoSpacesController extends Controller
 
         $filename = self::getUniqueFilename($filename);
 
-        $path = $folder . '/' . $filename;
+        $path = $folder . '/' . ltrim($filename, '/');
 
         Storage::disk('do')->put(
             $path,
@@ -43,7 +43,7 @@ class DoSpacesController extends Controller
     {
         $folder = config('filesystems.disks.do.folder');
 
-        $path = $folder . '/' . $filename;
+        $path = $folder . '/' . ltrim($filename, '/');
 
         Storage::disk('do')->put(
             $path,
@@ -60,7 +60,11 @@ class DoSpacesController extends Controller
      */
     public static function getContent(string $filename): ?string
     {
-        return Storage::disk('do')->get($filename);
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
+        return Storage::disk('do')->get($path);
     }
 
     /**
@@ -71,7 +75,11 @@ class DoSpacesController extends Controller
      */
     public static function getURL(string $filename): string
     {
-        return Storage::disk('do')->url($filename);
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
+        return Storage::disk('do')->url($path);
     }
 
     /**
@@ -82,9 +90,13 @@ class DoSpacesController extends Controller
      */
     public static function getSignedURL(string $filename): string
     {
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
         $expiration = Carbon::now()->addMinutes(60);
 
-        return Storage::disk('do')->temporaryUrl($filename, $expiration);
+        return Storage::disk('do')->temporaryUrl($path, $expiration);
     }
 
     /**
@@ -95,7 +107,11 @@ class DoSpacesController extends Controller
      */
     public static function setPublic(string $filename): void
     {
-        Storage::disk('do')->setVisibility($filename, 'public');
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
+        Storage::disk('do')->setVisibility($path, 'public');
     }
 
     /**
@@ -106,7 +122,11 @@ class DoSpacesController extends Controller
      */
     public static function setPrivate(string $filename): void
     {
-        Storage::disk('do')->setVisibility($filename, 'private');
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
+        Storage::disk('do')->setVisibility($path, 'private');
     }
 
     /**
@@ -117,7 +137,11 @@ class DoSpacesController extends Controller
      */
     public static function getSize(string $filename): int
     {
-        return Storage::disk('do')->size($filename);
+        $folder = config('filesystems.disks.do.folder');
+
+        $path = $folder . '/' . ltrim($filename, '/');
+
+        return Storage::disk('do')->size($path);
     }
 
     /**
@@ -129,7 +153,7 @@ class DoSpacesController extends Controller
     {
         $folder = config('filesystems.disks.do.folder');
 
-        $path = $folder . '/' . $filename;
+        $path = $folder . '/' . ltrim($filename, '/');
 
         Storage::disk('do')->delete($path);
     }
@@ -153,8 +177,9 @@ class DoSpacesController extends Controller
 
             // Store the file in the storage bucket
             self::store(
-                basename($filePath),
-                file_get_contents($filePath)
+                substr($filePath, strlen(storage_path('app'))),
+                file_get_contents($filePath),
+                true
             );
 
         }
@@ -168,6 +193,8 @@ class DoSpacesController extends Controller
      */
     private static function getUniqueFilename(string $filename): string
     {
+        $filename = ltrim($filename, '/');
+
         $folder = config('filesystems.disks.do.folder');
         $basename = basename($filename);
 
