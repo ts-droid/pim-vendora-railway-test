@@ -24,6 +24,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
         $schedule->command('customers:calculate-sales')->dailyAt('08:00');
 
+
+        // Supplier orders
+        $schedule->command('purchase-orders:generate')->dailyAt('09:00');
+
+
         $schedule->call(function() {
             $languageFieldTranslator = new LanguageFieldTranslator(25);
             $languageFieldTranslator->translateDatabase();

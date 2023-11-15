@@ -233,6 +233,7 @@ class VismaNetController extends Controller
                     'supplier_name' => (string) ($order['supplier']['name'] ?? ''),
                     'currency' => (string) ($order['currency'] ?? ''),
                     'amount' => (float) ($order['orderTotal'] ?? 0),
+                    'is_draft' => 0,
                     'lines' => []
                 ];
 

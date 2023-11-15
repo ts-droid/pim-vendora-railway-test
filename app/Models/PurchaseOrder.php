@@ -20,6 +20,7 @@ class PurchaseOrder extends Model
         'supplier_name',
         'currency',
         'amount',
+        'is_draft',
     ];
 
     public function lines(): HasMany

@@ -108,6 +108,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [PurchaseOrderController::class, 'get'])->name('purchaseOrders.get');
         Route::post('/', [PurchaseOrderController::class, 'store'])->name('purchaseOrders.store');
         Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
+        Route::post('/{purchaseOrder}/publish', [PurchaseOrderController::class, 'publish'])->name('purchaseOrders.publish');
     });
 
     Route::prefix('/inventory-receipts')->group(function() {
