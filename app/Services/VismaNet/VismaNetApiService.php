@@ -142,6 +142,38 @@ class VismaNetApiService
     }
 
     /**
+     * Returns paged results from the API.
+     *
+     * @param string $endpoint
+     * @param array $params
+     * @return array
+     */
+    protected function getPagedResult(string $endpoint, array $params = []): array
+    {
+        $params['pageSize'] = $this->defaultPageSize;
+
+        if (!isset($params['pageNumber'])) {
+            $params['pageNumber'] = 1;
+        }
+
+        // Convert boolean values to string
+        foreach ($params as $key => $value) {
+            if (is_bool($value)) {
+                $params[$key] = $value ? 'true' : 'false';
+            }
+        }
+
+        $rows = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+
+        if ($rows && count($rows) === $this->defaultPageSize) {
+            $params['pageNumber']++;
+            $rows = array_merge($rows, $this->getPagedResult($endpoint, $params));
+        }
+
+        return $rows;
+    }
+
+    /**
      * Generates and returns a new access token.
      *
      * @param string $code

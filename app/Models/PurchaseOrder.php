@@ -21,7 +21,13 @@ class PurchaseOrder extends Model
         'currency',
         'amount',
         'is_draft',
+        'is_vip',
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_number', 'number');
+    }
 
     public function lines(): HasMany
     {

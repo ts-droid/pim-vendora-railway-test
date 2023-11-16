@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
 
 
         // Supplier orders
-        $schedule->command('purchase-orders:generate')->dailyAt('09:00');
+        //$schedule->command('purchase-orders:generate')->dailyAt('13:00');
 
 
         $schedule->call(function() {

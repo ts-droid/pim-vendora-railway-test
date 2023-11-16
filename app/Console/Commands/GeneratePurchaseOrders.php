@@ -27,6 +27,6 @@ class GeneratePurchaseOrders extends Command
     public function handle()
     {
         $purchaseOrderGenerator = new PurchaseOrderGenerator();
-        $purchaseOrderGenerator->createAllSupplierOrders();
+        $purchaseOrderGenerator->generateAll();
     }
 }

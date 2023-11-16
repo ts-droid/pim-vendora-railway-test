@@ -10,6 +10,7 @@ use App\Models\InventoryReceipt;
 use App\Models\PurchaseOrder;
 use App\Models\SalesPerson;
 use App\Models\Supplier;
+use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -79,6 +80,9 @@ class VismaNetController extends Controller
         $this->fetchInventoryReceipts();
 
         $this->fetchCurrencyRates();
+
+        $salesOrderService = new VismaNetSalesOrderService();
+        $salesOrderService->fetchSalesOrders();
 
         StatusIndicatorController::ping('Visma.net sync', 86400);
     }
@@ -531,6 +535,12 @@ class VismaNetController extends Controller
             $supplierController = new SupplierController();
 
             foreach ($suppliers as $supplier) {
+
+                $supplierEmail = $supplier['supplierContact']['email'] ?? '';
+                if (!$supplierEmail) {
+                    $supplierEmail = $supplier['mainContact']['email'] ?? '';
+                }
+
                 $supplierData = [
                     'external_id' => (string) ($supplier['internalId'] ?? ''),
                     'number' => (string) ($supplier['number'] ?? ''),
@@ -541,6 +551,7 @@ class VismaNetController extends Controller
                     'credit_terms_description' => (string) ($supplier['creditTerms']['description'] ?? ''),
                     'currency' => (string) ($supplier['currencyId'] ?? ''),
                     'language' => (string) ($supplier['documentLanguage'] ?? ''),
+                    'email' => (string) $supplierEmail,
                 ];
 
                 // Require supplier number to fetch

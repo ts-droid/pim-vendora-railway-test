@@ -6,6 +6,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseOrderController extends Controller
@@ -141,6 +142,23 @@ class PurchaseOrderController extends Controller
         $order->refresh();
 
         return ApiResponseController::success([$order->toArray()]);
+    }
+
+    public function send(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $supplierEmail = $purchaseOrder->supplier->email ?? null;
+
+        if (!$supplierEmail) {
+            return ApiResponseController::error('Supplier is missing email.');
+        }
+
+        try {
+            Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
+        } catch (\Exception $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
+
+        return ApiResponseController::success();
     }
 
     public function publish(Request $request, PurchaseOrder $order)
