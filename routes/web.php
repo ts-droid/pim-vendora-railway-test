@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StatusCheckController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,3 +40,5 @@ Route::prefix('/visma')->group(function() {
         die($activated ? 'Visma.net integration activated!' : 'Failed to activate Visma.net integration.');
     })->name('visma.callback');
 });
+
+Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);

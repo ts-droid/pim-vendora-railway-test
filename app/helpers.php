@@ -10,6 +10,12 @@ if (!function_exists('get_model_attributes')) {
             $attributes = Schema::getColumnListing((new $model)->getTable());
         }
 
-        return $attributes ?: [];
+        $attributes ?: [];
+
+        if (!in_array('id', $attributes)) {
+            $attributes[] = 'id';
+        }
+
+        return $attributes;
     }
 }
