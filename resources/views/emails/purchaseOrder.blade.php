@@ -116,7 +116,9 @@
         <div class="row">
             <div class="col-100">
                 Please confirm the order by clicking the link below.<br>
-                <a href="https://adm.vendora.se/comfirm-purchase-order/[id]/[key]" target="_blank">https://adm.vendora.se/comfirm-purchase-order/[id]/[key]</a>
+                <a href="{{ route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" target="_blank">
+                    {{ route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}
+                </a>
             </div>
         </div>
 

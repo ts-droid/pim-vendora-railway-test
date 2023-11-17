@@ -55,6 +55,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         // Update the purchase order with the Visma.net order ID
         $purchaseOrder->update([
             'order_number' => $orderNumber,
+            'is_draft' => 0,
         ]);
 
         return [

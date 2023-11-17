@@ -33,4 +33,9 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id');
     }
+
+    public function getHash(): string
+    {
+        return hash('md5', ($this->id . $this->created_at));
+    }
 }
