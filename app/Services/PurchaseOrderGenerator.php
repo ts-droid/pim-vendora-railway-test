@@ -8,6 +8,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\SalesOrder;
 use App\Models\Supplier;
+use App\Services\VendoraAdmin\VendoraAdminTaskService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -137,7 +138,12 @@ class PurchaseOrderGenerator
             PurchaseOrderLine::create($orderLine);
         }
 
-        // TODO: Create a task
+        // Create a task
+        $taskService = new VendoraAdminTaskService();
+        $taskService->createTask('purchase_order', [
+            'purchase_order_id' => $purchaseOrder->id,
+            'supplier_name' => $supplier->name,
+        ]);
 
         // Set timestamp for last order generation
         $supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
