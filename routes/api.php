@@ -116,6 +116,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
         Route::post('/{purchaseOrder}/send', [PurchaseOrderController::class, 'send'])->name('purchaseOrders.send');
         Route::post('/{purchaseOrder}/publish', [PurchaseOrderController::class, 'publish'])->name('purchaseOrders.publish');
+        Route::post('/{purchaseOrder}/delete', [PurchaseOrderController::class, 'delete'])->name('purchaseOrders.delete');
     });
 
     Route::prefix('/inventory-receipts')->group(function() {

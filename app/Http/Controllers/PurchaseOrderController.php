@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -173,5 +174,18 @@ class PurchaseOrderController extends Controller
         $order->refresh();
 
         return ApiResponseController::success([$order->toArray()]);
+    }
+
+    public function delete(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $deleteService = new PurchaseOrderDeletionService();
+
+        $deleted = $deleteService->delete($purchaseOrder);
+
+        if (!$deleted) {
+            return ApiResponseController::error('Could not delete purchase order.');
+        }
+
+        return ApiResponseController::success();
     }
 }
