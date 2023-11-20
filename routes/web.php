@@ -52,7 +52,7 @@ Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
 Route::get('/mysql-tunnel', function() {
     dispatch(new STS\Tunneler\Jobs\CreateTunnel());
 
-    $users = \Illuminate\Support\Facades\DB::connection('mysql_prod')->table('users')->get();
+    $rows = \Illuminate\Support\Facades\DB::connection('mysql_prod')->table('article_categories')->get();
 
-    dd($users);
+    dd($rows->toArray());
 });
