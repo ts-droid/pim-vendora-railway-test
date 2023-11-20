@@ -22,13 +22,12 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
 
+            $schedule->command('visma:fetch')->dailyAt('02:00');
+
+            $schedule->command('wgr:fetch')->dailyAt('05:00');
         }
 
         // Run in all environments
-        $schedule->command('visma:fetch')->dailyAt('02:00');
-
-        $schedule->command('wgr:fetch')->dailyAt('05:00');
-
         $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
         $schedule->command('customers:calculate-sales')->dailyAt('08:00');
 
