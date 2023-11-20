@@ -8,46 +8,21 @@ class ImageBackgroundAnalyzer
      * Checks if an image has a solid background. (Solid = All pixels are the same color)
      * By default it checks the corners of the image
      *
-     * @param string $filepath
+     * @param string $content
      * @param $checkType
      * @return bool
      */
-    public static function hasSolidBackground(string $filepath, $checkType = 'corners'): bool
+    public static function hasSolidBackground(string $content, $checkType = 'corners'): bool
     {
-        if (!file_exists($filepath)) {
-            return false;
-        }
-
-        $extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
-
-        switch ($extension) {
-            case 'png':
-                $image = @imagecreatefrompng($filepath);
-                break;
-
-            case 'jpg':
-            case 'jpeg':
-                $image = @imagecreatefromjpeg($filepath);
-                break;
-
-            case 'webp':
-                $image = @imagecreatefromwebp($filepath);
-                break;
-
-            case 'gif':
-                $image = @imagecreatefromgif($filepath);
-                break;
-
-            default:
-                $image = null;
-                break;
-        }
+        $image = @imagecreatefromstring($content);
 
         if (!$image) {
             return false;
         }
 
-        list($width, $height) = getimagesize($filepath);
+        // Get image dimensions
+        $width = imagesx($image);
+        $height = imagesy($image);
 
         switch ($checkType) {
             case 'topbar':

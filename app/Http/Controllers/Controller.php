@@ -25,7 +25,10 @@ class Controller extends BaseController
                     continue;
                 }
 
-                if ($attribute == 'date' && str_contains($value, ',')) {
+                if ($attribute == 'id') {
+                    $filter[] = [$attribute, '=', $value];
+                }
+                elseif ($attribute == 'date' && str_contains($value, ',')) {
                     list($date1, $date2) = explode(',', $value);
 
                     $filter[] = [$attribute, '>=', $date1];
