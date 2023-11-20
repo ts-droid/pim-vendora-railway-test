@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85d08348affdc7d0e9bb83d722aaea2b",
+    "content-hash": "4df10937e5aa5359c955ea8c773aa24b",
     "packages": [
         {
             "name": "brick/math",
@@ -2525,6 +2525,61 @@
                 }
             ],
             "time": "2023-02-25T19:38:58+00:00"
+        },
+        {
+            "name": "prodigyphp/laravel-ssh-tunnel",
+            "version": "3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/prodigyphp/laravel-ssh-tunnel.git",
+                "reference": "44736c7e497875ab782edfc2cfa53168f1e21134"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/prodigyphp/laravel-ssh-tunnel/zipball/44736c7e497875ab782edfc2cfa53168f1e21134",
+                "reference": "44736c7e497875ab782edfc2cfa53168f1e21134",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^5.5|^6.0|^7.0|^8.0|^9.0|^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "STS\\Tunneler\\TunnelerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [],
+                "psr-4": {
+                    "STS\\Tunneler\\": "src"
+                },
+                "classmap": []
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Bateman",
+                    "email": "stephen@bate-man.com"
+                }
+            ],
+            "description": "Easy creation & maintenance of an SSH Tunnel for Laravel",
+            "keywords": [
+                "laravel",
+                "lumen",
+                "mysql",
+                "ssh",
+                "tunnel"
+            ],
+            "support": {
+                "source": "https://github.com/prodigyphp/laravel-ssh-tunnel/tree/3.4.0"
+            },
+            "time": "2023-03-25T18:01:13+00:00"
         },
         {
             "name": "psr/container",
