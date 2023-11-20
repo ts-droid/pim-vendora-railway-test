@@ -8,7 +8,7 @@ class DatabaseSyncService
 {
     protected array $tablesToSync = [
         'article_categories',
-        /*'article_images',
+        'article_images',
         'article_marketing_contents',
         'articles',
         'customer_invoices',
@@ -25,7 +25,7 @@ class DatabaseSyncService
         'status_indicators',
         'stock_logs',
         'suppliers',
-        'users',*/
+        'users',
     ];
 
     public function sync(): void
