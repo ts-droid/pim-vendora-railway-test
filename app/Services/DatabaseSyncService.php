@@ -28,6 +28,8 @@ class DatabaseSyncService
         'users',
     ];
 
+    protected array $localTableColumns = [];
+
     public function sync(): void
     {
         dispatch(new \STS\Tunneler\Jobs\CreateTunnel());
@@ -50,6 +52,11 @@ class DatabaseSyncService
             $newRow = [];
 
             foreach ($row as $column => $value) {
+                // Only sync columns that exist in the local database
+                if (!$this->tableHasColumn($table, $column)) {
+                    continue;
+                }
+
                 $newRow[$column] = $value;
             }
 
@@ -62,5 +69,25 @@ class DatabaseSyncService
         foreach ($chunks as $chunk) {
             DB::connection('mysql')->table($table)->insert($chunk->toArray());
         }
+    }
+
+    /**
+     * Returns true if the table has the column.
+     *
+     * @param string $table
+     * @param string $column
+     * @return mixed
+     */
+    private function tableHasColumn(string $table, string $column)
+    {
+        if (!isset($this->localTableColumns[$table])) {
+            $this->localTableColumns[$table] = [];
+        }
+
+        if (!isset($this->localTableColumns[$table][$column])) {
+            $this->localTableColumns[$table][$column] = DB::connection('mysql')->getSchemaBuilder()->hasColumn($table, $column);
+        }
+
+        return $this->localTableColumns[$table][$column];
     }
 }
