@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StatusIndicator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -20,12 +21,30 @@ class StatusCheckController extends Controller
             'cache_status' => $this->checkCache() ? 'Operational' : 'Not Operational',
             'session_driver' => config('session.driver'),
             'session_status' => $this->checkSession() ? 'Operational' : 'Not Operational',
+            'status_indicators' => $this->getStatusIndicators(),
             // Add more status checks as needed
         ];
 
         return response()
             ->json($status)
             ->setEncodingOptions(JSON_PRETTY_PRINT);
+    }
+
+    public function getStatusIndicators()
+    {
+        $statusIndicators = StatusIndicator::orderBy('title', 'ASC')->get();
+
+        $response = [];
+
+        foreach ($statusIndicators as $statusIndicator) {
+
+            $response[] = [
+                'title' => $statusIndicator->title,
+                'status' => ($statusIndicator->isGreen() ? 'UP' : 'DOWN'),
+            ];
+        }
+
+        return $response;
     }
 
     public function checkCache()
