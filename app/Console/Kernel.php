@@ -6,6 +6,7 @@ use App\Http\Controllers\SupplierController;
 use App\Services\LanguageFieldTranslator;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\App;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,25 +15,25 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
+        // Run only in production
+        if (App::environment('production')) {
 
+            $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
 
-        $schedule->command('visma:fetch')->dailyAt('02:00');
+            $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
 
-        $schedule->command('wgr:fetch')->dailyAt('05:00');
+            $schedule->command('visma:fetch')->dailyAt('02:00');
 
+            $schedule->command('wgr:fetch')->dailyAt('05:00');
+        }
+
+        // Run in all environments
         $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
         $schedule->command('customers:calculate-sales')->dailyAt('08:00');
 
-        $schedule->call(function() {
-            $languageFieldTranslator = new LanguageFieldTranslator(25);
-            $languageFieldTranslator->translateDatabase();
-        })->everyFiveMinutes();
+        $schedule->command('purchase-orders:generate')->dailyAt('13:00');
 
-        $schedule->call(function() {
-            $supplierController = new SupplierController();
-            $supplierController->markSuppliers();
-        })->daily();
+        $schedule->command('mark-suppliers')->daily();
     }
 
     /**

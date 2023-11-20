@@ -20,10 +20,22 @@ class PurchaseOrder extends Model
         'supplier_name',
         'currency',
         'amount',
+        'is_draft',
+        'is_vip',
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_number', 'number');
+    }
 
     public function lines(): HasMany
     {
         return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id');
+    }
+
+    public function getHash(): string
+    {
+        return hash('md5', ($this->id . $this->created_at));
     }
 }

@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Services\PurchaseOrderDeletionService;
+use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseOrderController extends Controller
@@ -66,6 +69,7 @@ class PurchaseOrderController extends Controller
             'supplier_name' => (string) ($request->supplier_id ?? ''),
             'currency' => (string) ($request->currency ?? ''),
             'amount' => (float) ($request->amount ?? ''),
+            'is_draft' => (int) ($request->is_draft ?? 0),
         ]);
 
         foreach ($request->lines as $line) {
@@ -106,16 +110,82 @@ class PurchaseOrderController extends Controller
             ])->first();
 
             if ($orderLine) {
+                // Update existing line
                 foreach ($line as $key => $value) {
                     if (in_array($key, $fillablesLine)) {
                         $orderLine->{$key} = $value;
                     }
                 }
 
-                $orderLine->save();
+                if ($orderLine->quantity == 0) {
+                    $orderLine->delete();
+                }
+                else {
+                    $orderLine->save();
+                }
+            }
+            else {
+                // Create a new order line
+                $createData = [];
+
+                foreach ($line as $key => $value) {
+                    if (in_array($key, $fillablesLine)) {
+                        $createData[$key] = $value;
+                    }
+                }
+
+                $createData['purchase_order_id'] = $order->id;
+
+                PurchaseOrderLine::create($createData);
             }
         }
 
+        $order->refresh();
+
         return ApiResponseController::success([$order->toArray()]);
+    }
+
+    public function send(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $supplierEmail = $purchaseOrder->supplier->email ?? null;
+
+        if (!$supplierEmail) {
+            return ApiResponseController::error('Supplier is missing email.');
+        }
+
+        try {
+            Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
+        } catch (\Exception $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
+
+        return ApiResponseController::success();
+    }
+
+    public function publish(Request $request, PurchaseOrder $order)
+    {
+        $purchaseOrderPublisher = new PurchaseOrderPublisher();
+        $response = $purchaseOrderPublisher->publishOrder($order);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        $order->refresh();
+
+        return ApiResponseController::success([$order->toArray()]);
+    }
+
+    public function delete(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $deleteService = new PurchaseOrderDeletionService();
+
+        $deleted = $deleteService->delete($purchaseOrder);
+
+        if (!$deleted) {
+            return ApiResponseController::error('Could not delete purchase order.');
+        }
+
+        return ApiResponseController::success();
     }
 }

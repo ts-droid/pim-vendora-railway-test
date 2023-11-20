@@ -21,5 +21,9 @@ class Supplier extends Model
         'currency',
         'language',
         'is_supplier',
+        'last_purchase_order_run',
+        'purchase_master_box',
+        'purchase_order_interval',
+        'email'
     ];
 }

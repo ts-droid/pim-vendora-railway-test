@@ -23,7 +23,9 @@ class StatusCheckController extends Controller
             // Add more status checks as needed
         ];
 
-        return response()->json($status);
+        return response()
+            ->json($status)
+            ->setEncodingOptions(JSON_PRETTY_PRINT);
     }
 
     public function checkCache()
