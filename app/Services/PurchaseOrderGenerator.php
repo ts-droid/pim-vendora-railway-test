@@ -48,7 +48,7 @@ class PurchaseOrderGenerator
             // Check if the supplier has any "VIP orders"
             $vipSalesOrders = $this->getVIPSalesOrders(
                 $supplier,
-                $supplier->last_purchase_order_run,
+                ($supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
                 date('Y-m-d H:i:s')
             );
 
