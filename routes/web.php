@@ -48,11 +48,3 @@ Route::prefix('/purchase-order')->group(function() {
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
-
-Route::get('/mysql-tunnel', function() {
-    dispatch(new STS\Tunneler\Jobs\CreateTunnel());
-
-    $rows = \Illuminate\Support\Facades\DB::connection('mysql_prod')->table('article_categories')->get();
-
-    dd($rows->toArray());
-});
