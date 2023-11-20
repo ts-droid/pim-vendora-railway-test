@@ -30,6 +30,8 @@ class DatabaseSyncService
 
     public function sync(): void
     {
+        dispatch(new \STS\Tunneler\Jobs\CreateTunnel());
+
         foreach ($this->tablesToSync as $table) {
             $this->syncTable($table);
         }
