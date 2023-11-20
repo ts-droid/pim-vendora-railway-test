@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class DatabaseSyncService
+{
+    protected array $tablesToSync = [
+        'article_categories',
+        /*'article_images',
+        'article_marketing_contents',
+        'articles',
+        'customer_invoices',
+        'customer_invoice_lines',
+        'customers',
+        'inventory_receipt_lines',
+        'inventory_receipts',
+        'prompts',
+        'purchase_orders',
+        'purchase_order_lines',
+        'sales_orders',
+        'sales_order_lines',
+        'sales_people',
+        'status_indicators',
+        'stock_logs',
+        'suppliers',
+        'users',*/
+    ];
+
+    public function sync(): void
+    {
+        foreach ($this->tablesToSync as $table) {
+            $this->syncTable($table);
+        }
+    }
+
+    private function syncTable(string $table): void
+    {
+        // Fetch data from production
+        $data = DB::connection('mysql_prod')->table($table)->get();
+
+        // Insert data into local database
+        DB::connection('mysql')->table($table)->truncate();
+        DB::connection('mysql')->table($table)->insert($data->toArray());
+    }
+}
