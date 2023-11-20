@@ -47,6 +47,7 @@ class DatabaseSyncService
         // Fetch data from production to local
         $data = DB::connection('mysql_prod')
             ->table($table)
+            ->orderBy('id')
             ->chunk(500, function($rows) use ($table) {
 
                 $insert = collect();
