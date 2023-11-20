@@ -27,6 +27,11 @@ class Kernel extends ConsoleKernel
             $schedule->command('wgr:fetch')->dailyAt('05:00');
         }
 
+        // Run only in staging
+        if (App::environment('staging')) {
+            $schedule->command('database:sync')->days([1, 4]); // 1 for Monday and 4 for Thursday
+        }
+
         // Run in all environments
         $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
         $schedule->command('customers:calculate-sales')->dailyAt('08:00');
