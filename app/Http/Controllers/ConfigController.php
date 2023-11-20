@@ -14,7 +14,7 @@ class ConfigController extends Controller
         $content = [];
 
         foreach ($configs as $config) {
-            $content = [
+            $content[] = [
                 'config' => $config,
                 'content' => self::getConfig($config),
             ];
