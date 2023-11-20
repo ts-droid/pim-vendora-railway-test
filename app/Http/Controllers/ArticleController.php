@@ -7,10 +7,8 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
-use App\Models\CustomerInvoiceLine;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
@@ -224,18 +222,17 @@ class ArticleController extends Controller
 			return;
 		}
 
-        // Save the image to the storage
-        Storage::disk('public')->put($filename, $imageContent);
+        // Store the image
+        $filename = DoSpacesController::store($filename, $imageContent, true);
 
-        $imageSize = Storage::disk('public')->size($filename);
+        $imageSize = DoSpacesController::getSize($filename);
 
         $existingImage = ArticleImage::where('filename', $filename)
             ->where('article_id', $article->id)
             ->first();
 
         // Check if the image has a solid background color
-        $filepath = storage_path('/app/public/' . $filename);
-        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($filepath, 'topbar');
+        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($imageContent, 'topbar');
 
         if ($existingImage) {
             // Update existing image if the filename is the same
@@ -249,7 +246,7 @@ class ArticleController extends Controller
             ArticleImage::create([
                 'article_id' => $article->id,
                 'filename' => $filename,
-                'path_url' => 'storage/' . $filename,
+                'path_url' => DoSpacesController::getURL($filename),
                 'size' => $imageSize,
                 'solid_background' => $solidBackground ? 1 : 0,
                 'list_order' => $listOrder
@@ -259,7 +256,7 @@ class ArticleController extends Controller
 
     public function deleteArticleImage(ArticleImage $articleImage): void
     {
-        Storage::disk('public')->delete($articleImage->filename);
+        DoSpacesController::delete($articleImage->filename);
 
         $articleImage->delete();
     }

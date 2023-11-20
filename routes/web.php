@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\PerformanceLogController;
 use App\Http\Controllers\StatusCheckController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -18,11 +17,6 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
-});
-
-Route::prefix('/performance-log')->group(function() {
-    Route::get('/view', [PerformanceLogController::class, 'view']);
-    Route::get('/clear', [PerformanceLogController::class, 'clear']);
 });
 
 Route::prefix('/visma')->group(function() {

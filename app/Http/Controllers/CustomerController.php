@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
@@ -96,7 +95,7 @@ class CustomerController extends Controller
             if ($success) {
                 // Remove old logo
                 if ($customer->logo_path) {
-                    Storage::disk('public')->delete($customer->logo_path);
+                    DoSpacesController::delete($customer->logo_path);
                 }
 
                 $customer->logo_path = $logoPath;
@@ -172,7 +171,7 @@ class CustomerController extends Controller
 
         // Extract the filename from the URL
         $path = parse_url(trim($url), PHP_URL_PATH);
-        $filePath = 'customer/logos/' . time() . basename($path);
+        $filePath = 'customer/logos/' . basename($path);
 
         $imageContent = @file_get_contents($url);
 
@@ -180,10 +179,10 @@ class CustomerController extends Controller
             return [false, '', ''];
         }
 
-        // Save the image to the storage
-        Storage::disk('public')->put($filePath, $imageContent);
+        // Store the image
+        $filePath = DoSpacesController::store($filePath, $imageContent, true);
 
-        $fileURL = asset('storage/' . $filePath);
+        $fileURL = DoSpacesController::getURL($filePath);
 
         return [true, $filePath, $fileURL];
     }
