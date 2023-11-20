@@ -44,7 +44,7 @@ class DatabaseSyncService
 
         $rows = $data->toArray();
 
-        $insert = [];
+        $insert = collect();
 
         foreach ($rows as $row) {
             $newRow = [];
@@ -53,11 +53,14 @@ class DatabaseSyncService
                 $newRow[$column] = $value;
             }
 
-            $insert[] = $newRow;
+            $insert->push($newRow);
         }
 
-        // Insert data into local database
         DB::connection('mysql')->table($table)->truncate();
-        DB::connection('mysql')->table($table)->insert($insert);
+
+        $chunks = $insert->chunk(500);
+        foreach ($chunks as $chunk) {
+            DB::connection('mysql')->table($table)->insert($chunk->toArray());
+        }
     }
 }
