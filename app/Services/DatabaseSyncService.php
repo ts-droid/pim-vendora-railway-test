@@ -41,34 +41,32 @@ class DatabaseSyncService
 
     private function syncTable(string $table): void
     {
-        // Fetch data from production
-        $data = DB::connection('mysql_prod')->table($table)->get();
-
-        $rows = $data->toArray();
-
-        $insert = collect();
-
-        foreach ($rows as $row) {
-            $newRow = [];
-
-            foreach ($row as $column => $value) {
-                // Only sync columns that exist in the local database
-                if (!$this->tableHasColumn($table, $column)) {
-                    continue;
-                }
-
-                $newRow[$column] = $value;
-            }
-
-            $insert->push($newRow);
-        }
-
+        // Truncate table
         DB::connection('mysql')->table($table)->truncate();
 
-        $chunks = $insert->chunk(500);
-        foreach ($chunks as $chunk) {
-            DB::connection('mysql')->table($table)->insert($chunk->toArray());
-        }
+        // Fetch data from production to local
+        $data = DB::connection('mysql_prod')
+            ->table($table)
+            ->chunk(500, function($rows) use ($table) {
+
+                $insert = collect();
+
+                foreach ($rows as $row) {
+                    $newRow = [];
+
+                    foreach ($row as $column => $value) {
+                        if (!$this->tableHasColumn($table, $column)) {
+                            continue;
+                        }
+
+                        $newRow[$column] = $value;
+                    }
+
+                    $insert->push($newRow);
+                }
+
+                DB::connection('mysql')->table($table)->insert($insert->toArray());
+            });
     }
 
     /**
