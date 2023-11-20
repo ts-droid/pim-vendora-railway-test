@@ -42,8 +42,22 @@ class DatabaseSyncService
         // Fetch data from production
         $data = DB::connection('mysql_prod')->table($table)->get();
 
+        $rows = $data->toArray();
+
+        $insert = [];
+
+        foreach ($rows as $row) {
+            $newRow = [];
+
+            foreach ($row as $column => $value) {
+                $newRow[$column] = $value;
+            }
+
+            $insert[] = $newRow;
+        }
+
         // Insert data into local database
         DB::connection('mysql')->table($table)->truncate();
-        DB::connection('mysql')->table($table)->insert($data->toArray());
+        DB::connection('mysql')->table($table)->insert($insert);
     }
 }
