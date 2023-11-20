@@ -25,6 +25,11 @@ class Kernel extends ConsoleKernel
             $schedule->command('visma:fetch')->dailyAt('02:00');
 
             $schedule->command('wgr:fetch')->dailyAt('05:00');
+
+            $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
+            $schedule->command('customers:calculate-sales')->dailyAt('08:00');
+
+            $schedule->command('mark-suppliers')->daily();
         }
 
         // Run only in staging
@@ -33,12 +38,7 @@ class Kernel extends ConsoleKernel
         }
 
         // Run in all environments
-        $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
-        $schedule->command('customers:calculate-sales')->dailyAt('08:00');
-
         $schedule->command('purchase-orders:generate')->dailyAt('13:00');
-
-        $schedule->command('mark-suppliers')->daily();
     }
 
     /**
