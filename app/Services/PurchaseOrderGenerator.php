@@ -144,13 +144,15 @@ class PurchaseOrderGenerator
 
         // Create a task
         $taskService = new VendoraAdminTaskService();
-        $taskService->createTask('purchase_order', [
+        $taskID = $taskService->createTask('purchase_order', [
             'purchase_order_id' => $purchaseOrder->id,
             'supplier_name' => $supplier->name,
         ]);
 
         // Set timestamp for last order generation
         $supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
+
+        dd($taskID);
 
         return [
             'success' => true,
