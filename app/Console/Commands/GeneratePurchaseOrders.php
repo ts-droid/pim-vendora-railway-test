@@ -26,7 +26,8 @@ class GeneratePurchaseOrders extends Command
      */
     public function handle()
     {
-        $purchaseOrderGenerator = new PurchaseOrderGenerator();
-        $purchaseOrderGenerator->generateAll();
+        \App\Jobs\GeneratePurchaseOrders::dispatch();
+
+        $this->info('Generating purchase orders from queue...');
     }
 }
