@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
@@ -36,6 +37,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
+
+    Route::prefix('/commands')->group(function() {
+        Route::post('/artisan', [ArtisanCommandController::class, 'run'])->name('commands.artisan');
+    });
 
     Route::prefix('/config')->group(function() {
         Route::get('/get', [ConfigController::class, 'getConfigRequest'])->name('config.getConfig');
