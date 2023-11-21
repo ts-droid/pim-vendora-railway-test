@@ -48,7 +48,7 @@ class VendoraAdminService
         switch ($method)
         {
             case 'POST':
-                $response = Http::post($url, $params);
+                $response = Http::asForm()->post($url, $params);
                 break;
 
             case 'GET':
