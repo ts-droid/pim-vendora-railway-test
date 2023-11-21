@@ -152,8 +152,6 @@ class PurchaseOrderGenerator
         // Set timestamp for last order generation
         $supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
 
-        dd($taskID);
-
         return [
             'success' => true,
             'purchase_order_id' => $purchaseOrder->id,
@@ -172,10 +170,10 @@ class PurchaseOrderGenerator
         $salesVolumeCalculator = new SalesVolumeCalculator();
 
         $periods = [
-            'last_7_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $this->settings['last_7_days_weight'], '-7 days'),
-            'last_30_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $this->settings['last_30_days_weight'], '-30 days'),
-            'last_90_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $this->settings['last_90_days_weight'], '-90 days'),
-            'last_year' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $this->settings['last_year_weight'], '-365 days', '-335 days'),
+            'last_7_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_7_days_weight'], '-7 days'),
+            'last_30_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_30_days_weight'], '-30 days'),
+            'last_90_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_90_days_weight'], '-90 days'),
+            'last_year' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_year_weight'], '-365 days', '-335 days'),
         ];
 
         // TODO: Add support to also set this value per supplier
@@ -218,18 +216,19 @@ class PurchaseOrderGenerator
      * Returns the sales volume and weight for a specific period.
      *
      * @param SalesVolumeCalculator $calculator
+     * @param string $articleNumber
      * @param float $weight
      * @param string $start
      * @param string $end
      * @return array
      */
-    private function getSalesVolumeAndWeight(SalesVolumeCalculator $calculator, float $weight, string $start, string $end = ''): array
+    private function getSalesVolumeAndWeight(SalesVolumeCalculator $calculator, string $articleNumber, float $weight, string $start, string $end = ''): array
     {
         $startDate = date('Y-m-d', strtotime($start));
         $endDate = $end ? date('Y-m-d', strtotime($end)) : date('Y-m-d');
 
         return [
-            'sales_volume' => $calculator->calculateSalesVolume($startDate, $endDate),
+            'sales_volume' => $calculator->calculateSalesVolume($articleNumber, $startDate, $endDate),
             'weight' => $weight,
         ];
     }
