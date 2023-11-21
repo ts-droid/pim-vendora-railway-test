@@ -238,6 +238,8 @@ class PurchaseOrderGenerator
     {
         return DB::table('sales_orders')
             ->select('sales_orders.*')
+            ->distinct()
+            ->join('sales_order_lines', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
             ->where('sales_orders.created_at', '>=', $startDate)
             ->where('sales_orders.created_at', '<=', $endDate)
