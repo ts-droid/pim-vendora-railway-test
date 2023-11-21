@@ -16,6 +16,10 @@ class PurchaseOrderGenerator
 {
     protected array $settings;
 
+    protected array $excludeArticles = [
+        'SHIP25'
+    ];
+
     /**
      * PurchaseOrderGenerator constructor.
      */
@@ -100,6 +104,11 @@ class PurchaseOrderGenerator
         $lineKey = 0;
 
         foreach ($articles as $article) {
+            // Exclude articles
+            if (in_array($article->article_number, $this->excludeArticles)) {
+                continue;
+            }
+
             $quantityResponse = $this->getQuantityToOrder($article, $vipSalesOrders);
 
             if (!$quantityResponse['quantity']) {
