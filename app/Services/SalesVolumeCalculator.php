@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class SalesVolumeCalculator
 {
-    public function calculateSalesVolume(string $startDate, string $endDate): array
+    public function calculateSalesVolume(string $articleNumber, string $startDate, string $endDate): array
     {
         // Calculate the number of days between start and end date
         $startDate = new \DateTime($startDate);
@@ -16,6 +16,7 @@ class SalesVolumeCalculator
         // Fetch all order lines for the period
         $orderLines = DB::table('customer_invoice_lines')
             ->leftJoin('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->where('customer_invoice_lines.article_number', '=', $articleNumber)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
             ->get();

@@ -11,8 +11,6 @@ class VendoraAdminTaskService extends VendoraAdminService
 
         $response = $this->callAPI('POST', '/tasks', $postData);
 
-        dd($response);
-
         return (int) ($response['data']['task']['id'] ?? -1);
     }
 }
