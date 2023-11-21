@@ -67,7 +67,11 @@ class PurchaseOrderGenerator
                 continue;
             }
 
-            $this->createSupplierOrder($supplier, $vipSalesOrders);
+            $response = $this->createSupplierOrder($supplier, $vipSalesOrders);
+
+            if ($response['success']) {
+                return;
+            }
         }
     }
 
