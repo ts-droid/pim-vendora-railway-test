@@ -28,9 +28,9 @@ class PurchaseOrder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('info@vendora.se', 'Vendora Nordic AB'),
+            from: new Address('info@scriptsector.se', 'Vendora Nordic AB'),
             replyTo: [
-                new Address('info@vendora.se', 'Vendora Nordic AB'),
+                new Address('info@scriptsector.se', 'Vendora Nordic AB'),
             ],
             subject: 'Purchase Order',
         );
