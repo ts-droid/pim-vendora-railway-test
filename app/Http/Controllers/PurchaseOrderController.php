@@ -105,6 +105,11 @@ class PurchaseOrderController extends Controller
     {
         $requestData = $request->all();
 
+        return ApiResponseController::success([
+            $requestData,
+            $order->toArray()
+        ]);
+
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
 
