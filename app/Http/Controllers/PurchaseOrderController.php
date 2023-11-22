@@ -106,14 +106,18 @@ class PurchaseOrderController extends Controller
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
 
+        $orderUpdateData = [];
+
         // Update the order
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
-                $order->{$key} = $value;
+                $orderUpdateData[$key] = $value;
             }
         }
 
-        $order->save();
+        if ($orderUpdateData) {
+            $order->update($orderUpdateData);
+        }
 
         // Update the lines
         foreach (($request->lines ?? []) as $line) {
