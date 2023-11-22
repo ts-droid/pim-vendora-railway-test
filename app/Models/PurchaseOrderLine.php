@@ -19,4 +19,9 @@ class PurchaseOrderLine extends Model
         'amount',
         'promised_date',
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
 }
