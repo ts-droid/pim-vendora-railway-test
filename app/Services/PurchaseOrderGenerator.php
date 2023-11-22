@@ -133,7 +133,7 @@ class PurchaseOrderGenerator
         // Create the purchase order
         $purchaseOrder = PurchaseOrder::create([
             'order_number' => 'DRFT-' . $supplier->id . '-' . date('YmdHis'),
-            'status' => 'draft',
+            'status' => 'Draft',
             'date' => date('Y-m-d'),
             'promised_date' => '',
             'supplier_id' => $supplier->id,
