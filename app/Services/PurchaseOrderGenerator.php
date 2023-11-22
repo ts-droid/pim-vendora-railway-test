@@ -151,6 +151,11 @@ class PurchaseOrderGenerator
             PurchaseOrderLine::create($orderLine);
         }
 
+        $purchaseOrder->refresh();
+
+        $purchaseOrderMotivator = new PurchaseOrderMotivator();
+        $purchaseOrderMotivator->motivateQuantity($purchaseOrder);
+
         // Create a task
         $taskService = new VendoraAdminTaskService();
         $taskID = $taskService->createTask('purchase_order', [
