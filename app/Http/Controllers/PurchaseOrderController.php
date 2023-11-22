@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
@@ -37,6 +38,18 @@ class PurchaseOrderController extends Controller
                         $currencyConverter->convertArray($line, ['unit_cost', 'amount'], 'SEK', $convertToCurrency, $order['date']);
                     }
                 }
+            }
+        }
+
+        // Load order lines data
+        foreach ($orders as &$order) {
+            if (!$order['lines']) {
+                continue;
+            }
+
+            foreach ($order['lines'] as &$orderLine) {
+                $orderLine['incoming_quantity'] = ArticleQuantityCalculator::getIncoming($orderLine['article_number']);
+                $orderLine['on_order_quantity'] = ArticleQuantityCalculator::getOnOrder($orderLine['article_number']);
             }
         }
 
