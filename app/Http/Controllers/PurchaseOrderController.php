@@ -103,13 +103,15 @@ class PurchaseOrderController extends Controller
 
     public function update(Request $request, PurchaseOrder $order)
     {
+        $requestData = $request->all();
+
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
 
         $orderUpdateData = [];
 
         // Update the order
-        foreach ($request->all() as $key => $value) {
+        foreach ($requestData as $key => $value) {
             if (in_array($key, $fillables)) {
                 $orderUpdateData[$key] = $value;
             }
@@ -120,7 +122,7 @@ class PurchaseOrderController extends Controller
         }
 
         // Update the lines
-        foreach (($request->lines ?? []) as $line) {
+        foreach (($requestData['lines'] ?? []) as $line) {
             $orderLine = PurchaseOrderLine::where([
                 ['purchase_order_id', '=', $order->id],
                 ['line_key', '=', $line['line_key']]
