@@ -150,7 +150,9 @@ class PurchaseOrderController extends Controller
         $supplierEmail = $purchaseOrder->supplier->email ?? null;
 
         if (!$supplierEmail) {
-            return ApiResponseController::error('Supplier is missing email.');
+            // TODO: Return error after testing is done
+            $supplierEmail = 'anton@scriptsector.se';
+            //return ApiResponseController::error('Supplier is missing email.');
         }
 
         try {
