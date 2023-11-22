@@ -109,9 +109,9 @@ class PurchaseOrderGenerator
                 continue;
             }
 
-            $quantityResponse = $this->getQuantityToOrder($article, $vipSalesOrders);
+            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders);
 
-            if (!$quantityResponse['quantity']) {
+            if (!$quantity) {
                 continue;
             }
 
@@ -119,7 +119,7 @@ class PurchaseOrderGenerator
                 'line_key' => $lineKey++,
                 'article_number' => $article->article_number,
                 'description' => $article->description,
-                'quantity' => $quantityResponse['quantity'],
+                'quantity' => $quantity,
                 'unit_cost' => 0,
                 'amount' => 0,
                 'promised_date' => '',
@@ -177,9 +177,9 @@ class PurchaseOrderGenerator
      * Returns the quantity to order for a specific article.
      *
      * @param Article $article
-     * @return array
+     * @return int
      */
-    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders): array
+    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders): int
     {
         $salesVolumeCalculator = new SalesVolumeCalculator();
 
@@ -190,7 +190,7 @@ class PurchaseOrderGenerator
             'last_year' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_year_weight'], '-365 days', '-335 days'),
         ];
 
-        // TODO: Add support to also set this value per supplier
+        // TODO: Add support to also set this value per supplier/product
         $foresightDays = $this->settings['foresight_days'];
 
         // Calculate the average sales volume for the periods and weight them against the weight value
@@ -210,7 +210,7 @@ class PurchaseOrderGenerator
         $currentStock = $article->stock;
 
         // Calculate how many items are on their way
-        $incomingQuantity = $this->getIncomingQuantity($article->article_number);
+        $incomingQuantity = ArticleQuantityCalculator::getIncoming($article->article_number);
 
         // This is the quantity that is suggested to order at the moment
         $quantityToOrder = $suggestedStock - $currentStock - $incomingQuantity;
@@ -220,10 +220,7 @@ class PurchaseOrderGenerator
             $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box;
         }
 
-        return [
-            'quantity' => max(0, $quantityToOrder),
-            'analysis' => 'Add AI comment/motivation here...', // TODO: Add AI comment/motivation here
-        ];
+        return max(0, $quantityToOrder);
     }
 
     /**
@@ -268,51 +265,7 @@ class PurchaseOrderGenerator
             ->get();
     }
 
-    /**
-     * Returns the number of incoming quantities for a specific article.
-     *
-     * @param string $articleNumber
-     * @return int
-     */
-    private function getIncomingQuantity(string $articleNumber): int
-    {
-        return DB::table('purchase_order_lines')
-            ->leftJoin('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-            ->where('purchase_order_lines.article_number', $articleNumber)
-            ->where('purchase_orders.status', '!=', 'Closed')
-            ->sum('quantity');
-    }
-
-
-
-
-
-
     // Questions:
     // - Ska vi skicka med något pris till Visma.net? (Skicka med kostnader på ordern)
     // - Om en inköpsorder skapas, adderas det på lagersaldot eller görs det när den kommer in? (lager räknas upp när order kommer in)
-
-
-
-
-
-
-    // Limits for VIP orders (quantity and value)
-    // Flag on purchase orders for VIP orders
-    // Work with master-box quantity (setting on supplier, use master or not) (exception handling if master-quatity is missing)
-
-    // Generate PDF that is sent to supplier (supplier => Enter prefered shipping agent)
-    // Link on PDF to confirm order => Enter ETA => Send to Visma.net
-
-    // Setting per supplier how often in days to generate orders (if case is not emergency)
-
-    // Check against:
-    // - Sales now (last 7 days)
-    // - Sales last month (last 30 days)
-    // - Sales last quarter (last 90 days)
-    // - Sales this period last year (date - +30 days)
-    // - Stlrata kunder
-    // - Livscykel. när fick vi produkten och hur ser utvevcklingen ut
-
-    // If AI decides this, also add a motivation as to why
 }
