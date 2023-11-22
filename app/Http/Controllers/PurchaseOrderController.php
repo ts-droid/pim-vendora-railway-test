@@ -101,14 +101,9 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([$order->toArray()]);
     }
 
-    public function update(Request $request, PurchaseOrder $order)
+    public function update(Request $request, PurchaseOrder $purchaseOrder)
     {
         $requestData = $request->all();
-
-        return ApiResponseController::success([
-            $requestData,
-            $order->toArray()
-        ]);
 
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
@@ -123,13 +118,13 @@ class PurchaseOrderController extends Controller
         }
 
         if ($orderUpdateData) {
-            $order->update($orderUpdateData);
+            $purchaseOrder->update($orderUpdateData);
         }
 
         // Update the lines
         foreach (($requestData['lines'] ?? []) as $line) {
             $orderLine = PurchaseOrderLine::where([
-                ['purchase_order_id', '=', $order->id],
+                ['purchase_order_id', '=', $purchaseOrder->id],
                 ['line_key', '=', $line['line_key']]
             ])->first();
 
@@ -158,15 +153,15 @@ class PurchaseOrderController extends Controller
                     }
                 }
 
-                $createData['purchase_order_id'] = $order->id;
+                $createData['purchase_order_id'] = $purchaseOrder->id;
 
                 PurchaseOrderLine::create($createData);
             }
         }
 
-        $order->refresh();
+        $purchaseOrder->refresh();
 
-        return ApiResponseController::success([$order->toArray()]);
+        return ApiResponseController::success([$purchaseOrder->toArray()]);
     }
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
@@ -188,18 +183,18 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
-    public function publish(Request $request, PurchaseOrder $order)
+    public function publish(Request $request, PurchaseOrder $purchaseOrder)
     {
         $purchaseOrderPublisher = new PurchaseOrderPublisher();
-        $response = $purchaseOrderPublisher->publishOrder($order);
+        $response = $purchaseOrderPublisher->publishOrder($purchaseOrder);
 
         if (!$response['success']) {
             return ApiResponseController::error($response['message']);
         }
 
-        $order->refresh();
+        $purchaseOrder->refresh();
 
-        return ApiResponseController::success([$order->toArray()]);
+        return ApiResponseController::success([$purchaseOrder->toArray()]);
     }
 
     public function delete(Request $request, PurchaseOrder $purchaseOrder)
