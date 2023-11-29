@@ -14,12 +14,14 @@ class GeneratePurchaseOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected int $supplierID;
+
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(int $supplierID)
     {
-        //
+        $this->supplierID = $supplierID;
     }
 
     /**
@@ -28,6 +30,6 @@ class GeneratePurchaseOrders implements ShouldQueue
     public function handle(): void
     {
         $purchaseOrderGenerator = new PurchaseOrderGenerator();
-        $purchaseOrderGenerator->generateAll();
+        $purchaseOrderGenerator->generate($this->supplierID);
     }
 }

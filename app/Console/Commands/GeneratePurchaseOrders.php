@@ -12,7 +12,7 @@ class GeneratePurchaseOrders extends Command
      *
      * @var string
      */
-    protected $signature = 'purchase-orders:generate';
+    protected $signature = 'purchase-orders:generate {supplierID?}';
 
     /**
      * The console command description.
@@ -26,8 +26,10 @@ class GeneratePurchaseOrders extends Command
      */
     public function handle()
     {
-        \App\Jobs\GeneratePurchaseOrders::dispatch();
+        $supplierID = $this->argument('supplierID') ?? 0;
 
-        $this->info('Generating purchase orders from queue...');
+        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID);
+
+        $this->info('Generating purchase orders...');
     }
 }

@@ -37,46 +37,72 @@ class PurchaseOrderGenerator
     }
 
     /**
-     * Generates a purchase order for all suppliers.
+     * Generates a purchase order for all suppliers. Or a specific supplier if the supplierID is set.
      *
+     * @param int $supplierID
      * @return void
      */
-    public function generateAll(): void
+    public function generate(int $supplierID = 0): void
     {
-        $suppliers = Supplier::all();
+        $suppliers = collect();
+
+        if ($supplierID) {
+            $supplier = Supplier::find($supplierID);
+
+            if ($supplier) {
+                $suppliers->push($supplier);
+            }
+        }
+        else {
+            $suppliers = Supplier::all();
+        }
 
         foreach ($suppliers as $supplier) {
+            $orderCreated = $this->generateSupplierPurchaseOrder($supplier);
 
-            $generatePurchaseOrder = false;
-
-            // Check if the supplier has any "VIP orders"
-            $vipSalesOrders = $this->getVIPSalesOrders(
-                $supplier,
-                ($supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
-                date('Y-m-d H:i:s')
-            );
-
-            if ($vipSalesOrders->count()) {
-                $generatePurchaseOrder = true;
-            }
-
-            // Check when last we last tries to generate an order for this supplier
-            if (!$supplier->last_purchase_order_run
-                || strtotime($supplier->last_purchase_order_run) < strtotime('-' . $supplier->purchase_order_interval . ' day')
-            ) {
-                $generatePurchaseOrder = true;
-            }
-
-            if (!$generatePurchaseOrder) {
-                continue;
-            }
-
-            $response = $this->createSupplierOrder($supplier, $vipSalesOrders);
-
-            if ($response['success']) {
+            // TODO: Remove this when we going to production
+            if ($orderCreated) {
                 return;
             }
         }
+    }
+
+    /**
+     * Generates a purchase order for a specific supplier.
+     * Returns true if an order was generated, false if not.
+     *
+     * @param Supplier $supplier
+     * @return bool
+     */
+    public function generateSupplierPurchaseOrder(Supplier $supplier): bool
+    {
+        $generatePurchaseOrder = false;
+
+        // Check if the supplier has any "VIP orders"
+        $vipSalesOrders = $this->getVIPSalesOrders(
+            $supplier,
+            ($supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
+            date('Y-m-d H:i:s')
+        );
+
+        if ($vipSalesOrders->count()) {
+            $generatePurchaseOrder = true;
+        }
+
+        // Check when last we last tries to generate an order for this supplier
+        if (!$supplier->last_purchase_order_run
+            || strtotime($supplier->last_purchase_order_run) < strtotime('-' . $supplier->purchase_order_interval . ' day')
+        ) {
+            $generatePurchaseOrder = true;
+        }
+
+        if (!$generatePurchaseOrder) {
+            return false;
+        }
+
+        $response = $this->createSupplierOrder($supplier, $vipSalesOrders);
+
+        return $response['success'];
     }
 
     /**

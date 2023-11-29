@@ -18,7 +18,14 @@ class ArtisanCommandController extends Controller
             ], 400);
         }
 
-        Artisan::call($command);
+        // Is any arguments provided?
+        $arguments = [];
+
+        foreach ($request->input('arguments') as $argument => $value) {
+            $arguments[$argument] = $value;
+        }
+
+        Artisan::call($command, $arguments);
 
         return response()->json([
             'success' => true,

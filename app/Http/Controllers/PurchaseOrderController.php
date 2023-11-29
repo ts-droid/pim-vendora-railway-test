@@ -168,16 +168,21 @@ class PurchaseOrderController extends Controller
     {
         $supplierEmail = $purchaseOrder->supplier->email ?? null;
 
+        $supplierEmail = 'anton@scriptsector.se';
+
         if (!$supplierEmail) {
-            // TODO: Return error after testing is done
-            $supplierEmail = 'anton@scriptsector.se';
-            //return ApiResponseController::error('Supplier is missing email.');
+            return ApiResponseController::error('Supplier is missing email.');
         }
 
         try {
             Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
         } catch (\Exception $e) {
             return ApiResponseController::error($e->getMessage());
+        }
+
+        // Should we also generate a new order for this supplier?
+        if ($request->get('generate_new_order')) {
+
         }
 
         return ApiResponseController::success();
