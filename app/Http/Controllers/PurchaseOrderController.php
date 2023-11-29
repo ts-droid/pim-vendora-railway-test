@@ -8,6 +8,7 @@ use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -182,7 +183,7 @@ class PurchaseOrderController extends Controller
 
         // Should we also generate a new order for this supplier?
         if ($request->get('generate_new_order')) {
-
+            Artisan::call('purchase-orders:generate', ['supplierID' => $purchaseOrder->supplier->id]);
         }
 
         return ApiResponseController::success();
