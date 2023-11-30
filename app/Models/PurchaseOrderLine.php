@@ -15,6 +15,7 @@ class PurchaseOrderLine extends Model
         'article_number',
         'description',
         'quantity',
+        'suggested_quantity',
         'unit_cost',
         'amount',
         'promised_date',

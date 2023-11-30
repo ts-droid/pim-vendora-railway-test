@@ -261,6 +261,7 @@ class PurchaseOrderGenerator
                 'article_number' => $article->article_number,
                 'description' => $article->description,
                 'quantity' => $quantity,
+                'suggested_quantity' => $quantity,
                 'unit_cost' => 0,
                 'amount' => 0,
                 'promised_date' => '',
