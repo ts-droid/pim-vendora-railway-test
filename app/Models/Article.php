@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ArticleQuantityCalculator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,8 +20,24 @@ class Article extends Model
         'category_ids' => 'array',
     ];
 
+    protected $appends = [
+        'stock_incoming',
+        'stock_on_order',
+        'stock_net',
+        'stock_time',
+        'sales_per_month',
+    ];
+
     protected static function booted()
     {
+        static::retrieved(function ($article) {
+            $article->stock_incoming = ArticleQuantityCalculator::getIncoming($article->article_number);
+            $article->stock_on_order = ArticleQuantityCalculator::getOnOrder($article->article_number);
+            $article->stock_net = ArticleQuantityCalculator::getNetStock($article->article_number);
+            $article->stock_time = ArticleQuantityCalculator::getStockTime($article->article_number);
+            $article->sales_per_month = ArticleQuantityCalculator::getSalesPerMonth($article->article_number);
+        });
+
         static::updated(function ($article) {
             $changes = $article->getChanges();
 
