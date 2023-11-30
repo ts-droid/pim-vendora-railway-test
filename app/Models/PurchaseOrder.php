@@ -22,6 +22,7 @@ class PurchaseOrder extends Model
         'amount',
         'is_draft',
         'is_vip',
+        'foresight_days',
     ];
 
     public function supplier()

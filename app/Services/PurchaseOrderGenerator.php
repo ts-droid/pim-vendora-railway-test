@@ -169,6 +169,7 @@ class PurchaseOrderGenerator
             'amount' => 0,
             'is_draft' => 1,
             'is_vip' => ($vipSalesOrders->count() > 0),
+            'foresight_days' => $this->settings['foresight_days'],
         ]);
 
         foreach ($orderLines as $orderLine) {
