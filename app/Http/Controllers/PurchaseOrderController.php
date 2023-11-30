@@ -20,7 +20,7 @@ class PurchaseOrderController extends Controller
 
         $query = $this->getQueryWithFilter(PurchaseOrder::class, $filter);
 
-        $orders = $query->with('lines', 'lines.article')->get();
+        $orders = $query->with('supplier', 'lines', 'lines.article')->get();
         $orders = $orders->toArray();
 
         // Convert results to requested currency
