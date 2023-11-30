@@ -19,6 +19,15 @@ class Article extends Model
         'category_ids' => 'array',
     ];
 
+    protected static function booted()
+    {
+        static::updated(function ($article) {
+            $changes = $article->getChanges();
+
+            event(new \App\Events\ArticleUpdated($article, $changes));
+        });
+    }
+
     public function supplier()
     {
         return $this->belongsTo(Supplier::class, 'supplier_number', 'number');

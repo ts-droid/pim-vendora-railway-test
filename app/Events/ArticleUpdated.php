@@ -15,14 +15,17 @@ class ArticleUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public Article $article;
+    public array $changes;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(
-        public Article $article,
-        public array $changes
-    )
-    {}
+    public function __construct(Article $article, array $changes)
+    {
+        $this->article = $article;
+        $this->changes = $changes;
+    }
 
     /**
      * Get the channels the event should broadcast on.

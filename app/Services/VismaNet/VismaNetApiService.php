@@ -88,6 +88,13 @@ class VismaNetApiService
                     ->post($url, $params);
                 break;
 
+            case 'PUT':
+                $response = Http::withHeaders($headers)
+                    ->connectTimeout(600)
+                    ->timeout(600)
+                    ->put($url, $params);
+                break;
+
             case 'GET':
             default:
                 $response = Http::withHeaders($headers)

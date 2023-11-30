@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ArticleUpdated;
 use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Customer;
@@ -188,8 +187,6 @@ class ArticleController extends Controller
 
         $article->save();
 
-        $changes = $article->getChanges();
-
         // Log the stock
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
@@ -202,9 +199,6 @@ class ArticleController extends Controller
                 $this->uploadArticleImage($article, $imageURL, $listOrder++);
             }
         }
-
-        // Dispatch updated event
-        ArticleUpdated::dispatch($article, $changes);
 
         return ApiResponseController::success([$article->toArray()]);
     }
