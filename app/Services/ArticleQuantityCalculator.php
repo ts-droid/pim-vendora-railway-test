@@ -47,7 +47,7 @@ class ArticleQuantityCalculator
      */
     public static function getNetStock(string $articleNumber): int
     {
-        $stock = Article::where('article_number', $articleNumber)->pluck('stock');
+        $stock = Article::where('article_number', $articleNumber)->pluck('stock')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
 
