@@ -92,7 +92,12 @@ class PurchaseOrderGenerator
             date('Y-m-d H:i:s')
         );
 
-        $orderLines = $this->getOrderLines($purchaseOrder->supplier, $vipSalesOrders, $purchaseOrder->id);
+        $orderLines = $this->getOrderLines(
+            $purchaseOrder->supplier,
+            $vipSalesOrders,
+            $purchaseOrder->foresight_days,
+            $purchaseOrder->id
+        );
 
         foreach ($orderLines as $orderLine) {
             PurchaseOrderLine::create($orderLine);
@@ -163,7 +168,11 @@ class PurchaseOrderGenerator
         }
 
         // Collect all articles that need to be ordered
-        $orderLines = $this->getOrderLines($supplier, $vipSalesOrders);
+        $orderLines = $this->getOrderLines(
+            $supplier,
+            $vipSalesOrders,
+            $this->settings['foresight_days']
+        );
 
         if ($orderLines->isEmpty()) {
             return ['success' => false];
@@ -218,10 +227,11 @@ class PurchaseOrderGenerator
      *
      * @param Supplier $supplier
      * @param Collection $vipSalesOrders
+     * @param int $foresightDays
      * @param int $purchaseOrderID
      * @return Collection
      */
-    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $purchaseOrderID = 0)
+    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0)
     {
         $articles = Article::where('supplier_number', $supplier->number)->get();
 
@@ -239,7 +249,7 @@ class PurchaseOrderGenerator
                 continue;
             }
 
-            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders);
+            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
 
             if (!$quantity) {
                 continue;
@@ -264,9 +274,11 @@ class PurchaseOrderGenerator
      * Returns the quantity to order for a specific article.
      *
      * @param Article $article
+     * @param Collection $vipSalesOrders
+     * @param int $foresightDays
      * @return int
      */
-    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders): int
+    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): int
     {
         $salesVolumeCalculator = new SalesVolumeCalculator();
 
@@ -276,9 +288,6 @@ class PurchaseOrderGenerator
             'last_90_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_90_days_weight'], '-90 days'),
             'last_year' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_year_weight'], '-365 days', '-335 days'),
         ];
-
-        // TODO: Add support to also set this value per supplier/product
-        $foresightDays = $this->settings['foresight_days'];
 
         // Calculate the average sales volume for the periods and weight them against the weight value
         $suggestedStock = ($periods['last_7_days']['sales_volume']['average'] * $periods['last_7_days']['weight'] * $foresightDays);
