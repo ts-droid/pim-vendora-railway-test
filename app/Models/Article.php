@@ -57,26 +57,46 @@ class Article extends Model
 
     public function getStockIncomingAttribute()
     {
-        return $this->stock_incoming;
+        if (!isset($this->attributes['stock_incoming'])) {
+            $this->attributes['stock_incoming'] = ArticleQuantityCalculator::getIncoming($this->article_number);
+        }
+
+        return $this->attributes['stock_incoming'];
     }
 
     public function getStockOnOrderAttribute()
     {
-        return $this->stock_on_order;
+        if (!isset($this->attributes['stock_on_order'])) {
+            $this->attributes['stock_on_order'] = ArticleQuantityCalculator::getOnOrder($this->article_number);
+        }
+
+        return $this->attributes['stock_on_order'];
     }
 
     public function getStockNetAttribute()
     {
-        return $this->stock_net;
+        if (!isset($this->attributes['stock_net'])) {
+            $this->attributes['stock_net'] = ArticleQuantityCalculator::getNetStock($this->article_number);
+        }
+
+        return $this->attributes['stock_net'];
     }
 
     public function getStockTimeAttribute()
     {
-        return $this->stock_time;
+        if (!isset($this->attributes['stock_time'])) {
+            $this->attributes['stock_time'] = ArticleQuantityCalculator::getStockTime($this->article_number);
+        }
+
+        return $this->attributes['stock_time'];
     }
 
     public function getSalesPerMonthAttribute()
     {
-        return $this->sales_per_month;
+        if (!isset($this->attributes['sales_per_month'])) {
+            $this->attributes['sales_per_month'] = ArticleQuantityCalculator::getSalesPerMonth($this->article_number);
+        }
+
+        return $this->attributes['sales_per_month'];
     }
 }
