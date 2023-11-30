@@ -54,4 +54,29 @@ class Article extends Model
     {
         return $this->hasMany(StockLog::class, 'article_number', 'article_number');
     }
+
+    public function getStockIncomingAttribute()
+    {
+        return $this->stock_incoming;
+    }
+
+    public function getStockOnOrderAttribute()
+    {
+        return $this->stock_on_order;
+    }
+
+    public function getStockNetAttribute()
+    {
+        return $this->stock_net;
+    }
+
+    public function getStockTimeAttribute()
+    {
+        return $this->stock_time;
+    }
+
+    public function getSalesPerMonthAttribute()
+    {
+        return $this->sales_per_month;
+    }
 }
