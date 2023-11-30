@@ -68,6 +68,51 @@ class PurchaseOrderGenerator
     }
 
     /**
+     * Regenerates a purchase order (Only if it's a draft)
+     *
+     * @param PurchaseOrder $purchaseOrder
+     * @return array
+     */
+    public function regenerate(PurchaseOrder $purchaseOrder): array
+    {
+        if ($purchaseOrder->is_draft) {
+            return [
+                'success' => false,
+                'message' => 'The purchase order is not a draft.',
+            ];
+        }
+
+        // Remove the existing order lines
+        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->delete();
+
+        // Add new order lines
+        $vipSalesOrders = $this->getVIPSalesOrders(
+            $purchaseOrder->supplier,
+            ($purchaseOrder->supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
+            date('Y-m-d H:i:s')
+        );
+
+        $orderLines = $this->getOrderLines($purchaseOrder->supplier, $vipSalesOrders, $purchaseOrder->id);
+
+        foreach ($orderLines as $orderLine) {
+            PurchaseOrderLine::create($orderLine);
+        }
+
+        $purchaseOrder->refresh();
+
+        $purchaseOrderMotivator = new PurchaseOrderMotivator();
+        $purchaseOrderMotivator->motivateQuantity($purchaseOrder);
+
+        // Set timestamp for last order generation
+        $purchaseOrder->supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
+
+        return [
+            'success' => true,
+            'message' => '',
+        ];
+    }
+
+    /**
      * Generates a purchase order for a specific supplier.
      * Returns true if an order was generated, false if not.
      *
@@ -117,40 +162,8 @@ class PurchaseOrderGenerator
             $vipSalesOrders = collect();
         }
 
-        // Fetch all articles for the supplier
-        $articles = Article::where('supplier_number', $supplier->number)->get();
-
-        if (!$articles->count()) {
-            return ['success' => false];
-        }
-
         // Collect all articles that need to be ordered
-        $orderLines = collect();
-
-        $lineKey = 0;
-
-        foreach ($articles as $article) {
-            // Exclude articles
-            if (in_array($article->article_number, $this->excludeArticles)) {
-                continue;
-            }
-
-            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders);
-
-            if (!$quantity) {
-                continue;
-            }
-
-            $orderLines->push([
-                'line_key' => $lineKey++,
-                'article_number' => $article->article_number,
-                'description' => $article->description,
-                'quantity' => $quantity,
-                'unit_cost' => 0,
-                'amount' => 0,
-                'promised_date' => '',
-            ]);
-        }
+        $orderLines = $this->getOrderLines($supplier, $vipSalesOrders);
 
         if ($orderLines->isEmpty()) {
             return ['success' => false];
@@ -198,6 +211,53 @@ class PurchaseOrderGenerator
             'purchase_order_id' => $purchaseOrder->id,
             'task' => null,
         ];
+    }
+
+    /**
+     * Returns all order lines for a purchase order
+     *
+     * @param Supplier $supplier
+     * @param Collection $vipSalesOrders
+     * @param int $purchaseOrderID
+     * @return Collection
+     */
+    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $purchaseOrderID = 0)
+    {
+        $articles = Article::where('supplier_number', $supplier->number)->get();
+
+        if (!$articles->count()) {
+            return collect();
+        }
+
+        $orderLines = collect();
+
+        $lineKey = 0;
+
+        foreach ($articles as $article) {
+            // Exclude articles
+            if (in_array($article->article_number, $this->excludeArticles)) {
+                continue;
+            }
+
+            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders);
+
+            if (!$quantity) {
+                continue;
+            }
+
+            $orderLines->push([
+                'purchase_order_id' => $purchaseOrderID,
+                'line_key' => $lineKey++,
+                'article_number' => $article->article_number,
+                'description' => $article->description,
+                'quantity' => $quantity,
+                'unit_cost' => 0,
+                'amount' => 0,
+                'promised_date' => '',
+            ]);
+        }
+
+        return $orderLines;
     }
 
     /**

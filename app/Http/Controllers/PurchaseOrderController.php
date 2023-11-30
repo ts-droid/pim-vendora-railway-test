@@ -6,6 +6,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
+use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -163,6 +164,18 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->refresh();
 
         return ApiResponseController::success([$purchaseOrder->toArray()]);
+    }
+
+    public function regenerate(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrderGenerator = new PurchaseOrderGenerator();
+        $response = $purchaseOrderGenerator->regenerate($purchaseOrder);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
