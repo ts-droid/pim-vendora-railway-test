@@ -128,6 +128,7 @@
             <tr>
                 <th>SKU</th>
                 <th>Description</th>
+                <th>Unit price</th>
                 <th class="text-end">Quantity</th>
             </tr>
 
@@ -135,6 +136,7 @@
                 <tr>
                     <td>{{ $line->article_number }}</td>
                     <td>{{ $line->description }}</td>
+                    <td>{{ $line->unit_price }}</td>
                     <td class="text-end">{{ $line->quantity }}</td>
                 </tr>
             @endforeach

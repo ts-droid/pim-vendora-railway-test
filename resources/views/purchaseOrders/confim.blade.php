@@ -169,6 +169,7 @@
                 <tr>
                     <th>SKU</th>
                     <th>Description</th>
+                    <th>Unit price</th>
                     <th>Qty</th>
                 </tr>
                 @if($purchaseOrder->lines)
@@ -176,6 +177,7 @@
                         <tr>
                             <td>{{ $orderLine->article_number }}</td>
                             <td>{{ $orderLine->description }}</td>
+                            <td>{{ $orderLine->unit_price }}</td>
                             <td>{{ $orderLine->quantity }} pcs</td>
                         </tr>
                     @endforeach
