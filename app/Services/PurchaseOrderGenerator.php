@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\SalesOrder;
+use App\Models\SalesOrderLine;
 use App\Models\Supplier;
 use App\Services\VendoraAdmin\VendoraAdminTaskService;
 use Illuminate\Support\Collection;
@@ -264,6 +265,7 @@ class PurchaseOrderGenerator
                 'suggested_quantity' => $quantity,
                 'unit_cost' => 0,
                 'amount' => 0,
+                'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
                 'promised_date' => '',
             ]);
         }
@@ -360,6 +362,28 @@ class PurchaseOrderGenerator
             ->where(DB::raw('sales_orders.order_total * sales_orders.exchange_rate'), '>=', $this->settings['vip_order_value_limit'])
             ->where('sales_orders.order_total_quantity', '>=', $this->settings['vip_order_quantity_limit'])
             ->get();
+    }
+
+    /**
+     * Returns true if an article is on a VIP order
+     *
+     * @param Collection $vipSalesOrders
+     * @param string $articleNumber
+     * @return bool
+     */
+    private function isVIPArticle(Collection $vipSalesOrders, string $articleNumber): bool
+    {
+        foreach ($vipSalesOrders as $salesOrder) {
+            $hasArticleOnOrder = SalesOrderLine::where('sales_order_id', $salesOrder->id)
+                ->where('article_number', $articleNumber)
+                ->exists();
+
+            if ($hasArticleOnOrder) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Questions:

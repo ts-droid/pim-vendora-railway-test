@@ -21,6 +21,7 @@ class PurchaseOrderLine extends Model
         'promised_date',
         'ai_comment',
         'user_comment',
+        'is_vip',
     ];
 
     public function article()
