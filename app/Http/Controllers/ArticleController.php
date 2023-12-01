@@ -117,6 +117,7 @@ class ArticleController extends Controller
         $data = [
             'external_id' => $request->external_id,
             'article_number' => $request->article_number,
+            'status' => (string) ($request->status ?? 'Active'),
             'description' => $request->description,
             'ean' => (string) ($request->ean ?? ''),
             'wright_article_number' => (string) ($request->wright_article_number ?? ''),

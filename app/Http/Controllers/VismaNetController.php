@@ -384,6 +384,7 @@ class VismaNetController extends Controller
                 $articleData = [
                     'external_id' => (string) ($article['inventoryId'] ?? ''),
                     'article_number' => (string) ($article['inventoryNumber'] ?? ''),
+                    'status' => (string) ($article['status'] ?? ''),
                     'description' => (string) ($article['description'] ?? ''),
                     'supplier_number' => (string) ($article['supplierDetails'][0]['supplierId'] ?? ''),
                     'cost_price_avg' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
