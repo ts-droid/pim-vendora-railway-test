@@ -62,7 +62,7 @@ class PurchaseOrderMotivator
 
         If IS_NEW_ARTICLE is true, then always order 1 master box, and if MASTER_BOX_QUANTITY is 0, then order 1 unit.
 
-        Can you write a very short motivation/description for the suggested quantity to order?
+        Can you write a very short motivation/description for the suggested quantity to order? Maximum 100 characters.
         This will be shown to the purchase order manager. It should be very short and concise.';
 
 
