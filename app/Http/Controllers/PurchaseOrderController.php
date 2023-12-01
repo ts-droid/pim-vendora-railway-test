@@ -138,6 +138,8 @@ class PurchaseOrderController extends Controller
                     }
                 }
 
+                $orderLine->amount = $orderLine->unit_cost * $orderLine->quantity;
+
                 if ($orderLine->quantity == 0) {
                     $orderLine->delete();
                 }
@@ -155,6 +157,7 @@ class PurchaseOrderController extends Controller
                     }
                 }
 
+                $createData['amount'] = $createData['unit_cost'] * $createData['quantity'];
                 $createData['purchase_order_id'] = $purchaseOrder->id;
 
                 PurchaseOrderLine::create($createData);
