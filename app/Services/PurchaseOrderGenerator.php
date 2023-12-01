@@ -106,9 +106,6 @@ class PurchaseOrderGenerator
 
         $purchaseOrder->refresh();
 
-        $purchaseOrderMotivator = new PurchaseOrderMotivator();
-        $purchaseOrderMotivator->motivateQuantity($purchaseOrder);
-
         // Set timestamp for last order generation
         $purchaseOrder->supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
 
@@ -203,9 +200,6 @@ class PurchaseOrderGenerator
 
         $purchaseOrder->refresh();
 
-        $purchaseOrderMotivator = new PurchaseOrderMotivator();
-        $purchaseOrderMotivator->motivateQuantity($purchaseOrder);
-
         // Create a task
         $taskService = new VendoraAdminTaskService();
         $taskID = $taskService->createTask('purchase_order', [
@@ -250,7 +244,7 @@ class PurchaseOrderGenerator
                 continue;
             }
 
-            $quantity = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
+            list($quantity, $aiComment) = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
 
             if (!$quantity) {
                 continue;
@@ -266,6 +260,7 @@ class PurchaseOrderGenerator
                 'unit_cost' => 0,
                 'amount' => 0,
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
+                'ai_comment' => $aiComment,
                 'promised_date' => '',
             ]);
         }
@@ -279,9 +274,9 @@ class PurchaseOrderGenerator
      * @param Article $article
      * @param Collection $vipSalesOrders
      * @param int $foresightDays
-     * @return int
+     * @return array
      */
-    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): int
+    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
     {
         $salesVolumeCalculator = new SalesVolumeCalculator();
 
@@ -300,8 +295,11 @@ class PurchaseOrderGenerator
 
 
         // Add the VIP orders to the suggested stock
+        $vipQuantity = 0;
+
         foreach ($vipSalesOrders as $salesOrder) {
             $suggestedStock += (int) $salesOrder->order_total_quantity;
+            $vipQuantity += (int) $salesOrder->order_total_quantity;
         }
 
 
@@ -315,11 +313,35 @@ class PurchaseOrderGenerator
         $quantityToOrder = $suggestedStock - $currentStock - $incomingQuantity;
 
         // Round to the closest master box size
-        if ($article->supplier->purchase_master_box && $article->master_box) {
+        $useMasterBox = ($article->supplier->purchase_master_box && $article->master_box);
+
+        if ($useMasterBox) {
             $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box;
         }
 
-        return max(0, $quantityToOrder);
+        // Motivate the quantity
+        $motivator = new PurchaseOrderMotivator();
+        $aiComment = $motivator->motivateQuantity([
+            'foresight_days' => $foresightDays,
+            'sales_last_7_days' => $periods['last_7_days']['sales_volume']['average'],
+            'sales_last_30_days' => $periods['last_30_days']['sales_volume']['average'],
+            'sales_last_90_days' => $periods['last_90_days']['sales_volume']['average'],
+            'sales_last_year' => $periods['last_year']['sales_volume']['average'],
+            'weight_7_days' => $periods['last_7_days']['weight'],
+            'weight_30_days' => $periods['last_30_days']['weight'],
+            'weight_90_days' => $periods['last_90_days']['weight'],
+            'weight_year' => $periods['last_year']['weight'],
+            'current_stock' => $currentStock,
+            'incoming_stock' => $incomingQuantity,
+            'vip_quantity' => $vipQuantity,
+            'use_master_box' => $useMasterBox,
+            'master_box' => $article->master_box,
+        ]);
+
+        return [
+            max(0, $quantityToOrder),
+            $aiComment
+        ];
     }
 
     /**
