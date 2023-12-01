@@ -282,6 +282,8 @@ class PurchaseOrderGenerator
     {
         $salesVolumeCalculator = new SalesVolumeCalculator();
 
+        $isNewArticle = !PurchaseOrderLine::where('article_number', $article->article_number)->exists();
+
         $periods = [
             'last_7_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_7_days_weight'], '-7 days'),
             'last_30_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_30_days_weight'], '-30 days'),
@@ -321,6 +323,10 @@ class PurchaseOrderGenerator
             $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box;
         }
 
+        if ($isNewArticle) {
+            $quantityToOrder = $article->master_box ?: 1;
+        }
+
         // Motivate the quantity
         $motivator = new PurchaseOrderMotivator();
         $aiComment = $motivator->motivateQuantity([
@@ -338,6 +344,7 @@ class PurchaseOrderGenerator
             'vip_quantity' => $vipQuantity,
             'use_master_box' => $useMasterBox,
             'master_box' => $article->master_box,
+            'is_new_article' => $isNewArticle,
         ]);
 
         return [

@@ -24,6 +24,7 @@ class PurchaseOrderMotivator
             'VIP_QUANTITY' => $data['vip_quantity'] ?? 0,
             'USE_MASTER_BOX' => $data['use_master_box'] ? 'true' : 'false',
             'MASTER_BOX_QUANTITY' => $data['master_box'] ?? 0,
+            'IS_NEW_ARTICLE' => $data['is_new_article'] ? 'true' : 'false',
         ];
 
         // Construct the system
@@ -58,6 +59,8 @@ class PurchaseOrderMotivator
         QUANTITY_TO_ORDER -= INCOMING_STOCK
 
         If USE_MASTER_BOX is true, then QUANTITY_TO_ORDER is rounded to the nearest multiple of MASTER_BOX_QUANTITY.
+
+        If IS_NEW_ARTICLE is true, then always order 1 master box, and if MASTER_BOX_QUANTITY is 0, then order 1 unit.
 
         Can you write a very short motivation/description for the suggested quantity to order?
         This will be shown to the purchase order manager. It should be very short and concise.';
