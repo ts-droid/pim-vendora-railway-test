@@ -228,7 +228,9 @@ class PurchaseOrderGenerator
      */
     private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0)
     {
-        $articles = Article::where('supplier_number', $supplier->number)->get();
+        $articles = Article::where('supplier_number', $supplier->number)
+            ->where('status', 'Active')
+            ->get();
 
         if (!$articles->count()) {
             return collect();
