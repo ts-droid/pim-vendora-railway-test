@@ -33,6 +33,8 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'lineType' => ['value' => 'GoodsForInventory'],
                 'lineDescription' => ['value' => $orderLine->description],
                 'orderQty' => ['values' => $orderLine->quantity],
+                'unitCost' => ['value' => $orderLine->unit_cost],
+                'amount' => ['value' => $orderLine->amount],
             ];
         }
 
