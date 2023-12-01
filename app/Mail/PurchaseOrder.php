@@ -18,7 +18,8 @@ class PurchaseOrder extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public \App\Models\PurchaseOrder $purchaseOrder
+        public \App\Models\PurchaseOrder $purchaseOrder,
+        public ?string $pdfContent = null,
     )
     {}
 
@@ -53,6 +54,14 @@ class PurchaseOrder extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+
+        if ($this->pdfContent) {
+            $attachments[] = $this->attachData($this->pdfContent, 'purchase_order.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+        }
+
+        return $attachments;
     }
 }

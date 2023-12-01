@@ -191,8 +191,13 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error('Supplier is missing email.');
         }
 
+        // Generate PDF
+        $pdfGenerator = new \App\Services\PdfGenerator();
+        $pdfContent = $pdfGenerator->generateFromView('pdf.purchaseOrder', compact('purchaseOrder'));
+
+        // Send email
         try {
-            Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
+            Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder, $pdfContent));
         } catch (\Exception $e) {
             return ApiResponseController::error($e->getMessage());
         }
