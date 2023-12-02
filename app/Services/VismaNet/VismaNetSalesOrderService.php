@@ -45,7 +45,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
                     'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
                     'date' => (string) $order['date'],
-                    'customer' => (string) $order['customer']['internalId'],
+                    'customer' => (string) ($order['customer']['internalId'] ?? ''),
                     'currency' => (string) $order['currency'],
                     'order_total' => (float) $order['orderTotal'],
                     'exchange_rate' => (float) $order['exchangeRate'],
