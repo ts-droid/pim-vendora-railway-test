@@ -38,6 +38,12 @@ class Article extends Model
             $article->sales_per_month = ArticleQuantityCalculator::getSalesPerMonth($article->article_number);
         });
 
+        static::updating(function ($article) {
+            foreach ($article->appends() as $append) {
+                unset($article->attributes[$append]);
+            }
+        });
+
         static::updated(function ($article) {
             $changes = $article->getChanges();
 
