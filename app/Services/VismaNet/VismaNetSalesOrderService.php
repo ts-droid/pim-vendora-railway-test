@@ -30,6 +30,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $salesOrderController = new SalesOrderController();
 
             foreach ($orders as $order) {
+                if (!$order) {
+                    continue;
+                }
+
                 if ($order['hold'] ?? false) {
                     continue;
                 }
