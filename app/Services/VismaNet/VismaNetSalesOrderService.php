@@ -25,9 +25,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $orders = $this->getPagedResult('/v2/salesorder', $params);
 
-        if ($orders) {
+        dd($orders);
 
-            dd($orders[0]);
+        if ($orders) {
 
             $salesOrderController = new SalesOrderController();
 
