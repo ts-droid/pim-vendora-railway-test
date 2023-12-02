@@ -76,7 +76,7 @@ class PurchaseOrderGenerator
      */
     public function regenerate(PurchaseOrder $purchaseOrder): array
     {
-        if ($purchaseOrder->is_draft) {
+        if (!$purchaseOrder->is_draft) {
             return [
                 'success' => false,
                 'message' => 'The purchase order is not a draft.',
