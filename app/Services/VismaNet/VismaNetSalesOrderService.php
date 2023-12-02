@@ -23,7 +23,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
-        $orders = $this->getPagedResult('/v1/salesorder', $params);
+        $orders = $this->getPagedResult('/v2/salesorder', $params);
 
         if ($orders) {
 
