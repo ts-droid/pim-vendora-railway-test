@@ -67,7 +67,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 }
 
                 $response = $salesOrderController->get(new Request([
-                    'order_type' => (string) $order['orderType'],
+                    'order_type' => $orderData['order_type'],
                     'order_number' => $orderData['order_number'],
                 ]));
 
