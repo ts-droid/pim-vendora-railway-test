@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('customer')->default('')->index();
             $table->string('currency');
             $table->double('order_total')->index();
-            $table->integer('order_total_quantity')->index();
+            $table->integer('order_total_quantity')->default(0)->index();
             $table->double('exchange_rate')->index();
             $table->text('note')->nullable()->default(null);
             $table->timestamps();
