@@ -73,7 +73,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
                 $existingSalesOrder = ApiResponseController::getDataFromResponse($response);
 
-                if ($existingSalesOrder) {
+                if (!$existingSalesOrder) {
                     // Create new sales order
                     $salesOrderController->store(new Request($orderData));
                 }
