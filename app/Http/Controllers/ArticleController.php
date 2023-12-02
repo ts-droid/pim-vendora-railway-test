@@ -180,13 +180,17 @@ class ArticleController extends Controller
     {
         $fillables = get_model_attributes(Article::class);
 
+        $updates = [];
+
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
-                $article->{$key} = $value;
+                $updates[$key] = $value;
             }
         }
 
-        $article->save();
+        if ($updates) {
+            $article->update($updates);
+        }
 
         // Log the stock
         $stockLogController = new StockLogController();
