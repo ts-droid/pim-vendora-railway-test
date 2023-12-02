@@ -170,7 +170,8 @@ class VismaNetApiService
             }
         }
 
-        $rows = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $response = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $rows = $response['response'];
 
         if ($rows && count($rows) === $this->defaultPageSize) {
             $params['pageNumber']++;
