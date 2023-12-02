@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Models\Article;
+use App\Events\ArticleUpdated;
 use App\Services\Models\ArticleService;
 
 class HandleArticleUpdate
@@ -14,8 +14,8 @@ class HandleArticleUpdate
         $this->articleService = $articleService;
     }
 
-    public function handle(Article $article, array $changes): void
+    public function handle(ArticleUpdated $articleUpdated): void
     {
-        $this->articleService->handleUpdate($article, $changes);
+        $this->articleService->handleUpdate($articleUpdated->article, $articleUpdated->changes);
     }
 }
