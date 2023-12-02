@@ -39,7 +39,7 @@ class Article extends Model
         });
 
         static::updating(function ($article) {
-            foreach ($article->appends() as $append) {
+            foreach ($article->getAppends() as $append) {
                 unset($article->attributes[$append]);
             }
         });
