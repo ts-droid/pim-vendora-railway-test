@@ -27,6 +27,6 @@ class SalesOrder extends Model
 
     public function lines(): HasMany
     {
-        return $this->hasMany(SalesOrderLine::class, 'purchase_order_id', 'id');
+        return $this->hasMany(SalesOrderLine::class, 'sales_order_id', 'id');
     }
 }
