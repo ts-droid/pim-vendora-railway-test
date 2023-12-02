@@ -49,7 +49,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'currency' => (string) $order['currency'],
                     'order_total' => (float) $order['orderTotal'],
                     'exchange_rate' => (float) $order['exchangeRate'],
-                    'note' => (string) $order['note'],
+                    'note' => (string) ($order['note'] ?? ''),
                     'lines' => [],
                 ];
 
