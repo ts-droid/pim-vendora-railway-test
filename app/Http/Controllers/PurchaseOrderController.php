@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RegeneratePurchaseOrder;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\ArticleQuantityCalculator;
@@ -171,12 +172,7 @@ class PurchaseOrderController extends Controller
 
     public function regenerate(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $purchaseOrderGenerator = new PurchaseOrderGenerator();
-        $response = $purchaseOrderGenerator->regenerate($purchaseOrder);
-
-        if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
-        }
+        RegeneratePurchaseOrder::dispatch($purchaseOrder);
 
         return ApiResponseController::success();
     }
