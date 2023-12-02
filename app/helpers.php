@@ -16,6 +16,10 @@ if (!function_exists('get_model_attributes')) {
             $attributes[] = 'id';
         }
 
+        // Remove $appends from the attributes
+        $appends = (new $model)->getAppends();
+        $attributes = array_diff($attributes, $appends);
+
         return $attributes;
     }
 }
