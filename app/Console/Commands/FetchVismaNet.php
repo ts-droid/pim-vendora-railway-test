@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\VismaNetController;
+use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Console\Command;
 
 class FetchVismaNet extends Command
@@ -61,6 +62,11 @@ class FetchVismaNet extends Command
 
             case 'sales-persons':
                 $vismaNetController->fetchSalesPersons();
+                break;
+
+            case 'sales-orders':
+                $salesOrderService = new VismaNetSalesOrderService();
+                $salesOrderService->fetchSalesOrders();
                 break;
 
             case 'all':
