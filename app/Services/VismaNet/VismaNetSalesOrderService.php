@@ -27,6 +27,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if ($orders) {
 
+            dd($orders[0]);
+
             $salesOrderController = new SalesOrderController();
 
             foreach ($orders as $order) {
