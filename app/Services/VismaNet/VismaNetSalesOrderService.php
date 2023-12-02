@@ -62,7 +62,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                         'quantity' => (int) $line['quantity'],
                         'unit_cost' => (float) $line['unitCost'],
                         'unit_price' => (float) $line['unitPrice'],
-                        'description' => $line['lineDescription'],
+                        'description' => (string) ($line['lineDescription'] ?? ''),
                     ];
                 }
 
