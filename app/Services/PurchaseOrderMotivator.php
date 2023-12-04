@@ -9,6 +9,8 @@ class PurchaseOrderMotivator
 {
     public function motivateQuantity(array $data): string
     {
+        return 'demo content';
+
         $systemVariables = [
             'FORESIGHT_DAYS' => $data['foresight_days'] ?? 0,
             'SALES_LAST_7_DAYS' => $data['sales_last_7_days'] ?? 0,
