@@ -15,6 +15,8 @@ class ArticleQuantityCalculator
      */
     public static function getIncoming(string $articleNumber): int
     {
+        return 0;
+
         return (int) DB::table('purchase_order_lines')
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->where('purchase_orders.status', '=', 'Open')
@@ -30,6 +32,8 @@ class ArticleQuantityCalculator
      */
     public static function getOnOrder(string $articleNumber): int
     {
+        return 0;
+
         $quantity = (int) DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->where('sales_orders.status', '!=', 'Closed')
@@ -47,6 +51,8 @@ class ArticleQuantityCalculator
      */
     public static function getNetStock(string $articleNumber): int
     {
+        return 0;
+
         $stock = Article::where('article_number', $articleNumber)->pluck('stock')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
@@ -63,6 +69,8 @@ class ArticleQuantityCalculator
      */
     public static function getSalesPerMonth(string $articleNumber, int $months = 6): int
     {
+        return 0;
+
         $days = $months * 30;
 
         $sales = (int) DB::table('sales_order_lines')
@@ -82,6 +90,8 @@ class ArticleQuantityCalculator
      */
     public static function getStockTime(string $articleNumber): int
     {
+        return 0;
+
         $salesPerMonth = self::getSalesPerMonth($articleNumber);
         $netStock = self::getNetStock($articleNumber);
 
