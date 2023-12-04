@@ -90,7 +90,7 @@ class SalesVolumeCalculator
 
             // Update the sales volume for each article
             foreach ($articleSummary as $articleNumber => $salesVolume) {
-                Article::where('article_number', $articleNumber)->update([$column => $salesVolume]);
+                Article::where('article_number', (string) $articleNumber)->update([$column => $salesVolume]);
             }
         }
     }
