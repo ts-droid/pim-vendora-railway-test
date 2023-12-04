@@ -129,7 +129,7 @@ class ArticleQuantityCalculator
             // Fetch the results from the database
             $salesPerMonthQuantities = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                ->where('sales_order_lines.created_at', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+                ->where('sales_orders.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
                 ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
                 ->groupBy('sales_order_lines.article_number')
                 ->get()
