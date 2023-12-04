@@ -41,8 +41,8 @@ class ArticleQuantityCalculator
                 })
                 ->toArray();
 
-            // Store the results in the cache for 60 minutes
-            Cache::put('incoming_quantities', $incomingQuantities, 60);
+            // Store the results in the cache for 10 minutes
+            Cache::put('incoming_quantities', $incomingQuantities, 10);
         }
 
         return $incomingQuantities;
@@ -56,15 +56,36 @@ class ArticleQuantityCalculator
      */
     public static function getOnOrder(string $articleNumber): int
     {
-        return 0;
+        $onOrderQuantities = self::getOnOrderQuantities();
 
-        $quantity = (int) DB::table('sales_order_lines')
-            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->where('sales_orders.status', '!=', 'Closed')
-            ->where('sales_order_lines.article_number', $articleNumber)
-            ->sum('quantity');
+        return $onOrderQuantities[$articleNumber] ?? 0;
+    }
 
-        return $quantity;
+    public static function getOnOrderQuantities(): array
+    {
+        // Try to get the results from the cache
+        $onOrderQuantities = Cache::get('on_order_quantities');
+
+        // If the results are not in the cache
+        if ($onOrderQuantities === null) {
+            // Fetch the results from the database
+            $onOrderQuantities = DB::table('sales_order_lines')
+                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->where('sales_orders.status', '!=', 'Closed')
+                ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
+                ->groupBy('sales_order_lines.article_number')
+                ->get()
+                ->keyBy('article_number')
+                ->map(function ($row) {
+                    return $row->total_quantity;
+                })
+                ->toArray();
+
+            // Store the results in the cache for 10 minutes
+            Cache::put('on_order_quantities', $onOrderQuantities, 10);
+        }
+
+        return $onOrderQuantities;
     }
 
     /**
@@ -75,8 +96,6 @@ class ArticleQuantityCalculator
      */
     public static function getNetStock(string $articleNumber): int
     {
-        return 0;
-
         $stock = Article::where('article_number', $articleNumber)->pluck('stock')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
@@ -93,17 +112,38 @@ class ArticleQuantityCalculator
      */
     public static function getSalesPerMonth(string $articleNumber, int $months = 6): int
     {
-        return 0;
+        $salesPerMonthQuantities = self::getSalesPerMonthQuantities($months);
 
-        $days = $months * 30;
+        return $salesPerMonthQuantities[$articleNumber] ?? 0;
+    }
 
-        $sales = (int) DB::table('sales_order_lines')
-            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->where('sales_order_lines.article_number', $articleNumber)
-            ->where('sales_order_lines.created_at', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
-            ->sum('quantity');
+    public static function getSalesPerMonthQuantities(int $months = 6): array
+    {
+        // Try to get the results from the cache
+        $salesPerMonthQuantities = Cache::get('sales_per_month_quantities_' . $months);
 
-        return round($sales / $months);
+        // If the results are not in the cache
+        if ($salesPerMonthQuantities === null) {
+            $days = $months * 30;
+
+            // Fetch the results from the database
+            $salesPerMonthQuantities = DB::table('sales_order_lines')
+                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->where('sales_order_lines.created_at', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+                ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
+                ->groupBy('sales_order_lines.article_number')
+                ->get()
+                ->keyBy('article_number')
+                ->map(function ($row) {
+                    return $row->total_quantity;
+                })
+                ->toArray();
+
+            // Store the results in the cache for 10 minutes
+            Cache::put('sales_per_month_quantities_' . $months, $salesPerMonthQuantities, 10);
+        }
+
+        return $salesPerMonthQuantities;
     }
 
     /**
@@ -114,8 +154,6 @@ class ArticleQuantityCalculator
      */
     public static function getStockTime(string $articleNumber): int
     {
-        return 0;
-
         $salesPerMonth = self::getSalesPerMonth($articleNumber);
         $netStock = self::getNetStock($articleNumber);
 
