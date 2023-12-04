@@ -89,7 +89,7 @@ class PurchaseOrderGenerator
         // Add new order lines
         $vipSalesOrders = $this->getVIPSalesOrders(
             $purchaseOrder->supplier,
-            ($purchaseOrder->supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
+            ($this->getSupplierLastOrder($purchaseOrder->supplier) ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
             date('Y-m-d H:i:s')
         );
 
@@ -105,9 +105,6 @@ class PurchaseOrderGenerator
         }
 
         $purchaseOrder->refresh();
-
-        // Set timestamp for last order generation
-        $purchaseOrder->supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
 
         return [
             'success' => true,
@@ -126,10 +123,12 @@ class PurchaseOrderGenerator
     {
         $generatePurchaseOrder = false;
 
+        $lastPurchaseOrderTime = $this->getSupplierLastOrder($supplier);
+
         // Check if the supplier has any "VIP orders"
         $vipSalesOrders = $this->getVIPSalesOrders(
             $supplier,
-            ($supplier->last_purchase_order_run ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
+            ($lastPurchaseOrderTime ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
             date('Y-m-d H:i:s')
         );
 
@@ -138,8 +137,8 @@ class PurchaseOrderGenerator
         }
 
         // Check when last we last tries to generate an order for this supplier
-        if (!$supplier->last_purchase_order_run
-            || strtotime($supplier->last_purchase_order_run) < strtotime('-' . $supplier->purchase_order_interval . ' day')
+        if (!$lastPurchaseOrderTime
+            || strtotime($lastPurchaseOrderTime) < strtotime('-' . $supplier->purchase_order_interval . ' day')
         ) {
             $generatePurchaseOrder = true;
         }
@@ -206,9 +205,6 @@ class PurchaseOrderGenerator
             'purchase_order_id' => $purchaseOrder->id,
             'supplier_name' => $supplier->name,
         ]);
-
-        // Set timestamp for last order generation
-        $supplier->update(['last_purchase_order_run' => date('Y-m-d H:i:s')]);
 
         return [
             'success' => true,
@@ -415,5 +411,24 @@ class PurchaseOrderGenerator
         }
 
         return false;
+    }
+
+    /**
+     * Returns the last purchase order date for a specific supplier
+     *
+     * @param Supplier $supplier
+     * @return string|null
+     */
+    private function getSupplierLastOrder(Supplier $supplier): ?string
+    {
+        $lastPurchaseOrder = PurchaseOrder::where('supplier_id', $supplier->id)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        if (!$lastPurchaseOrder) {
+            return null;
+        }
+
+        return $lastPurchaseOrder->date;
     }
 }
