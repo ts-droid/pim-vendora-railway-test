@@ -282,19 +282,19 @@ class PurchaseOrderGenerator
 
         $periods = [
             'last_7_days' => [
-                'sales_volume' => $article->sales_7_days,
+                'sales_volume' => $article->sales_7_days / 7,
                 'weight' => $this->settings['last_7_days_weight']
             ],
             'last_30_days' => [
-                'sales_volume' => $article->sales_30_days,
+                'sales_volume' => $article->sales_30_days / 30,
                 'weight' => $this->settings['last_30_days_weight']
             ],
             'last_90_days' => [
-                'sales_volume' => $article->sales_90_days,
+                'sales_volume' => $article->sales_90_days / 90,
                 'weight' => $this->settings['last_90_days_weight']
             ],
             'last_year' => [
-                'sales_volume' => $article->sales_last_year,
+                'sales_volume' => $article->sales_last_year / 30,
                 'weight' => $this->settings['last_year_weight']
             ],
         ];
