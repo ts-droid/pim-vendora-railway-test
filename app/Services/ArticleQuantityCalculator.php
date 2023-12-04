@@ -15,8 +15,6 @@ class ArticleQuantityCalculator
      */
     public static function getIncoming(string $articleNumber): int
     {
-        return 0;
-
         return (int) DB::table('purchase_order_lines')
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->where('purchase_orders.status', '=', 'Open')
