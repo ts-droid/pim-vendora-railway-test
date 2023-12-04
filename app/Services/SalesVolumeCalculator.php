@@ -62,8 +62,8 @@ class SalesVolumeCalculator
         $invoiceLines = DB::table('customer_invoice_lines')
             ->select('customer_invoice_lines.*', 'customer_invoices.date')
             ->leftJoin('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->where('customer_invoices.date', '>=', $startDate)
-            ->where('customer_invoices.date', '<=', $endDate)
+            ->where('customer_invoices.date', '>=', $minDate)
+            ->where('customer_invoices.date', '<=', $maxDate)
             ->get();
 
 
