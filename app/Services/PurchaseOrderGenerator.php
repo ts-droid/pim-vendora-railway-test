@@ -281,17 +281,29 @@ class PurchaseOrderGenerator
         $isNewArticle = !PurchaseOrderLine::where('article_number', $article->article_number)->exists();
 
         $periods = [
-            'last_7_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_7_days_weight'], '-7 days'),
-            'last_30_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_30_days_weight'], '-30 days'),
-            'last_90_days' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_90_days_weight'], '-90 days'),
-            'last_year' => $this->getSalesVolumeAndWeight($salesVolumeCalculator, $article->article_number, $this->settings['last_year_weight'], '-365 days', '-335 days'),
+            'last_7_days' => [
+                'sales_volume' => $article->sales_7_days,
+                'weight' => $this->settings['last_7_days_weight']
+            ],
+            'last_30_days' => [
+                'sales_volume' => $article->sales_30_days,
+                'weight' => $this->settings['last_30_days_weight']
+            ],
+            'last_90_days' => [
+                'sales_volume' => $article->sales_90_days,
+                'weight' => $this->settings['last_90_days_weight']
+            ],
+            'last_year' => [
+                'sales_volume' => $article->sales_last_year,
+                'weight' => $this->settings['last_year_weight']
+            ],
         ];
 
         // Calculate the average sales volume for the periods and weight them against the weight value
-        $suggestedStock = ($periods['last_7_days']['sales_volume']['average'] * $periods['last_7_days']['weight'] * $foresightDays);
-        $suggestedStock += ($periods['last_30_days']['sales_volume']['average'] * $periods['last_30_days']['weight'] * $foresightDays);
-        $suggestedStock += ($periods['last_90_days']['sales_volume']['average'] * $periods['last_90_days']['weight'] * $foresightDays);
-        $suggestedStock += ($periods['last_year']['sales_volume']['average'] * $periods['last_year']['weight'] * $foresightDays);
+        $suggestedStock = ($periods['last_7_days']['sales_volume'] * $periods['last_7_days']['weight'] * $foresightDays);
+        $suggestedStock += ($periods['last_30_days']['sales_volume'] * $periods['last_30_days']['weight'] * $foresightDays);
+        $suggestedStock += ($periods['last_90_days']['sales_volume'] * $periods['last_90_days']['weight'] * $foresightDays);
+        $suggestedStock += ($periods['last_year']['sales_volume'] * $periods['last_year']['weight'] * $foresightDays);
 
 
         // Add the VIP orders to the suggested stock
@@ -313,11 +325,11 @@ class PurchaseOrderGenerator
         $quantityToOrder = $suggestedStock - $currentStock - $incomingQuantity;
 
         // Round to the closest master box size
-        $useMasterBox = ($article->supplier->purchase_master_box && $article->master_box && $article->inner_box);
+        $masterBoxQuantity = $article->master_box * $article->inner_box;
+
+        $useMasterBox = ($article->supplier->purchase_master_box && $masterBoxQuantity);
 
         if ($useMasterBox) {
-            $masterBoxQuantity = $article->master_box * $article->inner_box;
-
             $quantityToOrder = round($quantityToOrder / $masterBoxQuantity) * $masterBoxQuantity;
         }
 
@@ -329,10 +341,10 @@ class PurchaseOrderGenerator
         $motivator = new PurchaseOrderMotivator();
         $aiComment = $motivator->motivateQuantity([
             'foresight_days' => $foresightDays,
-            'sales_last_7_days' => $periods['last_7_days']['sales_volume']['average'],
-            'sales_last_30_days' => $periods['last_30_days']['sales_volume']['average'],
-            'sales_last_90_days' => $periods['last_90_days']['sales_volume']['average'],
-            'sales_last_year' => $periods['last_year']['sales_volume']['average'],
+            'sales_last_7_days' => $periods['last_7_days']['sales_volume'],
+            'sales_last_30_days' => $periods['last_30_days']['sales_volume'],
+            'sales_last_90_days' => $periods['last_90_days']['sales_volume'],
+            'sales_last_year' => $periods['last_year']['sales_volume'],
             'weight_7_days' => $periods['last_7_days']['weight'],
             'weight_30_days' => $periods['last_30_days']['weight'],
             'weight_90_days' => $periods['last_90_days']['weight'],
@@ -341,34 +353,13 @@ class PurchaseOrderGenerator
             'incoming_stock' => $incomingQuantity,
             'vip_quantity' => $vipQuantity,
             'use_master_box' => $useMasterBox,
-            'master_box' => $article->master_box,
+            'master_box' => $masterBoxQuantity,
             'is_new_article' => $isNewArticle,
         ]);
 
         return [
             max(0, $quantityToOrder),
             $aiComment
-        ];
-    }
-
-    /**
-     * Returns the sales volume and weight for a specific period.
-     *
-     * @param SalesVolumeCalculator $calculator
-     * @param string $articleNumber
-     * @param float $weight
-     * @param string $start
-     * @param string $end
-     * @return array
-     */
-    private function getSalesVolumeAndWeight(SalesVolumeCalculator $calculator, string $articleNumber, float $weight, string $start, string $end = ''): array
-    {
-        $startDate = date('Y-m-d', strtotime($start));
-        $endDate = $end ? date('Y-m-d', strtotime($end)) : date('Y-m-d');
-
-        return [
-            'sales_volume' => $calculator->calculateSalesVolume($articleNumber, $startDate, $endDate),
-            'weight' => $weight,
         ];
     }
 

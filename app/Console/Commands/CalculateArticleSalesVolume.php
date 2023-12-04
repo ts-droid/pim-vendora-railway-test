@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ArticleController;
+use App\Services\SalesVolumeCalculator;
 use Illuminate\Console\Command;
 
 class CalculateArticleSalesVolume extends Command
@@ -26,7 +27,7 @@ class CalculateArticleSalesVolume extends Command
      */
     public function handle()
     {
-        $articleController = new ArticleController();
-        $articleController->calculateSalesVolume();
+        $calculator = new SalesVolumeCalculator();
+        $calculator->calculateArticles();
     }
 }
