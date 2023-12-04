@@ -317,10 +317,10 @@ class PurchaseOrderGenerator
         $quantityToOrder = $suggestedStock - $currentStock - $incomingQuantity;
 
         // Round to the closest master box size
-        $useMasterBox = ($article->supplier->purchase_master_box && $article->master_box);
+        $useMasterBox = ($article->supplier->purchase_master_box && $article->master_box && $article->inner_box);
 
         if ($useMasterBox) {
-            $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box;
+            $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box * $article->innerBox;
         }
 
         if ($isNewArticle) {
@@ -416,8 +416,4 @@ class PurchaseOrderGenerator
 
         return false;
     }
-
-    // Questions:
-    // - Ska vi skicka med något pris till Visma.net? (Skicka med kostnader på ordern)
-    // - Om en inköpsorder skapas, adderas det på lagersaldot eller görs det när den kommer in? (lager räknas upp när order kommer in)
 }
