@@ -320,7 +320,7 @@ class PurchaseOrderGenerator
         $useMasterBox = ($article->supplier->purchase_master_box && $article->master_box && $article->inner_box);
 
         if ($useMasterBox) {
-            $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box * $article->innerBox;
+            $quantityToOrder = round($quantityToOrder / $article->master_box) * $article->master_box * $article->inner_box;
         }
 
         if ($isNewArticle) {
