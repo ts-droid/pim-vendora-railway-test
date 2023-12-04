@@ -22,7 +22,6 @@ class PurchaseOrderMotivator
             'WEIGHT_90_DAYS' => $data['weight_90_days'] ?? 0,
             'WEIGHT_YEAR' => $data['weight_year'] ?? 0,
             'CURRENT_STOCK' => $data['current_stock'] ?? 0,
-            'INCOMING_STOCK' => $data['incoming_stock'] ?? 0,
             'VIP_QUANTITY' => $data['vip_quantity'] ?? 0,
             'USE_MASTER_BOX' => $data['use_master_box'] ? 'true' : 'false',
             'MASTER_BOX_QUANTITY' => $data['master_box'] ?? 0,
@@ -58,7 +57,6 @@ class PurchaseOrderMotivator
         QUANTITY_TO_ORDER += SALES_LAST_YEAR * WEIGHT_YEAR * FORESIGHT_DAYS
         QUANTITY_TO_ORDER += VIP_QUANTITY
         QUANTITY_TO_ORDER -= CURRENT_STOCK
-        QUANTITY_TO_ORDER -= INCOMING_STOCK
 
         If USE_MASTER_BOX is true, then QUANTITY_TO_ORDER is rounded to the nearest multiple of MASTER_BOX_QUANTITY.
 

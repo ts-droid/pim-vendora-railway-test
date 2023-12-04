@@ -276,8 +276,6 @@ class PurchaseOrderGenerator
      */
     private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
     {
-        $salesVolumeCalculator = new SalesVolumeCalculator();
-
         $isNewArticle = !PurchaseOrderLine::where('article_number', $article->article_number)->exists();
 
         $periods = [
@@ -309,20 +307,21 @@ class PurchaseOrderGenerator
         // Add the VIP orders to the suggested stock
         $vipQuantity = 0;
 
-        foreach ($vipSalesOrders as $salesOrder) {
-            $suggestedStock += (int) $salesOrder->order_total_quantity;
-            $vipQuantity += (int) $salesOrder->order_total_quantity;
+        foreach ($vipSalesOrders as $line) {
+            if ($line->article_number != $article->article_number) {
+                continue;
+            }
+
+            $suggestedStock += (int) $line->quantity;
+            $vipQuantity += (int) $line->quantity;
         }
 
 
         // Sum up the current stock
-        $currentStock = $article->stock;
-
-        // Calculate how many items are on their way
-        $incomingQuantity = ArticleQuantityCalculator::getIncoming($article->article_number);
+        $currentStock = ArticleQuantityCalculator::getNetStock($article->article_number);
 
         // This is the quantity that is suggested to order at the moment
-        $quantityToOrder = $suggestedStock - $currentStock - $incomingQuantity;
+        $quantityToOrder = $suggestedStock - $currentStock;
 
         // Round to the closest master box size
         $masterBoxQuantity = $article->master_box * $article->inner_box;
@@ -350,7 +349,6 @@ class PurchaseOrderGenerator
             'weight_90_days' => $periods['last_90_days']['weight'],
             'weight_year' => $periods['last_year']['weight'],
             'current_stock' => $currentStock,
-            'incoming_stock' => $incomingQuantity,
             'vip_quantity' => $vipQuantity,
             'use_master_box' => $useMasterBox,
             'master_box' => $masterBoxQuantity,
@@ -371,10 +369,9 @@ class PurchaseOrderGenerator
      */
     private function getVIPSalesOrders(Supplier $supplier, string $startDate, string $endDate)
     {
-        return DB::table('sales_orders')
-            ->select('sales_orders.*')
-            ->distinct()
-            ->join('sales_order_lines', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
+        return DB::table('sales_order_lines')
+            ->select('sales_order_lines.*')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
             ->where('sales_orders.date', '>=', $startDate)
             ->where('sales_orders.date', '<=', $endDate)
@@ -393,12 +390,8 @@ class PurchaseOrderGenerator
      */
     private function isVIPArticle(Collection $vipSalesOrders, string $articleNumber): bool
     {
-        foreach ($vipSalesOrders as $salesOrder) {
-            $hasArticleOnOrder = SalesOrderLine::where('sales_order_id', $salesOrder->id)
-                ->where('article_number', $articleNumber)
-                ->exists();
-
-            if ($hasArticleOnOrder) {
+        foreach ($vipSalesOrders as $line) {
+            if ($line->article_number == $articleNumber) {
                 return true;
             }
         }
