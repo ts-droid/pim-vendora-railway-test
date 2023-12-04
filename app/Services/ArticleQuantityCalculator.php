@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleQuantityCalculator
 {
@@ -15,11 +16,36 @@ class ArticleQuantityCalculator
      */
     public static function getIncoming(string $articleNumber): int
     {
-        return (int) DB::table('purchase_order_lines')
-            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-            ->where('purchase_orders.status', '=', 'Open')
-            ->where('purchase_order_lines.article_number', $articleNumber)
-            ->sum('quantity');
+        $incomingQuantities = self::getIncomingQuantities();
+
+        return $incomingQuantities[$articleNumber] ?? 0;
+    }
+
+    public static function getIncomingQuantities(): array
+    {
+        // Try to get the results from the cache
+        $incomingQuantities = Cache::get('incoming_quantities');
+
+        // If the results are not in the cache
+        if ($incomingQuantities === null) {
+            // Fetch the results from the database
+            $incomingQuantities = DB::table('purchase_order_lines')
+                ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+                ->where('purchase_orders.status', '=', 'Open')
+                ->select('purchase_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
+                ->groupBy('purchase_order_lines.article_number')
+                ->get()
+                ->keyBy('article_number')
+                ->map(function ($row) {
+                    return $row->total_quantity;
+                })
+                ->toArray();
+
+            // Store the results in the cache for 60 minutes
+            Cache::put('incoming_quantities', $incomingQuantities, 60);
+        }
+
+        return $incomingQuantities;
     }
 
     /**
