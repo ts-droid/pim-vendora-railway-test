@@ -71,7 +71,7 @@ class ArticleQuantityCalculator
             // Fetch the results from the database
             $onOrderQuantities = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Shipping'])
+                ->whereIn('sales_orders.status', ['Open', 'BackOrder'])
                 ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
                 ->groupBy('sales_order_lines.article_number')
                 ->get()
