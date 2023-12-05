@@ -250,6 +250,8 @@ class VismaNetController extends Controller
                         'unit_cost' => (float) ($line['unitCost'] ?? 0),
                         'amount' => (float) ($line['amount'] ?? 0),
                         'promised_date' => date('Y-m-d', strtotime($order['promised'] ?? '')),
+                        'is_completed' => (int) ($line['completed'] ?? 0),
+                        'is_canceled' => (int) ($line['canceled'] ?? 0),
                     ];
                 }
 

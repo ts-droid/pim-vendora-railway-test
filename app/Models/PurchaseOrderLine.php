@@ -22,6 +22,8 @@ class PurchaseOrderLine extends Model
         'ai_comment',
         'user_comment',
         'is_vip',
+        'is_completed',
+        'is_canceled',
     ];
 
     public function article()
