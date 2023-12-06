@@ -138,7 +138,7 @@ class ArticleQuantityCalculator
                 ->get()
                 ->keyBy('article_number')
                 ->map(function ($row) use ($months) {
-                    return $row->total_quantity / $months;
+                    return round($row->total_quantity / $months);
                 })
                 ->toArray();
 
