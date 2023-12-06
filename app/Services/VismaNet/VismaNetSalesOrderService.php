@@ -34,10 +34,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     continue;
                 }
 
-                if ($order['hold'] ?? false) {
-                    continue;
-                }
-
                 $orderData = [
                     'order_type' => (string) $order['orderType'],
                     'order_number' => (string) $order['orderNo'],
