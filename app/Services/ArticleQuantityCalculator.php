@@ -164,6 +164,6 @@ class ArticleQuantityCalculator
             return 0;
         }
 
-        return round($salesPerMonth / $netStock, 1);
+        return round($netStock / $salesPerMonth, 1);
     }
 }
