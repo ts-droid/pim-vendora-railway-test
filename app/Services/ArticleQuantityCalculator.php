@@ -75,7 +75,7 @@ class ArticleQuantityCalculator
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
                 ->where('sales_order_lines.is_completed', '=', 0)
                 ->whereIn('sales_orders.status', ['Open', 'BackOrder'])
-                ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
+                ->select('sales_order_lines.article_number', DB::raw('SUM(quantity_open) as total_quantity'))
                 ->groupBy('sales_order_lines.article_number')
                 ->get()
                 ->keyBy('article_number')
