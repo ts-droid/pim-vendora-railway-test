@@ -394,12 +394,18 @@ class VismaNetController extends Controller
                     'origin_country' => (string) ($article['intrastat']['countryOfOrigin'] ?? ''),
                     'weight' => (float) ($article['packaging']['baseItemWeight'] ?? 0),
                     'stock' => 0,
+                    'stock_warehouse' => 0,
+                    'stock_on_hand' => 0,
+                    'stock_available_for_shipment' => 0,
                 ];
 
                 // Fetch stock
                 $warehouseDetails = $article['warehouseDetails'] ?? [];
                 foreach ($warehouseDetails as $warehouse) {
                     $articleData['stock'] += (int) ($warehouse['available'] ?? 0);
+                    $articleData['stock_warehouse'] += (int) ($warehouse['warehouse'] ?? 0);
+                    $articleData['stock_on_hand'] += (int) ($warehouse['quantityOnHand'] ?? 0);
+                    $articleData['stock_available_for_shipment'] += (int) ($warehouse['availableForShipment'] ?? 0);
                 }
 
                 // Fetch cross-references
