@@ -16,6 +16,8 @@ class SalesOrderLine extends Model
         'invoice_number',
         'sales_person',
         'quantity',
+        'quantity_on_shipments',
+        'quantity_open',
         'unit_cost',
         'unit_price',
         'description',

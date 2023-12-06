@@ -15,8 +15,6 @@ class PurchaseOrderLine extends Model
         'article_number',
         'description',
         'quantity',
-        'quantity_on_shipments',
-        'quantity_open',
         'suggested_quantity',
         'unit_cost',
         'amount',
