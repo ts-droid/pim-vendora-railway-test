@@ -137,12 +137,10 @@ class ArticleQuantityCalculator
                 ->groupBy('sales_order_lines.article_number')
                 ->get()
                 ->keyBy('article_number')
-                ->map(function ($row) {
-                    return $row->total_quantity;
+                ->map(function ($row) use ($months) {
+                    return $row->total_quantity / $months;
                 })
                 ->toArray();
-
-            $salesPerMonthQuantities /= $months;
 
             // Store the results in the cache for 10 minutes
             Cache::put('sales_per_month_quantities_' . $months, $salesPerMonthQuantities, 10);
