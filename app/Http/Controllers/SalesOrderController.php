@@ -52,6 +52,7 @@ class SalesOrderController extends Controller
             'sales_person' => (string) ($request->sales_person ?? ''),
             'customer' => (string) ($request->customer ?? ''),
             'note' => (string) ($request->note ?? ''),
+            'on_hold' => (int) ($request->on_hold ?? 0),
         ]);
 
         $totalQuantity = 0;

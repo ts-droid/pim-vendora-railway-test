@@ -50,6 +50,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'order_total' => (float) $order['orderTotal'],
                     'exchange_rate' => (float) $order['exchangeRate'],
                     'note' => (string) ($order['note'] ?? ''),
+                    'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
                     'lines' => [],
                 ];
 

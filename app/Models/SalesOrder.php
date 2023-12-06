@@ -23,6 +23,7 @@ class SalesOrder extends Model
         'order_total_quantity',
         'exchange_rate',
         'note',
+        'on_hold',
     ];
 
     public function lines(): HasMany
