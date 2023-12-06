@@ -160,7 +160,7 @@ class ArticleQuantityCalculator
         $salesPerMonth = self::getSalesPerMonth($articleNumber);
         $netStock = self::getNetStock($articleNumber);
 
-        if (!$netStock) {
+        if (!$salesPerMonth) {
             return 0;
         }
 
