@@ -69,6 +69,8 @@ class SalesOrderController extends Controller
                 'invoice_number' => (string) ($line['invoice_number'] ?? ''),
                 'sales_person' => (string) ($line['sales_person'] ?? ''),
                 'quantity' => $quantity,
+                'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
+                'quantity_open' => (int) ($line['quantity_open'] ?? 0),
                 'unit_cost' => (float) $line['unit_cost'],
                 'unit_price' => (float) $line['unit_price'],
                 'description' => (string) $line['description'],
