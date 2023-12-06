@@ -72,6 +72,7 @@ class SalesOrderController extends Controller
                 'unit_cost' => (float) $line['unit_cost'],
                 'unit_price' => (float) $line['unit_price'],
                 'description' => (string) $line['description'],
+                'is_completed' => (int) $line['is_completed'],
             ]);
         }
 

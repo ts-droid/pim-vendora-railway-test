@@ -19,5 +19,6 @@ class SalesOrderLine extends Model
         'unit_cost',
         'unit_price',
         'description',
+        'is_completed',
     ];
 }
