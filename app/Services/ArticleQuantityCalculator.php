@@ -142,6 +142,8 @@ class ArticleQuantityCalculator
                 })
                 ->toArray();
 
+            $salesPerMonthQuantities /= $months;
+
             // Store the results in the cache for 10 minutes
             Cache::put('sales_per_month_quantities_' . $months, $salesPerMonthQuantities, 10);
         }
