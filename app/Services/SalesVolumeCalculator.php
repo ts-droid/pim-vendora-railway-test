@@ -59,13 +59,15 @@ class SalesVolumeCalculator
         }
 
         // Load all order lines for the period
-        $invoiceLines = DB::table('customer_invoice_lines')
-            ->select('customer_invoice_lines.*', 'customer_invoices.date')
-            ->leftJoin('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->where('customer_invoices.date', '>=', $minDate)
-            ->where('customer_invoices.date', '<=', $maxDate)
+        $orderLines = DB::table('sales_order_lines')
+            ->select(
+                'sales_order_lines.article_number', 'sales_order_lines.quantity',
+                'sales_orders.date'
+            )
+            ->leftJoin('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->where('sales_orders.date', '>=', $minDate)
+            ->where('sales_orders.date', '<=', $maxDate)
             ->get();
-
 
         foreach ($periods as $column => $period) {
             list($startDate, $endDate) = $period;
@@ -73,16 +75,16 @@ class SalesVolumeCalculator
             $articleSummary = [];
 
             // Calculate the sales volume for each article
-            foreach ($invoiceLines as $invoiceLine) {
-                if ($invoiceLine->date < $startDate || $invoiceLine->date > $endDate) {
+            foreach ($orderLines as $orderLine) {
+                if ($orderLine->date < $startDate || $orderLine->date > $endDate) {
                     continue;
                 }
 
-                if (!isset($articleSummary[$invoiceLine->article_number])) {
-                    $articleSummary[$invoiceLine->article_number] = 0;
+                if (!isset($articleSummary[$orderLine->article_number])) {
+                    $articleSummary[$orderLine->article_number] = 0;
                 }
 
-                $articleSummary[$invoiceLine->article_number] += (int) $invoiceLine->quantity;
+                $articleSummary[$orderLine->article_number] += (int) $orderLine->quantity;
             }
 
             // Reset sales volume for all articles
