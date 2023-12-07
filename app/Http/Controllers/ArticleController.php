@@ -29,12 +29,12 @@ class ArticleController extends Controller
                 $article->supplier_price = 0;
                 $article->supplier_price_currency = '';
 
-                if (!isset($supplierPrices[$article['article_number']])) {
+                if (!isset($supplierPrices[$article->article_number])) {
                     continue;
                 }
 
-                $article->supplier_price = $supplierPrices[$article['article_number']]->price;
-                $article->supplier_price_currency = $supplierPrices[$article['article_number']]->currency;
+                $article->supplier_price = $supplierPrices[$article->article_number]->price;
+                $article->supplier_price_currency = $supplierPrices[$article->article_number]->currency;
             }
         }
 
