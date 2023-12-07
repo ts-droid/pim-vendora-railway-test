@@ -20,6 +20,7 @@ use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierPriceController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\VismaNetApiController;
 use Illuminate\Http\Request;
@@ -97,6 +98,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
         Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+    });
+
+    Route::prefix('/supplier-prices')->group(function() {
+        Route::post('/', [SupplierPriceController::class, 'store'])->name('supplierPrice.store');
     });
 
     Route::prefix('/articles')->group(function() {
