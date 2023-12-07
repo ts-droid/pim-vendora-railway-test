@@ -294,7 +294,7 @@ class PurchaseOrderGenerator
      */
     private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
     {
-        $isNewArticle = !PurchaseOrderLine::where('article_number', $article->article_number)->exists();
+        $hasPurchaseOrders = PurchaseOrderLine::where('article_number', $article->article_number)->exists();
 
         $periods = [
             'last_7_days' => [
@@ -350,7 +350,8 @@ class PurchaseOrderGenerator
             $quantityToOrder = ceil($quantityToOrder / $masterBoxQuantity) * $masterBoxQuantity;
         }
 
-        if ($isNewArticle) {
+        // Always buy 1 master box if the article is new
+        if (!$hasPurchaseOrders && !$currentStock) {
             $quantityToOrder = $article->master_box ?: 1;
         }
 
