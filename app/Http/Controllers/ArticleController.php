@@ -17,7 +17,8 @@ class ArticleController extends Controller
     {
         $articles = DB::table('articles')
             ->select('id', 'article_number', 'description', 'inner_box', 'master_box')
-            ->get();
+            ->get()
+            ->toArray();
 
         $supplierPrices = DB::table('supplier_article_prices')
             ->select('article_number', 'price', 'currency')
@@ -38,7 +39,7 @@ class ArticleController extends Controller
             }
         }
 
-        return ApiResponseController::success($articles->toArray());
+        return ApiResponseController::success($articles);
     }
 
     public function get(Request $request)
