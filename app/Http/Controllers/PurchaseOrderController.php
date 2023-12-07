@@ -109,8 +109,6 @@ class PurchaseOrderController extends Controller
     {
         $requestData = $request->all();
 
-        log_data(json_encode($requestData));
-
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
 
@@ -144,9 +142,12 @@ class PurchaseOrderController extends Controller
                     }
                 }
 
-                $updates['amount'] = ($updates['unit_cost'] ?? $orderLine->unit_cost) * ($updates['quantity'] ?? $orderLine->quantity);
+                $unitCost = $updates['unit_cost'] ?? $orderLine->unit_cost;
+                $quantity = $updates['quantity'] ?? $orderLine->quantity;
 
-                if (isset($updates['quantity']) && $updates['quantity'] == 0) {
+                $updates['amount'] = $unitCost * $quantity;
+
+                if ($quantity == 0) {
                     $orderLine->delete();
                 }
                 else {
@@ -154,12 +155,11 @@ class PurchaseOrderController extends Controller
                 }
 
                 // Should we update the unit cost to the pricelist?
-                if (!$orderLine->unit_cost && isset($updates['unit_cost']) && $updates['unit_cost']
-                    && $orderLine->unit_cost != $updates['unit_cost']) {
+                if (!$orderLine->unit_cost && $unitCost && $orderLine->unit_cost != $unitCost) {
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
                         'article_number' => $orderLine->article_number,
-                        'price' => $updates['unit_cost'],
+                        'price' => $unitCost,
                         'currency' => $purchaseOrder->currency,
                     ]);
                 }
