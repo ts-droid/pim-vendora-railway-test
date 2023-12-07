@@ -142,6 +142,7 @@ class PurchaseOrderController extends Controller
                     }
                 }
 
+                $oldUnitCost = $orderLine->unit_cost;
                 $unitCost = $updates['unit_cost'] ?? $orderLine->unit_cost;
                 $quantity = $updates['quantity'] ?? $orderLine->quantity;
 
@@ -155,7 +156,7 @@ class PurchaseOrderController extends Controller
                 }
 
                 // Should we update the unit cost to the pricelist?
-                if (!$orderLine->unit_cost && $unitCost && $orderLine->unit_cost != $unitCost) {
+                if (!$oldUnitCost && $oldUnitCost != $unitCost) {
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
                         'article_number' => $orderLine->article_number,
