@@ -19,6 +19,25 @@ class ArticleController extends Controller
             ->select('id', 'article_number', 'description', 'inner_box', 'master_box')
             ->get();
 
+        $supplierPrices = DB::table('supplier_article_prices')
+            ->select('article_number', 'price', 'currency')
+            ->get()
+            ->keyBy('article_number');
+
+        if ($articles) {
+            foreach ($articles as &$article) {
+                $article['supplier_price'] = 0;
+                $article['supplier_price_currency'] = '';
+
+                if (!isset($supplierPrices[$article['article_number']])) {
+                    continue;
+                }
+
+                $article['supplier_price'] = $supplierPrices[$article['article_number']]['price'];
+                $article['supplier_price_currency'] = $supplierPrices[$article['article_number']]['currency'];
+            }
+        }
+
         return ApiResponseController::success($articles->toArray());
     }
 
