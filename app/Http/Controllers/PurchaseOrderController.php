@@ -109,6 +109,8 @@ class PurchaseOrderController extends Controller
     {
         $requestData = $request->all();
 
+        log_data(json_encode($requestData));
+
         $fillables = (new PurchaseOrder)->getFillable();
         $fillablesLine = (new PurchaseOrderLine)->getFillable();
 
@@ -143,8 +145,6 @@ class PurchaseOrderController extends Controller
                 }
 
                 $updates['amount'] = ($updates['unit_cost'] ?? $orderLine->unit_cost) * ($updates['quantity'] ?? $orderLine->quantity);
-
-                log_data(json_encode($updates));
 
                 if (isset($updates['quantity']) && $updates['quantity'] == 0) {
                     $orderLine->delete();
