@@ -132,8 +132,6 @@ class PurchaseOrderController extends Controller
                 ['line_key', '=', $line['line_key']]
             ])->first();
 
-            log_data(json_encode($line));
-
             if ($orderLine) {
                 $updates = [];
 
@@ -145,6 +143,8 @@ class PurchaseOrderController extends Controller
                 }
 
                 $updates['amount'] = ($updates['unit_cost'] ?? $orderLine->unit_cost) * ($updates['quantity'] ?? $orderLine->quantity);
+
+                log_data(json_encode($updates));
 
                 if (isset($updates['quantity']) && $updates['quantity'] == 0) {
                     $orderLine->delete();
