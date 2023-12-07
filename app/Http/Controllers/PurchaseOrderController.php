@@ -9,6 +9,7 @@ use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
+use App\Services\SupplierArticlePriceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
@@ -132,6 +133,8 @@ class PurchaseOrderController extends Controller
             ])->first();
 
             if ($orderLine) {
+                $oldUnitCost = $orderLine->unit_cost;
+
                 // Update existing line
                 foreach ($line as $key => $value) {
                     if (in_array($key, $fillablesLine)) {
@@ -146,6 +149,16 @@ class PurchaseOrderController extends Controller
                 }
                 else {
                     $orderLine->save();
+                }
+
+                // Should we update the unit cost to the pricelist?
+                if (!$oldUnitCost && $oldUnitCost != $orderLine->unit_cost) {
+                    $supplierPriceService = new SupplierArticlePriceService();
+                    $supplierPriceService->createSupplierArticlePrice([
+                        'article_number' => $orderLine->article_number,
+                        'price' => $orderLine->unit_cost,
+                        'currency' => $purchaseOrder->currency,
+                    ]);
                 }
             }
             else {
