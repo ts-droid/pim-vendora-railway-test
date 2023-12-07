@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\CurrencyConvertController;
 use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
@@ -236,6 +237,9 @@ class PurchaseOrderGenerator
 
         $lineKey = 0;
 
+        $supplierPriceService = new SupplierArticlePriceService();
+        $currencyConverter = new CurrencyConvertController();
+
         foreach ($articles as $article) {
             // Exclude articles
             if (in_array($article->article_number, $this->excludeArticles)) {
@@ -248,6 +252,20 @@ class PurchaseOrderGenerator
                 continue;
             }
 
+            // Calculate the unit purchase price
+            $unitCost = 0;
+
+            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
+            if ($supplierPrice) {
+                $unitCost = $supplierPrice->price;
+
+                // Convert to the supplier currency
+                if ($supplier->currency != $supplierPrice->currency) {
+                    $unitCost = $currencyConverter->convert($unitCost, $supplierPrice->currency, $supplier->currency);
+                }
+
+            }
+
             $orderLines->push([
                 'purchase_order_id' => $purchaseOrderID,
                 'line_key' => $lineKey++,
@@ -255,7 +273,7 @@ class PurchaseOrderGenerator
                 'description' => $article->description,
                 'quantity' => $quantity,
                 'suggested_quantity' => $quantity,
-                'unit_cost' => $article->external_cost,
+                'unit_cost' => $unitCost,
                 'amount' => ($article->external_cost * $quantity),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
                 'ai_comment' => $aiComment,
