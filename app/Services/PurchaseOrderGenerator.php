@@ -354,6 +354,12 @@ class PurchaseOrderGenerator
             $quantityToOrder = $article->master_box ?: 1;
         }
 
+        $quantityToOrder = max(0, $quantityToOrder);
+
+        if (!$quantityToOrder) {
+            return [0, ''];
+        }
+
         // Motivate the quantity
         $motivator = new PurchaseOrderMotivator();
         $aiComment = $motivator->motivateQuantity([
