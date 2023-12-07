@@ -351,7 +351,9 @@ class PurchaseOrderGenerator
         }
 
         // Always buy 1 master box if the article is new
-        if (!$hasPurchaseOrders && !$currentStock) {
+        $isNewArticle = !$hasPurchaseOrders && !$currentStock;
+
+        if ($isNewArticle) {
             $quantityToOrder = $article->master_box ?: 1;
         }
 
