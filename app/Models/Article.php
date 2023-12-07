@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\ArticleQuantityCalculator;
+use App\Services\SupplierArticlePriceService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,16 +27,24 @@ class Article extends Model
         'stock_net',
         'stock_time',
         'sales_per_month',
+        'purchase_price',
+        'purchase_price_currency',
     ];
 
     protected static function booted()
     {
         static::retrieved(function ($article) {
+            $supplierPriceService = new SupplierArticlePriceService();
+            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
+
             $article->stock_incoming = ArticleQuantityCalculator::getIncoming($article->article_number);
             $article->stock_on_order = ArticleQuantityCalculator::getOnOrder($article->article_number);
             $article->stock_net = ArticleQuantityCalculator::getNetStock($article->article_number);
             $article->stock_time = ArticleQuantityCalculator::getStockTime($article->article_number);
             $article->sales_per_month = ArticleQuantityCalculator::getSalesPerMonth($article->article_number);
+
+            $article->purchase_price = $supplierPrice->price ?? 0;
+            $article->purchase_price_currency = $supplierPrice->currency ?? '';
         });
 
         static::updating(function ($article) {
@@ -104,5 +113,29 @@ class Article extends Model
         }
 
         return $this->attributes['sales_per_month'];
+    }
+
+    public function getPurchasePrice()
+    {
+        if (!isset($this->attributes['purchase_price'])) {
+            $supplierPriceService = new SupplierArticlePriceService();
+            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($this->article_number);
+
+            $this->attributes['purchase_price'] = $supplierPrice->price ?? 0;
+        }
+
+        return $this->attributes['purchase_price'];
+    }
+
+    public function getPurchasePriceCurrency()
+    {
+        if (!isset($this->attributes['purchase_price_currency'])) {
+            $supplierPriceService = new SupplierArticlePriceService();
+            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($this->article_number);
+
+            $this->attributes['purchase_price_currency'] = $supplierPrice->currency ?? 0;
+        }
+
+        return $this->attributes['purchase_price_currency'];
     }
 }
