@@ -16,7 +16,7 @@ class ArticleController extends Controller
     public function getSimple(Request $request)
     {
         $articles = DB::table('articles')
-            ->select('article_number', 'description')
+            ->select('article_number', 'description', 'inner_box', 'master_box')
             ->get();
 
         return ApiResponseController::success($articles->toArray());
