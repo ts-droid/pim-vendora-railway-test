@@ -132,6 +132,8 @@ class PurchaseOrderController extends Controller
                 ['line_key', '=', $line['line_key']]
             ])->first();
 
+            log_data(json_encode($line));
+
             if ($orderLine) {
                 $updates = [];
 
