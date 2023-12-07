@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
+    public function getSimple(Request $request)
+    {
+        $articles = Article::orderBy('article_number', 'ASC')->get();
+
+        return ApiResponseController::success($articles);
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(Article::class, $request);
