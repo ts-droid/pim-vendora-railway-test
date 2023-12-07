@@ -115,7 +115,7 @@ class Article extends Model
         return $this->attributes['sales_per_month'];
     }
 
-    public function getPurchasePrice()
+    public function getPurchasePriceAttribute()
     {
         if (!isset($this->attributes['purchase_price'])) {
             $supplierPriceService = new SupplierArticlePriceService();
@@ -127,7 +127,7 @@ class Article extends Model
         return $this->attributes['purchase_price'];
     }
 
-    public function getPurchasePriceCurrency()
+    public function getPurchasePriceCurrencyAttribute()
     {
         if (!isset($this->attributes['purchase_price_currency'])) {
             $supplierPriceService = new SupplierArticlePriceService();
