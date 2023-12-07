@@ -8,13 +8,16 @@ use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
     public function getSimple(Request $request)
     {
-        $articles = Article::orderBy('article_number', 'ASC')->get();
+        $articles = DB::table('articles')
+            ->select('article_number',)
+            ->get();
 
         return ApiResponseController::success($articles->toArray());
     }
