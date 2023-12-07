@@ -16,7 +16,7 @@ class ArticleController extends Controller
     {
         $articles = Article::orderBy('article_number', 'ASC')->get();
 
-        return ApiResponseController::success($articles);
+        return ApiResponseController::success($articles->toArray());
     }
 
     public function get(Request $request)
