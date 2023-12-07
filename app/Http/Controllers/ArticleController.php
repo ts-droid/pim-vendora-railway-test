@@ -208,6 +208,28 @@ class ArticleController extends Controller
         return ApiResponseController::success([$article->toArray()]);
     }
 
+    public function updateMany(Request $request)
+    {
+        $articles = $request->get('articles');
+
+        if ($articles) {
+            foreach ($articles as $article) {
+                $articleNumber = (string) $article['article_number'] ?? '';
+
+                if (!$articleNumber) {
+                    continue;
+                }
+
+                $fillables = get_model_attributes(Article::class);
+                $allowedUpdates = array_intersect_key($article, array_flip($fillables));
+
+                Article::where('article_number', $articleNumber)->update($allowedUpdates);
+            }
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function update(Request $request, Article $article)
     {
         $fillables = get_model_attributes(Article::class);
