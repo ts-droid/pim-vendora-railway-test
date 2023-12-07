@@ -133,30 +133,31 @@ class PurchaseOrderController extends Controller
             ])->first();
 
             if ($orderLine) {
-                $oldUnitCost = $orderLine->unit_cost;
+                $updates = [];
 
                 // Update existing line
                 foreach ($line as $key => $value) {
                     if (in_array($key, $fillablesLine)) {
-                        $orderLine->{$key} = $value;
+                        $updates[$key] = $value;
                     }
                 }
 
-                $orderLine->amount = $orderLine->unit_cost * $orderLine->quantity;
+                $updates['amount'] = ($updates['unit_cost'] ?? $orderLine->unit_cost) * ($updates['quantity'] ?? $orderLine->quantity);
 
-                if ($orderLine->quantity == 0) {
+                if (isset($updates['quantity']) && $updates['quantity'] == 0) {
                     $orderLine->delete();
                 }
                 else {
-                    $orderLine->save();
+                    $orderLine->update($updates);
                 }
 
                 // Should we update the unit cost to the pricelist?
-                if (!$oldUnitCost && $oldUnitCost != $orderLine->unit_cost) {
+                if (!$orderLine->unit_cost && isset($updates['unit_cost']) && $updates['unit_cost']
+                    && $orderLine->unit_cost != $updates['unit_cost']) {
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
                         'article_number' => $orderLine->article_number,
-                        'price' => $orderLine->unit_cost,
+                        'price' => $updates['unit_cost'],
                         'currency' => $purchaseOrder->currency,
                     ]);
                 }
