@@ -27,29 +27,28 @@ class UploadLocalFilesToStorage extends Command
      */
     public function handle()
     {
-        $this->line('Scanning storage directory and uploading files...');
-
-        DoSpacesController::storeLocalFiles();
-
-        $this->info('Upload completed!');
-
-        $this->line('Updating article images in database...');
-
-        // Update article images in database
         $articleImages = ArticleImage::all();
 
-        if ($articleImages) {
-            foreach ($articleImages as $articleImage) {
-
-                $publicURL = DoSpacesController::getURL('public/' . $articleImage->filename);
-
-                $articleImage->update([
-                    'path_url' => $publicURL
-                ]);
-
-            }
+        if (!$articleImages) {
+            $this->error('No article images found. Exiting...');
         }
 
-        $this->info('Database update completed!');
+        foreach ($articleImages as $articleImage) {
+            $filename = $articleImage->filename;
+            $localPath = storage_path('app/public/' . $filename);
+
+            if (!file_exists($localPath)) {
+                $this->error('File not found: ' . $localPath);
+                continue;
+            }
+
+            $this->line('Uploading file: ' . $localPath);
+
+            $spaceFilename = DoSpacesController::store($filename, file_get_contents($localPath), true);
+
+            $articleImage->update([
+                'path_url' => DoSpacesController::getURL($spaceFilename),
+            ]);
+        }
     }
 }

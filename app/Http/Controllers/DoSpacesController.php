@@ -181,7 +181,6 @@ class DoSpacesController extends Controller
                 file_get_contents($filePath),
                 true
             );
-
         }
     }
 
