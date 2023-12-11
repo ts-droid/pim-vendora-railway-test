@@ -256,7 +256,10 @@ class ArticleController extends Controller
 
             // Remove images that are not in the list
             $removedImages = ArticleImage::where('article_id', $article->id)
-                ->whereNotIn('hash', $imageHashes)
+                ->where(function($query) use ($imageHashes) {
+                    $query->whereNotIn('hash', $imageHashes)
+                        ->orWhereNull('hash');
+                })
                 ->get();
 
             if ($removedImages) {
