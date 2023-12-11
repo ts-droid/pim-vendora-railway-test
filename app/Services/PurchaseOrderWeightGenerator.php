@@ -22,7 +22,7 @@ class PurchaseOrderWeightGenerator
 
         $configs = [];
         for ($i = 1;$i <= 12;$i++) {
-            $configs['purchase_system_weight_auto_' . $i] = round($this->quantityPerMonth[$i] / $average, 2);
+            $configs['purchase_system_weight_auto_' . $i] = $this->quantityPerMonth[$i];
         }
 
         ConfigController::setConfigs($configs);
