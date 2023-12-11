@@ -332,7 +332,13 @@ class ArticleController extends Controller
         $articleImages = ArticleImage::whereNull('hash')->get();
 
         foreach ($articleImages as $articleImage) {
-            $content = DoSpacesController::getContent($articleImage->filename);
+            $filename = $articleImage->filename;
+
+            if ($articleImage->path_url) {
+                $filename = basename($articleImage->path_url);
+            }
+
+            $content = DoSpacesController::getContent($filename);
 
             if (!$content) {
                 continue;
@@ -341,6 +347,7 @@ class ArticleController extends Controller
             $contentHash = md5($content);
 
             $articleImage->update([
+                'filename' => $filename,
                 'hash' => $contentHash,
             ]);
         }
