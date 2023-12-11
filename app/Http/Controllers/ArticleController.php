@@ -234,25 +234,15 @@ class ArticleController extends Controller
     {
         $fillables = get_model_attributes(Article::class);
 
-        echo 'Loaded fillables' . PHP_EOL;
-
         $updates = $request->all();
-
-        echo 'Loaded request data' . PHP_EOL;
 
         $allowedUpdated = array_intersect_key($updates, array_flip($fillables));
 
-        echo 'Filtered updates' . PHP_EOL;
-
         $article->update($allowedUpdated);
-
-        echo 'Updated article' . PHP_EOL;
 
         // Log the stock
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
-
-        echo 'Logged stock' . PHP_EOL;
 
         // Upload images
         if (isset($request->images) && is_array($request->images)) {
@@ -260,13 +250,9 @@ class ArticleController extends Controller
 
             $imageHashes = [];
 
-            echo 'Uploading images' . PHP_EOL;
-
             foreach ($request->images as $imageURL) {
                 $imageHashes[] = $this->uploadArticleImage($article, $imageURL, $listOrder++);
             }
-
-            echo 'Uploaded all images' . PHP_EOL;
 
             // Remove images that are not in the list
             $removedImages = ArticleImage::where('article_id', $article->id)
@@ -278,8 +264,6 @@ class ArticleController extends Controller
                     $this->deleteArticleImage($removedImage);
                 }
             }
-
-            echo 'Removed old images' . PHP_EOL;
         }
 
         return ApiResponseController::success([$article->toArray()]);

@@ -76,8 +76,6 @@ class WgrController extends Controller
                 continue;
             }
 
-            echo 'Found article: ' . $articleNumber . PHP_EOL;
-
             // Fetch article data from API response
             $articleData = [
                 'video' => ($productData['embedVideo'] ?? ''),
@@ -106,12 +104,8 @@ class WgrController extends Controller
                 }
             }
 
-            dump($articleData);
-
             // Update the article
             $articleController->update(new Request($articleData), $article);
-
-            die('done');
 
             // Categories
             if ($productData['categories']) {
