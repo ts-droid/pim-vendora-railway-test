@@ -41,12 +41,14 @@ class PurchaseOrderWeightGenerator
         }
 
         for ($i = 1;$i <= 12;$i++) {
-            if ($i < 10) {
-                $i = '0' . $i;
+            $month = $i;
+
+            if ($month < 10) {
+                $month = '0' . $month;
             }
 
-            $startDate = $year . '-' . $i . '-01';
-            $endDate = $year . '-' . $i . '-' . date('t', strtotime($startDate));
+            $startDate = $year . '-' . $month . '-01';
+            $endDate = $year . '-' . $month . '-' . date('t', strtotime($startDate));
 
             $this->quantityPerMonth[$i] = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
