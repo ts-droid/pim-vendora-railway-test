@@ -65,6 +65,8 @@ class WgrController extends Controller
 
         $articleController = new ArticleController();
 
+        $languages = (new LanguageController())->getAllLanguages();
+
         foreach ($products as $productData) {
             $articleNumber = $productData['articleNumber'] ?? '';
 
@@ -73,6 +75,8 @@ class WgrController extends Controller
             if (!$article) {
                 continue;
             }
+
+            echo 'Found article: ' . $articleNumber . PHP_EOL;
 
             // Fetch article data from API response
             $articleData = [
@@ -90,8 +94,6 @@ class WgrController extends Controller
             }
 
             // Language fields
-            $languages = (new LanguageController())->getAllLanguages();
-
             foreach ($languages as $language) {
                 $articleData['shop_title_' . $language->language_code] = $productData['title_' . $language->language_code] ?? '';
                 $articleData['shop_description_' . $language->language_code] = $productData['description_' . $language->language_code] ?? '';
@@ -104,8 +106,12 @@ class WgrController extends Controller
                 }
             }
 
+            dump($articleData);
+
             // Update the article
             $articleController->update(new Request($articleData), $article);
+
+            die('done');
 
             // Categories
             if ($productData['categories']) {
