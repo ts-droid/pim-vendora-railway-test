@@ -11,6 +11,8 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\Supplier;
 use App\Services\VendoraAdmin\VendoraAdminTaskService;
+use DateInterval;
+use DatePeriod;
 use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
