@@ -116,6 +116,8 @@ class WgrController extends Controller
                     'category_ids' => $categoryIDs,
                 ]);
             }
+
+            die();
         }
 
         ConfigController::setConfigs(['wgr_last_article_fetch' => $fetchTime]);
