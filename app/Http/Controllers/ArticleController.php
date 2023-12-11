@@ -294,6 +294,7 @@ class ArticleController extends Controller
             // Update existing image if the filename is the same
             $existingImage->update([
                 'hash' => $contentHash,
+                'list_order' => $listOrder,
                 'size' => $imageSize,
                 'solid_background' => $solidBackground ? 1 : 0,
             ]);
