@@ -335,7 +335,7 @@ class PurchaseOrderGenerator
             date('Y-m-d', strtotime('+' . $foresightDays . ' days'))
         );
 
-        $suggestedStock *= $this->getMonthWeight($weightMonth);
+        $suggestedStock *= $this->settings['weight_month_' . $weightMonth];
 
         // Add the VIP orders to the suggested stock
         $vipQuantity = 0;
@@ -458,26 +458,6 @@ class PurchaseOrderGenerator
         }
 
         return $lastPurchaseOrder->date;
-    }
-
-    /**
-     * Returns the weight for a specific month
-     * @param int $month
-     * @return float
-     */
-    private function getMonthWeight(int $month): float
-    {
-        $weights = [];
-
-        for ($i = 1;$i <= 12;$i++) {
-            $weights[] = $this->settings['weight_month_' . $i];
-        }
-
-        $average = array_sum($weights) / count($weights);
-
-        $monthWeight = $weights[$month - 1] / $average;
-
-        return $monthWeight / $average;
     }
 
     /**

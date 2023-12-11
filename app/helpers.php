@@ -2,6 +2,26 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('normalize_array')) {
+    function weight_array(array $array)
+    {
+        $max = max($array);
+        $total = min($array);
+
+        $normalizedArray = array_map(function ($value) use ($total, $max) {
+            if ($total == 0) {
+                return 0;
+            }
+
+            $relativeWeight = $value / $total;
+            $scaledWeight = $relativeWeight / ($max / $total);
+            return min($scaledWeight, 1);
+        }, $array);
+
+        return $normalizedArray;
+    }
+}
+
 if (!function_exists('log_data')) {
     function log_data(string $logContent)
     {

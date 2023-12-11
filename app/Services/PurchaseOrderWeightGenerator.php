@@ -14,18 +14,7 @@ class PurchaseOrderWeightGenerator
     {
         $this->loadQuantityPerMonth();
 
-        $maxQuantity = max($this->quantityPerMonth);
-        $minQuantity = min($this->quantityPerMonth);
-
-        $range = $maxQuantity - $minQuantity;
-
-        $normalizedQuantities = array_map(function($quantity) use ($minQuantity, $range) {
-            if ($range == 0) {
-                return 0;
-            }
-
-            return ($quantity - $minQuantity) / $range;
-        }, $this->quantityPerMonth);
+        $normalizedQuantities = weight_array($this->quantityPerMonth);
 
         $configs = [];
         for ($i = 1;$i <= 12;$i++) {
