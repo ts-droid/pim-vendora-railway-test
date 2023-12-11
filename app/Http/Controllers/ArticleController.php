@@ -234,15 +234,25 @@ class ArticleController extends Controller
     {
         $fillables = get_model_attributes(Article::class);
 
+        echo 'Loaded fillables' . PHP_EOL;
+
         $updates = $request->all();
+
+        echo 'Loaded request data' . PHP_EOL;
 
         $allowedUpdated = array_intersect_key($updates, array_flip($fillables));
 
+        echo 'Filtered updates' . PHP_EOL;
+
         $article->update($allowedUpdated);
+
+        echo 'Updated article' . PHP_EOL;
 
         // Log the stock
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
+
+        echo 'Logged stock' . PHP_EOL;
 
         // Upload images
         if (isset($request->images) && is_array($request->images)) {
@@ -250,14 +260,26 @@ class ArticleController extends Controller
 
             $imageHashes = [];
 
+            echo 'Uploading images' . PHP_EOL;
+
             foreach ($request->images as $imageURL) {
                 $imageHashes[] = $this->uploadArticleImage($article, $imageURL, $listOrder++);
             }
 
+            echo 'Uploaded all images' . PHP_EOL;
+
             // Remove images that are not in the list
-            ArticleImage::where('article_id', $article->id)
+            $removedImages = ArticleImage::where('article_id', $article->id)
                 ->whereNotIn('hash', $imageHashes)
                 ->get();
+
+            if ($removedImages) {
+                foreach ($removedImages as $removedImage) {
+                    $this->deleteArticleImage($removedImage);
+                }
+            }
+
+            echo 'Removed old images' . PHP_EOL;
         }
 
         return ApiResponseController::success([$article->toArray()]);
@@ -278,29 +300,25 @@ class ArticleController extends Controller
 
         $contentHash = md5($imageContent);
 
-        // Store the image
-        $filename = DoSpacesController::store($filename, $imageContent, true);
-
-        $imageSize = DoSpacesController::getSize($filename);
-
-        $existingImage = ArticleImage::where('filename', $filename)
+        $existingImage = ArticleImage::where('hash', $contentHash)
             ->where('article_id', $article->id)
             ->first();
 
-        // Check if the image has a solid background color
-        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($imageContent, 'topbar');
-
         if ($existingImage) {
-            // Update existing image if the filename is the same
+            // Update existing image
             $existingImage->update([
-                'hash' => $contentHash,
                 'list_order' => $listOrder,
-                'size' => $imageSize,
-                'solid_background' => $solidBackground ? 1 : 0,
             ]);
         }
         else {
-            // Create a new image
+            // Upload new image
+            $filename = DoSpacesController::store($filename, $imageContent, true);
+
+            $imageSize = DoSpacesController::getSize($filename);
+
+            // Check if the image has a solid background color
+            $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($imageContent, 'topbar');
+
             ArticleImage::create([
                 'article_id' => $article->id,
                 'filename' => $filename,

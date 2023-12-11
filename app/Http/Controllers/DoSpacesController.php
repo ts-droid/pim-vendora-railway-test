@@ -200,7 +200,7 @@ class DoSpacesController extends Controller
         $i = 0;
 
         while(true) {
-            $newBasename = ($i ? '' : ($i . '-')) . $basename;
+            $newBasename = ($i ? ($i . '-') : '') . $basename;
 
             $newFilename = str_replace($basename, $newBasename, $filename);
 
