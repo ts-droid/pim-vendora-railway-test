@@ -248,15 +248,22 @@ class ArticleController extends Controller
         if (isset($request->images) && is_array($request->images)) {
             $listOrder = 0;
 
+            $imageHashes = [];
+
             foreach ($request->images as $imageURL) {
-                $this->uploadArticleImage($article, $imageURL, $listOrder++);
+                $imageHashes[] = $this->uploadArticleImage($article, $imageURL, $listOrder++);
             }
+
+            // Remove images that are not in the list
+            ArticleImage::where('article_id', $article->id)
+                ->whereNotIn('hash', $imageHashes)
+                ->get();
         }
 
         return ApiResponseController::success([$article->toArray()]);
     }
 
-    public function uploadArticleImage(Article $article, string $url, int $listOrder = 0): void
+    public function uploadArticleImage(Article $article, string $url, int $listOrder = 0): string
     {
         // Extract the filename from the URL
         $path = parse_url(trim($url), PHP_URL_PATH);
@@ -266,8 +273,10 @@ class ArticleController extends Controller
 		$imageContent = @file_get_contents($url);
 
 		if (!$imageContent) {
-			return;
+			return '';
 		}
+
+        $contentHash = md5($imageContent);
 
         // Store the image
         $filename = DoSpacesController::store($filename, $imageContent, true);
@@ -284,6 +293,7 @@ class ArticleController extends Controller
         if ($existingImage) {
             // Update existing image if the filename is the same
             $existingImage->update([
+                'hash' => $contentHash,
                 'size' => $imageSize,
                 'solid_background' => $solidBackground ? 1 : 0,
             ]);
@@ -296,9 +306,12 @@ class ArticleController extends Controller
                 'path_url' => DoSpacesController::getURL($filename),
                 'size' => $imageSize,
                 'solid_background' => $solidBackground ? 1 : 0,
-                'list_order' => $listOrder
+                'list_order' => $listOrder,
+                'hash' => $contentHash,
             ]);
         }
+
+        return $contentHash;
     }
 
     public function deleteArticleImage(ArticleImage $articleImage): void
