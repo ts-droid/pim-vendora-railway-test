@@ -41,6 +41,10 @@ class PurchaseOrderWeightGenerator
         }
 
         for ($i = 1;$i <= 12;$i++) {
+            if ($i < 10) {
+                $i = '0' . $i;
+            }
+
             $startDate = $year . '-' . $i . '-01';
             $endDate = $year . '-' . $i . '-' . date('t', strtotime($startDate));
 
