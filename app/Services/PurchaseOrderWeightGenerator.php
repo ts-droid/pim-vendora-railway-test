@@ -14,15 +14,22 @@ class PurchaseOrderWeightGenerator
     {
         $this->loadQuantityPerMonth();
 
-        $average = array_sum($this->quantityPerMonth) / count($this->quantityPerMonth);
+        $maxQuantity = max($this->quantityPerMonth);
+        $minQuantity = min($this->quantityPerMonth);
 
-        if (!$average) {
-            return;
-        }
+        $range = $maxQuantity - $minQuantity;
+
+        $normalizedQuantities = array_map(function($quantity) use ($minQuantity, $range) {
+            if ($range == 0) {
+                return 0;
+            }
+
+            return ($quantity - $minQuantity) / $range;
+        }, $this->quantityPerMonth);
 
         $configs = [];
         for ($i = 1;$i <= 12;$i++) {
-            $configs['purchase_system_weight_auto_' . $i] = round($this->quantityPerMonth[$i] / $average, 2);
+            $configs['purchase_system_weight_auto_' . $i] = round($normalizedQuantities[$i], 2);
         }
 
         ConfigController::setConfigs($configs);
