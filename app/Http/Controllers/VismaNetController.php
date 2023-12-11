@@ -803,6 +803,8 @@ class VismaNetController extends Controller
     {
         $data = $this->getPagedResult('/v1/organization');
 
+        dd($data);
+
         if (!$data) {
             return false;
         }
