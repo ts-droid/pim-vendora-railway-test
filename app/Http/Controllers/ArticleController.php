@@ -327,6 +327,25 @@ class ArticleController extends Controller
         $articleImage->delete();
     }
 
+    public function updateEmptyImageHashes()
+    {
+        $articleImages = ArticleImage::whereNull('hash')->get();
+
+        foreach ($articleImages as $articleImage) {
+            $content = DoSpacesController::getContent($articleImage->filename);
+
+            if (!$content) {
+                continue;
+            }
+
+            $contentHash = md5($content);
+
+            $articleImage->update([
+                'hash' => $contentHash,
+            ]);
+        }
+    }
+
 	public function getRetailers(Request $request, Article $article)
 	{
 		$days = (int) $request->get('days', 60);
