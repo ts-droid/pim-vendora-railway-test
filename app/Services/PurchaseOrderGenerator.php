@@ -256,7 +256,10 @@ class PurchaseOrderGenerator
 
             list($quantity, $aiComment) = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
 
-            if (!$quantity) {
+            $quantityDefault = $quantity['default'];
+            $quantityMonth = $quantity['month'];
+
+            if (!$quantityDefault) {
                 continue;
             }
 
@@ -279,10 +282,11 @@ class PurchaseOrderGenerator
                 'line_key' => $lineKey++,
                 'article_number' => $article->article_number,
                 'description' => $article->description,
-                'quantity' => $quantity,
-                'suggested_quantity' => $quantity,
+                'quantity' => $quantityDefault,
+                'suggested_quantity' => $quantityDefault,
+                'suggested_quantity_month' => $quantityMonth,
                 'unit_cost' => $unitCost,
-                'amount' => ($article->external_cost * $quantity),
+                'amount' => ($article->external_cost * $quantityDefault),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
                 'ai_comment' => $aiComment,
                 'promised_date' => '',
@@ -335,7 +339,7 @@ class PurchaseOrderGenerator
             date('Y-m-d', strtotime('+' . $foresightDays . ' days'))
         );
 
-        $suggestedStock *= $this->settings['weight_month_' . $weightMonth];
+        $suggestedMonthStock = $suggestedStock * $this->settings['weight_month_' . $weightMonth];
 
         // Add the VIP orders to the suggested stock
         $vipQuantity = 0;
@@ -346,6 +350,8 @@ class PurchaseOrderGenerator
             }
 
             $suggestedStock += (int) $line->quantity;
+            $suggestedMonthStock += (int) $line->quantity;
+
             $vipQuantity += (int) $line->quantity;
         }
 
@@ -354,7 +360,10 @@ class PurchaseOrderGenerator
         $currentStock = ArticleQuantityCalculator::getNetStock($article->article_number);
 
         // This is the quantity that is suggested to order at the moment
-        $quantityToOrder = $suggestedStock - $currentStock;
+        $quantityToOrder = [
+            'default' => $suggestedStock - $currentStock,
+            'month' => $suggestedMonthStock - $currentStock,
+        ];
 
         // Round to the closest master box size
         $masterBoxQuantity = $article->master_box * $article->inner_box;
@@ -362,19 +371,22 @@ class PurchaseOrderGenerator
         $useMasterBox = ($article->supplier->purchase_master_box && $masterBoxQuantity);
 
         if ($useMasterBox) {
-            $quantityToOrder = ceil($quantityToOrder / $masterBoxQuantity) * $masterBoxQuantity;
+            $quantityToOrder['default'] = ceil($quantityToOrder['default'] / $masterBoxQuantity) * $masterBoxQuantity;
+            $quantityToOrder['month'] = ceil($quantityToOrder['month'] / $masterBoxQuantity) * $masterBoxQuantity;
         }
 
         // Always buy 1 master box if the article is new
         $isNewArticle = !$hasPurchaseOrders && !$currentStock;
 
         if ($isNewArticle) {
-            $quantityToOrder = $article->master_box ?: 1;
+            $quantityToOrder['default'] = $article->master_box ?: 1;
+            $quantityToOrder['month'] = $article->master_box ?: 1;
         }
 
-        $quantityToOrder = max(0, $quantityToOrder);
+        $quantityToOrder['default'] = max(0, $quantityToOrder['default']);
+        $quantityToOrder['month'] = max(0, $quantityToOrder['month']);
 
-        if (!$quantityToOrder) {
+        if (!$quantityToOrder['default']) {
             return [0, ''];
         }
 
@@ -398,7 +410,7 @@ class PurchaseOrderGenerator
         ]);
 
         return [
-            max(0, $quantityToOrder),
+            $quantityToOrder,
             $aiComment
         ];
     }
