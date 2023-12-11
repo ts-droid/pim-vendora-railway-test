@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         }
 
         // Run in all environments
+        $schedule->command('purchase-order:generate-weights')->dailyAt('03:00');
         $schedule->command('purchase-orders:generate')->dailyAt('13:00');
     }
 

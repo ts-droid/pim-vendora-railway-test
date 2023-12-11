@@ -11,6 +11,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\Supplier;
 use App\Services\VendoraAdmin\VendoraAdminTaskService;
+use DateTime;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +37,13 @@ class PurchaseOrderGenerator
             'vip_order_value_limit' => ConfigController::getConfig('purchase_system_vip_value', 100_000),
             'foresight_days' => ConfigController::getConfig('purchase_system_foresight_days', 14),
         ];
+
+        for ($i = 1;$i <= 12;$i++) {
+            $weightManual = ConfigController::getConfig('purchase_system_weight_manual_' . $i, 0);
+            $weightAuto = ConfigController::getConfig('purchase_system_weight_auto_' . $i, 1);
+
+            $this->settings['weight_month_' . $i] = $weightManual ?: $weightAuto;
+        }
     }
 
     /**
@@ -321,6 +329,13 @@ class PurchaseOrderGenerator
         $suggestedStock += ($periods['last_90_days']['sales_volume'] * $periods['last_90_days']['weight'] * $foresightDays);
         $suggestedStock += ($periods['last_year']['sales_volume'] * $periods['last_year']['weight'] * $foresightDays);
 
+        // Weigh against the month values
+        $weightMonth = $this->mostOccurringMonth(
+            date('Y-m-d'),
+            date('Y-m-d', strtotime('+' . $foresightDays . ' days'))
+        );
+
+        $suggestedStock *= $this->getMonthWeight($weightMonth);
 
         // Add the VIP orders to the suggested stock
         $vipQuantity = 0;
@@ -443,5 +458,56 @@ class PurchaseOrderGenerator
         }
 
         return $lastPurchaseOrder->date;
+    }
+
+    /**
+     * Returns the weight for a specific month
+     * @param int $month
+     * @return float
+     */
+    private function getMonthWeight(int $month): float
+    {
+        $weights = [];
+
+        for ($i = 1;$i <= 12;$i++) {
+            $weights[] = $this->settings['weight_month_' . $i];
+        }
+
+        $average = array_sum($weights) / count($weights);
+
+        $monthWeight = $weights[$month - 1] / $average;
+
+        return $monthWeight / $average;
+    }
+
+    /**
+     * Returns the month with the most days in a date range
+     * @param string $startDate
+     * @param string $endDate
+     * @return int
+     * @throws \Exception
+     */
+    private function mostOccurringMonth(string $startDate, string $endDate): int
+    {
+        $start = new DateTime($startDate);
+        $end = new DateTime($endDate);
+        $end->modify('+1 day'); //  the end date in the interval
+
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($start, $interval, $end);
+
+        $monthCount = [];
+
+        foreach ($period as $date) {
+            $month = $date->format('m');
+            if (!isset($monthCount[$month])) {
+                $monthCount[$month] = 0;
+            }
+            $monthCount[$month]++;
+        }
+
+        arsort($monthCount); // Sort the array in descending order of days count
+
+        return array_key_first($monthCount); // Return the month with the most days
     }
 }
