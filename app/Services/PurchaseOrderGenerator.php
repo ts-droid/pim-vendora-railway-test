@@ -389,7 +389,7 @@ class PurchaseOrderGenerator
         $quantityToOrder['month'] = max(0, $quantityToOrder['month']);
 
         if (!$quantityToOrder['default']) {
-            return [0, ''];
+            return [['default' => 0, 'month' => 0], ''];
         }
 
         // Motivate the quantity
