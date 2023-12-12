@@ -360,7 +360,7 @@ class ArticleController extends Controller
         $customerNumbers = DB::table('customer_invoice_lines')
             ->select('customer_invoices.customer_number')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->where('customer_invoices.data', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+            ->where('customer_invoices.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
             ->where('customer_invoice_lines.article_number', $article->article_number)
             ->groupBy('customer_invoices.customer_number')
             ->pluck('customer_invoices.customer_number')
