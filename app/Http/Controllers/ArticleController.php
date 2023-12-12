@@ -357,38 +357,22 @@ class ArticleController extends Controller
 	{
 		$days = (int) $request->get('days', 60);
 
-		// Fetch invoices within the period
-		$invoices = CustomerInvoice::where('date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
-			->get();
+        $customerNumbers = DB::table('customer_invoice_lines')
+            ->select('customer_invoices.customer_number')
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->where('customer_invoices.data', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+            ->where('customer_invoice_lines.article_number', $article->article_number)
+            ->groupBy('customer_invoices.customer_number')
+            ->pluck('customer_invoices.customer_number')
+            ->toArray();
 
-		if (!$invoices) {
-			return ApiResponseController::success([]);
-		}
+        if (!$customerNumbers) {
+            return ApiResponseController::success([]);
+        }
 
-        $customerNumbers = [];
-		$retailers = [];
-
-		foreach ($invoices as $invoice) {
-            // Skip invoice if customer is already found
-            if (in_array($invoice->customer_number, $customerNumbers)) {
-                continue;
-            }
-
-			foreach ($invoice->lines as $invoiceLine) {
-				if ($invoiceLine->article_number == $article->article_number) {
-					// Matching article found, this customer is a retailer
-
-					$customer = Customer::where('customer_number', $invoice->customer_number)->first();
-
-					if ($customer) {
-                        $customerNumbers[] = $invoice->customer_number;
-						$retailers[] = $customer->toArray();
-					}
-
-					continue 2;
-				}
-			}
-		}
+        $retailers = Customer::whereIn('customer_number', $customerNumbers)
+            ->get()
+            ->toArray();
 
         // Always add "Vendora / Lifestylestore" as a retailer
         if (!in_array('vendora', $customerNumbers)) {
@@ -396,11 +380,10 @@ class ArticleController extends Controller
             $customer = Customer::where('customer_number', 'vendora')->first();
 
             if ($customer) {
-                $customerNumbers[] = 'vendora';
                 $retailers[] = $customer;
             }
         }
 
-		return ApiResponseController::success($retailers);
+        return ApiResponseController::success($retailers);
 	}
 }
