@@ -50,6 +50,38 @@ class ArticleQuantityCalculator
         return $incomingQuantities;
     }
 
+    public static function getOnOrderByDate(string $articleNumber): array
+    {
+        $onOrderByDate = self::getOnOrderByDateQuantities();
+
+        return $onOrderByDate[$articleNumber] ?? [];
+    }
+
+    public static function getOnOrderByDateQuantities(): array
+    {
+        // Try to get the results from the cache
+        $onOrderByDateQuantities = Cache::get('on_order_by_date');
+
+        // If the results are not in the cache
+        if ($onOrderByDateQuantities === null) {
+            $onOrderByDateQuantities = DB::table('sales_order_lines')
+                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->where('sales_order_lines.is_completed', '=', 0)
+                ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Hold'])
+                ->select('sales_order_lines.article_number', 'sales_orders.date', DB::raw('SUM(quantity_open) as quantity'))
+                ->groupBy('sales_order_lines.article_number', 'sales_orders.date')
+                ->get()
+                ->map(function ($dateGroup) {
+                    return $dateGroup->keyBy('date')->map(function ($row) {
+                        return $row->quantity;
+                    });
+                })
+                ->toArray();
+        }
+
+        return $onOrderByDateQuantities;
+    }
+
     /**
      * Returns the number of items on active sales orders
      *
