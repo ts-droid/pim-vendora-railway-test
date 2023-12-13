@@ -196,11 +196,11 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $supplierEmail = $purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null);
+        $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
 
-        $supplierEmail = 'anton@scriptsector.se';
+        $recipients = ['anton@scriptsector.se', 'ah@vendora.se'];
 
-        if (!$supplierEmail) {
+        if (count($recipients) === 0) {
             return ApiResponseController::error('Supplier is missing email.');
         }
 
@@ -210,7 +210,7 @@ class PurchaseOrderController extends Controller
 
         // Send email
         try {
-            Mail::to($supplierEmail)->queue(new \App\Mail\PurchaseOrder($purchaseOrder, $pdfContent));
+            Mail::to($recipients)->queue(new \App\Mail\PurchaseOrder($purchaseOrder, $pdfContent));
         } catch (\Exception $e) {
             return ApiResponseController::error($e->getMessage());
         }
