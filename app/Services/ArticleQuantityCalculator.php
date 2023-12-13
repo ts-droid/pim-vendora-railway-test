@@ -72,7 +72,7 @@ class ArticleQuantityCalculator
                 ->groupBy('sales_order_lines.article_number', 'sales_orders.date')
                 ->get()
                 ->map(function ($dateGroup) {
-                    return $dateGroup->keyBy('date')->map(function ($row) {
+                    return collect($dateGroup)->keyBy('date')->map(function ($row) {
                         return $row->quantity;
                     });
                 })
