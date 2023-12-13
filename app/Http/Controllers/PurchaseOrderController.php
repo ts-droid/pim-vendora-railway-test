@@ -200,6 +200,12 @@ class PurchaseOrderController extends Controller
 
         $recipients = ['anton@scriptsector.se', 'ah@vendora.se'];
 
+        // Validate the emails
+        $recipients = array_filter($recipients, function($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        });
+
+        // Make sure we have at least 1 email address
         if (count($recipients) === 0) {
             return ApiResponseController::error('Supplier is missing email.');
         }
