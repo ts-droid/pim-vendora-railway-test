@@ -23,6 +23,7 @@ class PurchaseOrder extends Model
         'is_draft',
         'is_vip',
         'foresight_days',
+        'email',
     ];
 
     public function supplier()

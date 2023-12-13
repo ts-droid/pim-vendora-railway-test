@@ -196,7 +196,7 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $supplierEmail = $purchaseOrder->supplier->email ?? null;
+        $supplierEmail = $purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null);
 
         $supplierEmail = 'anton@scriptsector.se';
 
