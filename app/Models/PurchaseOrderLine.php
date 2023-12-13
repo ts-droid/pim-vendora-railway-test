@@ -25,6 +25,7 @@ class PurchaseOrderLine extends Model
         'is_vip',
         'is_completed',
         'is_canceled',
+        'is_locked',
     ];
 
     public function article()

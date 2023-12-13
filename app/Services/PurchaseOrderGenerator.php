@@ -94,8 +94,15 @@ class PurchaseOrderGenerator
             ];
         }
 
+        $lockedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->where('is_locked', 1)
+            ->pluck('article_number')
+            ->toArray();
+
         // Remove the existing order lines
-        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->delete();
+        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->where('is_locked', 0)
+            ->delete();
 
         // Add new order lines
         $vipSalesOrders = $this->getVIPSalesOrders(
@@ -108,7 +115,8 @@ class PurchaseOrderGenerator
             $purchaseOrder->supplier,
             $vipSalesOrders,
             $purchaseOrder->foresight_days,
-            $purchaseOrder->id
+            $purchaseOrder->id,
+            $lockedArticleNumbers
         );
 
         foreach ($orderLines as $orderLine) {
@@ -234,7 +242,7 @@ class PurchaseOrderGenerator
      * @param int $purchaseOrderID
      * @return Collection
      */
-    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0)
+    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $excludeArticleNumbers = [])
     {
         $articles = Article::where('supplier_number', $supplier->number)
             ->where('status', 'Active')
@@ -251,9 +259,11 @@ class PurchaseOrderGenerator
         $supplierPriceService = new SupplierArticlePriceService();
         $currencyConverter = new CurrencyConvertController();
 
+        $excludeArticles = array_merge($this->excludeArticles, $excludeArticleNumbers);
+
         foreach ($articles as $article) {
             // Exclude articles
-            if (in_array($article->article_number, $this->excludeArticles)) {
+            if (in_array($article->article_number, $excludeArticles)) {
                 continue;
             }
 
