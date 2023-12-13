@@ -71,6 +71,7 @@ class ArticleQuantityCalculator
                 ->select('sales_order_lines.article_number', 'sales_orders.date', DB::raw('SUM(quantity_open) as quantity'))
                 ->groupBy('sales_order_lines.article_number', 'sales_orders.date')
                 ->get()
+                ->groupBy('article_number')
                 ->map(function ($dateGroup) {
                     return collect($dateGroup)->keyBy('date')->map(function ($row) {
                         return $row->quantity;
