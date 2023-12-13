@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Article;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -73,8 +74,11 @@ class ArticleQuantityCalculator
                 ->get()
                 ->groupBy('article_number')
                 ->map(function ($dateGroup) {
-                    return collect($dateGroup)->keyBy('date')->map(function ($row) {
-                        return $row->quantity;
+                    return collect($dateGroup)->mapWithKeys(function ($row) {
+                        // Reformat the date
+                        $date = (new DateTime($row->date))->format('Y-m-d');
+
+                        return [$date => $row->quantity];
                     });
                 })
                 ->toArray();
