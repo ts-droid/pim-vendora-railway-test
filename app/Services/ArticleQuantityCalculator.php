@@ -9,6 +9,44 @@ use Illuminate\Support\Facades\Cache;
 
 class ArticleQuantityCalculator
 {
+    public static function getIncomingByDate(string $articleNumber): array
+    {
+        $incomingByDate = self::getIncomingByDateQuantities();
+
+        return $incomingByDate[$articleNumber] ?? [];
+    }
+
+    public static function getIncomingByDateQuantities(): array
+    {
+        // Try to get the results from the cache
+        $incomingByDateQuantities = Cache::get('incoming_by_date');
+
+        // If the results are not in the cache
+        if ($incomingByDateQuantities === null) {
+            $incomingByDateQuantities = DB::table('purchase_order_lines')
+                ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+                ->where('purchase_orders.status', '=', 'Open')
+                ->select('purchase_order_lines.article_number', 'purchase_orders.date', DB::raw('SUM(quantity) as quantity'))
+                ->groupBy('purchase_order_lines.article_number', 'purchase_orders.date')
+                ->get()
+                ->groupBy('article_number')
+                ->map(function ($dateGroup) {
+                    return collect($dateGroup)->mapWithKeys(function ($row) {
+                        // Reformat the date
+                        $date = (new DateTime($row->date))->format('Y-m-d');
+
+                        return [$date => $row->quantity];
+                    });
+                })
+                ->toArray();
+
+            // Store the results in the cache for 10 minutes
+            Cache::put('incoming_by_date', $incomingByDateQuantities, 10);
+        }
+
+        return $incomingByDateQuantities;
+    }
+
     /**
      * Returns the number of incoming articles
      *
@@ -82,6 +120,9 @@ class ArticleQuantityCalculator
                     });
                 })
                 ->toArray();
+
+            // Store the results in the cache for 10 minutes
+            Cache::put('on_order_by_date', $onOrderByDateQuantities, 10);
         }
 
         return $onOrderByDateQuantities;
