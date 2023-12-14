@@ -188,40 +188,43 @@ class ArticleQuantityCalculator
      * Returns the sales per month based on provided period
      *
      * @param string $articleNumber
-     * @param int $months
+     * @param string $startDate
+     * @param string $endDate
      * @return int
      */
-    public static function getSalesPerMonth(string $articleNumber, int $months = 6): int
+    public static function getSalesPerMonth(string $articleNumber, string $startDate, string $endDate): int
     {
-        $salesPerMonthQuantities = self::getSalesPerMonthQuantities($months);
+        $salesPerMonthQuantities = self::getSalesPerMonthQuantities($startDate, $endDate);
 
         return $salesPerMonthQuantities[$articleNumber] ?? 0;
     }
 
-    public static function getSalesPerMonthQuantities(int $months = 6): array
+    public static function getSalesPerMonthQuantities(string $startDate, string $endDate): array
     {
         // Try to get the results from the cache
-        $salesPerMonthQuantities = Cache::get('sales_per_month_quantities_' . $months);
+        $salesPerMonthQuantities = Cache::get('sales_per_month_quantities_' . $startDate . $endDate);
 
         // If the results are not in the cache
         if ($salesPerMonthQuantities === null) {
-            $days = $months * 30;
+
+            $days = round((strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24));
 
             // Fetch the results from the database
             $salesPerMonthQuantities = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                ->where('sales_orders.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+                ->where('sales_orders.date', '>=', $startDate)
+                ->where('sales_orders.date', '<=', $endDate)
                 ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
                 ->groupBy('sales_order_lines.article_number')
                 ->get()
                 ->keyBy('article_number')
-                ->map(function ($row) use ($months) {
-                    return round($row->total_quantity / $months);
+                ->map(function ($row) use ($days) {
+                    return round($row->total_quantity / ($days / 30));
                 })
                 ->toArray();
 
             // Store the results in the cache for 10 minutes
-            Cache::put('sales_per_month_quantities_' . $months, $salesPerMonthQuantities, 10);
+            Cache::put('sales_per_month_quantities_' . $startDate . $endDate, $salesPerMonthQuantities, 10);
         }
 
         return $salesPerMonthQuantities;
@@ -235,7 +238,12 @@ class ArticleQuantityCalculator
      */
     public static function getStockTime(string $articleNumber): int
     {
-        $salesPerMonth = self::getSalesPerMonth($articleNumber);
+        $salesPerMonth = self::getSalesPerMonth(
+            $articleNumber,
+            date('Y-m-d', strtotime('-6 months')),
+            date('Y-m-d')
+        );
+
         $netStock = self::getNetStock($articleNumber);
 
         if (!$salesPerMonth) {

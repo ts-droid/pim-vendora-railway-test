@@ -26,7 +26,10 @@ class Article extends Model
         'stock_on_order',
         'stock_net',
         'stock_time',
-        'sales_per_month',
+        'sales_per_month', // Average sales per month last 180 days
+        'sales_per_month_1', // Sales per month last 30 days
+        'sales_per_month_2', // Sales per month last 30-60 days
+        'sales_per_month_3', // Sales per month last 60-90 days
         'purchase_price',
         'purchase_price_currency',
     ];
@@ -41,7 +44,30 @@ class Article extends Model
             $article->stock_on_order = ArticleQuantityCalculator::getOnOrder($article->article_number);
             $article->stock_net = ArticleQuantityCalculator::getNetStock($article->article_number);
             $article->stock_time = ArticleQuantityCalculator::getStockTime($article->article_number);
-            $article->sales_per_month = ArticleQuantityCalculator::getSalesPerMonth($article->article_number);
+
+            $article->sales_per_month = ArticleQuantityCalculator::getSalesPerMonth(
+                $article->article_number,
+                date('Y-m-d', strtotime('-6 months')),
+                date('Y-m-d')
+            );
+
+            $article->sales_per_month_1 = ArticleQuantityCalculator::getSalesPerMonth(
+                $article->article_number,
+                date('Y-m-d', strtotime('-1 months')),
+                date('Y-m-d')
+            );
+
+            $article->sales_per_month_2 = ArticleQuantityCalculator::getSalesPerMonth(
+                $article->article_number,
+                date('Y-m-d', strtotime('-2 months')),
+                date('Y-m-d', strtotime('-1 months')),
+            );
+
+            $article->sales_per_month_3 = ArticleQuantityCalculator::getSalesPerMonth(
+                $article->article_number,
+                date('Y-m-d', strtotime('-3 months')),
+                date('Y-m-d', strtotime('-2 months')),
+            );
 
             $article->purchase_price = $supplierPrice->price ?? 0;
             $article->purchase_price_currency = $supplierPrice->currency ?? '';
@@ -109,10 +135,53 @@ class Article extends Model
     public function getSalesPerMonthAttribute()
     {
         if (!isset($this->attributes['sales_per_month'])) {
-            $this->attributes['sales_per_month'] = ArticleQuantityCalculator::getSalesPerMonth($this->article_number);
+            $this->attributes['sales_per_month'] = ArticleQuantityCalculator::getSalesPerMonth(
+                $this->article_number,
+                date('Y-m-d', strtotime('-6 months')),
+                date('Y-m-d')
+            );
         }
 
         return $this->attributes['sales_per_month'];
+    }
+
+    public function getSalesPerMonth1Attribute()
+    {
+        if (!isset($this->attributes['sales_per_month_1'])) {
+            $this->attributes['sales_per_month_1'] = ArticleQuantityCalculator::getSalesPerMonth(
+                $this->article_number,
+                date('Y-m-d', strtotime('-1 months')),
+                date('Y-m-d')
+            );
+        }
+
+        return $this->attributes['sales_per_month_1'];
+    }
+
+    public function getSalesPerMonth2Attribute()
+    {
+        if (!isset($this->attributes['sales_per_month_2'])) {
+            $this->attributes['sales_per_month_2'] = ArticleQuantityCalculator::getSalesPerMonth(
+                $this->article_number,
+                date('Y-m-d', strtotime('-2 months')),
+                date('Y-m-d', strtotime('-1 months')),
+            );
+        }
+
+        return $this->attributes['sales_per_month_2'];
+    }
+
+    public function getSalesPerMonth3Attribute()
+    {
+        if (!isset($this->attributes['sales_per_month_3'])) {
+            $this->attributes['sales_per_month_3'] = ArticleQuantityCalculator::getSalesPerMonth(
+                $this->article_number,
+                date('Y-m-d', strtotime('-3 months')),
+                date('Y-m-d', strtotime('-2 months')),
+            );
+        }
+
+        return $this->attributes['sales_per_month_3'];
     }
 
     public function getPurchasePriceAttribute()
