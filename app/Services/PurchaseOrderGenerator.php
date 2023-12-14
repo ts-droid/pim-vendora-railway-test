@@ -255,7 +255,7 @@ class PurchaseOrderGenerator
         $orderLines = collect();
 
         if ($purchaseOrderID) {
-            $lineKey = (int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrderID)->max('line_key');
+            $lineKey = ((int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrderID)->max('line_key')) + 1;
         }
         else {
             $lineKey = 0;
