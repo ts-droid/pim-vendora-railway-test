@@ -254,7 +254,12 @@ class PurchaseOrderGenerator
 
         $orderLines = collect();
 
-        $lineKey = 0;
+        if ($purchaseOrderID) {
+            $lineKey = (int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrderID)->max('line_key');
+        }
+        else {
+            $lineKey = 0;
+        }
 
         $supplierPriceService = new SupplierArticlePriceService();
         $currencyConverter = new CurrencyConvertController();
