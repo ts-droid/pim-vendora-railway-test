@@ -52,9 +52,10 @@ class PurchaseOrderGenerator
      * Generates a purchase order for all suppliers. Or a specific supplier if the supplierID is set.
      *
      * @param int $supplierID
+     * @param int $isEmpty
      * @return void
      */
-    public function generate(int $supplierID = 0): void
+    public function generate(int $supplierID = 0, int $isEmpty = 0): void
     {
         $suppliers = collect();
 
@@ -70,7 +71,7 @@ class PurchaseOrderGenerator
         }
 
         foreach ($suppliers as $supplier) {
-            $orderCreated = $this->generateSupplierPurchaseOrder($supplier);
+            $orderCreated = $this->generateSupplierPurchaseOrder($supplier, $isEmpty);
 
             // TODO: Remove this when we going to production
             if ($orderCreated) {
@@ -136,37 +137,45 @@ class PurchaseOrderGenerator
      * Returns true if an order was generated, false if not.
      *
      * @param Supplier $supplier
+     * @param int $isEmpty
      * @return bool
      */
-    public function generateSupplierPurchaseOrder(Supplier $supplier): bool
+    public function generateSupplierPurchaseOrder(Supplier $supplier, int $isEmpty): bool
     {
-        $generatePurchaseOrder = false;
 
-        $lastPurchaseOrderTime = $this->getSupplierLastOrder($supplier);
-
-        // Check if the supplier has any "VIP orders"
-        $vipSalesOrders = $this->getVIPSalesOrders(
-            $supplier,
-            ($lastPurchaseOrderTime ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
-            date('Y-m-d H:i:s')
-        );
-
-        if ($vipSalesOrders->count()) {
+        if ($isEmpty) {
             $generatePurchaseOrder = true;
+            $vipSalesOrders = collect();
         }
+        else {
+            $generatePurchaseOrder = false;
 
-        // Check when last we last tries to generate an order for this supplier
-        if (!$lastPurchaseOrderTime
-            || strtotime($lastPurchaseOrderTime) < strtotime('-' . $supplier->purchase_order_interval . ' day')
-        ) {
-            $generatePurchaseOrder = true;
+            $lastPurchaseOrderTime = $this->getSupplierLastOrder($supplier);
+
+            // Check if the supplier has any "VIP orders"
+            $vipSalesOrders = $this->getVIPSalesOrders(
+                $supplier,
+                ($lastPurchaseOrderTime ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
+                date('Y-m-d H:i:s')
+            );
+
+            if ($vipSalesOrders->count()) {
+                $generatePurchaseOrder = true;
+            }
+
+            // Check when last we last tries to generate an order for this supplier
+            if (!$lastPurchaseOrderTime
+                || strtotime($lastPurchaseOrderTime) < strtotime('-' . $supplier->purchase_order_interval . ' day')
+            ) {
+                $generatePurchaseOrder = true;
+            }
         }
 
         if (!$generatePurchaseOrder) {
             return false;
         }
 
-        $response = $this->createSupplierOrder($supplier, $vipSalesOrders);
+        $response = $this->createSupplierOrder($supplier, $vipSalesOrders, $isEmpty);
 
         return $response['success'];
     }
@@ -175,23 +184,30 @@ class PurchaseOrderGenerator
      * Generates a purchase order for a specific supplier.
      *
      * @param Supplier $supplier
+     * @param Collection|null $vipSalesOrders
+     * @param int $isEmpty
      * @return array
      */
-    public function createSupplierOrder(Supplier $supplier, Collection $vipSalesOrders = null): array
+    public function createSupplierOrder(Supplier $supplier, Collection $vipSalesOrders = null, int $isEmpty = 0): array
     {
         if ($vipSalesOrders === null) {
             $vipSalesOrders = collect();
         }
 
-        // Collect all articles that need to be ordered
-        $orderLines = $this->getOrderLines(
-            $supplier,
-            $vipSalesOrders,
-            $this->settings['foresight_days']
-        );
+        if ($isEmpty) {
+            $orderLines = collect();
+        }
+        else {
+            // Collect all articles that need to be ordered
+            $orderLines = $this->getOrderLines(
+                $supplier,
+                $vipSalesOrders,
+                $this->settings['foresight_days']
+            );
 
-        if ($orderLines->isEmpty()) {
-            return ['success' => false];
+            if ($orderLines->isEmpty()) {
+                return ['success' => false];
+            }
         }
 
         // Create the purchase order

@@ -12,7 +12,7 @@ class GeneratePurchaseOrders extends Command
      *
      * @var string
      */
-    protected $signature = 'purchase-orders:generate {supplierID?}';
+    protected $signature = 'purchase-orders:generate {supplierID?} {isEmpty?}';
 
     /**
      * The console command description.
@@ -27,8 +27,9 @@ class GeneratePurchaseOrders extends Command
     public function handle()
     {
         $supplierID = $this->argument('supplierID') ?? 0;
+        $isEmpty = $this->argument('isEmpty') ?? 0;
 
-        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID);
+        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID, $isEmpty);
 
         $this->info('Generating purchase orders...');
     }
