@@ -33,7 +33,9 @@ class PurchaseOrder extends Model
 
     public function lines(): HasMany
     {
-        return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id');
+        return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id')
+            ->orderBy('is_locked', 'DESC')
+            ->orderBy('id', 'ASC');
     }
 
     public function getHash(): string
