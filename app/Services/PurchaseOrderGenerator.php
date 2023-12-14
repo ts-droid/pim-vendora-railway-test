@@ -269,11 +269,7 @@ class PurchaseOrderGenerator
 
             list($quantity, $aiComment) = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
 
-            $quantityDefault = $quantity['default'];
-            $quantityMonth = $quantity['month'];
-            $quantityInner = $quantity['inner'];
-
-            if (!$quantityDefault) {
+            if (!$quantity['default']) {
                 continue;
             }
 
@@ -296,12 +292,15 @@ class PurchaseOrderGenerator
                 'line_key' => $lineKey++,
                 'article_number' => $article->article_number,
                 'description' => $article->description,
-                'quantity' => $quantityDefault,
-                'suggested_quantity' => $quantityDefault,
-                'suggested_quantity_month' => $quantityMonth,
-                'suggested_quantity_inner' => $quantityInner,
+                'quantity' => $quantity['default'],
+                'suggested_quantity' => $quantity['default'],
+                'suggested_quantity_master' => $quantity['master'],
+                'suggested_quantity_inner' => $quantity['inner'],
+                'suggested_quantity_month' => $quantity['month_default'],
+                'suggested_quantity_month_master' => $quantity['month_master'],
+                'suggested_quantity_month_inner' => $quantity['month_inner'],
                 'unit_cost' => $unitCost,
-                'amount' => ($article->external_cost * $quantityDefault),
+                'amount' => ($article->external_cost * $quantity['default']),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
                 'ai_comment' => $aiComment,
                 'promised_date' => '',
@@ -377,8 +376,11 @@ class PurchaseOrderGenerator
         // This is the quantity that is suggested to order at the moment
         $quantityToOrder = [
             'default' => $suggestedStock - $currentStock,
-            'month' => $suggestedMonthStock - $currentStock,
-            'inner' => $suggestedStock - $currentStock,
+            'master' => 0,
+            'inner' => 0,
+            'month_default' => $suggestedMonthStock - $currentStock,
+            'month_master' => 0,
+            'month_inner' => 0,
         ];
 
         // Round to the closest master box size
@@ -388,9 +390,10 @@ class PurchaseOrderGenerator
         $useMasterBox = ($article->supplier->purchase_master_box && $masterBoxQuantity);
 
         if ($useMasterBox) {
-            $quantityToOrder['default'] = ceil($quantityToOrder['default'] / $masterBoxQuantity) * $masterBoxQuantity;
-            $quantityToOrder['month'] = ceil($quantityToOrder['month'] / $masterBoxQuantity) * $masterBoxQuantity;
-            $quantityToOrder['inner'] = ceil($quantityToOrder['inner'] / $innerBoxQuantity) * $innerBoxQuantity;
+            $quantityToOrder['master'] = ceil($quantityToOrder['default'] / $masterBoxQuantity) * $masterBoxQuantity;
+            $quantityToOrder['inner'] = ceil($quantityToOrder['default'] / $innerBoxQuantity) * $innerBoxQuantity;
+            $quantityToOrder['month_master'] = ceil($quantityToOrder['month_default'] / $masterBoxQuantity) * $masterBoxQuantity;
+            $quantityToOrder['month_inner'] = ceil($quantityToOrder['month_default'] / $innerBoxQuantity) * $innerBoxQuantity;
         }
 
         // Always buy 1 master box if the article is new
@@ -398,19 +401,33 @@ class PurchaseOrderGenerator
 
         if ($isNewArticle) {
             $quantityToOrder['default'] = $masterBoxQuantity ?: 1;
-            $quantityToOrder['month'] = $masterBoxQuantity ?: 1;
+            $quantityToOrder['master'] = $masterBoxQuantity ?: 1;
             $quantityToOrder['inner'] = $innerBoxQuantity ?: 1;
+            $quantityToOrder['month_master'] = $masterBoxQuantity ?: 1;
+            $quantityToOrder['month_inner'] = $innerBoxQuantity ?: 1;
         }
 
         $quantityToOrder['default'] = max(0, $quantityToOrder['default']);
-        $quantityToOrder['month'] = max(0, $quantityToOrder['month']);
+        $quantityToOrder['master'] = max(0, $quantityToOrder['master']);
         $quantityToOrder['inner'] = max(0, $quantityToOrder['inner']);
+        $quantityToOrder['month_default'] = max(0, $quantityToOrder['month_default']);
+        $quantityToOrder['month_master'] = max(0, $quantityToOrder['month_master']);
+        $quantityToOrder['month_inner'] = max(0, $quantityToOrder['month_inner']);
+
+        // Use best fitting master or inner
+        if ($useMasterBox) {
+            $quantityToOrder['default'] = $quantityToOrder['inner'];
+            $quantityToOrder['month_default'] = $quantityToOrder['month_inner'];
+        }
 
         if (!$quantityToOrder['default']) {
             return [[
                 'default' => 0,
-                'month' => 0,
+                'master' => 0,
                 'inner' => 0,
+                'month_default' => 0,
+                'month_master' => 0,
+                'month_inner' => 0,
             ], ''];
         }
 
