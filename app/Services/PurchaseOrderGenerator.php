@@ -95,9 +95,6 @@ class PurchaseOrderGenerator
             ];
         }
 
-        // Mark order as generating
-        $purchaseOrder->update(['is_generating' => 1]);
-
         if ($purchaseOrder->regenerate_only_existing) {
             $allowedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
                 ->pluck('article_number')

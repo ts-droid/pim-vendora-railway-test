@@ -191,6 +191,8 @@ class PurchaseOrderController extends Controller
 
     public function regenerate(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $purchaseOrder->update(['is_generating' => 1]);
+
         RegeneratePurchaseOrder::dispatch($purchaseOrder);
 
         return ApiResponseController::success();
