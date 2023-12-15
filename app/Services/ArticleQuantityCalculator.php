@@ -26,6 +26,8 @@ class ArticleQuantityCalculator
             $incomingByDateQuantities = DB::table('purchase_order_lines')
                 ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
                 ->where('purchase_orders.status', '=', 'Open')
+                ->where('purchase_order_lines.is_completed', '=' ,0)
+                ->where('purchase_order_lines.is_canceled', '=' ,0)
                 ->select('purchase_order_lines.article_number', 'purchase_orders.date', DB::raw('SUM(quantity) as quantity'))
                 ->groupBy('purchase_order_lines.article_number', 'purchase_orders.date')
                 ->get()
