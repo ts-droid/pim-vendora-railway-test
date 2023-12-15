@@ -24,6 +24,7 @@ class PurchaseOrder extends Model
         'is_vip',
         'foresight_days',
         'email',
+        'regenerate_only_existing',
     ];
 
     public function supplier()

@@ -95,6 +95,15 @@ class PurchaseOrderGenerator
             ];
         }
 
+        if ($purchaseOrder->regenerate_only_existing) {
+            $allowedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+                ->pluck('article_number')
+                ->toArray();
+        }
+        else {
+            $allowedArticleNumbers = [];
+        }
+
         $lockedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
             ->where('is_locked', 1)
             ->pluck('article_number')
@@ -117,6 +126,7 @@ class PurchaseOrderGenerator
             $vipSalesOrders,
             $purchaseOrder->foresight_days,
             $purchaseOrder->id,
+            $allowedArticleNumbers,
             $lockedArticleNumbers
         );
 
@@ -256,9 +266,11 @@ class PurchaseOrderGenerator
      * @param Collection $vipSalesOrders
      * @param int $foresightDays
      * @param int $purchaseOrderID
+     * @param array $allowedArticleNumbers
+     * $param array $excludeArticleNumbers
      * @return Collection
      */
-    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $excludeArticleNumbers = [])
+    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
     {
         $articles = Article::where('supplier_number', $supplier->number)
             ->where('status', 'Active')
@@ -285,6 +297,10 @@ class PurchaseOrderGenerator
         foreach ($articles as $article) {
             // Exclude articles
             if (in_array($article->article_number, $excludeArticles)) {
+                continue;
+            }
+
+            if (count($allowedArticleNumbers) && !in_array($article->article_number, $allowedArticleNumbers)) {
                 continue;
             }
 
