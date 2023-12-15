@@ -29,7 +29,7 @@ class ArticleQuantityCalculator
                 ->where('purchase_order_lines.is_completed', '=' ,0)
                 ->where('purchase_order_lines.is_canceled', '=' ,0)
                 ->select('purchase_order_lines.article_number', 'purchase_orders.order_number', 'purchase_orders.date', DB::raw('SUM(quantity) as quantity'))
-                ->groupBy('purchase_order_lines.article_number', 'purchase_orders.date')
+                ->groupBy('purchase_order_lines.article_number', 'purchase_orders.order_number', 'purchase_orders.date')
                 ->get()
                 ->groupBy('article_number')
                 ->map(function ($dateGroup) {
@@ -37,7 +37,7 @@ class ArticleQuantityCalculator
                         // Reformat the date
                         $date = (new DateTime($row->date))->format('Y-m-d');
 
-                        return [$date => [$row->quantity, '']];
+                        return [$date => [$row->quantity, $row->order_number]];
                     });
                 })
                 ->toArray();
