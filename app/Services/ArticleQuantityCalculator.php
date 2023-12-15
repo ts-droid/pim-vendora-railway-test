@@ -37,7 +37,7 @@ class ArticleQuantityCalculator
                         // Reformat the date
                         $date = (new DateTime($row->date))->format('Y-m-d');
 
-                        return [$date => [$row->quantity, $row->order_number]];
+                        return [$date => [$row->quantity, '']];
                     });
                 })
                 ->toArray();
