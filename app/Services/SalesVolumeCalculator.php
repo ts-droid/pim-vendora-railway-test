@@ -16,6 +16,26 @@ class SalesVolumeCalculator
     {
         // Calculate the periods
         $periods = [
+            'sales_7_days_last_year' => [
+                date('Y-m-d', strtotime('-372 days')),
+                date('Y-m-d', strtotime('-365 dats'))
+            ],
+            'sales_30_days_last_year' => [
+                date('Y-m-d', strtotime('-395 days')),
+                date('Y-m-d', strtotime('-365 dats'))
+            ],
+            'sales_60_days_last_year' => [
+                date('Y-m-d', strtotime('-425 days')),
+                date('Y-m-d', strtotime('-365 dats'))
+            ],
+            'sales_90_days_last_year' => [
+                date('Y-m-d', strtotime('-455 days')),
+                date('Y-m-d', strtotime('-365 dats'))
+            ],
+            'sales_180_days_last_year' => [
+                date('Y-m-d', strtotime('-545 days')),
+                date('Y-m-d', strtotime('-365 dats'))
+            ],
             'sales_7_days' => [
                 date('Y-m-d', strtotime('-7 days')),
                 date('Y-m-d')
