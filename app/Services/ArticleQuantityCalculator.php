@@ -37,7 +37,7 @@ class ArticleQuantityCalculator
                         // Reformat the date
                         $date = (new DateTime($row->date))->format('Y-m-d');
 
-                        return [$date => [$row->quantity, $row->order_number]];
+                        return [$date => [$row->quantity . ' pcs', $row->order_number]];
                     });
                 })
                 ->toArray();
@@ -107,10 +107,11 @@ class ArticleQuantityCalculator
         if ($onOrderByDateQuantities === null) {
             $onOrderByDateQuantities = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->leftJoin('customers', 'customers.external_id', '=', 'sales_orders.customer')
                 ->where('sales_order_lines.is_completed', '=', 0)
                 ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Hold'])
-                ->select('sales_order_lines.article_number', 'sales_orders.date', DB::raw('SUM(quantity_open) as quantity'))
-                ->groupBy('sales_order_lines.article_number', 'sales_orders.date')
+                ->select('sales_order_lines.article_number', 'sales_orders.order_number', 'sales_orders.date', 'customers.name', DB::raw('SUM(quantity_open) as quantity'))
+                ->groupBy('sales_order_lines.article_number', 'sales_orders.order_number', 'sales_orders.date', 'customers.name')
                 ->get()
                 ->groupBy('article_number')
                 ->map(function ($dateGroup) {
@@ -118,7 +119,7 @@ class ArticleQuantityCalculator
                         // Reformat the date
                         $date = (new DateTime($row->date))->format('Y-m-d');
 
-                        return [$date => $row->quantity];
+                        return [$date => [$row->quantity . ' pcs', $row->order_number, $row->name]];
                     });
                 })
                 ->toArray();
