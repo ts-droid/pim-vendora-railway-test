@@ -37,7 +37,7 @@ class ArticleQuantityCalculator
                         // Reformat the date
                         $date = (new DateTime($row->date))->format('Y-m-d');
 
-                        return [$date => $row->quantity];
+                        return [$date => [$row->quantity, 'po_number_here']];
                     });
                 })
                 ->toArray();
