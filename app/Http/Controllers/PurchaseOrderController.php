@@ -138,6 +138,8 @@ class PurchaseOrderController extends Controller
             'amount' => ($unitCost * $quantity),
             'promised_date' => '',
         ]);
+
+        return ApiResponseController::success();
     }
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)
