@@ -292,7 +292,6 @@ class PurchaseOrderGenerator
         }
 
         $supplierPriceService = new SupplierArticlePriceService();
-        $currencyConverter = new CurrencyConvertController();
 
         $excludeArticles = array_merge($this->excludeArticles, $excludeArticleNumbers);
 
@@ -313,18 +312,7 @@ class PurchaseOrderGenerator
             }
 
             // Calculate the unit purchase price
-            $unitCost = 0;
-
-            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
-            if ($supplierPrice) {
-                $unitCost = $supplierPrice->price;
-
-                // Convert to the supplier currency
-                if ($supplier->currency != $supplierPrice->currency) {
-                    $unitCost = $currencyConverter->convert($unitCost, $supplierPrice->currency, $supplier->currency);
-                }
-
-            }
+            $unitCost = $supplierPriceService->getUnitCostForSupplier($article->article_number, $supplier);
 
             $orderLines->push([
                 'purchase_order_id' => $purchaseOrderID,
@@ -339,7 +327,7 @@ class PurchaseOrderGenerator
                 'suggested_quantity_month_master' => $quantity['month_master'],
                 'suggested_quantity_month_inner' => $quantity['month_inner'],
                 'unit_cost' => $unitCost,
-                'amount' => ($article->external_cost * $quantity['default']),
+                'amount' => ($unitCost * $quantity['default']),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
                 'ai_comment' => $aiComment,
                 'promised_date' => '',

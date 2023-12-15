@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\RegeneratePurchaseOrder;
+use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\ArticleQuantityCalculator;
@@ -105,6 +106,38 @@ class PurchaseOrderController extends Controller
         }
 
         return ApiResponseController::success([$order->toArray()]);
+    }
+
+    public function addRow(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $article = Article::where('article_number', $request->get('article_number'))->first();
+
+        if (!$article) {
+            return ApiResponseController::error('Article not found.');
+        }
+
+        // Decide the line key
+        $lineKey = ((int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->max('line_key')) + 1;
+
+        // Decide the quantity
+        $quantity = (int) ($request->get('quantity') ?? 0);
+        $quantity = max(1, $quantity);
+
+        // Get the unit cost for the article
+        $supplierPriceService = new SupplierArticlePriceService();
+        $unitCost = $supplierPriceService->getUnitCostForSupplier($article->article_number, $purchaseOrder->supplier);
+
+        // Create the order line
+        PurchaseOrderLine::create([
+            'purchase_order_id' => $purchaseOrder->id,
+            'line_key' => $lineKey,
+            'article_number' => $article->article_number,
+            'description' => $article->description,
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+            'amount' => ($unitCost * $quantity),
+            'promised_date' => '',
+        ]);
     }
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)
