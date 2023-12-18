@@ -20,18 +20,21 @@ class BestsellerCalculator
         $startDate = date('Y-m-d', strtotime('-' . $statsPeriod . ' days'));
         $endDate = date('Y-m-d');
 
+        $quantities = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->whereBetween('sales_orders.date', [$startDate, $endDate])
+            ->groupBy('sales_order_lines.article_number')
+            ->select('sales_order_lines.article_number', DB::raw('SUM(sales_order_lines.quantity) as total_quantity'))
+            ->get()
+            ->pluck('total_quantity', 'article_number')
+            ->all();
+
         $stats = collect();
 
         foreach ($articles as $article) {
-            $quantity = DB::table('sales_order_lines')
-                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                ->where('sales_order_lines.article_number', $article->article_number)
-                ->whereBetween('sales_orders.date', [$startDate, $endDate])
-                ->sum('sales_order_lines.quantity');
-
             $stats->push([
                 'article' => $article,
-                'quantity' => $quantity,
+                'quantity' => $quantities[$article->article_number] ?? 0,
             ]);
         }
 
