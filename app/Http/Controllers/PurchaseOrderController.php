@@ -13,11 +13,24 @@ use App\Services\PurchaseOrderPublisher;
 use App\Services\SupplierArticlePriceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseOrderController extends Controller
 {
+    public function getOngoing(Request $request)
+    {
+        $purchaseOrderLines = DB::table('purchase_order_lines')
+            ->select('purchase_order_lines.*', 'purchase_orders.supplier_name', 'purchase_orders.promised_date')
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->where('purchase_order_lines.is_completed', '=', 0)
+            ->orderBy('purchase_orders.id')
+            ->get();
+
+        return ApiResponseController::success($purchaseOrderLines->toArray());
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);

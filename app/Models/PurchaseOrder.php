@@ -26,6 +26,7 @@ class PurchaseOrder extends Model
         'email',
         'regenerate_only_existing',
         'is_generating',
+        'reminder_sent_at',
     ];
 
     public function supplier()

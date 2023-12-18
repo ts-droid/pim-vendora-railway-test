@@ -125,6 +125,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/purchase-orders')->group(function() {
         Route::get('/', [PurchaseOrderController::class, 'get'])->name('purchaseOrders.get');
         Route::post('/', [PurchaseOrderController::class, 'store'])->name('purchaseOrders.store');
+        Route::get('/ongoing', [PurchaseOrderController::class, 'getOngoing'])->name('purchaseOrders.getOngoing');
         Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
         Route::post('/{purchaseOrder}/add-row', [PurchaseOrderController::class, 'addRow'])->name('purchaseOrders.addRow');
         Route::post('/{purchaseOrder}/regenerate', [PurchaseOrderController::class, 'regenerate'])->name('purchaseOrders.regenerate');
