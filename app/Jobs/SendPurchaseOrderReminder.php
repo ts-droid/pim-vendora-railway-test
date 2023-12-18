@@ -33,8 +33,6 @@ class SendPurchaseOrderReminder implements ShouldQueue
     {
         $recipients = [$this->purchaseOrder->email ?: $this->purchaseOrder->supplier->email];
 
-        $recipients = ['anton@scriptsector.se'];
-
         try {
             Mail::to($recipients)->send(new \App\Mail\PurchaseOrderReminder($this->purchaseOrder, $this->orderLines));
         } catch (\Exception $e) {
