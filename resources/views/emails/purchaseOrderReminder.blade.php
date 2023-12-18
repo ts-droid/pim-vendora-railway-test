@@ -19,7 +19,7 @@
 
         @if($orderLines)
             @foreach($orderLines as $orderLine)
-                {{ $orderLine->description }} - {{ $orderLine->quantity }} pcs<br>
+                {{ $orderLine->article_number }} - {{ $orderLine->quantity }} pcs<br>
             @endforeach
         @endif
 
