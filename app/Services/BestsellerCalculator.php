@@ -25,6 +25,7 @@ class BestsellerCalculator
         foreach ($articles as $article) {
             $quantity = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->where('sales_order_lines.article_number', $article->article_number)
                 ->whereBetween('sales_orders.date', [$startDate, $endDate])
                 ->sum('sales_order_lines.quantity');
 
