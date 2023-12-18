@@ -10,6 +10,7 @@ use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
+use App\Services\PurchaseOrderReminderService;
 use App\Services\SupplierArticlePriceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -251,6 +252,16 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
 
+        if (!$purchaseOrderLineIDs) {
+            return ApiResponseController::error('No order lines selected');
+        }
+
+        if (is_string($purchaseOrderLineIDs) || is_numeric($purchaseOrderLineIDs)) {
+            $purchaseOrderLineIDs = [$purchaseOrderLineIDs];
+        }
+
+        $reminderService = new PurchaseOrderReminderService();
+        $reminderService->remind($purchaseOrderLineIDs);
 
         return ApiResponseController::success([]);
     }
