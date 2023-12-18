@@ -41,7 +41,7 @@ class BestsellerCalculator
         for ($i = 1;$i <= $stats->count();$i++) {
             $item = $stats[$i - 1];
 
-            Article::where('article_number', $item['article_number'])
+            Article::where('article_number', (string) $item['article_number'])
                 ->update(['bestseller_position' => $i]);
         }
     }
