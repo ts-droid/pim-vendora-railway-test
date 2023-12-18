@@ -9,12 +9,6 @@ class BestsellerCalculator
 {
     public function calculateBestsellers()
     {
-        $articles = Article::all();
-
-        if (!$articles) {
-            return;
-        }
-
         $statsPeriod = 30;
 
         $startDate = date('Y-m-d', strtotime('-' . $statsPeriod . ' days'));
@@ -31,10 +25,10 @@ class BestsellerCalculator
 
         $stats = collect();
 
-        foreach ($articles as $article) {
+        foreach ($quantities as $articleNumber => $quantity) {
             $stats->push([
-                'article' => $article,
-                'quantity' => $quantities[$article->article_number] ?? 0,
+                'article_number' => $articleNumber,
+                'quantity' => $quantity,
             ]);
         }
 
@@ -42,12 +36,13 @@ class BestsellerCalculator
         $stats = $stats->sortByDesc('quantity');
 
         // Update the position for each article
-        for ($i = 1;$i <= $stats->count();$i++) {
-            $article = $stats[$i - 1]['article'];
+        Article::update(['bestseller_position' => 0]);
 
-            $article->update([
-                'bestseller_position' => $i,
-            ]);
+        for ($i = 1;$i <= $stats->count();$i++) {
+            $item = $stats[$i - 1];
+
+            Article::where('article_number', $item['article_number'])
+                ->update(['bestseller_position' => $i]);
         }
     }
 }
