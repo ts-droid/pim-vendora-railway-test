@@ -247,6 +247,14 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
+    public function sendReminders(Request $request)
+    {
+        $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
+
+
+        return ApiResponseController::success([]);
+    }
+
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
         $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
