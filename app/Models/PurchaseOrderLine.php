@@ -30,6 +30,7 @@ class PurchaseOrderLine extends Model
         'is_completed',
         'is_canceled',
         'is_locked',
+        'reminder_sent_at',
     ];
 
     public function article()
