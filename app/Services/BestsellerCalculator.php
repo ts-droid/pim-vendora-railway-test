@@ -36,7 +36,7 @@ class BestsellerCalculator
         $stats = $stats->sortByDesc('quantity');
 
         // Update the position for each article
-        Article::update(['bestseller_position' => 0]);
+        Article::query()->update(['bestseller_position' => 0]);
 
         for ($i = 1;$i <= $stats->count();$i++) {
             $item = $stats[$i - 1];
