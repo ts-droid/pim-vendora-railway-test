@@ -296,6 +296,23 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([]);
     }
 
+    public function cancelOrderLines(Request $request)
+    {
+        $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
+
+        if (!$purchaseOrderLineIDs) {
+            return ApiResponseController::error('No order lines selected');
+        }
+
+        if (is_string($purchaseOrderLineIDs) || is_numeric($purchaseOrderLineIDs)) {
+            $purchaseOrderLineIDs = [$purchaseOrderLineIDs];
+        }
+
+        // TODO: Call service to cancel order lines
+
+        return ApiResponseController::success([]);
+    }
+
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
         $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
