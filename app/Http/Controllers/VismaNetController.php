@@ -227,11 +227,14 @@ class VismaNetController extends Controller
                     continue;
                 }
 
+                $promisedOn = $order['promisedOn'] ?? '';
+                $promisedDate = $promisedOn ? (date('Y-m-d', strtotime($promisedOn))) : '';
+
                 $orderData = [
                     'order_number' => (string) ($order['orderNbr'] ?? ''),
                     'status' => (string) ($order['status'] ?? ''),
                     'date' => date('Y-m-d', strtotime($order['date'] ?? '')),
-                    'promised_date' => date('Y-m-d', strtotime($order['promisedOn'] ?? '')),
+                    'promised_date' => $promisedDate,
                     'supplier_id' => (string) ($order['supplier']['internalId'] ?? ''),
                     'supplier_number' => (string) ($order['supplier']['number'] ?? ''),
                     'supplier_name' => (string) ($order['supplier']['name'] ?? ''),
@@ -249,7 +252,7 @@ class VismaNetController extends Controller
                         'quantity' => (int) ($line['orderQty'] ?? 0),
                         'unit_cost' => (float) ($line['unitCost'] ?? 0),
                         'amount' => (float) ($line['amount'] ?? 0),
-                        'promised_date' => date('Y-m-d', strtotime($order['promised'] ?? '')),
+                        'promised_date' => $promisedDate,
                         'is_completed' => (int) ($line['completed'] ?? 0),
                         'is_canceled' => (int) ($line['canceled'] ?? 0),
                     ];
