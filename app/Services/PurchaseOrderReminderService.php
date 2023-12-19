@@ -12,9 +12,10 @@ class PurchaseOrderReminderService
      * Send reminders to the suppliers for uncompleted purchase order lines
      *
      * @param array $purchaseOrderLineIDs
+     * @param array $emailRecipients
      * @return void
      */
-    public function remind(array $purchaseOrderLineIDs): void
+    public function remind(array $purchaseOrderLineIDs, array $emailRecipients = array()): void
     {
         $orderLines = PurchaseOrderLine::whereIn('id', $purchaseOrderLineIDs)->get();
 
@@ -46,8 +47,10 @@ class PurchaseOrderReminderService
                 continue;
             }
 
+            $emailRecipient = $emailRecipients[$orderID] ?? null;
+
             // Dispatch the reminder to the queue
-            dispatch(new SendPurchaseOrderReminder($purchaseOrder, $orderLines));
+            dispatch(new SendPurchaseOrderReminder($purchaseOrder, $orderLines, $emailRecipient));
         }
     }
 }

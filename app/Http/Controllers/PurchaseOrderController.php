@@ -260,6 +260,7 @@ class PurchaseOrderController extends Controller
     public function sendReminders(Request $request)
     {
         $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
+        $emails = $request->post('emails');
 
         if (!$purchaseOrderLineIDs) {
             return ApiResponseController::error('No order lines selected');
@@ -270,7 +271,7 @@ class PurchaseOrderController extends Controller
         }
 
         $reminderService = new PurchaseOrderReminderService();
-        $reminderService->remind($purchaseOrderLineIDs);
+        $reminderService->remind($purchaseOrderLineIDs, $emails);
 
         return ApiResponseController::success([]);
     }

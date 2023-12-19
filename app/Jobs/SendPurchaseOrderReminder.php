@@ -22,7 +22,8 @@ class SendPurchaseOrderReminder implements ShouldQueue
      */
     public function __construct(
         public PurchaseOrder $purchaseOrder,
-        public Collection $orderLines
+        public Collection $orderLines,
+        public ?string $emailRecipient = null
     )
     {}
 
@@ -32,6 +33,10 @@ class SendPurchaseOrderReminder implements ShouldQueue
     public function handle(): void
     {
         $recipients = [$this->purchaseOrder->email ?: $this->purchaseOrder->supplier->email];
+
+        if ($this->emailRecipient) {
+            $recipients = [$this->emailRecipient];
+        }
 
         try {
             Mail::to($recipients)->send(new \App\Mail\PurchaseOrderReminder($this->purchaseOrder, $this->orderLines));
