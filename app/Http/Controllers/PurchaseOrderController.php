@@ -26,6 +26,10 @@ class PurchaseOrderController extends Controller
             ->select('purchase_order_lines.*', 'purchase_orders.supplier_name', 'purchase_orders.promised_date', 'purchase_orders.date')
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->where('purchase_order_lines.is_completed', '=', 0)
+            ->where(function($query) {
+                $query->where('promised_date', '<', date('Y-m-d'))
+                    ->orWhereNull('promised_date');
+            })
             ->where('purchase_orders.status', '=', 'Open')
             ->orderBy('purchase_orders.id')
             ->get();
