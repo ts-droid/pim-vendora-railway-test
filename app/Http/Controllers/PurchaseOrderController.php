@@ -36,6 +36,26 @@ class PurchaseOrderController extends Controller
                     ->orWhereNull('purchase_order_lines.promised_date');
             })
             ->where('purchase_orders.status', '=', 'Open')
+            ->whereNull('purchase_order_lines.reminder_sent_at')
+            ->orderBy('purchase_orders.id')
+            ->get();
+
+        return ApiResponseController::success($purchaseOrderLines->toArray());
+    }
+
+    public function getOngoingSent()
+    {
+        $purchaseOrderLines = DB::table('purchase_order_lines')
+            ->select(
+                'purchase_order_lines.*',
+                'purchase_orders.supplier_name',
+                'purchase_orders.date',
+                'purchase_orders.email'
+            )
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->where('purchase_order_lines.is_completed', '=', 0)
+            ->where('purchase_orders.status', '=', 'Open')
+            ->whereNotNull('purchase_order_lines.reminder_sent_at')
             ->orderBy('purchase_orders.id')
             ->get();
 
