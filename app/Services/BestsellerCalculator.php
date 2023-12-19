@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\ConfigController;
 use App\Models\Article;
 use Illuminate\Support\Facades\DB;
 
@@ -9,7 +10,7 @@ class BestsellerCalculator
 {
     public function calculateBestsellers()
     {
-        $statsPeriod = 30;
+        $statsPeriod = (int) ConfigController::getConfig('bestseller_period', 90);
 
         $startDate = date('Y-m-d', strtotime('-' . $statsPeriod . ' days'));
         $endDate = date('Y-m-d');
