@@ -308,7 +308,9 @@ class PurchaseOrderController extends Controller
             $purchaseOrderLineIDs = [$purchaseOrderLineIDs];
         }
 
-        // TODO: Call service to cancel order lines
+        // Delete the order lines
+        $deleteService = new PurchaseOrderDeletionService();
+        $deleteService->deleteLines($purchaseOrderLineIDs);
 
         return ApiResponseController::success([]);
     }
