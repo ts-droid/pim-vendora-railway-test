@@ -207,6 +207,8 @@ class PurchaseOrderController extends Controller
         }
 
         // Update the lines
+        $updatedLineKeys = [];
+
         foreach (($requestData['lines'] ?? []) as $line) {
             $orderLine = PurchaseOrderLine::where([
                 ['purchase_order_id', '=', $purchaseOrder->id],
@@ -245,6 +247,8 @@ class PurchaseOrderController extends Controller
                         'currency' => $purchaseOrder->currency,
                     ]);
                 }
+
+                $updatedLineKeys[] = $line['line_key'];
             }
             else {
                 // Create a new order line
@@ -260,8 +264,15 @@ class PurchaseOrderController extends Controller
                 $createData['purchase_order_id'] = $purchaseOrder->id;
 
                 PurchaseOrderLine::create($createData);
+
+                $updatedLineKeys[] = $line['line_key'];
             }
         }
+
+        // Delete removed order lines
+        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->whereNotIn('line_key', $updatedLineKeys)
+            ->delete();
 
         $purchaseOrder->refresh();
 
