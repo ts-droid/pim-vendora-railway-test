@@ -69,7 +69,7 @@ class PurchaseOrderController extends Controller
         $purchaseOrders = PurchaseOrder::where('should_delete', '=', 1)
             ->where('purchase_orders.status', '=', 'Open')
             ->where(function ($query) {
-                $query->isNull('user_deleted_at')
+                $query->whereNull('user_deleted_at')
                     ->orWhere('user_deleted_at', '<', date('Y-m-d H:i:s', strtotime('-1 day')));
             })
             ->orderBy('id')
