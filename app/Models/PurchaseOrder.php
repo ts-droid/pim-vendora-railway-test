@@ -27,6 +27,8 @@ class PurchaseOrder extends Model
         'regenerate_only_existing',
         'is_generating',
         'reminder_sent_at',
+        'should_delete',
+        'user_deleted_at',
     ];
 
     public function supplier()

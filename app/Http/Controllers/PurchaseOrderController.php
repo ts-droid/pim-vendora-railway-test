@@ -37,6 +37,7 @@ class PurchaseOrderController extends Controller
             })
             ->where('purchase_orders.status', '=', 'Open')
             ->whereNull('purchase_order_lines.reminder_sent_at')
+            ->where('purchase_orders.should_delete', '=', 0)
             ->orderBy('purchase_orders.id')
             ->get();
 
@@ -56,10 +57,25 @@ class PurchaseOrderController extends Controller
             ->where('purchase_order_lines.is_completed', '=', 0)
             ->where('purchase_orders.status', '=', 'Open')
             ->whereNotNull('purchase_order_lines.reminder_sent_at')
+            ->where('purchase_orders.should_delete', '=', 0)
             ->orderBy('purchase_orders.id')
             ->get();
 
         return ApiResponseController::success($purchaseOrderLines->toArray());
+    }
+
+    public function getOngoingDeleted()
+    {
+        $purchaseOrders = PurchaseOrder::where('should_delete', '=', 1)
+            ->where('purchase_orders.status', '=', 'Open')
+            ->where(function ($query) {
+                $query->isNull('user_deleted_at')
+                    ->orWhere('user_deleted_at', '<', date('Y-m-d H:i:s', strtotime('-1 day')));
+            })
+            ->orderBy('id')
+            ->get();
+
+        return ApiResponseController::success($purchaseOrders->toArray());
     }
 
     public function get(Request $request)
@@ -384,6 +400,15 @@ class PurchaseOrderController extends Controller
         if (!$deleted) {
             return ApiResponseController::error('Could not delete purchase order.');
         }
+
+        return ApiResponseController::success();
+    }
+
+    public function userDelete(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrder->update([
+            'user_deleted_at' => date('Y-m-d H:i:s'),
+        ]);
 
         return ApiResponseController::success();
     }

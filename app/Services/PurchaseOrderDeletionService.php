@@ -23,8 +23,10 @@ class PurchaseOrderDeletionService
             $purchaseOrder->delete();
         }
         else {
-            // Dispatch a job to delete the order from the ERP
-            dispatch(new DeletePurchaseOrder($purchaseOrder));
+            // Mark the order for manual deletion
+            $purchaseOrder->update([
+                'should_delete' => 1
+            ]);
         }
 
         return true;
@@ -38,8 +40,6 @@ class PurchaseOrderDeletionService
      */
     public function deleteLines(array $orderLineIDs): void
     {
-        return;
-
         // Remove all duplicate order line IDs
         $orderLineIDs = array_unique($orderLineIDs);
 
@@ -56,11 +56,17 @@ class PurchaseOrderDeletionService
 
         // Delete the order lines for each purchase order
         foreach ($groupedOrderLines as $purchaseOrderID => $orderLines) {
+            $purchaseOrder = PurchaseOrder::find($purchaseOrderID);
+
+            if (!$purchaseOrder) {
+                continue;
+            }
+
             $totalLines = PurchaseOrderLine::where("purchase_order_id", 1)->count();
 
             if ($totalLines == count($orderLines)) {
                 // Delete the purchase order if all of its lines are being deleted
-                $this->delete(PurchaseOrder::find($purchaseOrderID));
+                $this->delete($purchaseOrder);
             }
 
             // Only remove the provided order lines
@@ -69,7 +75,7 @@ class PurchaseOrderDeletionService
             }
 
             // Dispatch a job to delete the order lines from the ERP
-            dispatch(new DeletePurchaseOrderLines($orderLines));
+            dispatch(new DeletePurchaseOrderLines($purchaseOrder, $orderLines));
         }
     }
 }
