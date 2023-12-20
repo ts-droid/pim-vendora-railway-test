@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Http\Controllers\ConfigController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -28,10 +29,12 @@ class PurchaseOrderReminder extends Mailable
      */
     public function envelope(): Envelope
     {
+        $senderEmail = ConfigController::getConfig('purchase_system_reminder_email', '');
+
         return new Envelope(
-            from: new Address('info@scriptsector.se', 'Vendora Nordic AB'),
+            from: new Address($senderEmail, 'Vendora Nordic AB'),
             replyTo: [
-                new Address('info@scriptsector.se', 'Vendora Nordic AB'),
+                new Address($senderEmail, 'Vendora Nordic AB'),
             ],
             subject: 'Purchase Order Reminder',
         );
