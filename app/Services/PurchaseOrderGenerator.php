@@ -67,7 +67,7 @@ class PurchaseOrderGenerator
             }
         }
         else {
-            $suppliers = Supplier::all();
+            $suppliers = Supplier::where('purchase_system', '=', 1)->get();
         }
 
         foreach ($suppliers as $supplier) {
