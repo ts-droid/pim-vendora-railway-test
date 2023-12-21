@@ -21,6 +21,7 @@ class Supplier extends Model
         'currency',
         'language',
         'is_supplier',
+        'purchase_system',
         'purchase_master_box',
         'purchase_order_interval',
         'email'
