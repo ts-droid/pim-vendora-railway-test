@@ -27,11 +27,17 @@ class ConfigController extends Controller
     {
         $configs = $request->input('configs');
 
+        $updatedConfigs = [];
+
         if (is_array($configs)) {
-            self::setConfigs($configs);
+            foreach ($configs as $key => $value) {
+                $updatedConfigs[$key] = (string) $value;
+            }
         }
 
-        return ApiResponseController::success($configs);
+        self::setConfigs($updatedConfigs);
+
+        return ApiResponseController::success($updatedConfigs);
     }
 
     public static function setConfigs(array $configs = []): void
