@@ -3,6 +3,7 @@
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\StatusCheckController;
+use App\Http\Controllers\VismaNetTestController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +42,9 @@ Route::prefix('/visma')->group(function() {
 
         die($activated ? 'Visma.net integration activated!' : 'Failed to activate Visma.net integration.');
     })->name('visma.callback');
+
+    Route::get('/test', [VismaNetTestController::class, 'index'])->name('visma.test');
+    Route::post('/test', [VismaNetTestController::class, 'send'])->name('visma.test.send');
 });
 
 Route::prefix('/purchase-order')->group(function() {
