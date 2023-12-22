@@ -21,22 +21,6 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test-order', function() {
-    $purchaseOrder = \App\Models\PurchaseOrder::find(1);
-
-    return view('emails.purchaseOrder', compact('purchaseOrder'));
-});
-
-Route::get('/test-reminder', function() {
-    $purchaseOrder = \App\Models\PurchaseOrder::find(1);
-
-    $orderLines = $purchaseOrder->lines;
-
-    $orderLineIDs = $orderLines->pluck('id')->toArray();
-
-    return view('emails.purchaseOrderReminder', compact('purchaseOrder', 'orderLines', 'orderLineIDs'));
-});
-
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
@@ -64,6 +48,7 @@ Route::prefix('/purchase-order')->group(function() {
     Route::post('/{purchaseOrder}/{hash}/confirm', [PurchaseOrderConfirmController::class, 'postConfirm'])->name('purchaseOrder.postConfirm');
 
     Route::get('/{purchaseOrder}/{hash}/eta', [PurchaseOrderEtaController::class, 'index'])->name('purchaseOrder.eta');
+    Route::post('/{purchaseOrder}/{hash}/eta', [PurchaseOrderEtaController::class, 'post'])->name('purchaseOrder.postEta');
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);

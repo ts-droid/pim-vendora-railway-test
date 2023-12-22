@@ -32,7 +32,7 @@
         .container {
             padding: 20px;
             width: 80%;
-            max-width: 650px;
+            max-width: 750px;
             margin: 50px auto;
             background-color: #ffffff;
             box-shadow: 0px 3px 5px #d2d2d2;
@@ -47,6 +47,10 @@
             max-height: 30px;
         }
 
+        .text-right {
+            text-align: right !important;
+        }
+
         .table {
             margin-bottom: 30px;
         }
@@ -59,10 +63,6 @@
             text-align: left;
             border: 1px solid #cccccc;
             padding: 4px;
-        }
-        .table table th:last-child,
-        .table table td:last-child {
-            text-align: right;
         }
 
         .text {

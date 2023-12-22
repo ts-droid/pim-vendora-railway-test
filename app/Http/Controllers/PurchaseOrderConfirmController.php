@@ -15,13 +15,13 @@ class PurchaseOrderConfirmController extends Controller
         }
 
         if (!$purchaseOrder->is_draft) {
-            //abort(404);
+            abort(404);
         }
 
         return view('purchaseOrders.confim', compact('purchaseOrder'));
     }
 
-    public function postConfirm(PurchaseOrder $purchaseOrder, string $hash)
+    public function postConfirm(Request $request, PurchaseOrder $purchaseOrder, string $hash)
     {
         if ($hash !== $purchaseOrder->getHash()) {
             return response()->json([
@@ -39,7 +39,10 @@ class PurchaseOrderConfirmController extends Controller
 
         // Confirm the purchase order
         $purchaseOrderPublisher = new PurchaseOrderPublisher();
-        $response = $purchaseOrderPublisher->publishOrder($purchaseOrder);
+        $response = $purchaseOrderPublisher->publishOrder(
+            $purchaseOrder,
+            $request->post('items')
+        );
 
         if (!$response['success']) {
             return response()->json([

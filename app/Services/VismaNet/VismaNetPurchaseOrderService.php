@@ -5,6 +5,7 @@ namespace App\Services\VismaNet;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\VismaNetController;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderLine;
 use Illuminate\Support\Facades\Http;
 
 class VismaNetPurchaseOrderService extends VismaNetApiService
@@ -35,13 +36,16 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'orderQty' => ['values' => $orderLine->quantity],
                 'unitCost' => ['value' => $orderLine->unit_cost],
                 'amount' => ['value' => $orderLine->amount],
+                'promised' => ['value' => $orderLine->promised_date]
             ];
         }
 
         $data = [
+            'orderNumber' => ['value' => $purchaseOrder->order_number],
             'orderType' => ['value' => 'RegularOrder'],
             'supplier' => ['value' => $purchaseOrder->supplier_number],
             'currency' => ['value' => $purchaseOrder->currency],
+            'promisedOn' => ['value' => $purchaseOrder->promised_date],
             'lines' => $lines,
         ];
 
@@ -65,10 +69,66 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         ];
     }
 
-    public function fetchPurchaseOrders(string $updatedAfter = '')
+    /**
+     * Updates a purchase order in visma based on the local purchase order
+     *
+     * @param PurchaseOrder $purchaseOrder
+     * @return array|true[]
+     */
+    public function updatePurchaseOrder(PurchaseOrder $purchaseOrder): array
+    {
+        // Fetch purchase order from Visma.net so that we can detect changes
+        $remoteOrder = $this->callAPI('GET', '/v1/purchaseorder/' . $purchaseOrder->order_number);
+
+        if (empty($remoteOrder['orderNbr'])) {
+            return ['success' => false, 'message' => 'Remote order could not be found.'];
+        }
+
+        $lines = [];
+
+        foreach ($remoteOrder['lines'] as $remoteLine) {
+            $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+                ->where('line_key', $remoteLine['lineNbr'])
+                ->first();
+
+            if (!$localLine) {
+                // The line does not exist locally, so remove it
+                $lines[] = [
+                    'operation' => 'Delete',
+                    'lineNumber' => ['value' => $remoteLine['lineNbr']]
+                ];
+            }
+            else {
+                // Update the line
+                $lines[] = [
+                    'operation' => 'Update',
+                    'lineNumber' => ['value' => $remoteLine['lineNbr']],
+                    'inventory' => ['value' => $localLine->article_number],
+                    'lineDescription' => ['value' => $localLine->description],
+                    'orderQty' => ['values' => $localLine->quantity],
+                    'unitCost' => ['value' => $localLine->unit_cost],
+                    'amount' => ['value' => $localLine->amount],
+                    'promised' => ['value' => $localLine->promised_date]
+                ];
+            }
+        }
+
+        $data = [
+            'supplier' => ['value' => $purchaseOrder->supplier_number],
+            'currency' => ['value' => $purchaseOrder->currency],
+            'promisedOn' => ['value' => $purchaseOrder->promised_date],
+            'lines' => $lines
+        ];
+
+        $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
+
+        return ['success' => true];
+    }
+
+    public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = '')
     {
         // TODO: Move the called function this this service class
         $vismaNetController = new VismaNetController();
-        $vismaNetController->fetchPurchaseOrders($updatedAfter);
+        $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
     }
 }

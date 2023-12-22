@@ -15,14 +15,33 @@ class PurchaseOrder extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $emailSubject;
+
+    public string $emailBody;
+
     /**
      * Create a new message instance.
      */
     public function __construct(
         public \App\Models\PurchaseOrder $purchaseOrder,
-        public ?string $pdfContent = null,
     )
-    {}
+    {
+        $this->emailSubject = ConfigController::getConfig('purchase_system_new_order_email_subject');
+        $this->emailBody = ConfigController::getConfig('purchase_system_new_order_email_body');
+
+        // Replace variables
+        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
+        $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
+
+        $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
+        $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
+
+        $this->emailSubject = str_replace('{payment_terms}', '[PAYMENT_TERMS_HERE]', $this->emailSubject);
+        $this->emailBody = str_replace('{payment_terms}', '[PAYMENT_TERMS_HERE]', $this->emailBody);
+
+        $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Confirm the order here</a>', $this->emailBody);
+        $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.orderTable', compact('purchaseOrder'))->render(), $this->emailBody);
+    }
 
     /**
      * Get the message envelope.
@@ -36,7 +55,7 @@ class PurchaseOrder extends Mailable
             replyTo: [
                 new Address($senderEmail, 'Vendora Nordic AB'),
             ],
-            subject: 'Purchase Order',
+            subject: $this->emailSubject,
         );
     }
 
@@ -57,14 +76,6 @@ class PurchaseOrder extends Mailable
      */
     public function attachments(): array
     {
-        $attachments = [];
-
-        if ($this->pdfContent) {
-            $attachments[] = $this->attachData($this->pdfContent, 'purchase_order.pdf', [
-                'mime' => 'application/pdf',
-            ]);
-        }
-
-        return $attachments;
+        return [];
     }
 }

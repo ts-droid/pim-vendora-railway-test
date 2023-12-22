@@ -222,9 +222,11 @@ class PurchaseOrderGenerator
             }
         }
 
+        $newOrderNumber = ((int) PurchaseOrder::all()->max('order_number')) + 1;
+
         // Create the purchase order
         $purchaseOrder = PurchaseOrder::create([
-            'order_number' => 'DRFT-' . $supplier->id . '-' . date('YmdHis'),
+            'order_number' => $newOrderNumber,
             'status' => 'Draft',
             'date' => date('Y-m-d'),
             'promised_date' => '',

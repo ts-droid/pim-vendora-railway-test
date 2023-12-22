@@ -15,6 +15,10 @@ class PurchaseOrderReminder extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $emailSubject;
+
+    public string $emailBody;
+
     public array $orderLineIDs;
 
     /**
@@ -26,6 +30,21 @@ class PurchaseOrderReminder extends Mailable
     )
     {
         $this->orderLineIDs = $orderLines->pluck('id')->toArray();
+
+        $orderLineIDs = $orderLines->pluck('id')->toArray();
+
+        $this->emailSubject = ConfigController::getConfig('purchase_system_reminder_email_subject');
+        $this->emailBody = ConfigController::getConfig('purchase_system_reminder_email_body');
+
+        // Replace variables
+        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
+        $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
+
+        $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
+        $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
+
+        $this->emailBody = str_replace('{details_link}', '<a href="' . route('purchaseOrder.eta', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash(), 'orderLines' => implode(',', $orderLineIDs)]) . '" target="_blank">Provide delivery dates here</a>', $this->emailBody);
+        $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.reminderTable', compact('orderLines'))->render(), $this->emailBody);
     }
 
     /**
@@ -40,7 +59,7 @@ class PurchaseOrderReminder extends Mailable
             replyTo: [
                 new Address($senderEmail, 'Vendora Nordic AB'),
             ],
-            subject: 'Reminder for Outstanding Order - Vendora Nordic AB',
+            subject: $this->emailSubject,
         );
     }
 

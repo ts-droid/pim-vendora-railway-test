@@ -204,20 +204,33 @@ class VismaNetController extends Controller
      * @param string $updatedAfter
      * @return void
      */
-    public function fetchPurchaseOrders(string $updatedAfter = ''): void
+    public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
 
-        $params = [];
+        if ($orderNumber) {
+            // Fetch a specific order
+            $order = $this->callAPI('GET', '/v1/purchaseorder/' . $orderNumber);
 
-        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_orders_fetch');
+            if (empty($order['orderNbr'])) {
+                return;
+            }
 
-        if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = $updatedAfter;
-            $params['lastModifiedDateTimeCondition'] = '>';
+            $orders = [$order];
         }
+        else {
+            // Fetch a collection of orders
+            $params = [];
 
-        $orders = $this->getPagedResult('/v1/purchaseorder', $params);
+            $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_orders_fetch');
+
+            if ($updatedAfter) {
+                $params['lastModifiedDateTime'] = $updatedAfter;
+                $params['lastModifiedDateTimeCondition'] = '>';
+            }
+
+            $orders = $this->getPagedResult('/v1/purchaseorder', $params);
+        }
 
         if ($orders) {
             $orderController = new PurchaseOrderController();
@@ -275,7 +288,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_purchase_orders_fetch' => $fetchTime]);
+        if (!$orderNumber) {
+            ConfigController::setConfigs(['vismanet_last_purchase_orders_fetch' => $fetchTime]);
+        }
     }
 
     /**
