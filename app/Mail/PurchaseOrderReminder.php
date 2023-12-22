@@ -15,6 +15,8 @@ class PurchaseOrderReminder extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public array $orderLineIDs;
+
     /**
      * Create a new message instance.
      */
@@ -22,7 +24,9 @@ class PurchaseOrderReminder extends Mailable
         public \App\Models\PurchaseOrder $purchaseOrder,
         public \Illuminate\Support\Collection $orderLines,
     )
-    {}
+    {
+        $this->orderLineIDs = $orderLines->pluck('id')->toArray();
+    }
 
     /**
      * Get the message envelope.
@@ -36,7 +40,7 @@ class PurchaseOrderReminder extends Mailable
             replyTo: [
                 new Address($senderEmail, 'Vendora Nordic AB'),
             ],
-            subject: 'Purchase Order Reminder',
+            subject: 'Reminder for Outstanding Order - Vendora Nordic AB',
         );
     }
 

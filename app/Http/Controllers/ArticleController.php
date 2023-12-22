@@ -357,13 +357,14 @@ class ArticleController extends Controller
 	{
 		$days = (int) $request->get('days', 60);
 
-        $customerNumbers = DB::table('customer_invoice_lines')
-            ->select('customer_invoices.customer_number')
-            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->where('customer_invoices.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
-            ->where('customer_invoice_lines.article_number', $article->article_number)
-            ->groupBy('customer_invoices.customer_number')
-            ->pluck('customer_invoices.customer_number')
+        $customerNumbers = DB::table('sales_order_lines')
+            ->select('customers.customer_number')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->leftJoin('customers', 'customers.external_id', '=', 'sales_orders.customer')
+            ->where('sales_orders.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
+            ->where('sales_order_lines.article_number', $article->article_number)
+            ->groupBy('customers.customer_number')
+            ->pluck('customers.customer_number')
             ->toArray();
 
         if (!$customerNumbers) {

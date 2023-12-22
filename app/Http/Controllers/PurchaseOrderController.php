@@ -27,7 +27,8 @@ class PurchaseOrderController extends Controller
                 'purchase_order_lines.*',
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
-                'purchase_orders.email'
+                'purchase_orders.email',
+                'purchase_orders.order_number'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->where('purchase_order_lines.is_completed', '=', 0)
@@ -51,7 +52,8 @@ class PurchaseOrderController extends Controller
                 'purchase_order_lines.*',
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
-                'purchase_orders.email'
+                'purchase_orders.email',
+                'purchase_orders.order_number'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->where('purchase_order_lines.is_completed', '=', 0)

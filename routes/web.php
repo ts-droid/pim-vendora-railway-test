@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PurchaseOrderConfirmController;
+use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\StatusCheckController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,16 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
+});
+
+Route::get('/test', function() {
+    $purchaseOrder = \App\Models\PurchaseOrder::find(1);
+
+    $orderLines = $purchaseOrder->lines;
+
+    $orderLineIDs = $orderLines->pluck('id')->toArray();
+
+    return view('emails.purchaseOrderReminder', compact('purchaseOrder', 'orderLines', 'orderLineIDs'));
 });
 
 Route::prefix('/visma')->group(function() {
@@ -45,6 +56,8 @@ Route::prefix('/visma')->group(function() {
 Route::prefix('/purchase-order')->group(function() {
     Route::get('/{purchaseOrder}/{hash}/confirm', [PurchaseOrderConfirmController::class, 'confirm'])->name('purchaseOrder.confirm');
     Route::post('/{purchaseOrder}/{hash}/confirm', [PurchaseOrderConfirmController::class, 'postConfirm'])->name('purchaseOrder.postConfirm');
+
+    Route::get('/{purchaseOrder}/{hash}/eta', [PurchaseOrderEtaController::class, 'index'])->name('purchaseOrder.eta');
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
