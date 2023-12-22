@@ -367,10 +367,6 @@ class ArticleController extends Controller
             ->pluck('customers.customer_number')
             ->toArray();
 
-        if (!$customerNumbers) {
-            return ApiResponseController::success([]);
-        }
-
         $retailers = Customer::whereIn('customer_number', $customerNumbers)
             ->get()
             ->toArray();
