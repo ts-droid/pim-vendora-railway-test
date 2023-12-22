@@ -15,7 +15,7 @@ class PurchaseOrderConfirmController extends Controller
         }
 
         if (!$purchaseOrder->is_draft) {
-            abort(404);
+            //abort(404);
         }
 
         return view('purchaseOrders.confim', compact('purchaseOrder'));

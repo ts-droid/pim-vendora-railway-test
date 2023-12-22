@@ -87,7 +87,7 @@
             border: none;
             background-color: #cccccc;
             color: #000000;
-            padding: 15px 20px;
+            padding: 10px 20px;
             cursor: pointer;
             font-size: 15px;
             opacity: 1;

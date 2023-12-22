@@ -1,4 +1,4 @@
-@extends('purchaseOrders.template', ['title' => 'Estimated Time of Shipping'])
+@extends('purchaseOrders.template', ['title' => 'Estimate Time of Shipping'])
 
 @section('content')
 

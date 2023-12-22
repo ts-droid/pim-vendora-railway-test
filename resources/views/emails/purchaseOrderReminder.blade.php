@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-    <title>Purchase Order Reminder</title>
+    <title>Reminder for Outstanding Order - Vendora Nordic AB</title>
 
     <style>
         * {
@@ -48,9 +48,8 @@
                     </tr>
                 @endforeach
             </table>
+            <br>
         @endif
-
-        <br>
 
         <a href="{{ route('purchaseOrder.eta', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash(), 'orderLines' => implode(',', $orderLineIDs)]) }}" target="_blank">Provide delivery dates here</a>
         <br><br>

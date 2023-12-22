@@ -25,18 +25,13 @@ class ConfigController extends Controller
 
     public function setConfigRequest(Request $request)
     {
-        $configs = explode(',', $request->input('config', ''));
-        $contents = explode(',', $request->input('content', ''));
+        $configs = $request->input('configs');
 
-        $saveData = [];
-
-        for ($i = 0;$i < count($configs);$i++) {
-            $saveData[$configs[$i]] = $contents[$i];
+        if (is_array($configs)) {
+            self::setConfigs($configs);
         }
 
-        self::setConfigs($saveData);
-
-        return ApiResponseController::success($saveData);
+        return ApiResponseController::success($configs);
     }
 
     public static function setConfigs(array $configs = []): void

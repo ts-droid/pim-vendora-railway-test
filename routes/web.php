@@ -21,7 +21,13 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test', function() {
+Route::get('/test-order', function() {
+    $purchaseOrder = \App\Models\PurchaseOrder::find(1);
+
+    return view('emails.purchaseOrder', compact('purchaseOrder'));
+});
+
+Route::get('/test-reminder', function() {
     $purchaseOrder = \App\Models\PurchaseOrder::find(1);
 
     $orderLines = $purchaseOrder->lines;
