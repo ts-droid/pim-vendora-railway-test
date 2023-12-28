@@ -23,6 +23,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPriceController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\VismaNetApiController;
+use App\Http\Controllers\VismaNetQueueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -150,6 +151,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/customer', [VismaNetApiController::class, 'getCustomer'])->name('vismanet.getCustomer');
         Route::get('/inventory-item', [VismaNetApiController::class, 'getInventoryItem'])->name('vismanet.getInventoryItem');
         Route::get('/sales-order', [VismaNetApiController::class, 'getSalesOrder'])->name('vismanet.getSalesOrder');
+
+        Route::post('/queue', [VismaNetQueueController::class, 'queue'])->name('vismanet.queue.insert');
     });
 
     Route::prefix('/stock-log')->group(function() {
