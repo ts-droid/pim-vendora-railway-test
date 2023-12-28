@@ -24,6 +24,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
 
+            $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
+
             $schedule->command('visma:fetch')->dailyAt('02:00');
 
             $schedule->command('wgr:fetch')->dailyAt('05:00');
