@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class VismaNetQueueService extends VismaNetApiService
 {
-    const TYPE_ORDER = 'order';
+    const TYPE_ORDER = 'sales_order';
 
     public function queue(string $type, string $orderNumber, string $externalOrderNumber, string $method, string $endpoint, string $body, string $processAt)
     {
