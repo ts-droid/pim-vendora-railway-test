@@ -46,6 +46,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'supplier' => ['value' => $purchaseOrder->supplier_number],
             'currency' => ['value' => $purchaseOrder->currency],
             'promisedOn' => ['value' => $purchaseOrder->promised_date],
+            'hold' => ['value' => false],
             'lines' => $lines,
         ];
 
