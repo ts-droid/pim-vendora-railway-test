@@ -36,8 +36,8 @@ class PurchaseOrder extends Mailable
         $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
         $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
 
-        $this->emailSubject = str_replace('{payment_terms}', '[PAYMENT_TERMS_HERE]', $this->emailSubject);
-        $this->emailBody = str_replace('{payment_terms}', '[PAYMENT_TERMS_HERE]', $this->emailBody);
+        $this->emailSubject = str_replace('{payment_terms}', ($purchaseOrder->supplier->credit_terms_description ?? ''), $this->emailSubject);
+        $this->emailBody = str_replace('{payment_terms}', ($purchaseOrder->supplier->credit_terms_description ?? ''), $this->emailBody);
 
         $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Confirm the order here</a>', $this->emailBody);
         $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.orderTable', compact('purchaseOrder'))->render(), $this->emailBody);
