@@ -25,7 +25,8 @@ if (!function_exists('normalize_array')) {
 if (!function_exists('log_data')) {
     function log_data(string $logContent)
     {
-        \App\Models\Log::create(['log_content' => $logContent,]);
+        $log = \App\Models\Log::create(['log_content' => $logContent]);
+        return $log->id;
     }
 }
 
