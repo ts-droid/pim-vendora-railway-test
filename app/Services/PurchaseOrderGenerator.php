@@ -230,7 +230,7 @@ class PurchaseOrderGenerator
             'status' => 'Draft',
             'date' => date('Y-m-d'),
             'promised_date' => '',
-            'supplier_id' => $supplier->id,
+            'supplier_id' => $supplier->external_id,
             'supplier_number' => $supplier->number,
             'supplier_name' => $supplier->name,
             'currency' => $supplier->currency,
