@@ -213,6 +213,7 @@ class VismaNetController extends Controller
             $order = $this->callAPI('GET', '/v1/purchaseorder/' . $orderNumber);
 
             if (empty($order['orderNbr'])) {
+                log_data('Could not find order in visma.net with number ' . $orderNumber . '. Failed to fetch update. Response from Visma.net: ' . json_encode($order));
                 return;
             }
 
