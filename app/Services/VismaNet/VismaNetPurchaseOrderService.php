@@ -52,7 +52,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         $response = $this->callAPI('POST', '/v1/purchaseorder', $data);
 
-        $orderNumber = $this->getIdFromLocation($response['headers']['location'] ?? '');
+        $orderNumber = $this->getIdFromLocation($response['headers']['Location'] ?? '');
 
         if (!$orderNumber) {
             $logID = log_data(json_encode($response));
