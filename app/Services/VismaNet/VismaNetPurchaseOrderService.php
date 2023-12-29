@@ -20,7 +20,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
     {
         $lines = [];
 
-        $orderLines = $purchaseOrder->lines();
+        $orderLines = $purchaseOrder->lines;
 
         if (!$orderLines->count()) {
             return ['success' => false, 'message' => 'Purchase order has no lines.'];

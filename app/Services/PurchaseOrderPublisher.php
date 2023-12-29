@@ -26,7 +26,11 @@ class PurchaseOrderPublisher
 
         // Send the order to Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
-        $purchaseOrderService->createPurchaseOrder($purchaseOrder);
+        $createOrderResponse = $purchaseOrderService->createPurchaseOrder($purchaseOrder);
+
+        if (!$createOrderResponse['success']) {
+            return $createOrderResponse;
+        }
 
         // Fetch purchase orders to update with data from Visma.net
         $purchaseOrderService->fetchPurchaseOrders('', $purchaseOrder->order_number);
