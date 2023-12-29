@@ -41,7 +41,7 @@ class PurchaseOrderConfirmController extends Controller
         $purchaseOrderPublisher = new PurchaseOrderPublisher();
         $response = $purchaseOrderPublisher->publishOrder(
             $purchaseOrder,
-            $request->post('items')
+            $request->input('items')
         );
 
         if (!$response['success']) {
