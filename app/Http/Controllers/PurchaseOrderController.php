@@ -348,7 +348,7 @@ class PurchaseOrderController extends Controller
     {
         $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
 
-        $recipients = ['anton@scriptsector.se', 'ah@vendora.se'];
+        $recipients = ['anton@scriptsector.se'];
 
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {
