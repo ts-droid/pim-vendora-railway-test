@@ -25,9 +25,9 @@ class SupplierPriceController extends Controller
                 }
 
                 $supplierPriceService->createSupplierArticlePrice([
-                    'article_number' => $articleNumber,
-                    'price' => $price,
-                    'currency' => $currency,
+                    'article_number' => (string) $articleNumber,
+                    'price' => (float) $price,
+                    'currency' => (string) $currency,
                 ]);
             }
 

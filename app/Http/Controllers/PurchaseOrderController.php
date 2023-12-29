@@ -260,9 +260,9 @@ class PurchaseOrderController extends Controller
                 if (!$oldUnitCost && $oldUnitCost != $unitCost) {
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
-                        'article_number' => $orderLine->article_number,
-                        'price' => $unitCost,
-                        'currency' => $purchaseOrder->currency,
+                        'article_number' => (string) $orderLine->article_number,
+                        'price' => (float) $unitCost,
+                        'currency' => (string) $purchaseOrder->currency,
                     ]);
                 }
 
