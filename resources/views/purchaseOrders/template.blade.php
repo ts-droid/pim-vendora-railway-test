@@ -79,6 +79,38 @@
             margin-bottom: 0;
         }
 
+        .flex-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .me {
+            margin-right: 8px;
+        }
+
+        .loader {
+            width: 15px;
+            height: 15px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         .button-holder {
             text-align: center;
         }
@@ -94,6 +126,12 @@
         }
         .button:hover {
             opacity: 0.95;
+        }
+
+        button:disabled,
+        button[disabled] {
+            opacity: 0.8 !important;
+            cursor: not-allowed;
         }
 
         .button-success {

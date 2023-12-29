@@ -44,7 +44,12 @@
         </div>
 
         <div class="button-holder">
-            <button class="button button-success" type="button" onclick="confirmOrder()">Confirm Purchase Order</button>
+            <button class="button button-success js-confirm-button" type="button" onclick="confirmOrder()">
+                <div class="flex-row">
+                    <span class="loader me d-none"></span>
+                    <div>Confirm Purchase Order</div>
+                </div>
+            </button>
         </div>
     </div>
 
@@ -73,6 +78,13 @@
 
         function confirmOrder()
         {
+            // Start loading animation
+            let $button = $('.js-confirm-button');
+
+            // Make button disabled
+            $button.prop('disabled', true);
+            $button.find('.loader').removeClass('d-none');
+
             // Collect post data
             let postData = {
                 'items': []
@@ -114,10 +126,18 @@
                     }
                     else {
                         alert(data.message);
+
+                        // Stop loading animation
+                        $button.prop('disabled', false);
+                        $button.find('.loader').addClass('d-none');
                     }
                 })
                 .catch(error => {
-                    alert('Error: ' + error)
+                    alert('Error: ' + error);
+
+                    // Stop loading animation
+                    $button.prop('disabled', false);
+                    $button.find('.loader').addClass('d-none');
                 });
         }
     </script>
