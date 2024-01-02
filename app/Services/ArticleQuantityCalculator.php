@@ -152,7 +152,7 @@ class ArticleQuantityCalculator
                 ->toArray();
 
             // Fetch on hold orders from WGR
-            $WGRService = new WGROrderQueueService();
+            /*$WGRService = new WGROrderQueueService();
             $inQueueQuantities = $WGRService->getQuantityInQueue();
 
             foreach ($inQueueQuantities as $articleNumber => $quantity) {
@@ -162,7 +162,7 @@ class ArticleQuantityCalculator
                 else {
                     $onOrderQuantities[$articleNumber] = $quantity;
                 }
-            }
+            }*/
 
             // Store the results in the cache for 10 minutes
             Cache::put('on_order_quantities', $onOrderQuantities, 10);
