@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\WgrController;
+use App\Services\VismaNet\VismaNetApiService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,10 +34,15 @@ class MarkArticleEOL implements ShouldQueue
 
         $wgrController = new WgrController();
 
-        // Mark articles as EOL in WGR
+        $vismaService = new VismaNetApiService();
+
         foreach ($this->articleNumbers as $articleNumber) {
-            $wgrController->updateArticle($articleNumber, [
-                'eol' => true
+            // Mark articles as EOL in WGR
+            $wgrController->updateArticle($articleNumber, ['eol' => true]);
+
+            // Mark articles as EOL in Visma.net
+            $vismaService->callAPI('PUT', '/v1/inventory/' . $articleNumber, [
+                'status' => ['value' => 'NoPurchases']
             ]);
         }
     }
