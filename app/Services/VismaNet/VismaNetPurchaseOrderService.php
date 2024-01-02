@@ -36,7 +36,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'orderQty' => ['value' => $orderLine->quantity],
                 'unitCost' => ['value' => $orderLine->unit_cost],
                 'amount' => ['value' => $orderLine->amount],
-                'promised' => ['value' => $orderLine->promised_date]
+                'promised' => ['value' => date('Y-m-d', (strtotime($orderLine->promised_date) + (5 * 86400)))] // Add 5 days to the promised date
             ];
         }
 
@@ -45,7 +45,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'orderType' => ['value' => 'RegularOrder'],
             'supplier' => ['value' => $purchaseOrder->supplier_number],
             'currency' => ['value' => $purchaseOrder->currency],
-            'promisedOn' => ['value' => $purchaseOrder->promised_date],
+            'promisedOn' => ['value' => date('Y-m-d', (strtotime($purchaseOrder->promised_date) + (5 * 86400)))], // Add 5 days to the promised date
             'dontEmail' => ['value' => true],
             'hold' => ['value' => false],
             'lines' => $lines,
@@ -111,7 +111,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                     'orderQty' => ['value' => $localLine->quantity],
                     'unitCost' => ['value' => $localLine->unit_cost],
                     'amount' => ['value' => $localLine->amount],
-                    'promised' => ['value' => $localLine->promised_date]
+                    'promised' => ['value' => date('Y-m-d', (strtotime($localLine->promised_date) + (5 * 86400)))] // Add 5 days to the promised date
                 ];
             }
         }
@@ -119,7 +119,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         $data = [
             'supplier' => ['value' => $purchaseOrder->supplier_number],
             'currency' => ['value' => $purchaseOrder->currency],
-            'promisedOn' => ['value' => $purchaseOrder->promised_date],
+            'promisedOn' => ['value' => date('Y-m-d', (strtotime($purchaseOrder->promised_date) + (5 * 86400)))], // Add 5 days to the promised date
             'lines' => $lines
         ];
 
