@@ -24,6 +24,11 @@ class CustomerController extends Controller
             $query->orderBy($orderBy, $orderByDirection);
         }
 
+        if ($request->has('only_fields')) {
+            $fields = explode(',', $request->input('only_fields'));
+            $query->select($fields);
+        }
+
         if ($pageNumber > 0) {
             $customers = $query->paginate($pageSize, ['*'], 'page_number', $pageNumber);
         } else {
