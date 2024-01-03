@@ -315,6 +315,7 @@ class PurchaseOrderGenerator
 
             // Calculate the unit purchase price
             $unitCost = $supplierPriceService->getUnitCostForSupplier($article->article_number, $supplier);
+            $unitCost = round($unitCost, 2);
 
             $orderLines->push([
                 'purchase_order_id' => $purchaseOrderID,
