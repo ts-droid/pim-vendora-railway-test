@@ -244,7 +244,7 @@ class PurchaseOrderController extends Controller
                 }
 
                 $oldUnitCost = $orderLine->unit_cost;
-                $unitCost = $updates['unit_cost'] ?? $orderLine->unit_cost;
+                $unitCost = round($updates['unit_cost'] ?? $orderLine->unit_cost, 2);
                 $quantity = $updates['quantity'] ?? $orderLine->quantity;
 
                 $updates['amount'] = $unitCost * $quantity;
@@ -261,7 +261,7 @@ class PurchaseOrderController extends Controller
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
                         'article_number' => (string) $orderLine->article_number,
-                        'price' => (float) $unitCost,
+                        'price' => $unitCost,
                         'currency' => (string) $purchaseOrder->currency,
                     ]);
                 }
@@ -276,6 +276,10 @@ class PurchaseOrderController extends Controller
                     if (in_array($key, $fillablesLine)) {
                         $createData[$key] = $value;
                     }
+                }
+
+                if (isset($createData['unit_cost'])) {
+                    $createData['unit_cost'] = round($createData['unit_cost'], 2);
                 }
 
                 $createData['amount'] = $createData['unit_cost'] * $createData['quantity'];
