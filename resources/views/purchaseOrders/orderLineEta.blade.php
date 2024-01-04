@@ -91,7 +91,11 @@
 
             // Post the data
             fetch('{{ route('purchaseOrder.postEta', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}', {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postData)
             })
                 .then(response => response.json())
                 .then(data => {
