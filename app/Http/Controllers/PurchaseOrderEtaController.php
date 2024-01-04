@@ -36,7 +36,7 @@ class PurchaseOrderEtaController extends Controller
         $publisher = new PurchaseOrderPublisher();
         $response = $publisher->updateOrder(
             $purchaseOrder,
-            $request->post('items')
+            $request->input('items')
         );
 
         if (!$response['success']) {
