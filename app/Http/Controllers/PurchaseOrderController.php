@@ -27,10 +27,11 @@ class PurchaseOrderController extends Controller
                 'purchase_order_lines.*',
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
-                'purchase_orders.email',
-                'purchase_orders.order_number'
+                'purchase_orders.order_number',
+                'suppliers.email_reminder as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_order_lines.is_completed', '=', 0)
             ->where(function($query) {
                 $query->where('purchase_order_lines.promised_date', '<', date('Y-m-d'))
@@ -52,10 +53,11 @@ class PurchaseOrderController extends Controller
                 'purchase_order_lines.*',
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
-                'purchase_orders.email',
-                'purchase_orders.order_number'
+                'purchase_orders.order_number',
+                'suppliers.email_reminder as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_order_lines.is_completed', '=', 0)
             ->where('purchase_orders.status', '=', 'Open')
             ->whereNotNull('purchase_order_lines.reminder_sent_at')
