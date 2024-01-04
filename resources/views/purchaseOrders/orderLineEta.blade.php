@@ -35,7 +35,12 @@
         </div>
 
         <div class="button-holder" style="text-align: right;">
-            <button class="button button-success" type="button" onclick="confirm()">Confirm</button>
+            <button class="button button-success js-confirm-button" type="button" onclick="confirm()">
+                <div class="flex-row">
+                    <span class="loader me d-none"></span>
+                    <div>Confirm</div>
+                </div>
+            </button>
         </div>
     </div>
 
@@ -64,6 +69,13 @@
 
         function confirm()
         {
+            // Start loading animation
+            let $button = $('.js-confirm-button');
+
+            // Make button disabled
+            $button.prop('disabled', true);
+            $button.find('.loader').removeClass('d-none');
+
             // Collect post data
             let postData = {
                 'items': []
@@ -84,6 +96,10 @@
             // Validate ETA's
             for (let i = 0; i < postData['items'].length; i++) {
                 if (postData['items'][i].status === 'confirm' && postData['items'][i].shipping_date === '') {
+                    // Stop loading animation
+                    $button.prop('disabled', false);
+                    $button.find('.loader').addClass('d-none');
+
                     alert('Please enter a shipping date for all confirmed items.');
                     return;
                 }
@@ -105,10 +121,18 @@
                    }
                    else {
                        alert(data.message);
+
+                       // Stop loading animation
+                       $button.prop('disabled', false);
+                       $button.find('.loader').addClass('d-none');
                    }
                 })
                 .catch(error => {
                     alert('Error: ' + error);
+
+                    // Stop loading animation
+                    $button.prop('disabled', false);
+                    $button.find('.loader').addClass('d-none');
                 });
         }
     </script>

@@ -105,6 +105,10 @@
             // Validate ETA's
             for (let i = 0; i < postData['items'].length; i++) {
                 if (postData['items'][i].status === 'confirm' && postData['items'][i].shipping_date === '') {
+                    // Stop loading animation
+                    $button.prop('disabled', false);
+                    $button.find('.loader').addClass('d-none');
+
                     alert('Please enter a shipping date for all confirmed items.');
                     return;
                 }
