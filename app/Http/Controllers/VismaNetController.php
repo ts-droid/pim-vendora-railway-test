@@ -259,6 +259,9 @@ class VismaNetController extends Controller
                 ];
 
                 foreach (($order['lines'] ?? []) as $line) {
+                    $orderLinePromisedDate = $line['promised'] ?? '';
+                    $orderLinePromisedDate = $orderLinePromisedDate ? (date('Y-m-d', strtotime($orderLinePromisedDate))) : '';
+
                     $orderData['lines'][] = [
                         'line_key' => (string) ($line['lineNbr'] ?? ''),
                         'article_number' => (string) ($line['inventory']['number'] ?? ''),
@@ -266,7 +269,7 @@ class VismaNetController extends Controller
                         'quantity' => (int) ($line['orderQty'] ?? 0),
                         'unit_cost' => (float) ($line['unitCost'] ?? 0),
                         'amount' => (float) ($line['amount'] ?? 0),
-                        'promised_date' => $promisedDate,
+                        'promised_date' => $orderLinePromisedDate,
                         'is_completed' => (int) ($line['completed'] ?? 0),
                         'is_canceled' => (int) ($line['canceled'] ?? 0),
                     ];

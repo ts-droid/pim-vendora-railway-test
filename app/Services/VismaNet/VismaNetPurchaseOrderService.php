@@ -125,7 +125,9 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
 
-        log_data('Update purchase order response: ' . json_encode($response));
+        if (!$response['success']) {
+            return ['success' => false, 'message' => ($response['response']['message'] ?? 'Unknown error')];
+        }
 
         return ['success' => true];
     }
