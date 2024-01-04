@@ -81,9 +81,8 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
     public function updatePurchaseOrder(PurchaseOrder $purchaseOrder): array
     {
         // Fetch purchase order from Visma.net so that we can detect changes
-        $remoteOrder = $this->callAPI('GET', '/v1/purchaseorder/' . $purchaseOrder->order_number);
-
-        log_data('Remote purchase order: ' . json_encode($remoteOrder));
+        $response = $this->callAPI('GET', '/v1/purchaseorder/' . $purchaseOrder->order_number);
+        $remoteOrder = $response['response'] ?? [];
 
         if (empty($remoteOrder['orderNbr'])) {
             return ['success' => false, 'message' => 'Remote order could not be found.'];
