@@ -62,8 +62,6 @@ class PurchaseOrderPublisher
             log_data('Failed to update purchase order. (Error: ' . $updateResult['message'] . ')');
         }
 
-        return ['success' => true];
-
         // Fetch purchase order to update with data from Visma.net
         $purchaseOrderService->fetchPurchaseOrders('', $purchaseOrder->order_number);
 
