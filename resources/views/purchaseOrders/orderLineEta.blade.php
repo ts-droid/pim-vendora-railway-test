@@ -115,6 +115,8 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data);
+
                    if (data.success) {
                        document.getElementById('step-review').classList.add('d-none');
                        document.getElementById('step-done').classList.remove('d-none');
