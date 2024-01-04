@@ -24,6 +24,7 @@ class Supplier extends Model
         'purchase_system',
         'purchase_master_box',
         'purchase_order_interval',
-        'email'
+        'email',
+        'email_reminder',
     ];
 }
