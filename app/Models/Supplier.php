@@ -23,6 +23,8 @@ class Supplier extends Model
         'is_supplier',
         'purchase_system',
         'purchase_master_box',
+        'purchase_inner_box',
+        'purchase_ai',
         'purchase_order_interval',
         'email',
         'email_reminder',
