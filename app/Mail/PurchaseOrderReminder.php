@@ -37,6 +37,9 @@ class PurchaseOrderReminder extends Mailable
         $this->emailBody = ConfigController::getConfig('purchase_system_reminder_email_body');
 
         // Replace variables
+        $this->emailSubject = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailSubject);
+        $this->emailBody = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailBody);
+
         $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
         $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
 
