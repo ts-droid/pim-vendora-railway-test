@@ -56,7 +56,11 @@ class PurchaseOrderPublisher
 
         // Send update to Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
-        $purchaseOrderService->updatePurchaseOrder($purchaseOrder);
+        $updateResult = $purchaseOrderService->updatePurchaseOrder($purchaseOrder);
+
+        if (!$updateResult['success']) {
+            log_data('Failed to update purchase order. (Error: ' . $updateResult['message'] . ')');
+        }
 
         // Fetch purchase order to update with data from Visma.net
         $purchaseOrderService->fetchPurchaseOrders('', $purchaseOrder->order_number);
@@ -73,7 +77,7 @@ class PurchaseOrderPublisher
      */
     private function processItems(PurchaseOrder $purchaseOrder, array $items): void
     {
-        $orderPromisedDate = '';
+        $orderPromisedDate = $purchaseOrder->promised_date;
         $eolArticleNumbers = [];
 
         foreach ($items as $item) {
@@ -93,12 +97,14 @@ class PurchaseOrderPublisher
             }
 
             // Set the shipping date
+            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * 5))); // Add 5 days to the promised date
+
             $orderLine->update([
-                'promised_date' => $item['shipping_date']
+                'promised_date' => $shippingDate
             ]);
 
-            if (!$orderPromisedDate || $orderPromisedDate > $item['shipping_date']) {
-                $orderPromisedDate = $item['shipping_date'];
+            if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
+                $orderPromisedDate = $shippingDate;
             }
         }
 
