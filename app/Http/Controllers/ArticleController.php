@@ -15,9 +15,14 @@ class ArticleController extends Controller
 {
     public function getSimple(Request $request)
     {
-        $articles = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'inner_box', 'master_box')
-            ->get();
+        $query = DB::table('articles')
+            ->select('id', 'article_number', 'description', 'inner_box', 'master_box');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status', ''));
+        }
+
+        $articles = $query->get();
 
         $supplierPrices = DB::table('supplier_article_prices')
             ->select('article_number', 'price', 'currency')
