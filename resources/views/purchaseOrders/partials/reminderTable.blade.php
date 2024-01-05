@@ -9,7 +9,7 @@
             <tr>
                 <td>{{ $orderLine->article_number }}</td>
                 <td>{{ $orderLine->description }}</td>
-                <td style="text-align: right;">{{ $orderLine->quantity }}</td>
+                <td style="text-align: right;">{{ $orderLine->quantity - $orderLine->quantity_received }}</td>
             </tr>
         @endforeach
     </table>
