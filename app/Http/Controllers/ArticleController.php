@@ -46,6 +46,51 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function getBasic(Request $request)
+    {
+        // Get input parameters
+        $filters = $request->input('filter');
+        $columns = $request->input('columns', ['*']);
+        $currency = $request->input('currency');
+
+        // Build query
+        $query = DB::table('articles')
+            ->select($columns);
+
+        if ($filters) {
+            foreach ($filters as $filter) {
+                $count = count($filter);
+
+                if ($count === 3) {
+                    $query->where($filter[0], $filter[1], $filter[2]);
+                }
+                elseif ($count === 2) {
+                    $query->whereIn($filter[0], $filter[1]);
+                }
+            }
+        }
+
+        // Execute query
+        $articles = $query->get()->toArray();
+
+        // Convert results to requested currency
+        if ($currency && $articles) {
+            $currencyConverter = new CurrencyConvertController();
+
+            foreach ($articles as &$article) {
+                $currencyConverter->convertArray(
+                    $article,
+                    ['cost_price_avg', 'external_cost'],
+                    'SEK',
+                    $currency,
+                    date('Y-m-d')
+                );
+            }
+        }
+
+        return ApiResponseController::success($articles);
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(Article::class, $request);
