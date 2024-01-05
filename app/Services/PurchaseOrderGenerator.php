@@ -400,8 +400,8 @@ class PurchaseOrderGenerator
         $currentStock = ArticleQuantityCalculator::getNetStock($article->article_number);
 
         // Calculate box sizes
-        $innerBoxQuantity = $article->inner_box;
-        $masterBoxQuantity = $article->master_box * $article->inner_box;
+        $innerBoxQuantity = max(1, $article->inner_box);
+        $masterBoxQuantity = max(1, $article->master_box * $article->inner_box);
 
         // Calculate exact suggestion
         $quantity = $suggestedStock - $currentStock;
