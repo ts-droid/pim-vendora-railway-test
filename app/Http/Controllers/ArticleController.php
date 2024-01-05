@@ -73,13 +73,18 @@ class ArticleController extends Controller
         // Execute query
         $articles = $query->get()->toArray();
 
+        // Convert article objects into an array
+        $articles = array_map(function ($article) {
+            return get_object_vars($article);
+        }, $articles);
+
         // Convert results to requested currency
         if ($currency && $articles) {
             $currencyConverter = new CurrencyConvertController();
 
-            for ($i = 0;$i < count($articles);$i++) {
+            foreach ($articles as &$article) {
                 $currencyConverter->convertArray(
-                    $articles[$i],
+                    $article,
                     ['cost_price_avg', 'external_cost'],
                     'SEK',
                     $currency,
