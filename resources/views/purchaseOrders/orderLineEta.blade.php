@@ -19,7 +19,7 @@
                     <tr class="js-item-row" data-id="{{ $purchaseOrderLine->id }}">
                         <td>{{ $purchaseOrderLine->article_number }}</td>
                         <td>{{ $purchaseOrderLine->description }}</td>
-                        <td class="text-right">{{ $purchaseOrderLine->quantity }}</td>
+                        <td class="text-right">{{ $purchaseOrderLine->quantity - $purchaseOrderLine->quantity_received }}</td>
                         <td class="text-right">
                             <input type="text" name="shipping_date_{{ $purchaseOrderLine->id }}" class="js-datepicker">
                         </td>
