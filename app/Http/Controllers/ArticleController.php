@@ -73,6 +73,11 @@ class ArticleController extends Controller
         // Execute query
         $articles = $query->get()->toArray();
 
+        // Convert all articles to an array
+        foreach ($articles as &$article) {
+            $article = $article->toArray();
+        }
+
         // Convert results to requested currency
         if ($currency && $articles) {
             $currencyConverter = new CurrencyConvertController();
