@@ -267,6 +267,7 @@ class VismaNetController extends Controller
                         'article_number' => (string) ($line['inventory']['number'] ?? ''),
                         'description' => (string) ($line['lineDescription'] ?? ''),
                         'quantity' => (int) ($line['orderQty'] ?? 0),
+                        'quantity_received' => (int) ($line['qtyOnReceipts'] ?? 0),
                         'unit_cost' => (float) ($line['unitCost'] ?? 0),
                         'amount' => (float) ($line['amount'] ?? 0),
                         'promised_date' => $orderLinePromisedDate,
