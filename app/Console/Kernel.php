@@ -26,7 +26,16 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
 
-            $schedule->command('visma:fetch')->dailyAt('02:00');
+            // Visma.net Fetching
+            $schedule->command('visma:fetch customers')->dailyAt('02:00');
+            $schedule->command('visma:fetch sales-persons')->dailyAt('02:00');
+            $schedule->command('visma:fetch suppliers')->dailyAt('02:00');
+            $schedule->command('visma:fetch articles')->dailyAt('02:00');
+            $schedule->command('visma:fetch invoices')->dailyAt('02:00');
+            $schedule->command('visma:fetch purchase-orders')->dailyAt('02:00');
+            $schedule->command('visma:fetch inventory-receipts')->dailyAt('02:00');
+            $schedule->command('visma:fetch currency')->dailyAt('02:00');
+            $schedule->command('visma:fetch sales-orders')->hourly();
 
             $schedule->command('wgr:fetch')->dailyAt('05:00');
 
