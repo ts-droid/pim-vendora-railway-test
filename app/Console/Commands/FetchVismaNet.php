@@ -32,24 +32,24 @@ class FetchVismaNet extends Command
         $vismaNetController = new VismaNetController();
 
         switch ($type) {
-            case 'invoices':
-                $vismaNetController->fetchCustomerInvoices();
+            case 'customers':
+                $vismaNetController->fetchCustomers();
+                break;
+
+            case 'sales-persons':
+                $vismaNetController->fetchSalesPersons();
                 break;
 
             case 'suppliers':
                 $vismaNetController->fetchSuppliers();
                 break;
 
-            case 'currency':
-                $vismaNetController->fetchCurrencyRates();
-                break;
-
-            case 'customers':
-                $vismaNetController->fetchCustomers();
-                break;
-
             case 'articles':
                 $vismaNetController->fetchArticles('', true);
+                break;
+
+            case 'invoices':
+                $vismaNetController->fetchCustomerInvoices();
                 break;
 
             case 'purchase-orders':
@@ -60,8 +60,8 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchInventoryReceipts();
                 break;
 
-            case 'sales-persons':
-                $vismaNetController->fetchSalesPersons();
+            case 'currency':
+                $vismaNetController->fetchCurrencyRates();
                 break;
 
             case 'sales-orders':
