@@ -29,6 +29,10 @@
             margin-bottom: 0 !important;
         }
 
+        .text-center {
+            text-align: center;
+        }
+
         .container {
             padding: 20px;
             width: 80%;
