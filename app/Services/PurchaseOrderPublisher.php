@@ -6,6 +6,7 @@ use App\Jobs\MarkArticleEOL;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\VismaNet\VismaNetPurchaseOrderService;
+use Illuminate\Support\Facades\Mail;
 
 class PurchaseOrderPublisher
 {
@@ -22,7 +23,30 @@ class PurchaseOrderPublisher
             return ['success' => false, 'message' => 'Order is not a draft.'];
         }
 
-        $this->processItems($purchaseOrder, $items);
+        if (!$purchaseOrder->is_confirmed) {
+            // Order is not confirmed by admin
+            return ['success' => false, 'message' => 'Order is not confirmed by Vendora.'];
+        }
+
+        // Process the items
+        if ($items) {
+            $response = $this->processItems($purchaseOrder, $items);
+
+            if ($response['require_confirmation']) {
+                // Order needs confirmation from admin before publishing
+                // Return true, because it was just sent to admin for confirmation
+
+                // Dispatch confirmation email to admin
+                try {
+                    Mail::to('purchasing@vendora.se')->queue(new \App\Mail\PurchaseOrder($purchaseOrder, $response['updated_prices']));
+                }
+                catch (\Exception $e) {
+                    log_data('Failed to send purchase order price change confirmation email. (Error: ' . $e->getMessage() . ')');
+                }
+
+                return ['success' => true];
+            }
+        }
 
         // Send the order to Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
@@ -37,7 +61,7 @@ class PurchaseOrderPublisher
 
         // Update published timestamp
         $purchaseOrder->update([
-            'published_at' => date('Y-md H:i:s')
+            'published_at' => date('Y-m-d H:i:s')
         ]);
 
         return ['success' => true];
@@ -78,10 +102,15 @@ class PurchaseOrderPublisher
      *
      * @param PurchaseOrder $purchaseOrder
      * @param array $items
-     * @return void
+     * @return array
      */
-    private function processItems(PurchaseOrder $purchaseOrder, array $items): void
+    private function processItems(PurchaseOrder $purchaseOrder, array $items): array
     {
+        $response = [
+            'require_confirmation' => false,
+            'updated_prices' => [],
+        ];
+
         $orderPromisedDate = $purchaseOrder->promised_date;
         $eolArticleNumbers = [];
 
@@ -111,11 +140,36 @@ class PurchaseOrderPublisher
             if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
                 $orderPromisedDate = $shippingDate;
             }
+
+            // Update the order line unit cost
+            if (isset($item['unit_cost'])) {
+                $unitCost = (float) str_replace(',', '.', $item['unit_cost']);
+
+                if ($unitCost != $orderLine->unit_cost) {
+                    $response['require_confirmation'] = true;
+
+                    $response['updated_prices'][] = [
+                        'order_line_id' => $orderLine->id,
+                        'from' => $orderLine->unit_cost,
+                        'to' => $unitCost,
+                    ];
+
+                    $orderLine->update([
+                        'unit_cost' => $unitCost,
+                        'amount' => round(($unitCost * $orderLine->quantity), 2)
+                    ]);
+                }
+            }
         }
+
+        // Calculate the order total
+        $orderTotal = (float) PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->sum('amount');
 
         // Update the order promised date
         $purchaseOrder->update([
-            'promised_date' => $orderPromisedDate
+            'promised_date' => $orderPromisedDate,
+            'total' => $orderTotal,
+            'is_confirmed' => $response['require_confirmation'] ? 0 : $purchaseOrder->is_confirmed,
         ]);
 
         // Mark articles as EOL
@@ -125,5 +179,7 @@ class PurchaseOrderPublisher
 
         // Refresh the order before returning
         $purchaseOrder->refresh();
+
+        return $response;
     }
 }

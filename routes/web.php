@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
+use App\Http\Controllers\PurchaseOrderPriceController;
 use App\Http\Controllers\StatusCheckController;
 use App\Http\Controllers\VismaNetTestController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,9 @@ Route::prefix('/purchase-order')->group(function() {
 
     Route::get('/{purchaseOrder}/{hash}/eta', [PurchaseOrderEtaController::class, 'index'])->name('purchaseOrder.eta');
     Route::post('/{purchaseOrder}/{hash}/eta', [PurchaseOrderEtaController::class, 'post'])->name('purchaseOrder.postEta');
+
+    Route::any('/{purchaseOrder}/{hash}/prices-confirm', [PurchaseOrderPriceController::class, 'confirm'])->name('purchaseOrder.pricesConfirm');
+    Route::any('/{purchaseOrder}/{hash}/prices-reject', [PurchaseOrderPriceController::class, 'reject'])->name('purchaseOrder.pricesReject');
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
