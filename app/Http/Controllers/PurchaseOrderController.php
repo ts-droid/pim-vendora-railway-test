@@ -83,6 +83,11 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
+    public function getOrder(PurchaseOrder $purchaseOrder)
+    {
+        return ApiResponseController::success($purchaseOrder->toArray());
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);

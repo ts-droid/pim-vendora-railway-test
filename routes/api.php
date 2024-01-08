@@ -132,6 +132,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/ongoing-deleted', [PurchaseOrderController::class, 'getOngoingDeleted'])->name('purchaseOrders.getOngoingDeleted');
         Route::post('/send-reminders', [PurchaseOrderController::class, 'sendReminders'])->name('purchaseOrders.sendReminders');
         Route::post('/cancel', [PurchaseOrderController::class, 'cancelOrderLines'])->name('purchaseOrders.cancelOrderLines');
+        Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'getOrder'])->name('purchaseOrders.getOrder');
         Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
         Route::post('/{purchaseOrder}/add-row', [PurchaseOrderController::class, 'addRow'])->name('purchaseOrders.addRow');
         Route::post('/{purchaseOrder}/regenerate', [PurchaseOrderController::class, 'regenerate'])->name('purchaseOrders.regenerate');
