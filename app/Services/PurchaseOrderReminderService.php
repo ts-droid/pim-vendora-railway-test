@@ -66,7 +66,10 @@ class PurchaseOrderReminderService
 
         $purchaseOrders = PurchaseOrder::where('status', 'Draft')
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' days')))
-            ->where('draft_reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
+            ->where(function($query) use ($remindInterval) {
+                $query->where('draft_reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
+                    ->orWhereNull('draft_reminder_sent_at');
+            })
             ->get();
 
         if (!$purchaseOrders) {
