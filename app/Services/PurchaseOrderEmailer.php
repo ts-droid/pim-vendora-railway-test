@@ -31,6 +31,8 @@ class PurchaseOrderEmailer
             return [false, $e->getMessage()];
         }
 
+        $purchaseOrder->update(['is_sent' => 1]);
+
         return [true, 'Email queued successfully.'];
     }
 }

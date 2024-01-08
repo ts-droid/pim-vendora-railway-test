@@ -65,6 +65,7 @@ class PurchaseOrderReminderService
         $remindInterval = (int) ConfigController::getConfig('purchase_system_draft_reminder_interval', 2);
 
         $purchaseOrders = PurchaseOrder::where('status', 'Draft')
+            ->where('is_sent', 1)
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' days')))
             ->where(function($query) use ($remindInterval) {
                 $query->where('draft_reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
