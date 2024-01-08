@@ -66,7 +66,7 @@ class PurchaseOrderReminderService
 
         $purchaseOrders = PurchaseOrder::where('status', 'Draft')
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' days')))
-            ->where('reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
+            ->where('draft_reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
             ->get();
 
         if (!$purchaseOrders) {
@@ -97,8 +97,8 @@ class PurchaseOrderReminderService
 
         // Update timestamp for reminder sent
         $purchaseOrder->update([
-            'num_reminders_sent' => 1 + intval($purchaseOrder->num_reminders_sent),
-            'reminder_sent_at' => date('Y-m-d H:i:s')
+            'draft_num_reminders_sent' => 1 + intval($purchaseOrder->draft_num_reminders_sent),
+            'draft_reminder_sent_at' => date('Y-m-d H:i:s')
         ]);
     }
 }

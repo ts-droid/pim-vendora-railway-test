@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchase_orders', function (Blueprint $table) {
-            $table->integer('num_reminders_sent')->default(0);
-            $table->timestamp('reminder_sent_at')->nullable()->default(null);
+            $table->integer('draft_num_reminders_sent')->default(0);
+            $table->timestamp('draft_reminder_sent_at')->nullable()->default(null);
         });
     }
 
