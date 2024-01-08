@@ -8,6 +8,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
+use App\Services\PurchaseOrderEmailer;
 use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
 use App\Services\PurchaseOrderReminderService;
@@ -352,26 +353,9 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
-
-        $recipients[] = 'ts@vendora.se';
-
-        // Validate the emails
-        $recipients = array_filter($recipients, function($email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
-        });
-
-        // Make sure we have at least 1 email address
-        if (count($recipients) === 0) {
-            return ApiResponseController::error('Supplier is missing email.');
-        }
-
-        // Send email
-        try {
-            Mail::to($recipients)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
-        } catch (\Exception $e) {
-            return ApiResponseController::error($e->getMessage());
-        }
+        // Send the email
+        $mailer = new PurchaseOrderEmailer();
+        $mailer->send($purchaseOrder);
 
         // Should we also generate a new order for this supplier?
         if ($request->get('generate_new_order')) {

@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
 
+            $schedule->command('purchase-orders:send-reminders')->hourly();
+
             // Visma.net Fetching
             $schedule->command('visma:fetch customers')->dailyAt('02:00');
             $schedule->command('visma:fetch sales-persons')->dailyAt('02:00');

@@ -24,6 +24,7 @@ class PurchaseOrder extends Mailable
      */
     public function __construct(
         public \App\Models\PurchaseOrder $purchaseOrder,
+        public bool $isReminder = false,
     )
     {
         $this->emailSubject = ConfigController::getConfig('purchase_system_new_order_email_subject');
@@ -48,6 +49,11 @@ class PurchaseOrder extends Mailable
 
         $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Confirm the order here</a>', $this->emailBody);
         $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.orderTable', compact('purchaseOrder'))->render(), $this->emailBody);
+
+        // Add reminder prefix
+        if ($this->isReminder) {
+            $this->emailSubject = 'Reminder: ' . $this->emailSubject;
+        }
     }
 
     /**
