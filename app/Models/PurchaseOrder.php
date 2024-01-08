@@ -31,6 +31,7 @@ class PurchaseOrder extends Model
         'user_deleted_at',
         'draft_num_reminders_sent',
         'draft_reminder_sent_at',
+        'published_at',
     ];
 
     public function supplier()

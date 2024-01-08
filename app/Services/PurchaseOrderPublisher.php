@@ -35,6 +35,11 @@ class PurchaseOrderPublisher
         // Fetch purchase orders to update with data from Visma.net
         $purchaseOrderService->fetchPurchaseOrders('', $purchaseOrder->order_number);
 
+        // Update published timestamp
+        $purchaseOrder->update([
+            'published_at' => date('Y-md H:i:s')
+        ]);
+
         return ['success' => true];
     }
 
