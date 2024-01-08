@@ -69,6 +69,10 @@
             padding: 4px;
         }
 
+        .fw-bold {
+            font-weight: bold;
+        }
+
         .text {
             text-align: center;
             margin-bottom: 35px;

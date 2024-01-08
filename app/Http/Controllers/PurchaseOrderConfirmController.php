@@ -15,7 +15,7 @@ class PurchaseOrderConfirmController extends Controller
         }
 
         if (!$purchaseOrder->is_draft) {
-            return view('purchaseOrders.confirmDone', compact('purchaseOrder'));
+            //return view('purchaseOrders.confirmDone', compact('purchaseOrder'));
         }
 
         return view('purchaseOrders.confim', compact('purchaseOrder'));

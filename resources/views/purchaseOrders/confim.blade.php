@@ -7,20 +7,29 @@
                 <tr>
                     <th>SKU</th>
                     <th>Description</th>
-                    <th class="text-right">Qty</th>
                     <th class="text-right">Unit price</th>
+                    <th class="text-right">Qty</th>
                     <th class="text-right">Total</th>
                     <th class="text-right">Shipping date</th>
                     <th class="text-right">Status</th>
                 </tr>
+                @php($total = 0)
+                @php($totalQuantity = 0)
+
                 @if($purchaseOrder->lines)
                     @foreach($purchaseOrder->lines as $orderLine)
+
+                        @php($total += ($orderLine->quantity * $orderLine->unit_cost))
+                        @php($totalQuantity += $orderLine->quantity)
+
                         <tr class="js-item-row" data-id="{{ $orderLine->id }}">
                             <td>{{ $orderLine->article_number }}</td>
                             <td>{{ $orderLine->description }}</td>
+                            <td class="text-right">
+                                <input type="text" class="text-right js-unit-price" name="unit_cost_{{ $orderLine->id }}" style="width: 80px;" value="{{ number_format($orderLine->unit_cost, 2, '.', '') }}">
+                            </td>
                             <td class="text-right">{{ $orderLine->quantity }}</td>
-                            <td class="text-right">{{ $orderLine->unit_cost }}</td>
-                            <td class="text-right">{{ $orderLine->quantity * $orderLine->unit_cost }}</td>
+                            <td class="text-right js-total-price">{{ number_format(($orderLine->quantity * $orderLine->unit_cost), 2, '.', '') }}</td>
                             <td class="text-right">
                                 <input type="text" name="shipping_date_{{ $orderLine->id }}" class="js-datepicker" value="{{ date('Y-m-d') }}">
                             </td>
@@ -33,6 +42,15 @@
                         </tr>
                     @endforeach
                 @endif
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right fw-bold">{{ number_format($totalQuantity, 2, '.', '') }}</td>
+                    <td class="text-right fw-bold js-total">{{ number_format($total, 2, '.', '') }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
         </div>
 
@@ -74,7 +92,33 @@
                     dateFormat: 'yy-mm-dd'
                 });
             })
+
+            $('.js-unit-price').on('change keyup', function() {
+                let $row = $(this).closest('.js-item-row');
+                let quantity = $row.find('td:nth-child(4)').text();
+
+                let unitPrice = $(this).val();
+                unitPrice = unitPrice.replace(',', '.');
+                $(this).val(unitPrice);
+
+                let total = quantity * unitPrice;
+
+                $row.find('.js-total-price').text(total.toFixed(2));
+
+                updateTotal();
+            });
         });
+
+        function updateTotal()
+        {
+            let total = 0;
+
+            $('.js-total-price').each(function() {
+                total += parseFloat($(this).text());
+            });
+
+            $('.js-total').text(total.toFixed(2));
+        }
 
         function confirmOrder()
         {
@@ -92,11 +136,13 @@
 
             $('.js-item-row').each(function() {
                 let id = $(this).data('id');
+                let unitCost = $(this).find('input[name="unit_cost_' + id + '"]').val();
                 let shippingDate = $(this).find('input[name="shipping_date_' + id + '"]').val();
                 let status = $(this).find('select[name="status_' + id + '"]').val();
 
                 postData['items'].push({
                     id: id,
+                    unit_cost: unitCost,
                     shipping_date: shippingDate,
                     status: status
                 });
