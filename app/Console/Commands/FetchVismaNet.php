@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Console\Command;
@@ -74,5 +75,7 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchAll();
                 break;
         }
+
+        StatusIndicatorController::ping('Visma.net sync', 86400);
     }
 }
