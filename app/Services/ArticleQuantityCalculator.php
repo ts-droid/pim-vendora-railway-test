@@ -151,24 +151,40 @@ class ArticleQuantityCalculator
                 })
                 ->toArray();
 
-            // Fetch on hold orders from WGR
-            /*$WGRService = new WGROrderQueueService();
-            $inQueueQuantities = $WGRService->getQuantityInQueue();
-
-            foreach ($inQueueQuantities as $articleNumber => $quantity) {
-                if (isset($onOrderQuantities[$articleNumber])) {
-                    $onOrderQuantities[$articleNumber] += $quantity;
-                }
-                else {
-                    $onOrderQuantities[$articleNumber] = $quantity;
-                }
-            }*/
-
             // Store the results in the cache for 10 minutes
             Cache::put('on_order_quantities', $onOrderQuantities, 10);
         }
 
         return $onOrderQuantities;
+    }
+
+    /**
+     * Returns the quantity in hold queue
+     * @param string $articleNumber
+     * @return int
+     */
+    public static function getOnOrderQueue(string $articleNumber): int
+    {
+        $inQueueQuantities = Cache::get('wgr_in_queue_quantities', function() {
+            $WGRService = new WGROrderQueueService();
+            $inQueueQuantities = $WGRService->getQuantityInQueue();
+
+            Cache::put('wgr_in_queue_quantities', $inQueueQuantities, 10);
+
+            return $inQueueQuantities;
+        });
+
+        $articleQuantity = 0;
+
+        foreach ($inQueueQuantities as $quantityArticleNumber => $quantity) {
+            if ($articleNumber != $quantityArticleNumber) {
+                continue;
+            }
+
+            $articleQuantity += $quantity;
+        }
+
+        return $articleQuantity;
     }
 
     /**
@@ -182,8 +198,9 @@ class ArticleQuantityCalculator
         $stock = Article::where('article_number', $articleNumber)->pluck('stock_on_hand')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
+        $onOrderQueue = self::getOnOrderQueue($articleNumber);
 
-        return $stock + $incoming - $onOrder;
+        return $stock + $incoming - $onOrder - $onOrderQueue;
     }
 
     /**
@@ -198,7 +215,21 @@ class ArticleQuantityCalculator
     {
         $salesPerMonthQuantities = self::getSalesPerMonthQuantities($startDate, $endDate);
 
-        return $salesPerMonthQuantities[$articleNumber] ?? 0;
+        $articleSalesPerMonth = $salesPerMonthQuantities[$articleNumber] ?? 0;
+
+        // Add order on hold if current date is between start and end date
+        if (time() >= strtotime($startDate) && time() <= strtotime($endDate)) {
+
+            $holdQuantity = self::getOnOrderQueue($articleNumber);
+
+            $days = round((strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24));
+            $holdSalesPerMonth = $holdQuantity / ($days / 30);
+
+            $articleSalesPerMonth += $holdSalesPerMonth;
+
+        }
+
+        return round($articleSalesPerMonth);
     }
 
     public static function getSalesPerMonthQuantities(string $startDate, string $endDate): array
