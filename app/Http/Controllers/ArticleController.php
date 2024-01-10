@@ -22,6 +22,10 @@ class ArticleController extends Controller
             $query->where('status', $request->input('status', ''));
         }
 
+        if ($request->has('hide_po_system')) {
+            $query->where('hide_po_system', $request->input('hide_po_system'));
+        }
+
         $articles = $query->get();
 
         $supplierPrices = DB::table('supplier_article_prices')
