@@ -10,7 +10,19 @@ use Illuminate\Http\Request;
 
 class VismaNetSalesOrderService extends VismaNetApiService
 {
-    public function fetchSalesOrders(string $updatedAfter = '')
+    public function fetchSalesOrder(string $orderNumber): void
+    {
+        $response = $this->callAPI('GET', '/v2/salesorder/' . $orderNumber);
+        $order = $response['response'];
+
+        if (!$order || !is_array($order)) {
+            return;
+        }
+
+        $this->importOrder($order);
+    }
+
+    public function fetchSalesOrders(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
 
@@ -26,66 +38,70 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $orders = $this->getPagedResult('/v2/salesorder', $params);
 
         if ($orders) {
-
-            $salesOrderController = new SalesOrderController();
-
             foreach ($orders as $order) {
                 if (!$order || !is_array($order)) {
                     continue;
                 }
 
-                $orderData = [
-                    'order_type' => (string) $order['orderType'],
-                    'order_number' => (string) $order['orderNo'],
-                    'status' => (string) $order['status'],
-                    'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
-                    'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
-                    'date' => (string) $order['date'],
-                    'customer' => (string) ($order['customer']['internalId'] ?? ''),
-                    'currency' => (string) $order['currency'],
-                    'order_total' => (float) $order['orderTotal'],
-                    'exchange_rate' => (float) $order['exchangeRate'],
-                    'note' => (string) ($order['note'] ?? ''),
-                    'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
-                    'lines' => [],
-                ];
-
-                foreach (($order['lines'] ?? []) as $line) {
-                    $orderData['lines'][] = [
-                        'line_number' => $line['lineNbr'],
-                        'article_number' => $line['inventory']['number'],
-                        'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
-                        'sales_person' => ($line['salesPerson']['id'] ?? ''),
-                        'quantity' => (int) $line['quantity'],
-                        'quantity_on_shipments' => (int) ($line['qtyOnShipments'] ?? 0),
-                        'quantity_open' => (int) ($line['openQty'] ?? 0),
-                        'unit_cost' => (float) $line['unitCost'],
-                        'unit_price' => (float) $line['unitPrice'],
-                        'description' => (string) ($line['lineDescription'] ?? ''),
-                        'is_completed' => (int) ($line['completed'] ?? 0),
-                    ];
-                }
-
-                $response = $salesOrderController->get(new Request([
-                    'order_type' => $orderData['order_type'],
-                    'order_number' => $orderData['order_number'],
-                ]));
-
-                $existingSalesOrder = ApiResponseController::getDataFromResponse($response);
-
-                if (!$existingSalesOrder) {
-                    // Create new sales order
-                    $salesOrderController->store(new Request($orderData));
-                }
-                else {
-                    // Update existing sales order
-                    $salesOrder = SalesOrder::find($existingSalesOrder[0]['id']);
-
-                    $salesOrderController->update(new Request($orderData), $salesOrder);
-                }
+                $this->importOrder($order);
             }
         }
 
         ConfigController::setConfigs(['vismanet_last_sales_orders_fetch' => $fetchTime]);
+    }
+
+    private function importOrder(array $order): void
+    {
+        $salesOrderController = new SalesOrderController();
+
+        $orderData = [
+            'order_type' => (string) $order['orderType'],
+            'order_number' => (string) $order['orderNo'],
+            'status' => (string) $order['status'],
+            'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
+            'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
+            'date' => (string) $order['date'],
+            'customer' => (string) ($order['customer']['internalId'] ?? ''),
+            'currency' => (string) $order['currency'],
+            'order_total' => (float) $order['orderTotal'],
+            'exchange_rate' => (float) $order['exchangeRate'],
+            'note' => (string) ($order['note'] ?? ''),
+            'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
+            'lines' => [],
+        ];
+
+        foreach (($order['lines'] ?? []) as $line) {
+            $orderData['lines'][] = [
+                'line_number' => $line['lineNbr'],
+                'article_number' => $line['inventory']['number'],
+                'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
+                'sales_person' => ($line['salesPerson']['id'] ?? ''),
+                'quantity' => (int) $line['quantity'],
+                'quantity_on_shipments' => (int) ($line['qtyOnShipments'] ?? 0),
+                'quantity_open' => (int) ($line['openQty'] ?? 0),
+                'unit_cost' => (float) $line['unitCost'],
+                'unit_price' => (float) $line['unitPrice'],
+                'description' => (string) ($line['lineDescription'] ?? ''),
+                'is_completed' => (int) ($line['completed'] ?? 0),
+            ];
+        }
+
+        $response = $salesOrderController->get(new Request([
+            'order_type' => $orderData['order_type'],
+            'order_number' => $orderData['order_number'],
+        ]));
+
+        $existingSalesOrder = ApiResponseController::getDataFromResponse($response);
+
+        if (!$existingSalesOrder) {
+            // Create new sales order
+            $salesOrderController->store(new Request($orderData));
+        }
+        else {
+            // Update existing sales order
+            $salesOrder = SalesOrder::find($existingSalesOrder[0]['id']);
+
+            $salesOrderController->update(new Request($orderData), $salesOrder);
+        }
     }
 }

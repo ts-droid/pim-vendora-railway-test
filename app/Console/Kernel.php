@@ -36,8 +36,8 @@ class Kernel extends ConsoleKernel
             $schedule->command('visma:fetch purchase-orders')->dailyAt('02:00');
             $schedule->command('visma:fetch inventory-receipts')->dailyAt('02:00');
             $schedule->command('visma:fetch currency')->dailyAt('02:00');
+            $schedule->command('visma:fetch currency')->dailyAt('02:00');
             $schedule->command('visma:fetch articles')->hourly();
-            $schedule->command('visma:fetch sales-orders')->hourly();
 
             $schedule->command('wgr:fetch')->dailyAt('05:00');
 
@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('mark-suppliers')->daily();
             $schedule->command('bestsellers:calculate')->daily();
+            $schedule->command('articles:process-eol')->daily();
         }
 
         // Run only in staging
