@@ -318,6 +318,8 @@ class VismaNetController extends Controller
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
+        $orderNumbers = [];
+
         $invoices = $this->getPagedResult('/v1/customerinvoice', $params);
 
         if ($invoices) {
@@ -340,11 +342,14 @@ class VismaNetController extends Controller
                 ];
 
                 foreach (($invoice['invoiceLines'] ?? []) as $invoiceLine) {
+                    $salesOrderNumber = (string) ($invoiceLine['soOrderNbr'] ?? '');
+                    $orderNumbers[] = $salesOrderNumber;
+
                     $invoiceData['lines'][] = [
                         'line_key' => (string) ($invoiceLine['lineNumber'] ?? ''),
                         'article_number' => (string) ($invoiceLine['inventoryNumber'] ?? ''),
                         'description' => (string) ($invoiceLine['description'] ?? ''),
-                        'order_number' => (string) ($invoiceLine['soOrderNbr'] ?? ''),
+                        'order_number' => $salesOrderNumber,
                         'shipment_number' => (string) ($invoiceLine['soShipmentNbr'] ?? ''),
                         'line_type' => (string) ($invoiceLine['lineType'] ?? ''),
                         'quantity' => (int) ($invoiceLine['quantity'] ?? 0),
@@ -365,6 +370,15 @@ class VismaNetController extends Controller
                     // Update existing order
                     $invoiceController->update(new Request($invoiceData), $existingInvoice);
                 }
+            }
+        }
+
+        // Fetch sales orders related to the invoices
+        if ($orderNumbers) {
+            $salesOrderService = new VismaNetSalesOrderService();
+
+            foreach ($orderNumbers as $orderNumber) {
+                $salesOrderService->fetchSalesOrder($orderNumber);
             }
         }
 
