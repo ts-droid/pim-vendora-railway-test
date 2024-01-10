@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('purchase-orders:send-reminders')->hourly();
 
+            $schedule->command('articles:process-eol')->everySixHours();
+
             // Visma.net Fetching
             $schedule->command('visma:fetch customers')->dailyAt('02:00');
             $schedule->command('visma:fetch sales-persons')->dailyAt('02:00');
