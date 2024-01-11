@@ -76,7 +76,7 @@ class InventoryReceiptController extends Controller
             if (in_array($key, $fillables)) {
 
                 if (in_array($key, ['total_cost', 'total_quantity'])) {
-                    $value = (int) $value;
+                    $value = (float) $value;
                 }
 
                 $receipt->{$key} = $value;
@@ -97,7 +97,7 @@ class InventoryReceiptController extends Controller
                     if (in_array($key, $fillablesLine)) {
 
                         if (in_array($key, ['unit_cost', 'quantity', 'total_cost'])) {
-                            $value = (int) $value;
+                            $value = (float) $value;
                         }
 
                         $receiptLine->{$key} = $value;
