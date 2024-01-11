@@ -19,7 +19,6 @@ class ArticleEolHandler
             ->select('article_number')
             ->where('status', 'NoPurchases')
             ->where('stock', '<=', 0)
-            ->where('is_completed', 1)
             ->pluck('article_number')
             ->toArray();
 
