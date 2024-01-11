@@ -335,7 +335,7 @@ class VismaNetController extends Controller
                     'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
                     'status' => (string) ($invoice['status'] ?? ''),
                     'customer_number' => (string) ($invoice['customer']['number'] ?? ''),
-                    'credit_terms' => (string) ($invoice['creditTerms']['description']),
+                    'credit_terms' => (string) ($invoice['creditTerms']['description'] ?? ''),
                     'currency' => (string) ($invoice['currencyId'] ?? ''),
                     'amount' => (float) ($invoice['amount'] ?? 0),
                     'lines' => []
