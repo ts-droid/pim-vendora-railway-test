@@ -56,7 +56,13 @@ class MetaDataController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            $article->{'meta_title_' . $locale->language_code} = $response[$locale->language_code] ?? '';
+            $value = $response[$locale->language_code] ?? '';
+
+            if (strlen($value) > 250) {
+                continue;
+            }
+
+            $article->{'meta_title_' . $locale->language_code} = $value;
         }
 
         $article->save();
