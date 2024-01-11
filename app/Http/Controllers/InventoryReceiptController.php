@@ -74,6 +74,11 @@ class InventoryReceiptController extends Controller
         // Update the order
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
+
+                if (in_array($key, ['total_cost', 'total_quantity'])) {
+                    $value = (float) $value;
+                }
+
                 $receipt->{$key} = $value;
             }
         }
@@ -90,6 +95,11 @@ class InventoryReceiptController extends Controller
             if ($receiptLine) {
                 foreach ($line as $key => $value) {
                     if (in_array($key, $fillablesLine)) {
+
+                        if (in_array($key, ['unit_cost', 'quantity', 'total_cost'])) {
+                            $value = (float) $value;
+                        }
+
                         $receiptLine->{$key} = $value;
                     }
                 }
