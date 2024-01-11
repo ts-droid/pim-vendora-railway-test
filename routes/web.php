@@ -39,9 +39,13 @@ Route::prefix('/visma')->group(function() {
     Route::any('/callback', function(\Illuminate\Http\Request $request) {
         $vismaController = new \App\Http\Controllers\VismaNetController();
 
-        $activated = $vismaController->authCallback($request);
+        list($activated, $message) = $vismaController->authCallback($request);
 
-        die($activated ? 'Visma.net integration activated!' : 'Failed to activate Visma.net integration.');
+        if (!$activated) {
+            die('FAILED: ' . $message);
+        }
+
+        die('SUCCESS: Integration activated!');
     })->name('visma.callback');
 
     Route::get('/test', [VismaNetTestController::class, 'index'])->name('visma.test');

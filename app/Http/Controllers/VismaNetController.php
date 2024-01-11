@@ -834,18 +834,22 @@ class VismaNetController extends Controller
      * Handles the oauth2 callback.
      *
      * @param Request $request
-     * @return bool
+     * @return array
      */
-    public function authCallback(Request $request): bool
+    public function authCallback(Request $request): array
     {
         $authCode = $request->code ?? null;
         if (!$authCode) {
-            return false;
+            return array(false, 'No auth code provided in the request.');
         }
 
-        $this->generateAccessToken($authCode, true);
+        list($success, $data) = $this->generateAccessToken($authCode, true);
 
-        return true;
+        if (!$success) {
+            return array(false, $data);
+        }
+
+        return array(true, '');
     }
 
     /**
@@ -978,7 +982,11 @@ class VismaNetController extends Controller
         $expiresAt = ConfigController::getConfig('vismanet_token_expires_at');
 
         if ($expiresAt < (time() - 60)) {
-            $accessToken = $this->generateAccessToken($refreshToken);
+            list($success, $accessToken) = $this->generateAccessToken($refreshToken);
+
+            if (!$success) {
+                return '';
+            }
         }
 
         return $accessToken;
@@ -989,9 +997,9 @@ class VismaNetController extends Controller
      *
      * @param string $code
      * @param bool $isAuthCode
-     * @return string
+     * @return array
      */
-    private function generateAccessToken(string $code, bool $isAuthCode = false): string
+    private function generateAccessToken(string $code, bool $isAuthCode = false): array
     {
         if ($isAuthCode) {
             $params = [
@@ -1025,6 +1033,10 @@ class VismaNetController extends Controller
             'vismanet_token_expires_at' => $expiresAt,
         ]);
 
-        return $accessToken;
+        if (!$accessToken) {
+            return array(false, json_encode($response));
+        }
+
+        return array(true, $accessToken);
     }
 }
