@@ -25,6 +25,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
     public function fetchSalesOrders(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [];
 
@@ -39,6 +40,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if ($orders) {
             foreach ($orders as $order) {
+                $fetchedData = true;
+
                 if (!$order || !is_array($order)) {
                     continue;
                 }
@@ -47,7 +50,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_sales_orders_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_sales_orders_fetch' => $fetchTime]);
+        }
     }
 
     private function importOrder(array $order): void

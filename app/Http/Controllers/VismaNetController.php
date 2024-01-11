@@ -141,6 +141,7 @@ class VismaNetController extends Controller
     public function fetchInventoryReceipts(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [];
 
@@ -157,6 +158,8 @@ class VismaNetController extends Controller
             $receiptController = new InventoryReceiptController();
 
             foreach ($receipts as $receipt) {
+                $fetchedData = true;
+
                 $receiptData = [
                     'receipt_number' => (string) ($receipt['referenceNumber'] ?? ''),
                     'date' => date('Y-m-d', strtotime($order['date'] ?? '')),
@@ -194,7 +197,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_inventory_receipts_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_inventory_receipts_fetch' => $fetchTime]);
+        }
     }
 
     /**
@@ -207,6 +212,7 @@ class VismaNetController extends Controller
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         if ($orderNumber) {
             // Fetch a specific order
@@ -237,6 +243,8 @@ class VismaNetController extends Controller
             $orderController = new PurchaseOrderController();
 
             foreach ($orders as $order) {
+                $fetchedData = true;
+
                 if ($order['hold'] ?? false) {
                     continue;
                 }
@@ -293,7 +301,7 @@ class VismaNetController extends Controller
             }
         }
 
-        if (!$orderNumber) {
+        if (!$orderNumber && $fetchedData) {
             ConfigController::setConfigs(['vismanet_last_purchase_orders_fetch' => $fetchTime]);
         }
     }
@@ -308,6 +316,7 @@ class VismaNetController extends Controller
     public function fetchCustomerInvoices(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [];
 
@@ -326,6 +335,8 @@ class VismaNetController extends Controller
             $invoiceController = new CustomerInvoiceController();
 
             foreach ($invoices as $invoice) {
+                $fetchedData = true;
+
                 if ($invoice['hold'] ?? false) {
                     continue;
                 }
@@ -382,7 +393,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_customer_invoices_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_customer_invoices_fetch' => $fetchTime]);
+        }
     }
 
     /**
@@ -395,6 +408,7 @@ class VismaNetController extends Controller
     public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [
             'expandSupplierDetails' => true,
@@ -420,6 +434,8 @@ class VismaNetController extends Controller
             $articleController = new ArticleController();
 
             foreach ($articles as $article) {
+                $fetchedData = true;
+
                 $articleData = [
                     'external_id' => (string) ($article['inventoryId'] ?? ''),
                     'article_number' => (string) ($article['inventoryNumber'] ?? ''),
@@ -552,7 +568,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_article_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_article_fetch' => $fetchTime]);
+        }
     }
 
     /**
@@ -565,6 +583,7 @@ class VismaNetController extends Controller
     public function fetchSuppliers(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [];
 
@@ -581,6 +600,7 @@ class VismaNetController extends Controller
             $supplierController = new SupplierController();
 
             foreach ($suppliers as $supplier) {
+                $fetchedData = true;
 
                 $supplierEmail = $supplier['supplierContact']['email'] ?? '';
                 if (!$supplierEmail) {
@@ -622,7 +642,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_supplier_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_supplier_fetch' => $fetchTime]);
+        }
     }
 
     /**
@@ -635,6 +657,8 @@ class VismaNetController extends Controller
     public function fetchSalesPersons(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
+
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_persons_fetch');
 
         $customerController = new CustomerController();
@@ -656,6 +680,8 @@ class VismaNetController extends Controller
             }
 
             foreach ($salesPersons as $salesPerson) {
+                $fetchedData = true;
+
                 $salesPersonData = [
                     'external_id' => (string) ($salesPerson['salePersonID'] ?? ''),
                     'name' => (string) ($salesPerson['name'] ?? ''),
@@ -688,7 +714,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_sales_persons_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_sales_persons_fetch' => $fetchTime]);
+        }
     }
 
     /**
@@ -701,6 +729,7 @@ class VismaNetController extends Controller
     public function fetchCustomers(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
 
         $params = [];
 
@@ -717,6 +746,8 @@ class VismaNetController extends Controller
             $customerController = new CustomerController();
 
             foreach ($customers as $customer) {
+                $fetchedData = true;
+
                 $customerData = [
                     'external_id' => (string) ($customer['internalId'] ?? ''),
                     'customer_number' => (string) ($customer['number'] ?? ''),
@@ -748,7 +779,9 @@ class VismaNetController extends Controller
             }
         }
 
-        ConfigController::setConfigs(['vismanet_last_customer_fetch' => $fetchTime]);
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_customer_fetch' => $fetchTime]);
+        }
     }
 
     /**
