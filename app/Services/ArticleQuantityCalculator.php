@@ -124,6 +124,8 @@ class ArticleQuantityCalculator
                 ->get()
                 ->toArray();
 
+            $orderLines = json_decode(json_encode($orderLines), true);
+
             if ($orderLines) {
                 foreach ($orderLines as $orderLine) {
                     if (!isset($onOrderByDateQuantities[$orderLine['article_number']])) {
