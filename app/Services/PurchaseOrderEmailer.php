@@ -9,7 +9,8 @@ class PurchaseOrderEmailer
 {
     public function send(PurchaseOrder $purchaseOrder, bool $isReminder = false)
     {
-        $recipients = [$purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? null)];
+        $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
+        $recipients = array_map('trim', $recipients);
 
         $recipients[] = 'ts@vendora.se';
 

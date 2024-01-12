@@ -32,10 +32,20 @@ class SendPurchaseOrderReminder implements ShouldQueue
      */
     public function handle(): void
     {
-        $recipients = [$this->purchaseOrder->email ?: $this->purchaseOrder->supplier->email];
+        $recipients = preg_split("/[\s,;]+/", ($this->purchaseOrder->email ?: $this->purchaseOrder->supplier->email));
+        $recipients = array_map('trim', $recipients);
 
         if ($this->emailRecipient) {
             $recipients = [$this->emailRecipient];
+        }
+
+        // Validate the emails
+        $recipients = array_filter($recipients, function($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        });
+
+        if (count($recipients) === 0) {
+            return;
         }
 
         try {
