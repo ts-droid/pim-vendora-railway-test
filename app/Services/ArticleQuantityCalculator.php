@@ -132,7 +132,7 @@ class ArticleQuantityCalculator
                         $onOrderByDateQuantities[$orderLine['article_number']] = [];
                     }
 
-                    $onOrderByDateQuantities[$orderLine['article_number']][] = $orderLine['date'] . ' - ' . $orderLine['name'] . ' - ' . $orderLine['quantity_open'] . 'pcs';
+                    $onOrderByDateQuantities[$orderLine['article_number']][] = date('Y-m-d', strtotime($orderLine['date'])) . ' - ' . $orderLine['name'] . ' - ' . $orderLine['quantity_open'] . 'pcs';
                 }
             }
 
