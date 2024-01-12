@@ -91,6 +91,11 @@ class PurchaseOrderReminderService
      */
     public function remindPurchaseOrderDraft(PurchaseOrder $purchaseOrder): void
     {
+        // Make sure the order is not yet published
+        if ($purchaseOrder->published_at) {
+            return;
+        }
+
         // Send the reminder
         $mailer = new PurchaseOrderEmailer();
         list($success, $message) = $mailer->send($purchaseOrder, true);

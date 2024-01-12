@@ -407,4 +407,12 @@ class PurchaseOrderController extends Controller
 
         return ApiResponseController::success();
     }
+
+    public function draftReminder(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $reminderService = new PurchaseOrderReminderService();
+        $reminderService->remindPurchaseOrderDraft($purchaseOrder);
+
+        return ApiResponseController::success();
+    }
 }
