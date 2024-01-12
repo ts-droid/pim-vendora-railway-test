@@ -32,16 +32,23 @@ class WGROrderQueueService
         $quantityInQueue = [];
 
         foreach ($orderQueue['queue'] as $order) {
+
+            $date = $order['date'] ?? '';
+            $deliveryData = $order['deliveryDate'];
+            $customerName = $order['fullName'];
+
             foreach ($order['items'] as $item) {
                 if (!isset($quantityInQueue[$item['articleNumber']])) {
                     $quantityInQueue[$item['articleNumber']] = [];
                 }
 
-                if (!isset($quantityInQueue[$item['articleNumber']][$order['deliveryDate']])) {
-                    $quantityInQueue[$item['articleNumber']][$order['deliveryDate']] = 0;
+                $entry = $date . ' - ' . $customerName . ' - ' . $item['quantity'] . 'pcs';
+
+                if ($date != $deliveryData) {
+                    $entry .= ' - ' . $deliveryData;
                 }
 
-                $quantityInQueue[$item['articleNumber']][$order['deliveryDate']] += $item['quantity'];
+                $quantityInQueue[$item['articleNumber']][] = $entry;
             }
         }
 
