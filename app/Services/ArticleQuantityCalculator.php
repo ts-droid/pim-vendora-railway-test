@@ -107,8 +107,33 @@ class ArticleQuantityCalculator
         // If the results are not in the cache
         if ($onOrderByDateQuantities === null) {
 
+            // Fetch data from WGR order hold queue
             $WGRService = new WGROrderQueueService();
             $onOrderByDateQuantities = $WGRService->getQuantityInQueueByDate();
+
+            // Fetch normal sales orders
+            $orderLines = DB::table('sales_order_lines')
+                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                ->join('customers', 'customers.external_id', '=', 'sales_orders.customer')
+                ->select(
+                    'sales_order_lines.article_number', 'sales_order_lines.quantity_open',
+                    'sales_orders.date', 'customers.name'
+                )
+                ->where('sales_order_lines.is_completed', '=', 0)
+                ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Hold'])
+                ->get()
+                ->toArray();
+
+            if ($orderLines) {
+                foreach ($orderLines as $orderLine) {
+                    if (!isset($onOrderByDateQuantities[$orderLine['article_number']])) {
+                        $onOrderByDateQuantities[$orderLine['article_number']] = [];
+                    }
+
+                    $onOrderByDateQuantities[$orderLine['article_number']][] = $orderLine['date'] . ' - ' . $orderLine['name'] . ' - ' . $orderLine['quantity_open'] . 'pcs';
+                }
+            }
+
 
             // Store the results in the cache for 10 minutes
             Cache::put('on_order_by_date', $onOrderByDateQuantities, 10);
