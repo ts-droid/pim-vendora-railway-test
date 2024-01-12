@@ -34,7 +34,7 @@ class BestsellerCalculator
         }
 
         // Sort by quantity
-        $stats = $stats->sortByDesc('quantity');
+        $stats = $stats->sortByDesc('quantity')->values();
 
         // Update the position for each article
         Article::query()->update(['bestseller_position' => 0]);
