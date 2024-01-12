@@ -11,10 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('sales_order_lines', function (Blueprint $table) {
-            $table->index('is_completed');
-        });
-
         Schema::table('sales_orders', function (Blueprint $table) {
             $table->index('status');
         });
@@ -25,10 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('sales_order_lines', function (Blueprint $table) {
-            $table->dropIndex('is_completed');
-        });
-
         Schema::table('sales_orders', function (Blueprint $table) {
             $table->dropIndex('status');
         });
