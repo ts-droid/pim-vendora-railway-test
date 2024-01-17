@@ -57,6 +57,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     private function importOrder(array $order): void
     {
+        if (empty($order['orderType']) || empty($order['orderNo'])) {
+            return;
+        }
+
         $salesOrderController = new SalesOrderController();
 
         $orderData = [
