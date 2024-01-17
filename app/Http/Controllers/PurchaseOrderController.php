@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Services\ArticleQuantityCalculator;
+use App\Services\PurchaseOrderCancelService;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderEmailer;
 use App\Services\PurchaseOrderGenerator;
@@ -394,6 +395,19 @@ class PurchaseOrderController extends Controller
 
         if (!$deleted) {
             return ApiResponseController::error('Could not delete purchase order.');
+        }
+
+        return ApiResponseController::success();
+    }
+
+    public function cancel(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $cancelService = new PurchaseOrderCancelService();
+
+        $response = $cancelService->cancel($purchaseOrder);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
         }
 
         return ApiResponseController::success();
