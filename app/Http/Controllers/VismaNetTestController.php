@@ -27,6 +27,8 @@ class VismaNetTestController extends Controller
             $body
         );
 
-        dd($response);
+        echo '<pre>';
+        echo json_encode($response, JSON_PRETTY_PRINT);
+        echo '</pre>';
     }
 }
