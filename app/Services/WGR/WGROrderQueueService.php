@@ -62,7 +62,11 @@ class WGROrderQueueService
                 ->get('https://www.reseller.vendora.se/ajax/?action=order-queue');
         }
         catch (\Exception $e) {
-            return [];
+            return ['queue' => []];
+        }
+
+        if (!$response->successful()) {
+            return ['queue' => []];
         }
 
         return $response->json();
