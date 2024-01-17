@@ -14,9 +14,10 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
      * Creates a purchase order in Visma.net based on a local purchase order
      *
      * @param PurchaseOrder $purchaseOrder
+     * @param bool $hold
      * @return array|true[]
      */
-    public function createPurchaseOrder(PurchaseOrder $purchaseOrder): array
+    public function createPurchaseOrder(PurchaseOrder $purchaseOrder, bool $hold = false): array
     {
         $lines = [];
 
@@ -47,7 +48,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'currency' => ['value' => $purchaseOrder->currency],
             'promisedOn' => ['value' => $purchaseOrder->promised_date], // Add 5 days to the promised date
             'dontEmail' => ['value' => true],
-            'hold' => ['value' => false],
+            'hold' => ['value' => $hold],
             'lines' => $lines,
         ];
 
@@ -78,7 +79,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
      * @param PurchaseOrder $purchaseOrder
      * @return array|true[]
      */
-    public function updatePurchaseOrder(PurchaseOrder $purchaseOrder): array
+    public function updatePurchaseOrder(PurchaseOrder $purchaseOrder, ?bool $onHold = null): array
     {
         // Fetch purchase order from Visma.net so that we can detect changes
         $response = $this->callAPI('GET', '/v1/purchaseorder/' . $purchaseOrder->order_number);
@@ -122,6 +123,11 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'promisedOn' => ['value' => $purchaseOrder->promised_date],
             'lines' => $lines
         ];
+
+        if ($onHold !== null) {
+            $data['hold'] = ['value' => $onHold];
+
+        }
 
         $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
 

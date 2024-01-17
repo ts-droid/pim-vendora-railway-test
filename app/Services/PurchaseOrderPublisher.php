@@ -11,6 +11,30 @@ use Illuminate\Support\Facades\Mail;
 class PurchaseOrderPublisher
 {
     /**
+     * Transform a draft order into a real order.
+     *
+     * @param PurchaseOrder $purchaseOrder
+     * @return array|true[]
+     */
+    public function send(PurchaseOrder $purchaseOrder)
+    {
+        if (!$purchaseOrder->is_draft) {
+            // Order is not a draft
+            return ['success' => false, 'message' => 'Order is not a draft.'];
+        }
+
+        // Send the order to Visma.net
+        $purchaseOrderService = new VismaNetPurchaseOrderService();
+        $createOrderResponse = $purchaseOrderService->createPurchaseOrder($purchaseOrder, true);
+
+        if (!$createOrderResponse['success']) {
+            return $createOrderResponse;
+        }
+
+        return ['success' => true];
+    }
+
+    /**
      * Transform a draft order into a published order.
      *
      * @param PurchaseOrder $purchaseOrder
@@ -18,9 +42,9 @@ class PurchaseOrderPublisher
      */
     public function publishOrder(PurchaseOrder $purchaseOrder, array $items): array
     {
-        if (!$purchaseOrder->is_draft) {
+        if ($purchaseOrder->published_at) {
             // Order is not a draft
-            return ['success' => false, 'message' => 'Order is not a draft.'];
+            return ['success' => false, 'message' => 'Order is already published.'];
         }
 
         if (!$purchaseOrder->is_confirmed) {
@@ -48,15 +72,16 @@ class PurchaseOrderPublisher
             }
         }
 
-        // Send the order to Visma.net
+        // Update and un-park the order in Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
-        $createOrderResponse = $purchaseOrderService->createPurchaseOrder($purchaseOrder);
+        $updateResult = $purchaseOrderService->updatePurchaseOrder($purchaseOrder, false);
 
-        if (!$createOrderResponse['success']) {
-            return $createOrderResponse;
+        if (!$updateResult['success']) {
+            return $updateResult;
         }
 
-        // Fetch purchase orders to update with data from Visma.net
+        // Fetch purchase order to update with data from Visma.net
+        $purchaseOrderService = new VismaNetPurchaseOrderService();
         $purchaseOrderService->fetchPurchaseOrders('', $purchaseOrder->order_number);
 
         // Update published timestamp

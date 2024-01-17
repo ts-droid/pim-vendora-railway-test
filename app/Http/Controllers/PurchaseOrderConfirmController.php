@@ -14,7 +14,7 @@ class PurchaseOrderConfirmController extends Controller
             abort(404);
         }
 
-        if (!$purchaseOrder->is_draft) {
+        if ($purchaseOrder->published_at) {
             return view('purchaseOrders.confirmDone', compact('purchaseOrder'));
         }
 
@@ -30,7 +30,7 @@ class PurchaseOrderConfirmController extends Controller
             ]);
         }
 
-        if (!$purchaseOrder->is_draft) {
+        if ($purchaseOrder->published_at) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order have already been confirmed.'

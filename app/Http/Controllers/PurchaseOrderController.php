@@ -360,6 +360,17 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
+        // Send the order
+        $publisher = new PurchaseOrderPublisher();
+        $response = $publisher->send($purchaseOrder);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        // Make sure the order is updated
+        $purchaseOrder->refresh();
+
         // Send the email
         $mailer = new PurchaseOrderEmailer();
         $mailer->send($purchaseOrder);
