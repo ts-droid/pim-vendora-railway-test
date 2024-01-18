@@ -188,7 +188,11 @@ class PurchaseOrderController extends Controller
         }
 
         // Decide the line key
-        $lineKey = ((int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->max('line_key')) + 1;
+        $lineKey = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
+            ->value('max_line_key');
+
+        $lineKey = (int) $lineKey + 1;
 
         // Decide the quantity
         $quantity = (int) ($request->get('quantity') ?? 0);
