@@ -187,6 +187,16 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error('Article not found.');
         }
 
+        // Check if the article already exists in the order
+        $existingLine = PurchaseOrderLine::where([
+            ['purchase_order_id', '=', $purchaseOrder->id],
+            ['article_number', '=', $article->article_number],
+        ])->first();
+
+        if ($existingLine) {
+            return ApiResponseController::error('Article already exists on the order.');
+        }
+
         // Decide the line key
         $lineKey = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
             ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
