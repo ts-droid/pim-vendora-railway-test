@@ -239,6 +239,7 @@ class PurchaseOrderGenerator
             'is_vip' => ($vipSalesOrders->count() > 0),
             'foresight_days' => $this->settings['foresight_days'],
             'email' => $supplier->email,
+            'is_po_system' => 1,
         ]);
 
         foreach ($orderLines as $orderLine) {
