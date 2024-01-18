@@ -46,6 +46,7 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id')
             ->orderBy('is_locked', 'DESC')
+            ->orderBy('line_key', 'ASC')
             ->orderBy('id', 'ASC');
     }
 
