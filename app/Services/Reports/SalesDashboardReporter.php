@@ -191,6 +191,15 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
+        $currentModesResult = DB::selectOne("SELECT @@sql_mode as sql_mode");
+        $currentModes = $currentModesResult->sql_mode;
+
+        $newModes = collect(explode(',', $currentModes))->reject(function ($value) {
+            return $value === 'ONLY_FULL_GROUP_BY';
+        })->implode(',');
+
+        DB::statement("SET SESSION sql_mode='{$newModes}'");
+
         $topCustomers = DB::table('customer_invoices')
             ->join('customers', 'customer_invoices.customer_number', '=', 'customers.customer_number')
             ->leftJoin(DB::raw('(
@@ -218,6 +227,8 @@ class SalesDashboardReporter
             ->orderBy('amount', 'DESC')
             ->get()
             ->toArray();
+
+        DB::statement("SET SESSION sql_mode='{$currentModes}'");
 
         if ($topCustomers) {
             foreach ($topCustomers as &$customer) {
