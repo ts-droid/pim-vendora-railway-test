@@ -129,6 +129,7 @@ class SalesDashboardReporter
                         DB::raw('SUM(sales_order_lines.quantity) AS units'),
                         DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) AS revenue'),
                     )
+                    ->whereIn('sales_orders.customer', $this->customerNumbers)
                     ->where('articles.supplier_number', '=', $brand->supplier_number)
                     ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00', strtotime('-1 year')))
                     ->where('sales_orders.date', '<=', date('Y-m-d H:i:s', strtotime('-1 year')))
