@@ -15,6 +15,7 @@ use App\Http\Controllers\Reports\SalesDataController;
 use App\Http\Controllers\Reports\TopArticlesController;
 use App\Http\Controllers\Reports\TopCustomersController;
 use App\Http\Controllers\Reports\TopSalesPersonsController;
+use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
@@ -174,6 +175,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-articles', [TopArticlesController::class, 'index'])->name('reports.topArticles');
         Route::get('/top-customers', [TopCustomersController::class, 'index'])->name('reports.topCustomers');
         Route::get('/top-sales-persons', [TopSalesPersonsController::class, 'index'])->name('reports.topSalesPersons');
+
+        Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
     });
 
 });
