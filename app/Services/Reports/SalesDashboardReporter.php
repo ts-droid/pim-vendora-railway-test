@@ -8,9 +8,6 @@ class SalesDashboardReporter
 {
     private array $customerNumbers;
 
-    private array $monthSummary = [];
-    private array $yearSummary = [];
-
     function __construct(
         private readonly int $salesPersonID
     )
@@ -31,74 +28,73 @@ class SalesDashboardReporter
         $this->customerNumbers = array_map(function ($customer) {
             return $customer->customer_number;
         }, $customers);
-
-
-        // Load sales data
-        $this->monthSummary = [
-            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 month')), date('Y-m-d 23:59:59')),
-            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-13 month')), date('Y-m-d 23:59:59', strtotime('-12 month'))),
-        ];
-
-        $this->yearSummary = [
-            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 year')), date('Y-m-d 23:59:59')),
-            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-2 year')), date('Y-m-d 23:59:59', strtotime('-1 year'))),
-        ];
     }
 
     public function getSummary(): array
     {
+        // Load sales data
+        $monthSummary = [
+            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 month')), date('Y-m-d 23:59:59')),
+            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-13 month')), date('Y-m-d 23:59:59', strtotime('-12 month'))),
+        ];
+
+        $yearSummary = [
+            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 year')), date('Y-m-d 23:59:59')),
+            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-2 year')), date('Y-m-d 23:59:59', strtotime('-1 year'))),
+        ];
+
         $monthTurnoverChange = 'inf';
-        if ($this->monthSummary['last']['turnover'] != 0) {
-            $monthTurnoverChange = round((($this->monthSummary['current']['turnover'] / $this->monthSummary['last']['turnover']) - 1) * 100, 1);
+        if ($monthSummary['last']['turnover'] != 0) {
+            $monthTurnoverChange = round((($monthSummary['current']['turnover'] / $monthSummary['last']['turnover']) - 1) * 100, 1);
         }
 
         $monthMarginChange = 'inf';
-        if ($this->monthSummary['last']['margin'] != 0) {
-            $monthMarginChange = round((($this->monthSummary['current']['margin'] / $this->monthSummary['last']['margin']) - 1) * 100, 1);
+        if ($monthSummary['last']['margin'] != 0) {
+            $monthMarginChange = round((($monthSummary['current']['margin'] / $monthSummary['last']['margin']) - 1) * 100, 1);
         }
 
-        $monthProfitChange = round($this->monthSummary['current']['profit'] - $this->monthSummary['last']['profit']);
+        $monthProfitChange = round($monthSummary['current']['profit'] - $monthSummary['last']['profit']);
 
         $yearTurnoverChange = 'inf';
-        if ($this->yearSummary['last']['turnover'] != 0) {
-            $yearTurnoverChange = round((($this->yearSummary['current']['turnover'] / $this->yearSummary['last']['turnover']) - 1) * 100, 1);
+        if ($yearSummary['last']['turnover'] != 0) {
+            $yearTurnoverChange = round((($yearSummary['current']['turnover'] / $yearSummary['last']['turnover']) - 1) * 100, 1);
         }
 
         $yearMarginChange = 'inf';
-        if ($this->yearSummary['last']['margin'] != 0) {
-            $yearMarginChange = round((($this->yearSummary['current']['margin'] / $this->yearSummary['last']['margin']) - 1) * 100, 1);
+        if ($yearSummary['last']['margin'] != 0) {
+            $yearMarginChange = round((($yearSummary['current']['margin'] / $yearSummary['last']['margin']) - 1) * 100, 1);
         }
 
-        $yearProfitChange = round($this->yearSummary['current']['profit'] - $this->yearSummary['last']['profit']);
+        $yearProfitChange = round($yearSummary['current']['profit'] - $yearSummary['last']['profit']);
 
         return [
             'turnover' => [
                 'month' => [
-                    'amount' => $this->monthSummary['current']['turnover'],
+                    'amount' => $monthSummary['current']['turnover'],
                     'change' => $monthTurnoverChange,
                 ],
                 'year' => [
-                    'amount' => $this->yearSummary['current']['turnover'],
+                    'amount' => $yearSummary['current']['turnover'],
                     'change' => $yearTurnoverChange,
                 ],
             ],
             'margin' => [
                 'month' => [
-                    'amount' => $this->monthSummary['current']['margin'],
+                    'amount' => $monthSummary['current']['margin'],
                     'change' => $monthMarginChange,
                 ],
                 'year' => [
-                    'amount' => $this->yearSummary['current']['margin'],
+                    'amount' => $yearSummary['current']['margin'],
                     'change' => $yearMarginChange,
                 ],
             ],
             'profit' => [
                 'month' => [
-                    'amount' => $this->monthSummary['current']['profit'],
+                    'amount' => $monthSummary['current']['profit'],
                     'change' => $monthProfitChange,
                 ],
                 'year' => [
-                    'amount' => $this->yearSummary['current']['profit'],
+                    'amount' => $yearSummary['current']['profit'],
                     'change' => $yearProfitChange,
                 ],
             ],
@@ -140,15 +136,42 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
-        $topCustomers = [];
+        $topCustomers = DB::table('sales_orders')
+            ->join('customers', 'sales_orders.customer', '=', 'customers.customer_number')
+            ->leftJoin(DB::raw('(
+                SELECT
+                    customer,
+                    SUM(order_total * exchange_rate) AS amount_last_year
+                FROM sales_orders
+                WHERE
+                    date >= "' . date('Y-01-01 00:00:00', strtotime('-1 year')) . '" AND
+                    date <= "' . date('Y-m-d H:i:s', strtotime('-1 year')) . '"
+                GROUP BY customer
+            ) AS previous_year_revenue'), function($join) {
+                $join->on('sales_orders.customer', '=', 'previous_year_revenue.customer');
+            })
+            ->select(
+                'customers.name',
+                'customers.country',
+                DB::raw('SUM(sales_orders.order_total * sales_orders.exchange_rate) AS amount'),
+                'previous_year_revenue.amount_last_year'
+            )
+            ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00'))
+            ->where('sales_orders.date', '<=', date('Y-m-d H:i:s'))
+            ->whereIn('sales_orders.customer', $this->customerNumbers)
+            ->groupBy('sales_orders.customer', 'customers.name', 'customers.country')
+            ->orderBy('amount', 'DESC')
+            ->get()
+            ->toArray();
 
-        for ($i = 0;$i < 10;$i++) {
-            $topCustomers[] = [
-                'name' => 'Elkjöp Nordic AS',
-                'country' => 'NO',
-                'amount' => 0,
-                'change' => 0,
-            ];
+        if ($topCustomers) {
+            foreach ($topCustomers as &$customer) {
+                $customer['change'] = 'inf';
+
+                if ($customer['amount_last_year'] != 0) {
+                    $customer['change'] = round((($customer['amount'] / $customer['amount_last_year']) - 1) * 100, 1);
+                }
+            }
         }
 
         return $topCustomers;
