@@ -53,24 +53,24 @@ class SalesDashboardReporter
     {
         $monthTurnoverChange = 'inf';
         if ($this->monthSummary['last']['turnover'] != 0) {
-            $monthTurnoverChange = round($this->monthSummary['current']['turnover'] / $this->monthSummary['last']['turnover'], 1);
+            $monthTurnoverChange = round((($this->monthSummary['current']['turnover'] / $this->monthSummary['last']['turnover']) - 1) * 100, 1);
         }
 
         $monthMarginChange = 'inf';
         if ($this->monthSummary['last']['margin'] != 0) {
-            $monthTurnoverChange = round($this->monthSummary['current']['margin'] / $this->monthSummary['last']['margin'], 1);
+            $monthTurnoverChange = round((($this->monthSummary['current']['margin'] / $this->monthSummary['last']['margin']) - 1) * 100, 1);
         }
 
         $monthProfitChange = round($this->monthSummary['current']['profit'] - $this->monthSummary['last']['profit']);
 
         $yearTurnoverChange = 'inf';
         if ($this->yearSummary['last']['turnover'] != 0) {
-            $monthTurnoverChange = round($this->yearSummary['current']['turnover'] / $this->yearSummary['last']['turnover'], 1);
+            $monthTurnoverChange = round((($this->yearSummary['current']['turnover'] / $this->yearSummary['last']['turnover']) - 1) * 100, 1);
         }
 
         $yearMarginChange = 'inf';
         if ($this->yearSummary['last']['margin'] != 0) {
-            $monthTurnoverChange = round($this->yearSummary['current']['margin'] / $this->yearSummary['last']['margin'], 1);
+            $monthTurnoverChange = round((($this->yearSummary['current']['margin'] / $this->yearSummary['last']['margin']) - 1) * 100, 1);
         }
 
         $yearProfitChange = round($this->yearSummary['current']['profit'] - $this->yearSummary['last']['profit']);
