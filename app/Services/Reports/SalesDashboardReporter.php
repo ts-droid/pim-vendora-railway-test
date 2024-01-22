@@ -103,35 +103,79 @@ class SalesDashboardReporter
 
     public function getTopBrands(): array
     {
-        $topBrands = [
-            'brands' => [],
+        $topBrands = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+            ->join('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
+            ->select(
+                'articles.supplier_number',
+                'suppliers.name',
+                DB::raw('SUM(sales_order_lines.quantity) AS units'),
+                DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) AS revenue'),
+            )
+            ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00'))
+            ->where('sales_orders.date', '<=', date('Y-m-d H:i:s'))
+            ->whereIn('sales_orders.customer', $this->customerNumbers)
+            ->groupBy('articles.supplier_number', 'suppliers.name')
+            ->get()
+            ->toArray();
+
+        if ($topBrands) {
+            foreach($topBrands as &$brand) {
+                $lastYear = DB::table('sales_order_lines')
+                    ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                    ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+                    ->select(
+                        DB::raw('SUM(sales_order_lines.quantity) AS units'),
+                        DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) AS revenue'),
+                    )
+                    ->where('articles.supplier_number', '=', $brand->supplier_number)
+                    ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00', strtotime('-1 year')))
+                    ->where('sales_orders.date', '<=', date('Y-m-d H:i:s', strtotime('-1 year')))
+                    ->first();
+
+                $brand->units_last_year = $lastYear->units;
+                $brand->revenue_last_year = $lastYear->revenue;
+
+                $brand->units_change = 'inf';
+                if ($brand->units_last_year != 0) {
+                    $brand->units_change = round((($brand->units / $brand->units_last_year) - 1) * 100, 1);
+                }
+
+                $brand->revenue_change = 'inf';
+                if ($brand->revenue_last_year != 0) {
+                    $brand->revenue_change = round((($brand->revenue / $brand->revenue_last_year) - 1) * 100, 1);
+                }
+            }
+        }
+
+        $units = 0;
+        $unitsLastYear = 0;
+
+        $revenue = 0;
+        $revenueLastYear = 0;
+
+        foreach ($topBrands as $brand) {
+            $units += $brand->units;
+            $unitsLastYear += $brand->units_last_year;
+
+            $revenue += $brand->revenue;
+            $revenueLastYear += $brand->revenue_last_year;
+        }
+
+        return [
+            'brands' => $topBrands,
             'summary' => [
                 'units' => [
-                    'amount' => 0,
-                    'change' => 0,
+                    'amount' => $units,
+                    'change' => round((($units / $unitsLastYear) - 1) * 100, 1),
                 ],
                 'revenue' => [
-                    'amount' => 0,
-                    'change' => 0,
+                    'amount' => $revenue,
+                    'change' => round((($revenue / $revenueLastYear) - 1) * 100, 1),
                 ],
             ],
         ];
-
-        for ($i = 0;$i < 10;$i++) {
-            $topBrands['brands'][] = [
-                'name' => 'Satechi',
-                'units' => [
-                    'amount' => 0,
-                    'change' => 0,
-                ],
-                'revenue' => [
-                    'amount' => 0,
-                    'change' => 0,
-                ],
-            ];
-        }
-
-        return $topBrands;
     }
 
     public function getTopCustomers(): array
