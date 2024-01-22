@@ -249,15 +249,16 @@ class SalesDashboardReporter
 
     private function getSalesData(string $startDate, string $endDate): array
     {
-        $sales = DB::table('sales_order_lines')
+        $sales = DB::table('customer_invoice_lines')
             ->select(
-                DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) as total_price'),
-                DB::raw('SUM(sales_order_lines.unit_cost * sales_order_lines.quantity * sales_orders.exchange_rate) as total_cost')
+                DB::raw('SUM(customer_invoice_lines.unit_price * customer_invoice_lines.quantity) as total_price'),
+                DB::raw('SUM(customer_invoice_lines.cost) as total_cost')
             )
-            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->where('sales_orders.date', '>=', $startDate)
-            ->where('sales_orders.date', '<=', $endDate)
-            ->whereIn('sales_orders.customer', $this->customerNumbers)
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->join('sales_orders', 'sales_orders.order_number', '=', 'customer_invoice_lines.order_number')
+            ->where('customer_invoices.date', '>=', $startDate)
+            ->where('customer_invoices.date', '<=', $endDate)
+            ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
             ->first();
 
         $totalPrice = $sales->total_price ?? 0;
