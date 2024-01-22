@@ -28,10 +28,6 @@ class SalesDashboardReporter
             ->get()
             ->toArray();
 
-        if (!$customers) {
-            return;
-        }
-
         $this->customerNumbers = array_map(function ($customer) {
             return $customer->customer_number;
         }, $customers);
