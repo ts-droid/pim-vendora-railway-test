@@ -8,10 +8,18 @@ class SalesDashboardReporter
 {
     private array $customerNumbers;
 
+    private string $salesSignature;
+
     function __construct(
         private readonly int $salesPersonID
     )
     {
+        $this->salesSignature = DB::table('sales_people')
+            ->select('external_id')
+            ->where('id', '=', $salesPersonID)
+            ->pluck('external_id')
+            ->first();
+
         $this->loadData();
     }
 
@@ -266,6 +274,7 @@ class SalesDashboardReporter
                 DB::raw('SUM(customer_invoice_lines.cost) as total_cost')
             )
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->where('customer_invoice_lines.sales_person_id', '=', $this->salesSignature)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
