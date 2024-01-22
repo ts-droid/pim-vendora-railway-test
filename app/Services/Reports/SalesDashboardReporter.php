@@ -164,16 +164,26 @@ class SalesDashboardReporter
             $revenueLastYear += $brand->revenue_last_year;
         }
 
+        $unitsChange = 'inf';
+        if ($unitsLastYear != 0) {
+            $unitsChange = round((($units / $unitsLastYear) - 1) * 100, 1);
+        }
+
+        $revenueChange = 'inf';
+        if ($revenueLastYear != 0) {
+            $revenueChange = round((($revenue / $revenueLastYear) - 1) * 100, 1);
+        }
+
         return [
             'brands' => $topBrands,
             'summary' => [
                 'units' => [
                     'amount' => $units,
-                    'change' => round((($units / $unitsLastYear) - 1) * 100, 1),
+                    'change' => $unitsChange,
                 ],
                 'revenue' => [
                     'amount' => $revenue,
-                    'change' => round((($revenue / $revenueLastYear) - 1) * 100, 1),
+                    'change' => $revenueChange,
                 ],
             ],
         ];
