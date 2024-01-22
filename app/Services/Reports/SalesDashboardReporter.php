@@ -191,30 +191,30 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
-        $topCustomers = DB::table('sales_orders')
-            ->join('customers', 'sales_orders.customer', '=', 'customers.customer_number')
+        $topCustomers = DB::table('customer_invoices')
+            ->join('customers', 'customer_invoices.customer_number', '=', 'customers.customer_number')
             ->leftJoin(DB::raw('(
                 SELECT
-                    customer,
-                    SUM(order_total * exchange_rate) AS amount_last_year
-                FROM sales_orders
+                    customer_number,
+                    SUM(amount) AS amount_last_year
+                FROM customer_invoices
                 WHERE
                     date >= "' . date('Y-01-01 00:00:00', strtotime('-1 year')) . '" AND
                     date <= "' . date('Y-m-d H:i:s', strtotime('-1 year')) . '"
-                GROUP BY customer
+                GROUP BY customer_number
             ) AS previous_year_revenue'), function($join) {
-                $join->on('sales_orders.customer', '=', 'previous_year_revenue.customer');
+                $join->on('customer_invoices.customer_number', '=', 'previous_year_revenue.customer_number');
             })
             ->select(
                 'customers.name',
                 'customers.country',
-                DB::raw('SUM(sales_orders.order_total * sales_orders.exchange_rate) AS amount'),
+                DB::raw('SUM(customer_invoices.amount) AS amount'),
                 'previous_year_revenue.amount_last_year'
             )
-            ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00'))
-            ->where('sales_orders.date', '<=', date('Y-m-d H:i:s'))
-            ->whereIn('sales_orders.customer', $this->customerNumbers)
-            ->groupBy('sales_orders.customer', 'customers.name', 'customers.country')
+            ->where('customer_invoices.date', '>=', date('Y-01-01 00:00:00'))
+            ->where('customer_invoices.date', '<=', date('Y-m-d H:i:s'))
+            ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
+            ->groupBy('customer_invoices.customer_number', 'customers.name', 'customers.country')
             ->orderBy('amount', 'DESC')
             ->get()
             ->toArray();
