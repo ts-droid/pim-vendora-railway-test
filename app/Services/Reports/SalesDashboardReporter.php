@@ -166,10 +166,10 @@ class SalesDashboardReporter
 
         if ($topCustomers) {
             foreach ($topCustomers as &$customer) {
-                $customer['change'] = 'inf';
+                $customer->change = 'inf';
 
-                if ($customer['amount_last_year'] != 0) {
-                    $customer['change'] = round((($customer['amount'] / $customer['amount_last_year']) - 1) * 100, 1);
+                if ($customer->amount_last_year != 0) {
+                    $customer->change = round((($customer->amount / $customer->amount_last_year) - 1) * 100, 1);
                 }
             }
         }
