@@ -11,7 +11,7 @@ class SalesDashboardController extends Controller
     {
         $reporter = new SalesDashboardReporter();
 
-        return response()->json([
+        return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
             'topBrands' => $reporter->getTopBrands(),
             'topCustomers' => $reporter->getTopCustomers(),
