@@ -223,7 +223,7 @@ class SalesDashboardReporter
             ->where('customer_invoices.date', '>=', date('Y-01-01 00:00:00'))
             ->where('customer_invoices.date', '<=', date('Y-m-d H:i:s'))
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
-            ->groupBy('customer_invoices.customer_number', 'customers.name', 'customers.country')
+            ->groupBy('customer_invoices.customer_number')
             ->orderBy('amount', 'DESC')
             ->get()
             ->toArray();
@@ -266,7 +266,6 @@ class SalesDashboardReporter
                 DB::raw('SUM(customer_invoice_lines.cost) as total_cost')
             )
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->join('sales_orders', 'sales_orders.order_number', '=', 'customer_invoice_lines.order_number')
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
