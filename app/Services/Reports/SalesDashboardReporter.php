@@ -228,10 +228,16 @@ class SalesDashboardReporter
 
         if ($orders) {
             foreach ($orders as $order) {
+                $customerNumber = $order['customerNumber'] ?? '';
+
+                if (!$customerNumber || !in_array($customerNumber, $this->customerNumbers)) {
+                    continue;
+                }
+
                 $orderPipeline[] = [
-                    'customer' => $order['fullName'],
-                    'value' => 0,
-                    'shipping_date' => $order['deliveryDate'],
+                    'customer' => $order['fullName'] ?? '',
+                    'value' => $order['values'] ?? 0,
+                    'shipping_date' => $order['deliveryDate'] ?? ''
                 ];
             }
         }
