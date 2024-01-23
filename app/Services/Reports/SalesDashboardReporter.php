@@ -90,90 +90,54 @@ class SalesDashboardReporter
 
     public function getTopBrands(): array
     {
-        $topBrands = DB::table('sales_order_lines')
-            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
-            ->join('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
-            ->select(
-                'articles.supplier_number',
-                'suppliers.name',
-                DB::raw('SUM(sales_order_lines.quantity) AS units'),
-                DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) AS revenue'),
-            )
-            ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00'))
-            ->where('sales_orders.date', '<=', date('Y-m-d H:i:s'))
-            ->whereIn('sales_orders.customer', $this->customerNumbers)
-            ->groupBy('articles.supplier_number', 'suppliers.name')
-            ->get()
-            ->toArray();
+        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
+        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
 
-        if ($topBrands) {
-            foreach($topBrands as &$brand) {
-                $lastYear = DB::table('sales_order_lines')
-                    ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                    ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
-                    ->select(
-                        DB::raw('SUM(sales_order_lines.quantity) AS units'),
-                        DB::raw('SUM(sales_order_lines.unit_price * sales_order_lines.quantity * sales_orders.exchange_rate) AS revenue'),
-                    )
-                    ->whereIn('sales_orders.customer', $this->customerNumbers)
-                    ->where('articles.supplier_number', '=', $brand->supplier_number)
-                    ->where('sales_orders.date', '>=', date('Y-01-01 00:00:00', strtotime('-1 year')))
-                    ->where('sales_orders.date', '<=', date('Y-m-d H:i:s', strtotime('-1 year')))
-                    ->first();
+        $topBrands = [];
 
-                $brand->units_last_year = $lastYear->units;
-                $brand->revenue_last_year = $lastYear->revenue;
+        foreach ($invoiceLines as $invoiceLine) {
+            if (!isset($topBrands[$invoiceLine->supplier_number])) {
+                $topBrands[$invoiceLine->supplier_number] = [
+                    'supplier_number' => $invoiceLine->supplier_number,
+                    'name' => $invoiceLine->supplier_name,
+                    'units' => 0,
+                    'units_last_year' => 0,
+                    'units_change' => 'inf',
+                    'revenue' => 0,
+                    'revenue_last_year' => 0,
+                    'revenue_change' => 'inf'
+                ];
+            }
 
-                $brand->units_change = 'inf';
-                if ($brand->units_last_year != 0) {
-                    $brand->units_change = round((($brand->units / $brand->units_last_year) - 1) * 100, 1);
-                }
+            $topBrands[$invoiceLine->supplier_number]['units'] += $invoiceLine->quantity;
+            $topBrands[$invoiceLine->supplier_number]['revenue'] += $invoiceLine->amount;
+        }
 
-                $brand->revenue_change = 'inf';
-                if ($brand->revenue_last_year != 0) {
-                    $brand->revenue_change = round((($brand->revenue / $brand->revenue_last_year) - 1) * 100, 1);
-                }
+        foreach ($invoiceLinesLastYear as $invoiceLine) {
+            if (!isset($topBrands[$invoiceLine->supplier_number])) {
+                continue;
+            }
+
+            $topBrands[$invoiceLine->supplier_number]['units_last_year'] += $invoiceLine->quantity;
+            $topBrands[$invoiceLine->supplier_number]['revenue_last_year'] += $invoiceLine->amount;
+        }
+
+        foreach ($topBrands as &$topBrand) {
+            if ($topBrand['units_last_year'] != 0) {
+                $topBrand['units_change'] = round((($topBrand['units'] / $topBrand['units_last_year']) - 1) * 100, 1);
+            }
+
+            if ($topBrand['revenue_last_year'] != 0) {
+                $topBrand['revenue_change'] = round((($topBrand['revenue'] / $topBrand['revenue_last_year']) - 1) * 100, 1);
             }
         }
 
-        $units = 0;
-        $unitsLastYear = 0;
+        // Sort brands based on revenue
+        usort($topBrands, function ($item1, $item2) {
+            return $item2['revenue'] <=> $item1['revenue'];
+        });
 
-        $revenue = 0;
-        $revenueLastYear = 0;
-
-        foreach ($topBrands as $brand) {
-            $units += $brand->units;
-            $unitsLastYear += $brand->units_last_year;
-
-            $revenue += $brand->revenue;
-            $revenueLastYear += $brand->revenue_last_year;
-        }
-
-        $unitsChange = 'inf';
-        if ($unitsLastYear != 0) {
-            $unitsChange = round((($units / $unitsLastYear) - 1) * 100, 1);
-        }
-
-        $revenueChange = 'inf';
-        if ($revenueLastYear != 0) {
-            $revenueChange = round((($revenue / $revenueLastYear) - 1) * 100, 1);
-        }
-
-        return [
-            'brands' => $topBrands,
-            'summary' => [
-                'units' => [
-                    'amount' => $units,
-                    'change' => $unitsChange,
-                ],
-                'revenue' => [
-                    'amount' => $revenue,
-                    'change' => $revenueChange,
-                ],
-            ],
-        ];
+        return array_values($topBrands);
     }
 
     public function getTopCustomers(): array
@@ -205,7 +169,7 @@ class SalesDashboardReporter
             $topCustomers[$invoiceLine->customer_number]['amount_last_year'] += $invoiceLine->amount;
         }
 
-        foreach ($topCustomers as $customer) {
+        foreach ($topCustomers as &$customer) {
             if ($customer['amount_last_year'] != 0) {
                 $customer['change'] = round((($customer['amount'] / $customer['amount_last_year']) - 1) * 100, 1);
             }
@@ -278,10 +242,14 @@ class SalesDashboardReporter
         $this->invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
             ->leftJoin('customers', 'customers.customer_number', '=', 'customer_invoices.customer_number')
+            ->leftJoin('articles', 'articles.article_number', '=', 'customer_invoice_lines.article_number')
+            ->leftJoin('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
             ->select(
                 'customer_invoices.customer_number',
                 'customers.name AS customer_name',
                 'customers.country AS customer_country',
+                'suppliers.number AS supplier_number',
+                'suppliers.name AS supplier_name',
                 'customer_invoice_lines.article_number',
                 'customer_invoice_lines.quantity',
                 'customer_invoice_lines.unit_price',
