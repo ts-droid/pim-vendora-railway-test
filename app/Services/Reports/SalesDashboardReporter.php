@@ -272,6 +272,7 @@ class SalesDashboardReporter
 
         $this->invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->leftJoin('customers', 'customers.customer_number', '=', 'customer_invoices.customer_number')
             ->select(
                 'customer_invoices.customer_number',
                 'customers.name AS customer_name',
