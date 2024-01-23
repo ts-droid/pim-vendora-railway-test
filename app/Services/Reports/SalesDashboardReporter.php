@@ -190,9 +190,9 @@ class SalesDashboardReporter
                     'amount_last_year' => 0,
                     'change' => 'inf',
                 ];
-
-                $topCustomers[$invoiceLine->customer_number]['amount'] += $invoiceLine->amount;
             }
+
+            $topCustomers[$invoiceLine->customer_number]['amount'] += $invoiceLine->amount;
         }
 
         foreach ($invoiceLinesLastYear as $invoiceLine) {
