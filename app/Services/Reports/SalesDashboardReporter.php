@@ -184,25 +184,25 @@ class SalesDashboardReporter
         $topCustomers = [];
 
         foreach ($invoiceLines as $invoiceLine) {
-            if (!isset($topCustomers[$invoiceLine['customer_number']])) {
-                $topCustomers[$invoiceLine['customer_number']] = [
-                    'name' => $invoiceLine['customer_name'],
-                    'country' => $invoiceLine['customer_country'],
+            if (!isset($topCustomers[$invoiceLine->customer_number])) {
+                $topCustomers[$invoiceLine->customer_number] = [
+                    'name' => $invoiceLine->customer_name,
+                    'country' => $invoiceLine->customer_country,
                     'amount' => 0,
                     'amount_last_year' => 0,
                     'change' => 'inf',
                 ];
 
-                $topCustomers[$invoiceLine['customer_number']]['amount'] += $invoiceLine['amount'];
+                $topCustomers[$invoiceLine->customer_number]['amount'] += $invoiceLine->amount;
             }
         }
 
         foreach ($invoiceLinesLastYear as $invoiceLine) {
-            if (!isset($topCustomers[$invoiceLine['customer_number']])) {
+            if (!isset($topCustomers[$invoiceLine->customer_number])) {
                 continue;
             }
 
-            $topCustomers[$invoiceLine['customer_number']]['amount_last_year'] += $invoiceLine['amount'];
+            $topCustomers[$invoiceLine->customer_number]['amount_last_year'] += $invoiceLine->amount;
         }
 
         foreach ($topCustomers as $customer) {
