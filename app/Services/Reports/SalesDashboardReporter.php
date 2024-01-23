@@ -211,6 +211,11 @@ class SalesDashboardReporter
             }
         }
 
+        // Sort customers based on amount
+        usort($topCustomers, function ($item1, $item2) {
+            return $item2['amount'] <=> $item1['amount'];
+        });
+
         return array_values($topCustomers);
     }
 
