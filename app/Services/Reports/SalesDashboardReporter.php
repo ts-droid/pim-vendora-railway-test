@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use App\Services\WGR\WGROrderQueueService;
 use Illuminate\Support\Facades\DB;
 
 class SalesDashboardReporter
@@ -219,14 +220,20 @@ class SalesDashboardReporter
 
     public function getOrderPipeline(): array
     {
+        $orderQueueService = new WGROrderQueueService();
+        $orderQueue = $orderQueueService->getOrderQueue();
+        $orders = $orderQueue['queue'];
+
         $orderPipeline = [];
 
-        for ($i = 0;$i < 3;$i++) {
-            $orderPipeline[] = [
-                'customer' => 'Play Distrubution',
-                'value' => 0,
-                'shipping_date' => date('Y-m-d'),
-            ];
+        if ($orders) {
+            foreach ($orders as $order) {
+                $orderPipeline[] = [
+                    'customer' => $order['fullName'],
+                    'value' => 0,
+                    'shipping_date' => $order['deliveryDate'],
+                ];
+            }
         }
 
         return $orderPipeline;
