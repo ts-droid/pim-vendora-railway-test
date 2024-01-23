@@ -10,8 +10,9 @@ class SalesDashboardController extends Controller
     public function index(Request $request)
     {
         $salesPersonID = (int) $request->input('sales_person_id');
+        $customerNumber = (string) $request->input('customer_number');
 
-        $reporter = new SalesDashboardReporter($salesPersonID);
+        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber);
 
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),

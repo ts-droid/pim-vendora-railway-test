@@ -12,7 +12,8 @@ class SalesDashboardReporter
     private array $invoiceLines;
 
     function __construct(
-        private readonly int $salesPersonID
+        private readonly int $salesPersonID,
+        private readonly string $customerNumber
     )
     {
         $this->loadData();
@@ -334,6 +335,15 @@ class SalesDashboardReporter
         $this->customerNumbers = array_map(function ($customer) {
             return $customer->customer_number;
         }, $customers);
+
+        // Filter results for only one customer?
+        if ($this->customerNumber) {
+            if (in_array($this->customerNumber, $this->customerNumbers)) {
+                $this->customerNumbers = [$this->customerNumber];
+            } else {
+                $this->customerNumbers = [];
+            }
+        }
 
         // Load all invoice lines
         $startDate = date('Y-m-d', strtotime('-2 year'));
