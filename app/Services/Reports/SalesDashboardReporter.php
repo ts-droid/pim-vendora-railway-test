@@ -186,7 +186,7 @@ class SalesDashboardReporter
             if (!isset($topArticles[$invoiceLine->article_number])) {
                 $topArticles[$invoiceLine->article_number] = [
                     'article_number' => $invoiceLine->article_number,
-                    'name' => $invoiceLine->article_name ?? 'default',
+                    'name' => $invoiceLine->article_name,
                     'units' => 0,
                     'units_last_year' => 0,
                     'units_change' => 'inf',
@@ -354,7 +354,8 @@ class SalesDashboardReporter
                 'customer_invoice_lines.unit_price',
                 'customer_invoice_lines.amount',
                 'customer_invoice_lines.cost',
-                'customer_invoices.date'
+                'customer_invoices.date',
+                'articles.description AS article_name'
             )
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
             ->where('customer_invoices.date', '>=', $startDate)
