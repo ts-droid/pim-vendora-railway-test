@@ -8,26 +8,13 @@ class SalesDashboardReporter
 {
     private array $customerNumbers;
 
+    private array $invoiceLines;
+
     function __construct(
         private readonly int $salesPersonID
     )
     {
         $this->loadData();
-    }
-
-    private function loadData(): void
-    {
-        // Load customers connected to the sales person
-        $customers = DB::table('customers')
-            ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
-            ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id')
-            ->where('sales_people.id', '=', $this->salesPersonID)
-            ->get()
-            ->toArray();
-
-        $this->customerNumbers = array_map(function ($customer) {
-            return $customer->customer_number;
-        }, $customers);
     }
 
     public function getSummary(): array
@@ -260,22 +247,17 @@ class SalesDashboardReporter
 
     private function getSalesData(string $startDate, string $endDate): array
     {
-        $sales = DB::table('customer_invoice_lines')
-            ->select(
-                DB::raw('SUM(customer_invoice_lines.unit_price * customer_invoice_lines.quantity) as total_price'),
-                DB::raw('SUM(customer_invoice_lines.cost) as total_cost')
-            )
-            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-            ->where('customer_invoices.date', '>=', $startDate)
-            ->where('customer_invoices.date', '<=', $endDate)
-            ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
-            ->first();
+        $invoiceLines = $this->getInvoiceLines($startDate, $endDate);
 
-        $totalPrice = $sales->total_price ?? 0;
-        $totalCost = $sales->total_cost ?? 0;
+        $totalPrice = 0;
+        $totalCost = 0;
+
+        foreach ($invoiceLines as $invoiceLine) {
+            $totalPrice += $invoiceLine->amount;
+            $totalCost += $invoiceLine->cost;
+        }
 
         $totalProfit = $totalPrice - $totalCost;
-
         $totalMargin = ($totalPrice != 0 ? $totalProfit / $totalPrice : 0) * 100;
 
         return [
@@ -284,5 +266,48 @@ class SalesDashboardReporter
             'profit' => round($totalProfit),
             'margin' => round($totalMargin, 1),
         ];
+    }
+
+    private function loadData(): void
+    {
+        // Load customers connected to the sales person
+        $customers = DB::table('customers')
+            ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
+            ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id')
+            ->where('sales_people.id', '=', $this->salesPersonID)
+            ->get()
+            ->toArray();
+
+        $this->customerNumbers = array_map(function ($customer) {
+            return $customer->customer_number;
+        }, $customers);
+
+        // Load all invoice lines
+        $startDate = date('Y-m-d', strtotime('-2 year'));
+        $endDate = date('Y-m-d');
+
+        $this->invoiceLines = DB::table('customer_invoice_lines')
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->select(
+                'customer_invoice_lines.article_number',
+                'customer_invoice_lines.quantity',
+                'customer_invoice_lines.unit_price',
+                'customer_invoice_lines.amount',
+                'customer_invoice_lines.cost',
+                'customer_invoices.date'
+            )
+            ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
+            ->where('customer_invoices.date', '>=', $startDate)
+            ->where('customer_invoices.date', '<=', $endDate)
+            ->get()
+            ->toArray();
+    }
+
+    private function getInvoiceLines(string $startDate, string $endDate): array
+    {
+        // Return all invoice lines between the given dates
+        return array_filter($this->invoiceLines, function ($invoiceLine) use ($startDate, $endDate) {
+            return $invoiceLine->date >= $startDate && $invoiceLine->date <= $endDate;
+        });
     }
 }
