@@ -178,56 +178,40 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
-        $currentModesResult = DB::selectOne("SELECT @@sql_mode as sql_mode");
-        $currentModes = $currentModesResult->sql_mode;
+        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
+        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
 
-        $newModes = collect(explode(',', $currentModes))->reject(function ($value) {
-            return $value === 'ONLY_FULL_GROUP_BY';
-        })->implode(',');
+        $topCustomers = [];
 
-        DB::statement("SET SESSION sql_mode='{$newModes}'");
+        foreach ($invoiceLines as $invoiceLine) {
+            if (!isset($topCustomers[$invoiceLine['customer_number']])) {
+                $topCustomers[$invoiceLine['customer_number']] = [
+                    'name' => $invoiceLine['customer_name'],
+                    'country' => $invoiceLine['customer_country'],
+                    'amount' => 0,
+                    'amount_last_year' => 0,
+                    'change' => 'inf',
+                ];
 
-        $topCustomers = DB::table('customer_invoices')
-            ->join('customers', 'customer_invoices.customer_number', '=', 'customers.customer_number')
-            ->leftJoin(DB::raw('(
-                SELECT
-                    customer_number,
-                    SUM(amount) AS amount_last_year
-                FROM customer_invoices
-                WHERE
-                    date >= "' . date('Y-01-01 00:00:00', strtotime('-1 year')) . '" AND
-                    date <= "' . date('Y-m-d H:i:s', strtotime('-1 year')) . '"
-                GROUP BY customer_number
-            ) AS previous_year_revenue'), function($join) {
-                $join->on('customer_invoices.customer_number', '=', 'previous_year_revenue.customer_number');
-            })
-            ->select(
-                'customers.name',
-                'customers.country',
-                DB::raw('SUM(customer_invoices.amount) AS amount'),
-                'previous_year_revenue.amount_last_year'
-            )
-            ->where('customer_invoices.date', '>=', date('Y-01-01 00:00:00'))
-            ->where('customer_invoices.date', '<=', date('Y-m-d H:i:s'))
-            ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
-            ->groupBy('customer_invoices.customer_number')
-            ->orderBy('amount', 'DESC')
-            ->get()
-            ->toArray();
-
-        DB::statement("SET SESSION sql_mode='{$currentModes}'");
-
-        if ($topCustomers) {
-            foreach ($topCustomers as &$customer) {
-                $customer->change = 'inf';
-
-                if ($customer->amount_last_year != 0) {
-                    $customer->change = round((($customer->amount / $customer->amount_last_year) - 1) * 100, 1);
-                }
+                $topCustomers[$invoiceLine['customer_number']]['amount'] += $invoiceLine['amount'];
             }
         }
 
-        return $topCustomers;
+        foreach ($invoiceLinesLastYear as $invoiceLine) {
+            if (!isset($topCustomers[$invoiceLine['customer_number']])) {
+                continue;
+            }
+
+            $topCustomers[$invoiceLine['customer_number']]['amount_last_year'] += $invoiceLine['amount'];
+        }
+
+        foreach ($topCustomers as $customer) {
+            if ($customer['amount_last_year'] != 0) {
+                $customer['change'] = round((($customer['amount'] / $customer['amount_last_year']) - 1) * 100, 1);
+            }
+        }
+
+        return array_values($topCustomers);
     }
 
     public function getOrderPipeline(): array
@@ -289,6 +273,9 @@ class SalesDashboardReporter
         $this->invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
             ->select(
+                'customer_invoices.customer_number',
+                'customers.name AS customer_name',
+                'customers.country AS customer_country',
                 'customer_invoice_lines.article_number',
                 'customer_invoice_lines.quantity',
                 'customer_invoice_lines.unit_price',
