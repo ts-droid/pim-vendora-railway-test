@@ -175,6 +175,58 @@ class SalesDashboardReporter
         ];
     }
 
+    public function getTopArticles(): array
+    {
+        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
+        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
+
+        $topArticles = [];
+
+        foreach ($invoiceLines as $invoiceLine) {
+            if (!isset($topArticles[$invoiceLine->article_number])) {
+                $topArticles[$invoiceLine->article_number] = [
+                    'article_number' => $invoiceLine->article_number,
+                    'name' => $invoiceLine->article_name ?? 'default',
+                    'units' => 0,
+                    'units_last_year' => 0,
+                    'units_change' => 'inf',
+                    'revenue' => 0,
+                    'revenue_last_year' => 0,
+                    'revenue_change' => 'inf'
+                ];
+            }
+
+            $topArticles[$invoiceLine->article_number]['units'] += $invoiceLine->quantity;
+            $topArticles[$invoiceLine->article_number]['revenue'] += $invoiceLine->amount;
+        }
+
+        foreach ($invoiceLinesLastYear as $invoiceLine) {
+            if (!isset($topArticles[$invoiceLine->article_number])) {
+                continue;
+            }
+
+            $topArticles[$invoiceLine->article_number]['units_last_year'] += $invoiceLine->quantity;
+            $topArticles[$invoiceLine->article_number]['revenue_last_year'] += $invoiceLine->amount;
+        }
+
+        foreach ($topArticles as &$article) {
+            if ($article['units_last_year'] != 0) {
+                $article['units_change'] = round((($article['units'] / $article['units_last_year']) - 1) * 100, 1);
+            }
+
+            if ($article['revenue_last_year'] != 0) {
+                $article['revenue_change'] = round((($article['revenue'] / $article['revenue_last_year']) - 1) * 100, 1);
+            }
+        }
+
+        // Sort customers based on amount
+        usort($topArticles, function ($item1, $item2) {
+            return $item2['revenue'] <=> $item1['revenue'];
+        });
+
+        return array_values($topArticles);
+    }
+
     public function getTopCustomers(): array
     {
         $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));

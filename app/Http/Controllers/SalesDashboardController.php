@@ -17,6 +17,7 @@ class SalesDashboardController extends Controller
             'summary' => $reporter->getSummary(),
             'topBrands' => $reporter->getTopBrands(),
             'topCustomers' => $reporter->getTopCustomers(),
+            'topArticles' => $reporter->getTopArticles(),
             'orderPipeline' => $reporter->getOrderPipeline(),
         ]);
     }
