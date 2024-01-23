@@ -122,7 +122,21 @@ class SalesDashboardReporter
             $topBrands[$invoiceLine->supplier_number]['revenue_last_year'] += $invoiceLine->amount;
         }
 
+        $units = 0;
+        $unitsLastYear = 0;
+        $unitsChange = 'inf';
+
+        $revenue = 0;
+        $revenueLastYear = 0;
+        $revenueChange = 'inf';
+
         foreach ($topBrands as &$topBrand) {
+            $units += $topBrand['units'];
+            $unitsLastYear += $topBrand['units_last_year'];
+
+            $revenue += $topBrand['revenue'];
+            $revenueLastYear += $topBrand['revenue_last_year'];
+
             if ($topBrand['units_last_year'] != 0) {
                 $topBrand['units_change'] = round((($topBrand['units'] / $topBrand['units_last_year']) - 1) * 100, 1);
             }
@@ -132,12 +146,32 @@ class SalesDashboardReporter
             }
         }
 
+        if ($unitsLastYear != 0) {
+            $unitsChange = round((($units / $unitsLastYear) - 1) * 100, 1);
+        }
+
+        if ($revenueLastYear != 0) {
+            $revenueChange = round((($revenue / $revenueLastYear) - 1) * 100, 1);
+        }
+
         // Sort brands based on revenue
         usort($topBrands, function ($item1, $item2) {
             return $item2['revenue'] <=> $item1['revenue'];
         });
 
-        return array_values($topBrands);
+        return [
+            'brands' => array_values($topBrands),
+            'summary' => [
+                'units' => [
+                    'amount' => $units,
+                    'change' => $unitsChange,
+                ],
+                'revenue' => [
+                    'amount' => $revenue,
+                    'change' => $revenueChange,
+                ],
+            ],
+        ];
     }
 
     public function getTopCustomers(): array
