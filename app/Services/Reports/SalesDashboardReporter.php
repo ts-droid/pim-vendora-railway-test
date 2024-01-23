@@ -237,6 +237,7 @@ class SalesDashboardReporter
         foreach ($invoiceLines as $invoiceLine) {
             if (!isset($topCustomers[$invoiceLine->customer_number])) {
                 $topCustomers[$invoiceLine->customer_number] = [
+                    'customer_number' => $invoiceLine->customer_number,
                     'name' => $invoiceLine->customer_name,
                     'country' => $invoiceLine->customer_country,
                     'amount' => 0,
