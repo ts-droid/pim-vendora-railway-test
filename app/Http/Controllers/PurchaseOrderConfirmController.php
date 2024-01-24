@@ -47,7 +47,8 @@ class PurchaseOrderConfirmController extends Controller
         if (!$response['success']) {
             return response()->json([
                 'success' => false,
-                'message' => $response['message']
+                'message' => $response['message'],
+                'meta' => $response['meta'] ?? []
             ]);
         }
 
