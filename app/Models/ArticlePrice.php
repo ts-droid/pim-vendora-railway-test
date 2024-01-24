@@ -12,7 +12,12 @@ class ArticlePrice extends Model
     protected $fillable = [
         'article_number',
         'customer_id',
+        'base_price_SEK',
+        'base_price_EUR',
+        'base_price_DKK',
+        'base_price_NOK',
         'percent',
-        'percent_'
+        'percent_inner',
+        'percent_master',
     ];
 }

@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('article_prices', function (Blueprint $table) {
             $table->id();
+            $table->string('article_number');
+            $table->integer('customer_id');
+            $table->float('base_price_SEK')->default(0);
+            $table->float('base_price_EUR')->default(0);
+            $table->float('base_price_DKK')->default(0);
+            $table->float('base_price_NOK')->default(0);
+            $table->float('percent');
+            $table->float('percent_inner');
+            $table->float('percent_master');
             $table->timestamps();
         });
     }
