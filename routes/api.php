@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ArticlePriceListController;
 use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
@@ -162,6 +163,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/stock-log')->group(function() {
         Route::get('/', [StockLogController::class, 'get'])->name('stockLog.get');
+    });
+
+    Route::prefix('/price-list')->group(function() {
+        Route::get('/customer', [ArticlePriceListController::class, 'customer'])->name('priceList.customer');
     });
 
     Route::prefix('/status-indicators')->group(function() {

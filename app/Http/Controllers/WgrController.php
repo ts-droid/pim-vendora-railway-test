@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Customer;
+use App\Services\ArticlePriceService;
 use Illuminate\Http\Request;
 
 class WgrController extends Controller
@@ -34,7 +36,32 @@ class WgrController extends Controller
             $skipImages
         );
 
+        $this->fetchPriceLists();
+
         StatusIndicatorController::ping('WGR sync', 86400);
+    }
+
+    public function fetchPriceLists()
+    {
+        $priceService = new ArticlePriceService();
+
+        $customers = Customer::all();
+        if (!$customers) {
+            return;
+        }
+
+        foreach ($customers as $customer) {
+
+            // TODO: Fetch article prices from WGR API
+
+            /*$priceService->setPrice(
+                'article_number_here',
+                $customer->id,
+                100,
+                100,
+                100
+            );*/
+        }
     }
 
     /**
