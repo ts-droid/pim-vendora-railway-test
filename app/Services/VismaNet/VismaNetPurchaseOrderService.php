@@ -93,7 +93,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         foreach ($remoteOrder['lines'] as $remoteLine) {
             $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->where('line_key', $remoteLine['lineNbr'])
+                ->where('article_number', $remoteLine['inventory']['number'])
                 ->first();
 
             if (!$localLine) {
@@ -101,12 +101,6 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 $lines[] = [
                     'operation' => 'Delete',
                     'lineNumber' => ['value' => $remoteLine['lineNbr']],
-                    'inventory' => ['value' => $remoteLine['inventory']['number']],
-                    'lineDescription' => ['value' => $remoteLine['lineDescription']],
-                    'orderQty' => ['value' => $remoteLine['orderQty']],
-                    'unitCost' => ['value' => $remoteLine['unitCost']],
-                    'amount' => ['value' => $remoteLine['amount']],
-                    'promised' => ['value' => $remoteLine['promised']],
                 ];
             }
             else {
@@ -121,6 +115,10 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                     'amount' => ['value' => $localLine->amount],
                     'promised' => ['value' => $localLine->promised_date]
                 ];
+
+                $localLine->update([
+                    'line_key' => $remoteLine['lineNbr']
+                ]);
             }
         }
 
