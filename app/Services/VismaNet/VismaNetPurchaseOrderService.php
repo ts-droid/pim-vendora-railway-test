@@ -137,7 +137,11 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
 
         if (!$response['success']) {
-            return ['success' => false, 'message' => ($response['response']['message'] ?? 'Unknown error')];
+            return [
+                'success' => false,
+                'message' => ($response['response']['message'] ?? 'Unknown error'),
+                'meta' => $data
+            ];
         }
 
         return ['success' => true];
