@@ -96,16 +96,32 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 ->where('line_key', $remoteLine['lineNbr'])
                 ->first();
 
-            $lines[] = [
-                'operation' => ($localLine ? 'Update' : 'Delete'),
-                'lineNumber' => ['value' => $remoteLine['lineNbr']],
-                'inventory' => ['value' => $localLine->article_number],
-                'lineDescription' => ['value' => $localLine->description],
-                'orderQty' => ['value' => $localLine->quantity],
-                'unitCost' => ['value' => $localLine->unit_cost],
-                'amount' => ['value' => $localLine->amount],
-                'promised' => ['value' => $localLine->promised_date]
-            ];
+            if (!$localLine) {
+                // The line does not exist locally, so remove it
+                $lines[] = [
+                    'operation' => 'Delete',
+                    'lineNumber' => ['value' => $remoteLine['lineNbr']],
+                    'inventory' => ['value' => $remoteLine['inventory']['number']],
+                    'lineDescription' => ['value' => $remoteLine['lineDescription']],
+                    'orderQty' => ['value' => $remoteLine['orderQty']],
+                    'unitCost' => ['value' => $remoteLine['unitCost']],
+                    'amount' => ['value' => $remoteLine['amount']],
+                    'promised' => ['value' => $remoteLine['promised']],
+                ];
+            }
+            else {
+                // Update the line
+                $lines[] = [
+                    'operation' => 'Update',
+                    'lineNumber' => ['value' => $remoteLine['lineNbr']],
+                    'inventory' => ['value' => $localLine->article_number],
+                    'lineDescription' => ['value' => $localLine->description],
+                    'orderQty' => ['value' => $localLine->quantity],
+                    'unitCost' => ['value' => $localLine->unit_cost],
+                    'amount' => ['value' => $localLine->amount],
+                    'promised' => ['value' => $localLine->promised_date]
+                ];
+            }
         }
 
         $data = [
@@ -116,7 +132,6 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         if ($onHold !== null) {
             $data['hold'] = ['value' => $onHold];
-
         }
 
         $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
