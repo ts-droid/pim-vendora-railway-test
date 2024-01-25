@@ -32,12 +32,17 @@ class ArticlePriceService
         ];
     }
 
-    public function getPriceList(int $customerID, string $currency)
+    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '')
     {
-        $articles = DB::table('articles')
+        $articlesQuery = DB::table('articles')
             ->select('article_number', ('retail_price_' . $currency . ' AS retail_price'))
-            ->orderBy('article_number')
-            ->get();
+            ->orderBy('article_number');
+
+        if ($supplierNumber) {
+            $articlesQuery->where('supplier_number', $supplierNumber);
+        }
+
+        $articles = $articlesQuery->get();
 
         $priceList = [];
 

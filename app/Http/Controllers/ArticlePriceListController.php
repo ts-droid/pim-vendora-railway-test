@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ArticlePriceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ArticlePriceListController extends Controller
 {
@@ -11,14 +12,24 @@ class ArticlePriceListController extends Controller
     {
         $customerID = (int) $request->input('customer_id');
         $currency = (string) $request->input('currency');
+        $brandName = (string) $request->input('brand_name');
 
         if (!$customerID || !$currency) {
             return ApiResponseController::error('Missing "customer_id" or "currency" parameter.');
         }
 
-        $priceService = new ArticlePriceService();
+        $supplierNumber = '';
 
-        $priceList  = $priceService->getPriceList($customerID, $currency);
+        if ($brandName) {
+            $supplierNumber = (string) DB::table('suppliers')
+                ->select('number')
+                ->where('brand_name', '=', $brandName)
+                ->pluck('number')
+                ->first();
+        }
+
+        $priceService = new ArticlePriceService();
+        $priceList  = $priceService->getPriceList($customerID, $currency, $supplierNumber);
 
         return ApiResponseController::success($priceList);
     }
