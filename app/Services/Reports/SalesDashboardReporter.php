@@ -282,7 +282,7 @@ class SalesDashboardReporter
 
         if ($orders) {
             foreach ($orders as $order) {
-                $customerNumber = $order['customerNumber'] ?? '';
+                $customerNumber = $order['vismaCustomerNumber'] ?? '';
 
                 if (!$customerNumber || !in_array($customerNumber, $this->customerNumbers)) {
                     continue;
