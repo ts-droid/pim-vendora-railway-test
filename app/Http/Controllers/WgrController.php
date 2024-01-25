@@ -41,9 +41,15 @@ class WgrController extends Controller
         StatusIndicatorController::ping('WGR sync', 86400);
     }
 
-    public function fetchPriceLists()
+    /**
+     * Fetches price lists from the WGR API
+     *
+     * @return void
+     */
+    public function fetchPriceLists(): void
     {
         $priceService = new ArticlePriceService();
+        $WGRController = new WgrController();
 
         $customers = Customer::all();
         if (!$customers) {
@@ -51,16 +57,22 @@ class WgrController extends Controller
         }
 
         foreach ($customers as $customer) {
+            if (!$customer->customer_number) {
+                continue;
+            }
 
-            // TODO: Fetch article prices from WGR API
+            $response = $WGRController->makeRequest('PriceList.customer', ['customerNumber' => $customer->customer_number]);
+            $priceList = $response[0]['result'] ?? [];
 
-            /*$priceService->setPrice(
-                'article_number_here',
-                $customer->id,
-                100,
-                100,
-                100
-            );*/
+            foreach ($priceList as $priceItem) {
+                $priceService->setPrice(
+                    $priceItem['articleNumber'],
+                    $customer->id,
+                    $priceItem['percent'],
+                    $priceItem['percentInner'],
+                    $priceItem['percentMaster'],
+                );
+            }
         }
     }
 
