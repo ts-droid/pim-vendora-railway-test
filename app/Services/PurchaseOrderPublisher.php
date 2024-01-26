@@ -129,7 +129,7 @@ class PurchaseOrderPublisher
      * @param array $items
      * @return array
      */
-    private function processItems(PurchaseOrder $purchaseOrder, array $items): array
+    private function processItems(PurchaseOrder &$purchaseOrder, array $items): array
     {
         $response = [
             'require_confirmation' => false,
