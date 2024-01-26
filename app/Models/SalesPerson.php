@@ -11,6 +11,7 @@ class SalesPerson extends Model
 
     protected $fillable = [
         'external_id',
-        'name'
+        'name',
+        'show_sales_dashboard',
     ];
 }
