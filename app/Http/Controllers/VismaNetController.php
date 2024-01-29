@@ -10,6 +10,7 @@ use App\Models\InventoryReceipt;
 use App\Models\PurchaseOrder;
 use App\Models\SalesPerson;
 use App\Models\Supplier;
+use App\Services\ApiLogger;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -967,7 +968,18 @@ class VismaNetController extends Controller
 
         $this->callCount++;
 
-        return $response->json() ?: [];
+        $response = $response->json() ?: [];
+
+        // Log the response
+        ApiLogger::log(
+            ApiLogger::TYPE_VISMA,
+            $url,
+            $params,
+            $method,
+            $response
+        );
+
+        return $response;
     }
 
     /**

@@ -58,7 +58,7 @@ class PurchaseOrderPublisher
         }
 
         // Process the items
-        if ($items) {
+        if ($items && count($items) > 0) {
             $response = $this->processItems($purchaseOrder, $items);
 
             if ($response['require_confirmation']) {
