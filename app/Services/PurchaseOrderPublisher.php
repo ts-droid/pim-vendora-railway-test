@@ -23,6 +23,11 @@ class PurchaseOrderPublisher
             return ['success' => false, 'message' => 'Order is not a draft.'];
         }
 
+        // Update the order date
+        $purchaseOrder->update([
+            'date' => date('Y-m-d')
+        ]);
+
         // Send the order to Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
         $createOrderResponse = $purchaseOrderService->createPurchaseOrder($purchaseOrder, true);
