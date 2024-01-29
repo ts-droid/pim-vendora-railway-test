@@ -4,6 +4,7 @@ namespace App\Services\VismaNet;
 
 use App\Http\Controllers\ConfigController;
 use App\Models\PurchaseOrder;
+use App\Services\ApiLogger;
 use Illuminate\Support\Facades\Http;
 
 class VismaNetApiService
@@ -106,11 +107,22 @@ class VismaNetApiService
 
         $this->callCount++;
 
-        return [
+        $response = [
             'success' => $response->successful(),
             'response' => ($response->json() ?? []),
             'headers' => $response->headers(),
         ];
+
+        // Log the API call
+        ApiLogger::log(
+            ApiLogger::TYPE_VISMA,
+            $url,
+            $params,
+            $method,
+            $response
+        );
+
+        return $response;
     }
 
     /**
