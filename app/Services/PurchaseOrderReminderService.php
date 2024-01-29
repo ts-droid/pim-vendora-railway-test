@@ -68,7 +68,7 @@ class PurchaseOrderReminderService
             ->whereNull('published_at')
             ->where('is_sent', 1)
             ->where('is_confirmed', 1)
-            ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' days')))
+            ->where('date', '<', date('Y-m-d', strtotime('-' . $remindInterval . ' days')))
             ->where(function($query) use ($remindInterval) {
                 $query->where('draft_reminder_sent_at', '<', date('Y-m-d H:i:s', strtotime('-' . $remindInterval . ' day')))
                     ->orWhereNull('draft_reminder_sent_at');
