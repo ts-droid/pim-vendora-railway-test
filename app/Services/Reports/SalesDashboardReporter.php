@@ -23,13 +23,25 @@ class SalesDashboardReporter
     {
         // Load sales data
         $monthSummary = [
-            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 month')), date('Y-m-d 23:59:59')),
-            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-13 month')), date('Y-m-d 23:59:59', strtotime('-12 month'))),
+            'current' => $this->getSalesData(
+                date('Y-m-01 00:00:00'),
+                date('Y-m-d 23:59:59')
+            ),
+            'last' => $this->getSalesData(
+                date('Y-m-01 00:00:00', strtotime('-1 year')),
+                date('Y-m-d 23:59:59', strtotime('-1 year'))
+            ),
         ];
 
         $yearSummary = [
-            'current' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-1 year')), date('Y-m-d 23:59:59')),
-            'last' => $this->getSalesData(date('Y-m-d 00:00:00', strtotime('-2 year')), date('Y-m-d 23:59:59', strtotime('-1 year'))),
+            'current' => $this->getSalesData(
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-12-31 23:59:59', strtotime('-1 year'))
+            ),
+            'last' => $this->getSalesData(
+                date('Y-01-01 00:00:00', strtotime('-2 year')),
+                date('Y-12-31 23:59:59', strtotime('-2 year'))
+            ),
         ];
 
         $monthTurnoverChange = 'inf';
