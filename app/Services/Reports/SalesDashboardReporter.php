@@ -26,7 +26,15 @@ class SalesDashboardReporter
             'datasets' => [
                 'last_year' => [],
                 'current_year' => []
-            ]
+            ],
+        ];
+
+        $marginChart = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+            'datasets' => [
+                'last_year' => [],
+                'current_year' => []
+            ],
         ];
 
         $turnoverLastYear = 0;
@@ -53,10 +61,14 @@ class SalesDashboardReporter
 
             $turnoverChart['datasets']['last_year'][] = $turnoverLastYear;
             $turnoverChart['datasets']['current_year'][] = $turnoverCurrentYear;
+
+            $marginChart['datasets']['last_year'][] = $lastSalesData['margin'];
+            $marginChart['datasets']['current_year'][] = $currentSalesData['margin'];
         }
 
         return [
-            'turnover' => $turnoverChart
+            'turnover' => $turnoverChart,
+            'margin' => $marginChart
         ];
     }
 
