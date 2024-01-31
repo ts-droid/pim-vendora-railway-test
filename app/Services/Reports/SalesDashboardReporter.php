@@ -29,6 +29,9 @@ class SalesDashboardReporter
             ]
         ];
 
+        $turnoverLastYear = 0;
+        $turnoverCurrentYear = 0;
+
         for ($i = 1;$i <= 12;$i++) {
             $month = $i;
             if ($month < 10) {
@@ -45,8 +48,11 @@ class SalesDashboardReporter
                 date('Y-' . $month . '-t 23:59:59')
             );
 
-            $turnoverChart['datasets']['last_year'][] = $lastSalesData['turnover'];
-            $turnoverChart['datasets']['current_year'][] = $currentSalesData['turnover'];
+            $turnoverLastYear += $lastSalesData['turnover'];
+            $turnoverCurrentYear += $currentSalesData['turnover'];
+
+            $turnoverChart['datasets']['last_year'][] = $turnoverLastYear;
+            $turnoverChart['datasets']['current_year'][] = $turnoverCurrentYear;
         }
 
         return [
