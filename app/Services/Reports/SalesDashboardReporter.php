@@ -30,14 +30,19 @@ class SalesDashboardReporter
         ];
 
         for ($i = 1;$i <= 12;$i++) {
+            $month = $i;
+            if ($month < 10) {
+                $month = '0' . $month;
+            }
+
             $lastSalesData = $this->getSalesData(
-                date('Y-' . $i . '-01 00:00:00', strtotime('-1 year')),
-                date('Y-' . $i . '-t 23:59:59', strtotime('-1 year'))
+                date('Y-' . $month . '-01 00:00:00', strtotime('-1 year')),
+                date('Y-' . $month . '-t 23:59:59', strtotime('-1 year'))
             );
 
             $currentSalesData = $this->getSalesData(
-                date('Y-' . $i . '-01 00:00:00'),
-                date('Y-' . $i . '-t 23:59:59')
+                date('Y-' . $month . '-01 00:00:00'),
+                date('Y-' . $month . '-t 23:59:59')
             );
 
             $turnoverChart['datasets']['last_year'][] = $lastSalesData['turnover'];
