@@ -21,14 +21,31 @@ class SalesDashboardReporter
 
     public function getCharts(): array
     {
-        return [
-            'turnover' => [
-                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
-                'datasets' => [
-                    'last_year' => [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
-                    'current_year' => [1, 3, 7, 8, 12, 0, 0, 0, 0, 0, 0, 0]
-                ]
+        $turnoverChart = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+            'datasets' => [
+                'last_year' => [],
+                'current_year' => []
             ]
+        ];
+
+        for ($i = 1;$i <= 12;$i++) {
+            $lastSalesData = $this->getSalesData(
+                date('Y-' . $i . '-01 00:00:00', strtotime('-1 year')),
+                date('Y-' . $i . '-t 23:59:59', strtotime('-1 year'))
+            );
+
+            $currentSalesData = $this->getSalesData(
+                date('Y-' . $i . '-01 00:00:00'),
+                date('Y-' . $i . '-t 23:59:59')
+            );
+
+            $turnoverChart['datasets']['last_year'][] = $lastSalesData['turnover'];
+            $turnoverChart['datasets']['current_year'][] = $currentSalesData['turnover'];
+        }
+
+        return [
+            'turnover' => $turnoverChart
         ];
     }
 
