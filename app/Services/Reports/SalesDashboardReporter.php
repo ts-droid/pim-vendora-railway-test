@@ -19,6 +19,19 @@ class SalesDashboardReporter
         $this->loadData();
     }
 
+    public function getCharts(): array
+    {
+        return [
+            'turnover' => [
+                'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+                'datasets' => [
+                    'last_year' => [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
+                    'current_year' => [1, 3, 7, 8, 12, 0, 0, 0, 0, 0, 0, 0]
+                ]
+            ]
+        ];
+    }
+
     public function getSummary(): array
     {
         // Load sales data
