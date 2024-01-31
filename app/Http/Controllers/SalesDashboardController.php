@@ -9,8 +9,12 @@ class SalesDashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $salesPersonID = (int) $request->input('sales_person_id');
+        $salesPersonID = $request->input('sales_person_id');
         $customerNumber = (string) $request->input('customer_number');
+
+        if ($salesPersonID != '*') {
+            $salesPersonID = (int) $salesPersonID;
+        }
 
         $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber);
 

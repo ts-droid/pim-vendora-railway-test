@@ -12,7 +12,7 @@ class SalesDashboardReporter
     private array $invoiceLines;
 
     function __construct(
-        private readonly int $salesPersonID,
+        private readonly mixed $salesPersonID,
         private readonly string $customerNumber
     )
     {
@@ -390,12 +390,15 @@ class SalesDashboardReporter
     private function loadData(): void
     {
         // Load customers connected to the sales person
-        $customers = DB::table('customers')
+        $customersQuery = DB::table('customers')
             ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
-            ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id')
-            ->where('sales_people.id', '=', $this->salesPersonID)
-            ->get()
-            ->toArray();
+            ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
+
+        if ($this->salesPersonID != '*') {
+            $customersQuery->where('sales_people.id', '=', $this->salesPersonID);
+        }
+
+        $customers = $customersQuery->get()->toArray();
 
         $this->customerNumbers = array_map(function ($customer) {
             return $customer->customer_number;
