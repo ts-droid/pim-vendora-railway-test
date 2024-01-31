@@ -102,10 +102,7 @@ class SalesDashboardReporter
             $monthTurnoverChange = round((($monthSummary['current']['turnover'] / $monthSummary['last']['turnover']) - 1) * 100, 1);
         }
 
-        $monthMarginChange = 'inf';
-        if ($monthSummary['last']['margin'] != 0) {
-            $monthMarginChange = round((($monthSummary['current']['margin'] / $monthSummary['last']['margin']) - 1) * 100, 1);
-        }
+        $monthMarginChange = round($monthSummary['current']['margin'] - $monthSummary['last']['margin'], 1);
 
         $monthProfitChange = round($monthSummary['current']['profit'] - $monthSummary['last']['profit']);
 
@@ -114,10 +111,7 @@ class SalesDashboardReporter
             $yearTurnoverChange = round((($yearSummary['current']['turnover'] / $yearSummary['last']['turnover']) - 1) * 100, 1);
         }
 
-        $yearMarginChange = 'inf';
-        if ($yearSummary['last']['margin'] != 0) {
-            $yearMarginChange = round((($yearSummary['current']['margin'] / $yearSummary['last']['margin']) - 1) * 100, 1);
-        }
+        $yearMarginChange = round($yearSummary['current']['margin'] - $yearSummary['last']['margin'], 1);
 
         $yearProfitChange = round($yearSummary['current']['profit'] - $yearSummary['last']['profit']);
 
