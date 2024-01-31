@@ -349,7 +349,7 @@ class PurchaseOrderGenerator
      * @param int $foresightDays
      * @return array
      */
-    private function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
+    public function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
     {
         $hasPurchaseOrders = PurchaseOrderLine::where('article_number', $article->article_number)->exists();
 
