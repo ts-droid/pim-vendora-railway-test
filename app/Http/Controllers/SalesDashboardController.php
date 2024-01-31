@@ -16,7 +16,12 @@ class SalesDashboardController extends Controller
             $salesPersonID = (int) $salesPersonID;
         }
 
-        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber);
+        $period = [
+            $request->input('period_from', date('Y-m-01')),
+            $request->input('period_to', date('Y-m-d'))
+        ];
+
+        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber, $period);
 
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
@@ -24,7 +29,8 @@ class SalesDashboardController extends Controller
             'topCustomers' => $reporter->getTopCustomers(),
             'topArticles' => $reporter->getTopArticles(),
             'orderPipeline' => $reporter->getOrderPipeline(),
-            'charts' => $reporter->getCharts()
+            'charts' => $reporter->getCharts(),
+            'period' => $period,
         ]);
     }
 }

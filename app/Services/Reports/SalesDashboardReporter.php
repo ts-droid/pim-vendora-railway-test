@@ -13,7 +13,8 @@ class SalesDashboardReporter
 
     function __construct(
         private readonly mixed $salesPersonID,
-        private readonly string $customerNumber
+        private readonly string $customerNumber,
+        private readonly array $period
     )
     {
         $this->loadData();
@@ -77,12 +78,12 @@ class SalesDashboardReporter
         // Load sales data
         $monthSummary = [
             'current' => $this->getSalesData(
-                date('Y-m-01 00:00:00'),
-                date('Y-m-d 23:59:59')
+                date('Y-m-01 00:00:00', strtotime($this->period[0])),
+                date('Y-m-d 23:59:59', strtotime($this->period[1]))
             ),
             'last' => $this->getSalesData(
-                date('Y-m-01 00:00:00', strtotime('-1 year')),
-                date('Y-m-d 23:59:59', strtotime('-1 year'))
+                date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+                date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
             ),
         ];
 
@@ -151,8 +152,15 @@ class SalesDashboardReporter
 
     public function getTopBrands(): array
     {
-        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
-        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
+        $invoiceLines = $this->getInvoiceLines(
+            date('Y-01-01'),
+            date('Y-m-d')
+        );
+
+        $invoiceLinesLastYear = $this->getInvoiceLines(
+            date('Y-01-01', strtotime('-1 year')),
+            date('Y-m-d', strtotime('-1 year'))
+        );
 
         $topBrands = [];
 
