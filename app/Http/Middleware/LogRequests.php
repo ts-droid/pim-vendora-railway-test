@@ -66,8 +66,8 @@ class LogRequests
         Log::channel('requestlog')->info('Response', [
             'request_id' => $requestID,
             'timestamp' => now()->toDateTimeString(),
-            'status' => $response->status() ?? '',
-            'status_code' => $response->getStatusCode() ?? '',
+            'status' => method_exists($response, 'status') ? $response->status() : '',
+            'status_code' => method_exists($response, 'getStatusCode') ? $response->getStatusCode() : '',
             'content' => $content,
             'response_time' => $responseTime,
         ]);
