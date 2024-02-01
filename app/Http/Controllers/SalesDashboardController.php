@@ -9,20 +9,19 @@ class SalesDashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $salesPersonID = $request->input('sales_person_id');
+        $salesPersonIDs = $request->input('sales_person_id');
+        $salesPersonIDs = explode(',', $salesPersonIDs);
+        $salesPersonIDs = array_filter($salesPersonIDs);
+
         $customerNumber = (string) $request->input('customer_number');
         $supplierNumber = (string) $request->input('supplier_number');
-
-        if ($salesPersonID != '*') {
-            $salesPersonID = (int) $salesPersonID;
-        }
 
         $period = [
             $request->input('period_from', date('Y-m-01')),
             $request->input('period_to', date('Y-m-d'))
         ];
 
-        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber, $supplierNumber, $period);
+        $reporter = new SalesDashboardReporter($salesPersonIDs, $customerNumber, $supplierNumber, $period);
 
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),

@@ -12,7 +12,7 @@ class SalesDashboardReporter
     private array $invoiceLines;
 
     function __construct(
-        private readonly mixed $salesPersonID,
+        private readonly mixed $salesPersonIDs,
         private readonly string $customerNumber,
         private readonly string $supplierNumber,
         private readonly array $period
@@ -397,8 +397,8 @@ class SalesDashboardReporter
             ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
             ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
 
-        if ($this->salesPersonID != '*') {
-            $customersQuery->where('sales_people.id', '=', $this->salesPersonID);
+        if ($this->salesPersonIDs) {
+            $customersQuery->whereIn('sales_people.id', $this->salesPersonIDs);
         }
 
         $customers = $customersQuery->get()->toArray();
