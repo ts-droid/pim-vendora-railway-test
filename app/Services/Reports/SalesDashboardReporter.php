@@ -14,6 +14,7 @@ class SalesDashboardReporter
     function __construct(
         private readonly mixed $salesPersonID,
         private readonly string $customerNumber,
+        private readonly string $supplierNumber,
         private readonly array $period
     )
     {
@@ -419,7 +420,7 @@ class SalesDashboardReporter
         $startDate = date('Y-m-d', strtotime('-2 year'));
         $endDate = date('Y-m-d');
 
-        $this->invoiceLines = DB::table('customer_invoice_lines')
+        $invoiceLineQuery = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
             ->leftJoin('customers', 'customers.customer_number', '=', 'customer_invoices.customer_number')
             ->leftJoin('articles', 'articles.article_number', '=', 'customer_invoice_lines.article_number')
@@ -440,9 +441,13 @@ class SalesDashboardReporter
             )
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
             ->where('customer_invoices.date', '>=', $startDate)
-            ->where('customer_invoices.date', '<=', $endDate)
-            ->get()
-            ->toArray();
+            ->where('customer_invoices.date', '<=', $endDate);
+
+        if ($this->supplierNumber) {
+            $invoiceLineQuery->where('suppliers.number', '=', $this->supplierNumber);
+        }
+
+        $this->invoiceLines = $invoiceLineQuery->get()->toArray();
     }
 
     private function getInvoiceLines(string $startDate, string $endDate): array

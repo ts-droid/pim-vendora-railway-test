@@ -11,6 +11,7 @@ class SalesDashboardController extends Controller
     {
         $salesPersonID = $request->input('sales_person_id');
         $customerNumber = (string) $request->input('customer_number');
+        $supplierNumber = (string) $request->input('supplier_number');
 
         if ($salesPersonID != '*') {
             $salesPersonID = (int) $salesPersonID;
@@ -21,7 +22,7 @@ class SalesDashboardController extends Controller
             $request->input('period_to', date('Y-m-d'))
         ];
 
-        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber, $period);
+        $reporter = new SalesDashboardReporter($salesPersonID, $customerNumber, $supplierNumber, $period);
 
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
