@@ -32,13 +32,14 @@ class Kernel extends ConsoleKernel
 
             // Visma.net Fetching
             $schedule->command('visma:fetch customers')->dailyAt('02:00');
-            $schedule->command('visma:fetch sales-persons')->dailyAt('02:00');
-            $schedule->command('visma:fetch suppliers')->dailyAt('02:00');
-            $schedule->command('visma:fetch invoices')->dailyAt('02:00');
-            $schedule->command('visma:fetch purchase-orders')->dailyAt('02:00');
-            $schedule->command('visma:fetch inventory-receipts')->dailyAt('02:00');
-            $schedule->command('visma:fetch currency')->dailyAt('02:00');
-            $schedule->command('visma:fetch currency')->dailyAt('02:00');
+            $schedule->command('visma:fetch sales-persons')->dailyAt('02:10');
+            $schedule->command('visma:fetch suppliers')->dailyAt('02:20');
+            $schedule->command('visma:fetch invoices')->dailyAt('02:30');
+            $schedule->command('visma:fetch purchase-orders')->dailyAt('02:40');
+            $schedule->command('visma:fetch inventory-receipts')->dailyAt('02:50');
+            $schedule->command('visma:fetch currency')->dailyAt('03:00');
+            $schedule->command('visma:fetch currency')->dailyAt('03:10');
+            $schedule->command('visma:fetch sales-orders')->dailyAt('03:20');
             $schedule->command('visma:fetch articles')->hourly();
 
             $schedule->command('wgr:fetch')->dailyAt('05:00');
