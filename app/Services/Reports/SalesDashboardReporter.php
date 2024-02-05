@@ -352,7 +352,7 @@ class SalesDashboardReporter
 
                 $orderPipeline[] = [
                     'customer' => $order['fullName'] ?? '',
-                    'value' => $order['values'] ?? 0,
+                    'value' => round($order['totalAmount'] ?? 0, 2),
                     'shipping_date' => $order['deliveryDate'] ?? ''
                 ];
             }
