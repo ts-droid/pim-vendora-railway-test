@@ -150,13 +150,13 @@ class SalesDashboardReporter
     public function getTopBrands(): array
     {
         $invoiceLines = $this->getInvoiceLines(
-            date('Y-01-01'),
-            date('Y-m-d')
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
         );
 
         $invoiceLinesLastYear = $this->getInvoiceLines(
-            date('Y-01-01', strtotime('-1 year')),
-            date('Y-m-d', strtotime('-1 year'))
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
         );
 
         $topBrands = [];
@@ -242,8 +242,15 @@ class SalesDashboardReporter
 
     public function getTopArticles(): array
     {
-        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
-        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
+        $invoiceLines = $this->getInvoiceLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
+        $invoiceLinesLastYear = $this->getInvoiceLines(
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+        );
 
         $topArticles = [];
 
@@ -294,8 +301,15 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
-        $invoiceLines = $this->getInvoiceLines(date('Y-01-01'), date('Y-m-d'));
-        $invoiceLinesLastYear = $this->getInvoiceLines(date('Y-01-01', strtotime('-1 year')), date('Y-m-d', strtotime('-1 year')));
+        $invoiceLines = $this->getInvoiceLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
+        $invoiceLinesLastYear = $this->getInvoiceLines(
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+        );
 
         $topCustomers = [];
 
