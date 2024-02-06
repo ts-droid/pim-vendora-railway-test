@@ -389,10 +389,30 @@ class SalesDashboardReporter
         // Load customers connected to the sales person
         $customersQuery = DB::table('customers')
             ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
-            ->join('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
+            ->leftJoin('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
 
         if ($this->salesPersonIDs) {
-            $customersQuery->whereIn('sales_people.id', $this->salesPersonIDs);
+            $salesPersonIDs = [];
+            $hasEmptySalesPerson = false;
+
+            foreach ($this->salesPersonIDs as $salesPersonID) {
+                if ($salesPersonID == -1) {
+                    $hasEmptySalesPerson = true;
+                    continue;
+                }
+
+                $salesPersonIDs[] = $salesPersonID;
+            }
+
+            if ($hasEmptySalesPerson) {
+                $customersQuery->where(function($query) use ($salesPersonIDs) {
+                    $query->whereIn('sales_people.id', $salesPersonIDs)
+                        ->orWhereNull('sales_people.id');
+                });
+            }
+            else {
+                $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
+            }
         }
 
         $customers = $customersQuery->get()->toArray();
