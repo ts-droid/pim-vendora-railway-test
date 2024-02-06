@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class SalesDashboardReporter
 {
+    const EXCLUDED_ARTICLE_NUMBERS = ['SHIP25'];
+
     private array $customerNumbers;
 
     private array $invoiceLines;
@@ -455,7 +457,8 @@ class SalesDashboardReporter
             )
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
             ->where('customer_invoices.date', '>=', $startDate)
-            ->where('customer_invoices.date', '<=', $endDate);
+            ->where('customer_invoices.date', '<=', $endDate)
+            ->whereNotIn('customer_invoice_lines.article_number', self::EXCLUDED_ARTICLE_NUMBERS);
 
         if ($this->supplierNumber) {
             $invoiceLineQuery->where('suppliers.number', '=', $this->supplierNumber);
