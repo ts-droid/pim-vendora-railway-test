@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class SalesDashboardReporter
 {
+    private bool $excludeShipping = false;
+
     private array $customerNumbers;
 
     private array $invoiceLines;
@@ -19,6 +21,11 @@ class SalesDashboardReporter
         private readonly array $period
     )
     {
+        // Include shipping costs if no sales person is selected
+        if ($this->salesPersonIDs) {
+            $this->excludeShipping = true;
+        }
+
         $this->loadData();
     }
 
@@ -389,11 +396,13 @@ class SalesDashboardReporter
             $totalCost += $invoiceLine->cost;
         }
 
-        // Load summary for ledger account 4092
-        $transactionService = new TransactionService();
-        $accountSummary = $transactionService->getPeriodSummary('4092', $startDate, $endDate);
+        // Add cost for shipping (account 4092)
+        if (!$this->excludeShipping) {
+            $transactionService = new TransactionService();
+            $accountSummary = $transactionService->getPeriodSummary('4092', $startDate, $endDate);
 
-        $totalCost += (($accountSummary['debit'] - $accountSummary['credit']) * 1.25);
+            $totalCost += (($accountSummary['debit'] - $accountSummary['credit']) * 1.25);
+        }
 
         $totalProfit = $totalPrice - $totalCost;
         $totalMargin = ($totalPrice != 0 ? $totalProfit / $totalPrice : 0) * 100;
@@ -478,6 +487,10 @@ class SalesDashboardReporter
             ->whereIn('customer_invoices.customer_number', $this->customerNumbers)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate);
+
+        if (!$this->excludeShipping) {
+            $invoiceLineQuery->whereNotIn('customer_invoice_lines.article_number', ['SHIP25']);
+        }
 
         if ($this->supplierNumber) {
             $invoiceLineQuery->where('suppliers.number', '=', $this->supplierNumber);
