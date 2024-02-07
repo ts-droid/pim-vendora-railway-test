@@ -46,11 +46,14 @@ class VismaNetTransactionService extends VismaNetApiService
             $debitAmount = $transaction['debitAmount'];
             $creditAmount = $transaction['creditAmount'];
 
-            if ($debitAmount > 0) {
+            if ($transaction['currDebitAmount']) {
                 $currencyRate = $transaction['debitAmount'] / $transaction['currDebitAmount'];
             }
-            else {
+            elseif ($transaction['currCreditAmount']) {
                 $currencyRate = $transaction['creditAmount'] / $transaction['currCreditAmount'];
+            }
+            else {
+                $currencyRate = 0;
             }
 
             $transactionService->saveTransaction([
