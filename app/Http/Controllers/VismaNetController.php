@@ -649,12 +649,19 @@ class VismaNetController extends Controller
     }
 
     /**
-     * Fetches sales persons from Visma.net for each customer
+     * Fetches sales persons from Visma.net updated after the given date.
+     * If no date is given, the last updated date is fetched from the database.
      *
+     * @param string $updatedAfter
      * @return void
      */
-    public function fetchSalesPersons(): void
+    public function fetchSalesPersons(string $updatedAfter = ''): void
     {
+        $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_persons_fetch');
+
         $customerController = new CustomerController();
         $salesPersonController = new SalesPersonController();
 
@@ -663,6 +670,10 @@ class VismaNetController extends Controller
         $customers = ApiResponseController::getDataFromResponse($response);
 
         foreach ($customers as $customer) {
+            if ($updatedAfter && $updatedAfter < $customer['updated_at']) {
+                continue;
+            }
+
             $salesPersons = $this->getPagedResult('/v1/customer/' . $customer['customer_number'] . '/salespersons');
 
             if (!$salesPersons) {
@@ -670,6 +681,8 @@ class VismaNetController extends Controller
             }
 
             foreach ($salesPersons as $salesPerson) {
+                $fetchedData = true;
+
                 $salesPersonData = [
                     'external_id' => (string) ($salesPerson['salePersonID'] ?? ''),
                     'name' => (string) ($salesPerson['name'] ?? ''),
@@ -691,7 +704,7 @@ class VismaNetController extends Controller
                 }
 
                 // Connect to the customer if this is the default sales person
-                if ($salesPerson['isDefault'] ?? false) {
+                if (($salesPerson['isDefault'] ?? false) || count($salesPersons) === 1) {
                     $customerData = [
                         'sales_person_id' => $salesPersonData['external_id']
                     ];
@@ -700,6 +713,10 @@ class VismaNetController extends Controller
                     $customerController->update(new Request($customerData), $existingCustomer);
                 }
             }
+        }
+
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_sales_persons_fetch' => $fetchTime]);
         }
     }
 
