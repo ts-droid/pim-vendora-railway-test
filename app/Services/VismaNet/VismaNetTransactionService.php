@@ -32,7 +32,7 @@ class VismaNetTransactionService extends VismaNetApiService
             'account' => $accountNumber,
         ];
 
-        $transactions = $this->getPagedResult('/v1/GeneralLedgerTransactions?' . http_build_query($getParams));
+        $transactions = $this->getPagedResult('/v1/GeneralLedgerTransactions', $getParams);
 
         if (!$transactions) {
             return;
