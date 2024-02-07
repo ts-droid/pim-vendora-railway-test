@@ -54,7 +54,7 @@ class VismaNetTransactionService extends VismaNetApiService
             }
 
             $transactionService->saveTransaction([
-                'transaction_id' => $transaction['lineNumber'] . '_' . $transaction['batchNumber'] . '_' . $accountNumber,
+                'transaction_id' => $transaction['lineNumber'] . '_' . $transaction['batchNumber'] . '_' . $accountNumber . '_' . $transaction['tranDate'],
                 'date' => date('Y-m-d', strtotime($transaction['tranDate'])),
                 'account' => (string) $accountNumber,
                 'debit' => (float) $debitAmount,
