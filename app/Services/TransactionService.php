@@ -7,6 +7,43 @@ use Illuminate\Support\Facades\Validator;
 
 class TransactionService
 {
+    /**
+     * Returns a summary of transactions for a specific account and period.
+     *
+     * @param string $accountNumber
+     * @param string $startDate
+     * @param string $endDate
+     * @return array
+     */
+    public function getPeriodSummary(string $accountNumber, string $startDate, string $endDate): array
+    {
+        $transactions = LedgerTransaction::where('account', $accountNumber)
+            ->where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->get();
+
+        $debit = 0;
+        $credit = 0;
+
+        if ($transactions) {
+            foreach ($transactions as $transaction) {
+                $debit += $transaction->debit;
+                $credit += $transaction->credit;
+            }
+        }
+
+        return [
+            'debit' => $debit,
+            'credit' => $credit,
+        ];
+    }
+
+    /**
+     * Create or update a transaction.
+     *
+     * @param $transactionData
+     * @return array
+     */
     public function saveTransaction($transactionData): array
     {
         $validator = Validator::make($transactionData, [
