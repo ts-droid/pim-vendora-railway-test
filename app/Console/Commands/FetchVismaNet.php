@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
 use App\Services\VismaNet\VismaNetSalesOrderService;
+use App\Services\VismaNet\VismaNetTransactionService;
 use Illuminate\Console\Command;
 
 class FetchVismaNet extends Command
@@ -68,6 +69,24 @@ class FetchVismaNet extends Command
             case 'sales-orders':
                 $salesOrderService = new VismaNetSalesOrderService();
                 $salesOrderService->fetchSalesOrders();
+                break;
+
+            case 'transactions':
+                $vismaTransactionService = new VismaNetTransactionService();
+                $vismaTransactionService->fetchTransactions();
+                break;
+
+            case 'daily':
+                $this->call('visma:fetch customers');
+                $this->call('visma:fetch sales-persons');
+                $this->call('visma:fetch suppliers');
+                $this->call('visma:fetch invoices');
+                $this->call('visma:fetch purchase-orders');
+                $this->call('visma:fetch inventory-receipts');
+                $this->call('visma:fetch currency');
+                $this->call('visma:fetch currency');
+                $this->call('visma:fetch sales-orders');
+                $this->call('visma:fetch transactions');
                 break;
 
             case 'all':
