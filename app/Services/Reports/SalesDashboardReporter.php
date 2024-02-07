@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use App\Services\TransactionService;
 use App\Services\WGR\WGROrderQueueService;
 use Illuminate\Support\Facades\DB;
 
@@ -379,6 +380,7 @@ class SalesDashboardReporter
 
     private function getSalesData(string $startDate, string $endDate): array
     {
+        // Load all invoice lines between the given dates
         $invoiceLines = $this->getInvoiceLines($startDate, $endDate);
 
         $totalPrice = 0;
@@ -388,6 +390,12 @@ class SalesDashboardReporter
             $totalPrice += $invoiceLine->amount;
             $totalCost += $invoiceLine->cost;
         }
+
+        // Load summary for ledger account 4092
+        $transactionService = new TransactionService();
+        $accountSummary = $transactionService->getPeriodSummary(4092, $startDate, $endDate);
+
+        $totalCost += ($accountSummary['debit'] - $accountSummary['credit']);
 
         $totalProfit = $totalPrice - $totalCost;
         $totalMargin = ($totalPrice != 0 ? $totalProfit / $totalPrice : 0) * 100;
