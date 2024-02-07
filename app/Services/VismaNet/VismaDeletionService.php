@@ -19,6 +19,8 @@ class VismaDeletionService extends VismaNetApiService
         }
 
         // Delete all purchase orders not found in the Visma.net API response.
-        PurchaseOrder::whereNotIn('order_number', $orderNumbers)->delete();
+        PurchaseOrder::whereNotIn('order_number', $orderNumbers)
+            ->where('status', '!=', 'Draft')
+            ->delete();
     }
 }
