@@ -674,6 +674,8 @@ class VismaNetController extends Controller
                 continue;
             }
 
+            echo 'Fetching sales persons for customer ' . $customer['name'] . PHP_EOL;
+
             $salesPersons = $this->getPagedResult('/v1/customer/' . $customer['customer_number'] . '/salespersons');
 
             if (!$salesPersons) {
