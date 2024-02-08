@@ -39,6 +39,8 @@ class SendPurchaseOrderReminder implements ShouldQueue
             $recipients = [$this->emailRecipient];
         }
 
+        $recipients[] = 'ts@vendora.se';
+
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -51,7 +53,7 @@ class SendPurchaseOrderReminder implements ShouldQueue
         try {
             Mail::to($recipients)->send(new \App\Mail\PurchaseOrderReminder($this->purchaseOrder, $this->orderLines));
         } catch (\Exception $e) {
-            // Silent fail
+            log_data('Failed to send purchase order reminder. (Error: ' . $e->getMessage() . ')');
         }
     }
 }
