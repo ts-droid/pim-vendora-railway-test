@@ -679,6 +679,8 @@ class VismaNetController extends Controller
             }
 
             echo 'Fetching sales persons for customer ' . $customer['name'] . PHP_EOL;
+            echo 'Updated after: ' . $updatedAfter . ' (' . strtotime($updatedAfter) . ')' . PHP_EOL;
+            echo 'Customer updated at: ' . $customer['updated_at'] . ' (' . strtotime($customer['updated_at']) . ')' . PHP_EOL;
 
             continue;
 
