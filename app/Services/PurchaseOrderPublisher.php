@@ -186,6 +186,7 @@ class PurchaseOrderPublisher
 
                     $orderLine->update([
                         'unit_cost' => $unitCost,
+                        'old_unit_cost' => $orderLine->unit_cost,
                         'amount' => round(($unitCost * $orderLine->quantity), 2)
                     ]);
                 }

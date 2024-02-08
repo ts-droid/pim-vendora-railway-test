@@ -53,12 +53,43 @@ class PurchaseOrderPriceController extends Controller
             abort(404);
         }
 
-        // Remove the purchase order and order lines
-        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->delete();
+        // Revert all the price changes
+        $total = 0;
 
-        $purchaseOrder->delete();
+        if ($purchaseOrder->lines) {
+            foreach ($purchaseOrder->lines as $purchaseOrderLine) {
+                if (!$purchaseOrderLine->old_unit_cost) {
+                    $total += $purchaseOrderLine->unit_cost;
+                    continue;
+                }
 
-        echo 'The purchase order has been canceled and deleted.';
+                $purchaseOrderLine->update([
+                    'unit_cost' => $purchaseOrderLine->old_unit_cost,
+                    'old_unit_cost' => 0,
+                ]);
+
+                $total += $purchaseOrderLine->old_unit_cost;
+            }
+        }
+
+        // Mark the purchase order as confirmed
+        $purchaseOrder->update([
+            'is_confirmed' => 1,
+            'amount' => $total
+        ]);
+
+        $purchaseOrder->refresh();
+
+        // Publish the purchase order
+        $publisher = new PurchaseOrderPublisher();
+        $response = $publisher->publishOrder($purchaseOrder, []);
+
+        if (!$response['success']) {
+            echo 'Failed to publish the purchase order. Please try again or contact admin.';
+            exit;
+        }
+
+        echo 'The price changes have been rejected and purchase order has been confirmed with the old prices.';
         exit;
     }
 }

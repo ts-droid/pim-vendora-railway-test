@@ -89,7 +89,8 @@
 
     <p>Please review the changes and accept or reject them.</p>
     <p>If you accept the prices the price list and purchase order will be updated with the new prices.</p>
-    <p>If you reject the prices the purchase order will be removed. The supplier will not be notified.</p>
+    <p>If you reject the prices the purchase order will be confirmed with the old prices.</p>
+    <p>NOTE! The supplier does not get notified when you accept or reject the prices.</p>
 
     <a href="{{ route('purchaseOrder.pricesConfirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-green">Accept prices</a>
     <a href="{{ route('purchaseOrder.pricesReject', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-red">Reject prices</a>

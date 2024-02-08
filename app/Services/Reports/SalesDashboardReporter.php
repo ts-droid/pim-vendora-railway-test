@@ -80,9 +80,6 @@ class SalesDashboardReporter
 
     public function getSummary(): array
     {
-        $currentYear = date('Y');
-        $lastYear = $currentYear - 1;
-
         // Load sales data
         $periodSummary = [
             'current' => $this->getSalesData(
@@ -101,8 +98,8 @@ class SalesDashboardReporter
                 date('Y-m-d 23:59:59'),
             ),
             'last' => $this->getSalesData(
-                date($lastYear . '-01-01 00:00:00'),
-                date($lastYear . '-m-d 23:59:59'),
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-m-d 23:59:59', strtotime('-1 year')),
             )
         ];
 

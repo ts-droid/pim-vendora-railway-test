@@ -23,6 +23,7 @@ class PurchaseOrderLine extends Model
         'suggested_quantity_month_master',
         'suggested_quantity_month_inner',
         'unit_cost',
+        'old_unit_cost',
         'amount',
         'promised_date',
         'ai_comment',
