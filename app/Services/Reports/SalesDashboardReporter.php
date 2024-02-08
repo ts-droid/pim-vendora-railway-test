@@ -79,7 +79,7 @@ class SalesDashboardReporter
     public function getSummary(): array
     {
         // Load sales data
-        $monthSummary = [
+        $periodSummary = [
             'current' => $this->getSalesData(
                 date('Y-m-01 00:00:00', strtotime($this->period[0])),
                 date('Y-m-d 23:59:59', strtotime($this->period[1]))
@@ -88,6 +88,17 @@ class SalesDashboardReporter
                 date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
                 date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
             ),
+        ];
+
+        $yearToDateSummary = [
+            'current' => $this->getSalesData(
+                date('Y-01-01 00:00:00'),
+                date('Y-m-d 23:59:59'),
+            ),
+            'last' => $this->getSalesData(
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-m-d 23:59:59', strtotime('-1 year')),
+            )
         ];
 
         $yearSummary = [
@@ -101,14 +112,24 @@ class SalesDashboardReporter
             ),
         ];
 
+
         $monthTurnoverChange = 'inf';
-        if ($monthSummary['last']['turnover'] != 0) {
-            $monthTurnoverChange = round((($monthSummary['current']['turnover'] / $monthSummary['last']['turnover']) - 1) * 100, 1);
+        if ($periodSummary['last']['turnover'] != 0) {
+            $monthTurnoverChange = round((($periodSummary['current']['turnover'] / $periodSummary['last']['turnover']) - 1) * 100, 1);
         }
 
-        $monthMarginChange = round($monthSummary['current']['margin'] - $monthSummary['last']['margin'], 1);
+        $monthMarginChange = round($periodSummary['current']['margin'] - $periodSummary['last']['margin'], 1);
+        $monthProfitChange = round($periodSummary['current']['profit'] - $periodSummary['last']['profit']);
 
-        $monthProfitChange = round($monthSummary['current']['profit'] - $monthSummary['last']['profit']);
+
+        $yearToDateTurnoverChange = 'inf';
+        if ($periodSummary['last']['turnover'] != 0) {
+            $yearToDateTurnoverChange = round((($yearToDateSummary['current']['turnover'] / $yearToDateSummary['last']['turnover']) - 1) * 100, 1);
+        }
+
+        $yearToDateMarginChange = round($yearToDateSummary['current']['margin'] - $yearToDateSummary['last']['margin'], 1);
+        $yearToDateProfitChange = round($yearToDateSummary['current']['profit'] - $yearToDateSummary['last']['profit']);
+
 
         $yearTurnoverChange = 'inf';
         if ($yearSummary['last']['turnover'] != 0) {
@@ -116,14 +137,17 @@ class SalesDashboardReporter
         }
 
         $yearMarginChange = round($yearSummary['current']['margin'] - $yearSummary['last']['margin'], 1);
-
         $yearProfitChange = round($yearSummary['current']['profit'] - $yearSummary['last']['profit']);
 
         return [
             'turnover' => [
                 'month' => [
-                    'amount' => $monthSummary['current']['turnover'],
+                    'amount' => $periodSummary['current']['turnover'],
                     'change' => $monthTurnoverChange,
+                ],
+                'year_to_date' => [
+                    'amount' => $yearToDateSummary['current']['turnover'],
+                    'change' => $yearToDateTurnoverChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
@@ -132,8 +156,12 @@ class SalesDashboardReporter
             ],
             'margin' => [
                 'month' => [
-                    'amount' => $monthSummary['current']['margin'],
+                    'amount' => $periodSummary['current']['margin'],
                     'change' => $monthMarginChange,
+                ],
+                'year_to_date' => [
+                    'amount' => $yearToDateSummary['current']['margin'],
+                    'change' => $yearToDateMarginChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['margin'],
@@ -142,8 +170,12 @@ class SalesDashboardReporter
             ],
             'profit' => [
                 'month' => [
-                    'amount' => $monthSummary['current']['profit'],
+                    'amount' => $periodSummary['current']['profit'],
                     'change' => $monthProfitChange,
+                ],
+                'year_to_date' => [
+                    'amount' => $yearToDateSummary['current']['profit'],
+                    'change' => $yearToDateProfitChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
