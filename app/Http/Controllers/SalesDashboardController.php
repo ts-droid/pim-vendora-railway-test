@@ -23,13 +23,25 @@ class SalesDashboardController extends Controller
 
         $reporter = new SalesDashboardReporter($salesPersonIDs, $customerNumber, $supplierNumber, $period);
 
+        $topCustomers = $reporter->getTopCustomers();
+
+        $countryChart = [];
+        foreach ($topCustomers as $topCustomer) {
+            if (!isset($countryChart[$topCustomer['country']])) {
+                $countryChart[$topCustomer['country']] = 0;
+            }
+            $countryChart[$topCustomer['country']] += $topCustomer['amount'];
+        }
+
+
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
             'topBrands' => $reporter->getTopBrands(),
-            'topCustomers' => $reporter->getTopCustomers(),
+            'topCustomers' => $topCustomers,
             'topArticles' => $reporter->getTopArticles(),
             'orderPipeline' => $reporter->getOrderPipeline(),
             'charts' => $reporter->getCharts(),
+            'countryChart' => $countryChart,
             'period' => $period,
         ]);
     }
