@@ -671,7 +671,7 @@ class VismaNetController extends Controller
 
         foreach ($customers as $customer) {
             if ($updatedAfter && $updatedAfter < $customer['updated_at']) {
-                continue;
+                //continue;
             }
 
             if ($customer['name'] !== 'Humac A/S') {
