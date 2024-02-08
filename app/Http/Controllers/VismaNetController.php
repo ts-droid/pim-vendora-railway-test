@@ -670,7 +670,7 @@ class VismaNetController extends Controller
         $customers = ApiResponseController::getDataFromResponse($response);
 
         foreach ($customers as $customer) {
-            if ($updatedAfter && strtotime($updatedAfter) < strtotime($customer['updated_at'])) {
+            if ($updatedAfter && strtotime($updatedAfter) > strtotime($customer['updated_at'])) {
                 continue;
             }
 
