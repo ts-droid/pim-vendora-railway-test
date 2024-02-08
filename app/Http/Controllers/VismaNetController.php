@@ -670,8 +670,8 @@ class VismaNetController extends Controller
         $customers = ApiResponseController::getDataFromResponse($response);
 
         foreach ($customers as $customer) {
-            if ($updatedAfter && $updatedAfter < $customer['updated_at']) {
-                //continue;
+            if ($updatedAfter && strtotime($updatedAfter) < strtotime($customer['updated_at'])) {
+                continue;
             }
 
             if ($customer['name'] !== 'Humac A/S') {
@@ -679,6 +679,8 @@ class VismaNetController extends Controller
             }
 
             echo 'Fetching sales persons for customer ' . $customer['name'] . PHP_EOL;
+
+            continue;
 
             $salesPersons = $this->getPagedResult('/v1/customer/' . $customer['customer_number'] . '/salespersons');
 
