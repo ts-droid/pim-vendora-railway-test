@@ -674,19 +674,7 @@ class VismaNetController extends Controller
                 continue;
             }
 
-            if ($customer['name'] !== 'Humac A/S') {
-                continue;
-            }
-
-            echo 'Fetching sales persons for customer ' . $customer['name'] . PHP_EOL;
-            echo 'Updated after: ' . $updatedAfter . ' (' . strtotime($updatedAfter) . ')' . PHP_EOL;
-            echo 'Customer updated at: ' . $customer['updated_at'] . ' (' . strtotime($customer['updated_at']) . ')' . PHP_EOL;
-
-            continue;
-
             $salesPersons = $this->getPagedResult('/v1/customer/' . $customer['customer_number'] . '/salespersons');
-
-            echo json_encode($salesPersons) . PHP_EOL;
 
             if (!$salesPersons) {
                 continue;
