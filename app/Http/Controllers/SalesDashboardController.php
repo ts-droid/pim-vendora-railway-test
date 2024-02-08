@@ -25,12 +25,18 @@ class SalesDashboardController extends Controller
 
         $topCustomers = $reporter->getTopCustomers();
 
+        // Generate country chart
         $countryChart = [];
         foreach ($topCustomers as $topCustomer) {
             if (!isset($countryChart[$topCustomer['country']])) {
                 $countryChart[$topCustomer['country']] = 0;
             }
             $countryChart[$topCustomer['country']] += $topCustomer['amount'];
+        }
+
+        // Round values in country chart
+        foreach ($countryChart as $country => $amount) {
+            $countryChart[$country] = round($amount);
         }
 
 
