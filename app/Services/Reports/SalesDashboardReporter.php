@@ -95,11 +95,11 @@ class SalesDashboardReporter
         $yearToDateSummary = [
             'current' => $this->getSalesData(
                 date('Y-01-01 00:00:00'),
-                date('Y-m-d 23:59:59'),
+                date('Y-12-31 23:59:59'),
             ),
             'last' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
-                date('Y-m-d 23:59:59', strtotime('-1 year')),
+                date('Y-12-31 23:59:59', strtotime('-1 year')),
             )
         ];
 
