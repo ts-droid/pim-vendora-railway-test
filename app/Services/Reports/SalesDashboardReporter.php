@@ -53,14 +53,16 @@ class SalesDashboardReporter
                 $month = '0' . $month;
             }
 
+            $daysInMonth = date('t', strtotime(date('Y-' . $month . '-01')));
+
             $lastSalesData = $this->getSalesData(
                 date('Y-' . $month . '-01 00:00:00', strtotime('-1 year')),
-                date('Y-' . $month . '-t 23:59:59', strtotime('-1 year'))
+                date('Y-' . $month . '-' . $daysInMonth . ' 23:59:59', strtotime('-1 year'))
             );
 
             $currentSalesData = $this->getSalesData(
                 date('Y-' . $month . '-01 00:00:00'),
-                date('Y-' . $month . '-t 23:59:59')
+                date('Y-' . $month . '-' . $daysInMonth . ' 23:59:59')
             );
 
             $turnoverChart['datasets']['last_year'][] = $lastSalesData['turnover'];
