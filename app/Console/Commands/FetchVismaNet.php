@@ -15,7 +15,7 @@ class FetchVismaNet extends Command
      *
      * @var string
      */
-    protected $signature = 'visma:fetch {type=all}';
+    protected $signature = 'visma:fetch {type=none}';
 
     /**
      * The console command description.
@@ -29,7 +29,7 @@ class FetchVismaNet extends Command
      */
     public function handle()
     {
-        $type = $this->argument('type') ?: 'all';
+        $type = $this->argument('type') ?: 'none';
 
         $vismaNetController = new VismaNetController();
 
@@ -77,21 +77,24 @@ class FetchVismaNet extends Command
                 break;
 
             case 'daily':
-                $this->call('visma:fetch customers');
-                $this->call('visma:fetch sales-persons');
-                $this->call('visma:fetch suppliers');
-                $this->call('visma:fetch invoices');
-                $this->call('visma:fetch purchase-orders');
-                $this->call('visma:fetch inventory-receipts');
-                $this->call('visma:fetch currency');
-                $this->call('visma:fetch currency');
-                $this->call('visma:fetch sales-orders');
-                $this->call('visma:fetch transactions');
+                $this->call('visma:fetch', ['type' => 'customers']);
+                $this->call('visma:fetch', ['type' => 'sales-persons']);
+                $this->call('visma:fetch', ['type' => 'suppliers']);
+                $this->call('visma:fetch', ['type' => 'invoices']);
+                $this->call('visma:fetch', ['type' => 'purchase-orders']);
+                $this->call('visma:fetch', ['type' => 'inventory-receipts']);
+                $this->call('visma:fetch', ['type' => 'currency']);
+                $this->call('visma:fetch', ['type' => 'sales-orders']);
+                $this->call('visma:fetch', ['type' => 'transactions']);
                 break;
 
             case 'all':
-            default:
                 $vismaNetController->fetchAll();
+                break;
+
+            default:
+                $this->error('Invalid fetch type.');
+                return;
                 break;
         }
 
