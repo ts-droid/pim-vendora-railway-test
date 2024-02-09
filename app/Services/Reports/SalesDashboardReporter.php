@@ -564,7 +564,7 @@ class SalesDashboardReporter
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate);
 
-        if (!$this->excludeShipping) {
+        if ($this->excludeShipping) {
             $invoiceLineQuery->whereNotIn('customer_invoice_lines.article_number', ['SHIP25']);
         }
 
