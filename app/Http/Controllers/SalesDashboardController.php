@@ -51,12 +51,6 @@ class SalesDashboardController extends Controller
             $countryChart = $newCountryChart;
         }
 
-        // Round values in country chart
-        foreach ($countryChart as $country => $amount) {
-            $countryChart[$country] = round($amount);
-        }
-
-
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
             'topBrands' => $reporter->getTopBrands(),
