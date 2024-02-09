@@ -473,7 +473,7 @@ class SalesDashboardReporter
             $transactionService = new TransactionService();
             $accountSummary = $transactionService->getPeriodSummary('4092', $startDate, $endDate);
 
-            $totalCost += (($accountSummary['debit'] - $accountSummary['credit']) * 1.25);
+            $totalCost += ($accountSummary['debit'] - $accountSummary['credit']);
         }
 
         $totalProfit = $totalPrice - $totalCost;
