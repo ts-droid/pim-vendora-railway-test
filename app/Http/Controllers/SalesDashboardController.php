@@ -24,35 +24,7 @@ class SalesDashboardController extends Controller
         $reporter = new SalesDashboardReporter($salesPersonIDs, $customerNumber, $supplierNumber, $period);
 
         $topCustomers = $reporter->getTopCustomers();
-
-        // Generate country chart
-        $countryChart = [];
-        $totalCountryAmount = 0;
-
-        foreach ($topCustomers as $topCustomer) {
-            if (!isset($countryChart[$topCustomer['country']])) {
-                $countryChart[$topCustomer['country']] = 0;
-            }
-            $countryChart[$topCustomer['country']] += $topCustomer['amount'];
-            $totalCountryAmount += $topCustomer['amount'];
-        }
-
-        // Transform country chart to percentage
-        if ($totalCountryAmount > 0) {
-            $newCountryChart = [];
-
-            foreach ($countryChart as $country => $amount) {
-                $countryChart[$country] = round($amount / $totalCountryAmount * 100, 2);
-
-                $percentage = round($amount / $totalCountryAmount * 100, 2);
-                $newCountryChart[$country . ' (' . $percentage . '%)'] = $percentage;
-            }
-
-            $countryChart = $newCountryChart;
-        }
-
-        // Sort country chart by amount
-        arsort($countryChart);
+        $countryChart = $reporter->getCountryChart($topCustomers);
 
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),

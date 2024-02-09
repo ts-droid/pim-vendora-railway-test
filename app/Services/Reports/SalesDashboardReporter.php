@@ -417,6 +417,40 @@ class SalesDashboardReporter
         return $orderPipeline;
     }
 
+    public function getCountryChart(array $topCustomers): array
+    {
+        // Generate country chart
+        $countryChart = [];
+        $totalCountryAmount = 0;
+
+        foreach ($topCustomers as $topCustomer) {
+            if (!isset($countryChart[$topCustomer['country']])) {
+                $countryChart[$topCustomer['country']] = 0;
+            }
+            $countryChart[$topCustomer['country']] += $topCustomer['amount'];
+            $totalCountryAmount += $topCustomer['amount'];
+        }
+
+        // Transform country chart to percentage
+        if ($totalCountryAmount > 0) {
+            $newCountryChart = [];
+
+            foreach ($countryChart as $country => $amount) {
+                $countryChart[$country] = round($amount / $totalCountryAmount * 100, 2);
+
+                $percentage = round($amount / $totalCountryAmount * 100, 2);
+                $newCountryChart[$country . ' (' . $percentage . '%)'] = $percentage;
+            }
+
+            $countryChart = $newCountryChart;
+        }
+
+        // Sort country chart by amount
+        arsort($countryChart);
+
+        return $countryChart;
+    }
+
     private function getSalesData(string $startDate, string $endDate): array
     {
         // Load all invoice lines between the given dates
