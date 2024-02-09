@@ -129,7 +129,7 @@ class SalesDashboardReporter
 
 
         $yearToDateTurnoverChange = 'inf';
-        if ($periodSummary['last']['turnover'] != 0) {
+        if ($yearToDateSummary['last']['turnover'] != 0) {
             $yearToDateTurnoverChange = round((($yearToDateSummary['current']['turnover'] / $yearToDateSummary['last']['turnover']) - 1) * 100, 1);
         }
 
