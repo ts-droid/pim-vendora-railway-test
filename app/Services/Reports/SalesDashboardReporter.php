@@ -22,7 +22,7 @@ class SalesDashboardReporter
     )
     {
         // Include shipping costs if no sales person is selected
-        if ($this->salesPersonIDs) {
+        if ($this->salesPersonIDs || $this->customerNumber || $this->supplierNumber) {
             $this->excludeShipping = true;
         }
 
