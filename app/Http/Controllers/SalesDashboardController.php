@@ -51,6 +51,9 @@ class SalesDashboardController extends Controller
             $countryChart = $newCountryChart;
         }
 
+        // Sort country chart by amount
+        arsort($countryChart);
+
         return ApiResponseController::success([
             'summary' => $reporter->getSummary(),
             'topBrands' => $reporter->getTopBrands(),
