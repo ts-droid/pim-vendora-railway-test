@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class SalesDashboardReporter
 {
+    const EXCLUDE_SALES_PERSONS = [
+        10 // Thomas Söderberg
+    ];
+
     private bool $excludeShipping = false;
 
     private array $customerNumbers;
@@ -512,6 +516,10 @@ class SalesDashboardReporter
             else {
                 $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
             }
+        }
+        else {
+            // Exclude certain sales persons
+            $customersQuery->whereNotIn('sales_people.id', self::EXCLUDE_SALES_PERSONS);
         }
 
         $customers = $customersQuery->get()->toArray();
