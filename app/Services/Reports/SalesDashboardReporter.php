@@ -150,17 +150,17 @@ class SalesDashboardReporter
             'turnover' => [
                 'month' => [
                     'amount' => $periodSummary['current']['turnover'],
-                    'amount_shipping' => $periodSummary['currency']['turnover_shipping'],
+                    'amount_shipping' => $periodSummary['current']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['turnover'],
-                    'amount_shipping' => $yearToDateSummary['currency']['turnover_shipping'],
+                    'amount_shipping' => $yearToDateSummary['current']['turnover_shipping'],
                     'change' => $yearToDateTurnoverChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
-                    'amount_shipping' => $yearSummary['currency']['turnover_shipping'],
+                    'amount_shipping' => $yearSummary['current']['turnover_shipping'],
                     'change' => $yearTurnoverChange,
                 ],
             ],
