@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use App\Services\CustomerCreditService;
 use App\Services\TransactionService;
 use App\Services\WGR\WGROrderQueueService;
 use Illuminate\Support\Facades\DB;
@@ -355,6 +356,8 @@ class SalesDashboardReporter
             date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
         );
 
+        $customerCreditService = new CustomerCreditService();
+
         $topCustomers = [];
 
         foreach ($invoiceLines as $invoiceLine) {
@@ -366,7 +369,7 @@ class SalesDashboardReporter
                     'credit_limit' => $invoiceLine->customer_credit_limit,
                     'credit_balance' => $invoiceLine->customer_credit_balance,
                     'vendora_rating' => $invoiceLine->customer_vendora_rating,
-                    'amount_due' => 0, // TODO: Add real data
+                    'amount_due' => $customerCreditService->getAmountDue($invoiceLine->customer_number),
                     'amount' => 0,
                     'amount_last_year' => 0,
                     'change' => 'inf',
