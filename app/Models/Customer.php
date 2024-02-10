@@ -24,5 +24,8 @@ class Customer extends Model
         'sales_last_30_days',
         'is_hidden',
         'disable_auto_order_process',
+        'credit_limit',
+        'credit_balance',
+        'vendora_rating',
     ];
 }
