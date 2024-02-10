@@ -15,8 +15,15 @@ class CustomerCreditService
         return 0;
     }
 
-    public function calculateVendoraRating(Customer $customer): void
+    public function calculateCustomerCreditBalance(Customer $customer): float
     {
         // TODO: Implement this method
+        return 0;
+    }
+
+    public function calculateVendoraRating(Customer $customer): int
+    {
+        // TODO: Implement this method
+        return 0;
     }
 }
