@@ -4,6 +4,9 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
+use App\Models\Customer;
+use App\Services\CustomerCreditService;
+use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetTransactionService;
 use Illuminate\Console\Command;
@@ -76,7 +79,13 @@ class FetchVismaNet extends Command
                 $vismaTransactionService->fetchTransactions();
                 break;
 
+            case 'payments':
+                $vismaNetPaymentService = new VismaNetCustomerPaymentService();
+                $vismaNetPaymentService->fetchCustomerPayments();
+                break;
+
             case 'daily':
+                // Fetch all data from Visma
                 $this->call('visma:fetch', ['type' => 'customers']);
                 $this->call('visma:fetch', ['type' => 'sales-persons']);
                 $this->call('visma:fetch', ['type' => 'suppliers']);
@@ -86,6 +95,18 @@ class FetchVismaNet extends Command
                 $this->call('visma:fetch', ['type' => 'currency']);
                 $this->call('visma:fetch', ['type' => 'sales-orders']);
                 $this->call('visma:fetch', ['type' => 'transactions']);
+                $this->call('visma:fetch', ['type' => 'payments']);
+
+                // Calculate customer credit values
+                $customers = Customer::all();
+                if ($customers) {
+                    $customerCreditService = new CustomerCreditService();
+
+                    foreach ($customers as $customer) {
+                        $customerCreditService->calculateCustomerCreditBalance($customer);
+                        $customerCreditService->calculateVendoraRating($customer);
+                    }
+                }
                 break;
 
             case 'all':
