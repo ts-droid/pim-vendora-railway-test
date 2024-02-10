@@ -23,11 +23,11 @@ class SalesDashboardReporter
         private readonly mixed $salesPersonIDs,
         private readonly string $customerNumber,
         private readonly string $supplierNumber,
-        private readonly array $period
+        private readonly array $period,
+        private readonly bool $addShipping = false
     )
     {
-        // Include shipping costs if no sales person is selected
-        if ($this->salesPersonIDs || $this->customerNumber || $this->supplierNumber) {
+        if (!$this->addShipping || $this->salesPersonIDs || $this->customerNumber || $this->supplierNumber) {
             $this->excludeShipping = true;
         }
 
@@ -150,42 +150,51 @@ class SalesDashboardReporter
             'turnover' => [
                 'month' => [
                     'amount' => $periodSummary['current']['turnover'],
+                    'amount_shipping' => $periodSummary['currency']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['turnover'],
+                    'amount_shipping' => $yearToDateSummary['currency']['turnover_shipping'],
                     'change' => $yearToDateTurnoverChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
+                    'amount_shipping' => $yearSummary['currency']['turnover_shipping'],
                     'change' => $yearTurnoverChange,
                 ],
             ],
             'margin' => [
                 'month' => [
                     'amount' => $periodSummary['current']['margin'],
+                    'amount_shipping' => $periodSummary['current']['margin_shipping'],
                     'change' => $monthMarginChange,
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['margin'],
+                    'amount_shipping' => $yearToDateSummary['current']['margin_shipping'],
                     'change' => $yearToDateMarginChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['margin'],
+                    'amount_shipping' => $yearSummary['current']['margin_shipping'],
                     'change' => $yearMarginChange,
                 ],
             ],
             'profit' => [
                 'month' => [
                     'amount' => $periodSummary['current']['profit'],
+                    'amount_shipping' => $periodSummary['current']['profit_shipping'],
                     'change' => $monthProfitChange,
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['profit'],
+                    'amount_shipping' => $yearToDateSummary['current']['profit_shipping'],
                     'change' => $yearToDateProfitChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
+                    'amount_shipping' => $yearSummary['current']['profit_shipping'],
                     'change' => $yearProfitChange,
                 ],
             ],
@@ -468,11 +477,19 @@ class SalesDashboardReporter
         $invoiceLines = $this->getInvoiceLines($startDate, $endDate);
 
         $totalPrice = 0;
+        $totalPriceShipping = 0;
+
         $totalCost = 0;
+        $totalCostShipping = 0;
 
         foreach ($invoiceLines as $invoiceLine) {
             $totalPrice += $invoiceLine->amount;
             $totalCost += $invoiceLine->cost;
+
+            if ($invoiceLine->article_number == 'SHIP25') {
+                $totalPriceShipping += $invoiceLine->amount;
+                $totalCostShipping += $invoiceLine->cost;
+            }
         }
 
         // Add cost for shipping (account 4092)
@@ -481,16 +498,25 @@ class SalesDashboardReporter
             $accountSummary = $transactionService->getPeriodSummary('4092', $startDate, $endDate);
 
             $totalCost += ($accountSummary['debit'] - $accountSummary['credit']);
+            $totalCostShipping += ($accountSummary['debit'] - $accountSummary['credit']);
         }
 
         $totalProfit = $totalPrice - $totalCost;
         $totalMargin = ($totalPrice != 0 ? $totalProfit / $totalPrice : 0) * 100;
+
+        $totalProfitShipping = $totalPriceShipping - $totalCostShipping;
+        $totalMarginShipping = ($totalPriceShipping != 0 ? $totalProfitShipping / $totalPriceShipping : 0) * 100;
 
         return [
             'turnover' => round($totalPrice),
             'cost' => round($totalCost),
             'profit' => round($totalProfit),
             'margin' => round($totalMargin, 1),
+
+            'turnover_shipping' => round($totalPriceShipping),
+            'cost_shipping' => round($totalCostShipping),
+            'profit_shipping' => round($totalProfitShipping),
+            'margin_shipping' => round($totalMarginShipping, 1),
         ];
     }
 

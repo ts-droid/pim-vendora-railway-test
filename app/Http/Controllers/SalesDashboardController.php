@@ -16,12 +16,14 @@ class SalesDashboardController extends Controller
         $customerNumber = (string) $request->input('customer_number');
         $supplierNumber = (string) $request->input('supplier_number');
 
+        $addShipping = (bool) $request->input('add_shipping', '0');
+
         $period = [
             $request->input('period_from', date('Y-m-01')),
             $request->input('period_to', date('Y-m-d'))
         ];
 
-        $reporter = new SalesDashboardReporter($salesPersonIDs, $customerNumber, $supplierNumber, $period);
+        $reporter = new SalesDashboardReporter($salesPersonIDs, $customerNumber, $supplierNumber, $period, $addShipping);
 
         $topCustomers = $reporter->getTopCustomers();
         $countryChart = $reporter->getCountryChart($topCustomers);
