@@ -386,13 +386,15 @@ class VismaNetController extends Controller
         }
 
         // Fetch sales orders related to the invoices
-        /*if ($orderNumbers) {
-            $salesOrderService = new VismaNetSalesOrderService();
+        if ($orderNumbers) {
+            // Remove duplicates
+            $orderNumbers = array_unique($orderNumbers);
 
+            $salesOrderService = new VismaNetSalesOrderService();
             foreach ($orderNumbers as $orderNumber) {
                 $salesOrderService->fetchSalesOrder($orderNumber);
             }
-        }*/
+        }
 
         if ($fetchedData) {
             ConfigController::setConfigs(['vismanet_last_customer_invoices_fetch' => $fetchTime]);
