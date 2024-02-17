@@ -81,9 +81,11 @@ class OpenAIController extends Controller
 
         $chatResponse = '';
 
-        foreach ($response['choices'] as $message) {
-            if (($message['message']['role'] ?? '') == 'assistant') {
-                $chatResponse .= ($message['message']['content'] ?? '');
+        if (isset($response['choices']) && is_array($response['choices'])) {
+            foreach ($response['choices'] as $message) {
+                if (($message['message']['role'] ?? '') == 'assistant') {
+                    $chatResponse .= ($message['message']['content'] ?? '');
+                }
             }
         }
 
