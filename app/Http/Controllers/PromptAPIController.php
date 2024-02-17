@@ -60,12 +60,14 @@ class PromptAPIController extends Controller
         $inputs = $inputs ? json_decode($inputs, true) : [];
 
         $customInstructions = (string) $request->input('custom_instructions', '');
+        $model = (string) $request->input('model', '');
 
         $promptController = new PromptController();
         $response = $promptController->execute(
             $request->input('prompt_id'),
             $inputs,
             $customInstructions,
+            $model,
         );
 
         return ApiResponseController::success(['response' => $response]);

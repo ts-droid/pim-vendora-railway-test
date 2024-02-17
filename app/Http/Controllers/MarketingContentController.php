@@ -109,7 +109,7 @@ class MarketingContentController extends Controller
 
         // Stream the response from OpenAI to the client
         $response = new StreamedResponse(function() use ($postData) {
-            $ch = curl_init((env('OPEN_AI_ENDPOINT') . '/v1/chat/completions'));
+            $ch = curl_init((env('OPEN_AI_ENDPOINT') . '/chat/completions'));
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
             curl_setopt($ch, CURLOPT_HTTPHEADER, [

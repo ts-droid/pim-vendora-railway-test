@@ -7,13 +7,23 @@ use Illuminate\Support\Facades\Http;
 
 class OpenAIController extends Controller
 {
+    private string $model;
+
     private string $apiKey;
     private string $apiURL;
 
-    public function __construct()
+    public function __construct(string $model = '')
     {
-        $this->apiKey = env('OPEN_AI_KEY', '');
-        $this->apiURL = env('OPEN_AI_ENDPOINT', '');
+        $this->model = $model ?: env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview');
+
+        if (in_array($this->model, ['pplx-7b-online', 'pplx-70b-online'])) {
+            $this->apiKey = env('PPLX_KEY', '');
+            $this->apiURL = env('PPLX_ENDPOINT', '');
+        }
+        else {
+            $this->apiKey = env('OPEN_AI_KEY', '');
+            $this->apiURL = env('OPEN_AI_ENDPOINT', '');
+        }
     }
 
     public function translate(string $text, string $fromLocale, string $toLocale): string
@@ -54,7 +64,7 @@ class OpenAIController extends Controller
     public function chatCompletion(string $system, string $message): string
     {
         $request = [
-            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'model' => $this->model,
             'messages' => [
                 [
                     'role' => 'system',
@@ -67,7 +77,7 @@ class OpenAIController extends Controller
             ],
         ];
 
-        $response = $this->callAPI('POST', '/v1/chat/completions', $request);
+        $response = $this->callAPI('POST', '/chat/completions', $request);
 
         $chatResponse = '';
 
