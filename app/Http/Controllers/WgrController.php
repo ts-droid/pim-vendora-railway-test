@@ -117,9 +117,20 @@ class WgrController extends Controller
                 continue;
             }
 
+            $videos = [];
+            if (!empty($productData['embedVideo'])) {
+                $videos[] = $productData['embedVideo'];
+            }
+            if (!empty($productData['embedVideo2'])) {
+                $videos[] = $productData['embedVideo2'];
+            }
+            if (!empty($productData['embedVideo3'])) {
+                $videos[] = $productData['embedVideo3'];
+            }
+
             // Fetch article data from API response
             $articleData = [
-                'video' => empty($productData['embedVideo']) ? null : json_encode([$productData['embedVideo']]),
+                'video' => $videos ? json_encode($videos) : null,
                 'webshop_created_at' => $productData['timeCreated'] ?? '',
                 'review_links' => json_encode(json_decode($productData['reviewLinksJSON'], true)),
                 'is_hidden' => ($productData['isHidden'] ?? false) ? 1 : 0,
