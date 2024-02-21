@@ -119,7 +119,7 @@ class WgrController extends Controller
 
             // Fetch article data from API response
             $articleData = [
-                'video' => ($productData['embedVideo'] ?? ''),
+                'video' => empty($productData['embedVideo']) ? null : json_encode([$productData['embedVideo']]),
                 'webshop_created_at' => $productData['timeCreated'] ?? '',
                 'review_links' => json_encode(json_decode($productData['reviewLinksJSON'], true)),
                 'is_hidden' => ($productData['isHidden'] ?? false) ? 1 : 0,
