@@ -363,7 +363,7 @@ class ArticleController extends Controller
             $imageSize = DoSpacesController::getSize($filename);
 
             // Check if the image has a solid background color
-            $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($imageContent, 'topbar');
+            $solidBackground = ImageBackgroundAnalyzer::hasSolidBackgroundAdvanced($imageContent);
 
             ArticleImage::create([
                 'article_id' => $article->id,
