@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\DoSpacesController;
+use App\Jobs\AnalyzeImage;
 use App\Models\ArticleImage;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Console\Command;
@@ -33,36 +34,13 @@ class UpdateImageBackgroundCheck extends Command
         $processType = $this->argument('processType') ?? '';
         $processType = $processType ?: 'advanced';
 
+        $count = 0;
+
         foreach ($images as $image) {
-            $this->output->writeln($image->filename . ': Processing...');
-
-            $content = DoSpacesController::getContent($image->filename);
-
-            switch ($processType) {
-                case 'topbar':
-                    $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($content, 'topbar');
-                    break;
-
-                case 'corners':
-                    $solidBackground = ImageBackgroundAnalyzer::hasSolidBackground($content, 'corners');
-                    break;
-
-                case 'advanced':
-                default:
-                $solidBackground = ImageBackgroundAnalyzer::hasSolidBackgroundAdvanced($content);
-                    break;
-            }
-
-            $image->update([
-                'solid_background' => $solidBackground ? 1 : 0
-            ]);
-
-            $this->output->write("\033[1A\033[K"); // Move cursor up and clear line
-            $this->output->writeln($image->filename . ': ' . ($solidBackground ? 'SOLID' : 'NOT SOLID'));
-
-            sleep(1);
+            AnalyzeImage::dispatch($image, $processType)->onQueue('low');
+            $count++;
         }
 
-        $this->info('DONE!');
+        $this->info('Queue ' . $count . ' items for analyzing.');
     }
 }
