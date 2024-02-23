@@ -59,6 +59,8 @@ class UpdateImageBackgroundCheck extends Command
 
             $this->output->write("\033[1A\033[K"); // Move cursor up and clear line
             $this->output->writeln($image->filename . ': ' . ($solidBackground ? 'SOLID' : 'NOT SOLID'));
+
+            sleep(1);
         }
 
         $this->info('DONE!');
