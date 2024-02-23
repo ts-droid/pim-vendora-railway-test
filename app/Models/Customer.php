@@ -16,6 +16,7 @@ class Customer extends Model
         'org_number',
         'name',
         'country',
+        'alternate_countries',
         'shop_url',
         'shop_search_url',
         'logo_path',
