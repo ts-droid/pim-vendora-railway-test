@@ -83,6 +83,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/sales-persons')->group(function() {
         Route::get('/', [SalesPersonController::class, 'get'])->name('salesPersons.get');
         Route::post('/', [SalesPersonController::class, 'store'])->name('salesPersons.store');
+        Route::get('/{salesPerson}', [SalesPersonController::class, 'getOne'])->name('salesPersons.getOne');
         Route::post('/{salesPerson}', [SalesPersonController::class, 'update'])->name('salesPersons.update');
     });
 

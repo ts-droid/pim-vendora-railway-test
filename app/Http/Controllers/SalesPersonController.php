@@ -40,6 +40,11 @@ class SalesPersonController extends Controller
         return ApiResponseController::success([$salesPerson->toArray()]);
     }
 
+    public function getOne(Request $request, SalesPerson $salesPerson)
+    {
+        return ApiResponseController::success($salesPerson->toArray());
+    }
+
     public function update(Request $request, SalesPerson $salesPerson)
     {
         $fillables = (new SalesPerson)->getFillable();
