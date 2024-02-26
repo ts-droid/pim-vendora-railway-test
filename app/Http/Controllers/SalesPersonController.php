@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalesPerson;
+use App\Services\SalesBudgetService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -58,5 +59,58 @@ class SalesPersonController extends Controller
         $salesPerson->save();
 
         return ApiResponseController::success([$salesPerson->toArray()]);
+    }
+
+    public function allBudget(Request $request)
+    {
+        $year = $request->input('year') ?: date('Y');
+
+        $budget = [];
+
+        $salesPersons = SalesPerson::all();
+
+        if ($salesPersons) {
+            $budgetService = new SalesBudgetService();
+
+            foreach ($salesPersons as $salesPerson) {
+                $budget[$salesPerson->id] = $budgetService->getBudgetForYear([$salesPerson->id], $year);
+            }
+        }
+
+        return ApiResponseController::success($budget);
+    }
+
+    public function budget(Request $request, SalesPerson $salesPerson)
+    {
+        $year = $request->input('year') ?: date('Y');
+
+        $budgetService = new SalesBudgetService();
+        $budget = $budgetService->getBudgetForYear([$salesPerson->id], $year);
+
+        return ApiResponseController::success($budget);
+    }
+
+    public function saveBudget(Request $request, SalesPerson $salesPerson)
+    {
+        $entries = $request->input('entries');
+
+        if ($entries && is_array($entries)) {
+            $budgetService = new SalesBudgetService();
+
+            foreach ($entries as $entry) {
+                $salesPersonID = (int) $entry['sales_person_id'] ?? 0;
+                $year = (int) $entry['year'] ?? 0;
+                $month = (int) $entry['month'] ?? 0;
+                $turnover = (int) $entry['turnover'] ?? 0;
+
+                if (!$salesPersonID || !$year || !$month) {
+                    continue;
+                }
+
+                $budgetService->setBudget($salesPersonID, $year, $month, $turnover);
+            }
+        }
+
+        return ApiResponseController::success();
     }
 }
