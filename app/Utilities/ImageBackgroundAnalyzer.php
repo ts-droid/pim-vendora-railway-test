@@ -31,14 +31,6 @@ class ImageBackgroundAnalyzer
                 // Get the color index for the pixel
                 $rgb = imagecolorat($image, $x, $y);
 
-                // Get the alpha value
-                $alpha = ($rgb & 0x7F000000) >> 24;
-
-                if ($alpha > 0) {
-                    // Transparent pixel found, this must be a solid background image
-                    return true;
-                }
-
                 // Convert the color index to a hex code
                 $colors = imagecolorsforindex($image, $rgb);
                 $hexCode = sprintf("#%02x%02x%02x", $colors['red'], $colors['green'], $colors['blue']);
