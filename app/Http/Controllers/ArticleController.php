@@ -97,6 +97,19 @@ class ArticleController extends Controller
             }
         }
 
+        // Load categories
+        $articleCategoryController = new ArticleCategoryController();
+
+        foreach ($articles as &$article) {
+            $categoryIDs = json_decode($article->category_ids, true);
+
+            $article['categories'] = [];
+
+            if ($categoryIDs) {
+                $article['categories'] = $articleCategoryController->getCategoryTree($categoryIDs);
+            }
+        }
+
         return ApiResponseController::success($articles);
     }
 
