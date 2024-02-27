@@ -101,7 +101,7 @@ class ArticleController extends Controller
         $articleCategoryController = new ArticleCategoryController();
 
         foreach ($articles as &$article) {
-            $categoryIDs = json_decode($article->category_ids, true);
+            $categoryIDs = json_decode($article['category_ids'], true);
 
             $article['categories'] = [];
 
