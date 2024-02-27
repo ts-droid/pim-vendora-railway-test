@@ -97,20 +97,19 @@ class ArticleController extends Controller
             }
         }
 
-        // Load categories
-        $articleCategoryController = new ArticleCategoryController();
+        return ApiResponseController::success($articles);
+    }
 
-        foreach ($articles as &$article) {
-            $categoryIDs = json_decode($article['category_ids'], true);
+    public function getCategories(Request $request, Article $article)
+    {
+        $categories = [];
 
-            $article['categories'] = [];
-
-            if ($categoryIDs) {
-                $article['categories'] = $articleCategoryController->getCategoryTree($categoryIDs);
-            }
+        if ($article->category_ids && is_array($article->category_ids)) {
+            $articleCategoryController = new ArticleCategoryController();
+            $categories = $articleCategoryController->getCategoryTree($article->category_ids);
         }
 
-        return ApiResponseController::success($articles);
+        return ApiResponseController::success($categories);
     }
 
     public function get(Request $request)
