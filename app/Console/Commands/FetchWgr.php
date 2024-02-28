@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\WgrController;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class FetchWgr extends Command
 {
@@ -26,19 +27,37 @@ class FetchWgr extends Command
      */
     public function handle()
     {
-        $type = $this->argument('type');
-        $skipImages = (int) $this->argument('skipImages');
-        $data = $this->argument('data');
+        $lockName = 'wgr-fetch-command';
+        $lockTimeout = 60 * 60 * 2; // 2 hours
 
-        $forceAll = $type === 'all';
+        // attempt to acquire the lock
+        if (Cache::lock($lockName, $lockTimeout)->get()) {
 
-        $wgrController = new WgrController();
+            try {
 
-        if ($data == 'all') {
-            $wgrController->fetchAll($forceAll, $skipImages);
+                $type = $this->argument('type');
+                $skipImages = (int) $this->argument('skipImages');
+                $data = $this->argument('data');
+
+                $forceAll = $type === 'all';
+
+                $wgrController = new WgrController();
+
+                if ($data == 'all') {
+                    $wgrController->fetchAll($forceAll, $skipImages);
+                }
+                else if ($data == 'prices') {
+                    $wgrController->fetchPriceLists();
+                }
+
+            } finally {
+                // Release the lock after the command is finished
+                Cache::lock($lockName)->release();
+            }
+
         }
-        else if ($data == 'prices') {
-            $wgrController->fetchPriceLists();
+        else {
+            $this->info('Another instance of the command is already running.');
         }
     }
 }
