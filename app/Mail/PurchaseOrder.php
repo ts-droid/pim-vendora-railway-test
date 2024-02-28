@@ -47,7 +47,7 @@ class PurchaseOrder extends Mailable
         $this->emailSubject = str_replace('dagar', 'days', $this->emailSubject);
         $this->emailBody = str_replace('dagar', 'days', $this->emailBody);
 
-        $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Confirm the order here</a>', $this->emailBody);
+        $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Manage the order here</a>', $this->emailBody);
         $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.orderTable', compact('purchaseOrder'))->render(), $this->emailBody);
 
         // Add reminder prefix
