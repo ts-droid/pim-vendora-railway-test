@@ -44,6 +44,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/commands')->group(function() {
         Route::post('/artisan', [ArtisanCommandController::class, 'run'])->name('commands.artisan');
+        Route::post('/artisan/queue', [ArtisanCommandController::class, 'queue'])->name('commands.artisan.queue');
     });
 
     Route::prefix('/config')->group(function() {

@@ -2,11 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\QueueCommand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
 class ArtisanCommandController extends Controller
 {
+    public function queue(Request $request)
+    {
+        $command = $request->input('command');
+        $arguments = $request->input('arguments') ?: [];
+
+        if (!$command) {
+            return ApiResponseController::error('No command provided.');
+        }
+
+        QueueCommand::dispatch($command, $arguments);
+
+        return ApiResponseController::success(['message' => 'Command queued.']);
+    }
+
     public function run(Request $request)
     {
         $command = $request->input('command');
