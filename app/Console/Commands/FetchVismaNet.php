@@ -93,7 +93,6 @@ class FetchVismaNet extends Command
                 $this->call('visma:fetch', ['type' => 'purchase-orders']);
                 $this->call('visma:fetch', ['type' => 'inventory-receipts']);
                 $this->call('visma:fetch', ['type' => 'currency']);
-                $this->call('visma:fetch', ['type' => 'sales-orders']);
                 $this->call('visma:fetch', ['type' => 'transactions']);
                 //$this->call('visma:fetch', ['type' => 'payments']);
 
