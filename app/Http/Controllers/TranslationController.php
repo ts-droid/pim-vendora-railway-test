@@ -58,7 +58,7 @@ class TranslationController extends Controller
         // Replace excludes with placeholders
         for ($i = 0;$i < count($excludes);$i++) {
             for ($j = 0;$j < count($strings);$j++) {
-                $strings[$j] = str_replace($excludes[$i], '[V_A_R_I_A_B_L_E_' . $i . ']', $strings[$j]);
+                $strings[$j] = str_replace($excludes[$i], '[XXXXXXXXXX_' . $i . ']', $strings[$j]);
             }
         }
 
@@ -67,7 +67,7 @@ class TranslationController extends Controller
         // Replace placeholders with excludes
         for ($i = 0;$i < count($excludes);$i++) {
             for ($j = 0;$j < count($translations);$j++) {
-                $translations[$j] = str_replace('[V_A_R_I_A_B_L_E_' . $i . ']', $excludes[$i], $translations[$j]);
+                $translations[$j] = str_replace('[XXXXXXXXXX_' . $i . ']', $excludes[$i], $translations[$j]);
             }
         }
 
