@@ -71,6 +71,16 @@ class TranslationController extends Controller
             }
         }
 
+        // Replace language URLs
+        $languageController = new LanguageController();
+        foreach ($languageController->getAllLanguages() as $language) {
+            for ($i = 0;$i < count($translations);$i++) {
+                $translations[$i] = str_replace('.com/' . $language->language_code . '/', '.com/' . $targetLang . '/', $translations[$i]);
+                $translations[$i] = str_replace('.sv/' . $language->language_code . '/', '.sv/' . $targetLang . '/', $translations[$i]);
+                $translations[$i] = str_replace('.net/' . $language->language_code . '/', '.net/' . $targetLang . '/', $translations[$i]);
+            }
+        }
+
         return ApiResponseController::success($translations);
     }
 
