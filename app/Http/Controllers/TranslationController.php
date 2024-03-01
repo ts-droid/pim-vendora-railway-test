@@ -67,7 +67,7 @@ class TranslationController extends Controller
         // Replace placeholders with excludes
         for ($i = 0;$i < count($excludes);$i++) {
             for ($j = 0;$j < count($translations);$j++) {
-                $translations[$j] = str_replace('[VARIABLE_' . $i . ']', $excludes[$i], $translations[$j]);
+                $translations[$j] = str_replace('[V_A_R_I_A_B_L_E_' . $i . ']', $excludes[$i], $translations[$j]);
             }
         }
 
