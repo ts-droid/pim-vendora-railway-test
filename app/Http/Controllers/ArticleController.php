@@ -221,6 +221,15 @@ class ArticleController extends Controller
         return ApiResponseController::success($articleImage->toArray());
     }
 
+    public function updateImageSolid(Request $request, Article $article, ArticleImage $articleImage)
+    {
+        $articleImage->update([
+            'solid_background' => (int) $request->input('solid_background', 0),
+        ]);
+
+        return ApiResponseController::success($articleImage->toArray());
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
