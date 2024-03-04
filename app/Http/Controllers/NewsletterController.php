@@ -24,7 +24,7 @@ class NewsletterController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|unique:newsletter_subscribers,email',
+            'email' => 'required|string',
             'source' => 'string',
         ]);
 
@@ -34,9 +34,20 @@ class NewsletterController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
+        $email = mb_strtolower($request->input('email'));
+        $source = mb_strtolower($request->input('source'));
+
+        $existingSubscriber = NewsletterSubscriber::where('email', $email)
+            ->where('source', $request->input('source', $source))
+            ->first();
+
+        if ($existingSubscriber) {
+            return ApiResponseController::success($existingSubscriber->toArray());
+        }
+
         $newsletterSubscriber = NewsletterSubscriber::create([
-            'email' => $request->input('email'),
-            'source' => $request->input('source', ''),
+            'email' => $email,
+            'source' => $source,
             'first_name' => $request->input('first_name', ''),
             'last_name' => $request->input('last_name', ''),
         ]);
