@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\Supplier;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -174,6 +175,26 @@ class ArticleController extends Controller
         }
 
         return ApiResponseController::success($articles);
+    }
+
+    public function getAllImages(Request $request)
+    {
+        $supplierID = (int) $request->get('supplier_id', 0);
+        if (!$supplierID) {
+            return ApiResponseController::success();
+        }
+
+        $supplier = Supplier::find($supplierID);
+
+        $articleIDs = DB::table('articles')
+            ->select('id')
+            ->where('supplier_number', $supplier->number)
+            ->pluck('id')
+            ->toArray();
+
+        $images = ArticleImage::whereIn('article_id', $articleIDs)->get();
+
+        return ApiResponseController::success($images->toArray());
     }
 
     public function getImages(Request $request, Article $article)

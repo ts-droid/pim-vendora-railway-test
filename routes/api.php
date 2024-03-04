@@ -128,6 +128,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/retailers', [ArticleController::class, 'getRetailers'])->name('articles.getRetailers');
         Route::get('/{article}/categories', [ArticleController::class, 'getCategories'])->name('articles.getCategories');
 
+        Route::get('/images', [ArticleController::class, 'getAllImages'])->name('articles.getAllImages');
+
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
         Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
     });
