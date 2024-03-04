@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\LanguageApiController;
 use App\Http\Controllers\MarketingContentController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PromptAPIController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Reports\ArticleSalesController;
@@ -59,6 +60,11 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::any('/activate/{languageCode}', [LanguageApiController::class, 'activateLanguage'])->name('languages.activateLanguage');
         Route::any('/deactivate/{languageCode}', [LanguageApiController::class, 'deactivateLanguage'])->name('languages.deactivateLanguage');
         Route::post('/create', [LanguageApiController::class, 'createLanguage'])->name('languages.createLanguage');
+    });
+
+    Route::prefix('/newsletter')->group(function() {
+        Route::get('/', [NewsletterController::class, 'get'])->name('newsletter.get');
+        Route::post('/', [NewsletterController::class, 'store'])->name('newsletter.store');
     });
 
     Route::prefix('/prompt')->group(function() {
