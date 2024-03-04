@@ -71,8 +71,8 @@ class MetaDataController extends Controller
     public function generateDescriptionForArticle(Article $article)
     {
         // Construct the prompt
-        $system = 'NAME: ' . $article->{'shop_title_' . self::BASE_LOCALE} . PHP_EOL . PHP_EOL .
-                    'DESCRIPTION: ' . $article->{'shop_description_' . self::BASE_LOCALE};
+        $system = 'NAMN: ' . $article->{'shop_title_' . self::BASE_LOCALE} . PHP_EOL . PHP_EOL .
+                    'BESKRIVNING: ' . $article->{'shop_description_' . self::BASE_LOCALE};
 
         $message = 'Läs igenom NAMN och BESKRIVNING och skriv en meta description för produkten i ett SEO syfte.
         Meta beskrivningen får vara maximal 160 tecken lång. Du får absolut INTE använda mer än 160 tecken.
