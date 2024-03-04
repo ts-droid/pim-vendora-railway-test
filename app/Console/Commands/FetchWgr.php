@@ -27,37 +27,19 @@ class FetchWgr extends Command
      */
     public function handle()
     {
-        $lockName = 'wgr-fetch-command';
-        $lockTimeout = 60 * 60 * 2; // 2 hours
+        $type = $this->argument('type');
+        $skipImages = (int) $this->argument('skipImages');
+        $data = $this->argument('data');
 
-        // attempt to acquire the lock
-        if (Cache::lock($lockName, $lockTimeout)->get()) {
+        $forceAll = $type === 'all';
 
-            try {
+        $wgrController = new WgrController();
 
-                $type = $this->argument('type');
-                $skipImages = (int) $this->argument('skipImages');
-                $data = $this->argument('data');
-
-                $forceAll = $type === 'all';
-
-                $wgrController = new WgrController();
-
-                if ($data == 'all') {
-                    $wgrController->fetchAll($forceAll, $skipImages);
-                }
-                else if ($data == 'prices') {
-                    $wgrController->fetchPriceLists();
-                }
-
-            } finally {
-                // Release the lock after the command is finished
-                Cache::lock($lockName)->release();
-            }
-
+        if ($data == 'all') {
+            $wgrController->fetchAll($forceAll, $skipImages);
         }
-        else {
-            $this->info('Another instance of the command is already running.');
+        else if ($data == 'prices') {
+            $wgrController->fetchPriceLists();
         }
     }
 }
