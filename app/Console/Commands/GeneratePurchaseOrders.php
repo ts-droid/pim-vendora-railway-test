@@ -29,7 +29,7 @@ class GeneratePurchaseOrders extends Command
         $supplierID = $this->argument('supplierID') ?? 0;
         $isEmpty = $this->argument('isEmpty') ?? 0;
 
-        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID, $isEmpty);
+        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID, $isEmpty)->onQueue('high');
 
         $this->info('Generating purchase orders...');
     }

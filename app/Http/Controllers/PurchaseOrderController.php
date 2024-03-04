@@ -330,7 +330,7 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrder->update(['is_generating' => 1]);
 
-        RegeneratePurchaseOrder::dispatch($purchaseOrder);
+        RegeneratePurchaseOrder::dispatch($purchaseOrder)->onQueue('high');
 
         return ApiResponseController::success();
     }
