@@ -13,7 +13,7 @@ class NewsletterController extends Controller
         $query = NewsletterSubscriber::query();
 
         if ($request->has('source')) {
-            $query->where('source');
+            $query->where('source', $request->input('source'));
         }
 
         $subscribers = $query->get();
