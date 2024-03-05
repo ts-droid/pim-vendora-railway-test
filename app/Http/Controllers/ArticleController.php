@@ -180,17 +180,28 @@ class ArticleController extends Controller
     public function getAllImages(Request $request)
     {
         $supplierID = (int) $request->get('supplier_id', 0);
-        if (!$supplierID) {
+        $articleNumber = $request->get('article_number', '');
+
+        if (!$supplierID && !$articleNumber) {
             return ApiResponseController::success();
         }
 
-        $supplier = Supplier::find($supplierID);
+        $supplier = null;
+        if ($supplierID) {
+            $supplier = Supplier::find($supplierID);
+        }
 
-        $articleIDs = DB::table('articles')
-            ->select('id')
-            ->where('supplier_number', $supplier->number)
-            ->pluck('id')
-            ->toArray();
+        $query = DB::table('articles')
+            ->select('id');
+
+        if ($supplier) {
+            $query->where('supplier_number', $supplier->number);
+        }
+        if ($articleNumber) {
+            $query->where('article_number', $articleNumber);
+        }
+
+        $articleIDs = $query->pluck('id')->toArray();
 
         $images = ArticleImage::whereIn('article_id', $articleIDs)->get();
 
