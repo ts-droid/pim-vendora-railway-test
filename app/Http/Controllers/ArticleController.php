@@ -7,6 +7,7 @@ use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
+use App\Services\VismaNet\VismaNetArticleService;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -325,6 +326,9 @@ class ArticleController extends Controller
         $articles = $request->get('articles');
 
         if ($articles) {
+
+            $vismaNetArticleService = new VismaNetArticleService();
+
             foreach ($articles as $article) {
                 $articleNumber = (string) $article['article_number'] ?? '';
 
@@ -335,7 +339,9 @@ class ArticleController extends Controller
                 $fillables = get_model_attributes(Article::class);
                 $allowedUpdates = array_intersect_key($article, array_flip($fillables));
 
-                Article::where('article_number', $articleNumber)->update($allowedUpdates);
+                $article = Article::where('article_number', $articleNumber)->update($allowedUpdates);
+
+                $vismaNetArticleService->updateArticle($article);
             }
         }
 
