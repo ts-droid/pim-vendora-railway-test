@@ -339,7 +339,9 @@ class ArticleController extends Controller
                 $fillables = get_model_attributes(Article::class);
                 $allowedUpdates = array_intersect_key($article, array_flip($fillables));
 
-                $article = Article::where('article_number', $articleNumber)->update($allowedUpdates);
+                Article::where('article_number', $articleNumber)->update($allowedUpdates);
+
+                $article = Article::where('article_number', $articleNumber)->first();
 
                 $vismaNetArticleService->updateArticle($article);
             }
