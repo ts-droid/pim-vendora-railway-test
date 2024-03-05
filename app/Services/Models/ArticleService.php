@@ -30,8 +30,8 @@ class ArticleService
             }
 
             // Push the update ti Visma.net
-            $vismaNetArticleService = new VismaNetArticleService();
-            $vismaNetArticleService->updateArticle($this->article);
+            //$vismaNetArticleService = new VismaNetArticleService();
+            //$vismaNetArticleService->updateArticle($this->article);
 
         }
     }
