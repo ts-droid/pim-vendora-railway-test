@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class SupplierController extends Controller
 {
@@ -46,6 +47,7 @@ class SupplierController extends Controller
             'currency' => ($request->currency ?? ''),
             'language' => ($request->language ?? ''),
             'is_supplier' => (int) ($request->is_supplier ?? 0),
+            'access_key' => Str::random(32)
         ]);
 
         return ApiResponseController::success([$supplier->toArray()]);

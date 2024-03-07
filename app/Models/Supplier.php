@@ -28,5 +28,6 @@ class Supplier extends Model
         'purchase_order_interval',
         'email',
         'email_reminder',
+        'access_key'
     ];
 }
