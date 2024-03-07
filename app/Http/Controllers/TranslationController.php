@@ -55,21 +55,7 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
-        // Replace excludes with placeholders
-        for ($i = 0;$i < count($excludes);$i++) {
-            for ($j = 0;$j < count($strings);$j++) {
-                $strings[$j] = str_replace($excludes[$i], ' [1010_' . $i . '] ', $strings[$j]);
-            }
-        }
-
-        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML);
-
-        // Replace placeholders with excludes
-        for ($i = 0;$i < count($excludes);$i++) {
-            for ($j = 0;$j < count($translations);$j++) {
-                $translations[$j] = str_replace(' [1010_' . $i . '] ', $excludes[$i], $translations[$j]);
-            }
-        }
+        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
 
         // Replace language URLs
         $languageController = new LanguageController();
@@ -93,8 +79,25 @@ class TranslationController extends Controller
      * @param bool $isHTML
      * @return array
      */
-    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false): array
+    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
     {
+        // Merge excludes with global excludes
+        $globalExcludes = ConfigController::getConfig('translation_excludes');
+        $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
+
+        $excludes = array_merge($excludes, $globalExcludes);
+
+        $excludes = array_filter($excludes);
+
+        // Replace excludes with placeholders
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($strings);$j++) {
+                $strings[$j] = str_replace($excludes[$i], ' [1010_' . $i . '] ', $strings[$j]);
+            }
+        }
+
+
+        // Translate all the strings
         $options = [];
 
         if ($isHTML) {
@@ -119,6 +122,15 @@ class TranslationController extends Controller
                 $translations[] = '';
             }
         }
+
+
+        // Replace placeholders with excludes
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($translations);$j++) {
+                $translations[$j] = str_replace(' [1010_' . $i . '] ', $excludes[$i], $translations[$j]);
+            }
+        }
+
 
         return $translations;
     }
