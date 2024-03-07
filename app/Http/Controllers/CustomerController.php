@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class CustomerController extends Controller
 {
@@ -62,6 +63,7 @@ class CustomerController extends Controller
             'name' => $request->name,
             'country' => (string)($request->country ?? ''),
             'shop_url' => (string)($request->shop_url ?? ''),
+            'access_key' => Str::random(32),
         ];
 
         // Upload logo?

@@ -28,5 +28,6 @@ class Customer extends Model
         'credit_limit',
         'credit_balance',
         'vendora_rating',
+        'access_key',
     ];
 }
