@@ -64,3 +64,6 @@ Route::prefix('/purchase-order')->group(function() {
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
+
+require __DIR__ . '/supplierPortal.php';
+
