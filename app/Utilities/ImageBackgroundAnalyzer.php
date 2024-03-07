@@ -30,11 +30,16 @@ class ImageBackgroundAnalyzer
             for ($y = 0;$y < $height;$y++) {
                 // Get the color index for the pixel
                 $rgba = imagecolorat($image, $x, $y);
+                $colorCount = imagecolorstotal($image);
 
                 // If the pixel is transparent, count it as white
                 $alpha = ($rgba & 0x7F000000) >> 24;
                 if ($alpha == 127) {
                     $rgba = 0xFFFFFFFF;
+                }
+
+                if ($rgba < 0 || $rgba >= $colorCount) {
+                    continue;
                 }
 
                 // Convert the color index to a hex code
