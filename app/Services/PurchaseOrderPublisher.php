@@ -73,7 +73,7 @@ class PurchaseOrderPublisher
                     log_data('Failed to send purchase order price change confirmation email. (Error: ' . $e->getMessage() . ')');
                 }
 
-                return ['success' => true];
+                return ['success' => true, 'message' => ''];
             }
         }
 
@@ -94,7 +94,7 @@ class PurchaseOrderPublisher
             'published_at' => date('Y-m-d H:i:s')
         ]);
 
-        return ['success' => true];
+        return ['success' => true, 'message' => ''];
     }
 
     /**
@@ -154,24 +154,28 @@ class PurchaseOrderPublisher
             // Handle EOL items
             if ($item['status'] == 'eol') {
                 $eolArticleNumbers[] = $orderLine->article_number;
-
                 $orderLine->delete();
+                continue;
+            }
 
+            // Handle declined items
+            if ($items['status'] == 'decline') {
+                $orderLine->delete();
                 continue;
             }
 
             // Set the shipping date
             $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * 5))); // Add 5 days to the promised date
 
-            $orderLine->update([
-                'promised_date' => $shippingDate
-            ]);
-
             if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
                 $orderPromisedDate = $shippingDate;
             }
 
             // Update the order line unit cost
+            $unitCost = $orderLine->unit_cost;
+            $oldUnitCost = $orderLine->old_unit_cost;
+            $quantity = (int) ($item['quantity'] ?: $orderLine->quantity);
+
             if (isset($item['unit_cost'])) {
                 $unitCost = (float) str_replace(',', '.', $item['unit_cost']);
 
@@ -184,13 +188,17 @@ class PurchaseOrderPublisher
                         'to' => $unitCost,
                     ];
 
-                    $orderLine->update([
-                        'unit_cost' => $unitCost,
-                        'old_unit_cost' => $orderLine->unit_cost,
-                        'amount' => round(($unitCost * $orderLine->quantity), 2)
-                    ]);
+                    $oldUnitCost = $orderLine->unit_cost;
                 }
             }
+
+            // Update local order line
+            $orderLine->update([
+                'promised_date' => $shippingDate,
+                'unit_cost' => $unitCost,
+                'old_unit_cost' => $oldUnitCost,
+                'amount' => round(($unitCost * $quantity), 2),
+            ]);
         }
 
         // Calculate the order total

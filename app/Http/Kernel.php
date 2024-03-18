@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'api.key' => EnsureApiKeyIsValid::class,
         'gzip' => \App\Http\Middleware\GzipMiddleware::class,
+        'supplierPortal' => \App\Http\Middleware\SupplierPortalMiddleware::class,
     ];
 }

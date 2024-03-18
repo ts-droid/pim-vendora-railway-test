@@ -142,7 +142,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             ];
         }
 
-        return ['success' => true];
+        return ['success' => true, 'message' => ''];
     }
 
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = '')
