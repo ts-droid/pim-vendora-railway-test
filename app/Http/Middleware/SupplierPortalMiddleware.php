@@ -28,8 +28,7 @@ class SupplierPortalMiddleware
             $accessKey = $request->cookie('supplier_access_key');
         }
 
-        $accessService = new SupplierPortalAccessService();
-        if ($accessService->validateAccessKey($accessKey) === false) {
+        if (SupplierPortalAccessService::validateAccessKey($accessKey) === false) {
             abort(401);
         }
 

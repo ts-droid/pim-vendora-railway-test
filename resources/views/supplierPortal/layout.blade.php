@@ -14,6 +14,14 @@
     <body>
         @include('supplierPortal.header')
 
+        <div class="container-fluid my-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <b>You are logged in as:</b> {{ \App\Services\SupplierPortal\SupplierPortalAccessService::getActiveSupplier()->name }}
+                </div>
+            </div>
+        </div>
+
         @yield('content')
     </body>
 
