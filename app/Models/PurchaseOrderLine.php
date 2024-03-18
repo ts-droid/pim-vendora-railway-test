@@ -44,7 +44,7 @@ class PurchaseOrderLine extends Model
     public function getShippingDate()
     {
         if ($this->promised_date) {
-            return date('Y-m-d', strtotime($this->promised_date - (86400 * PurchaseOrderPublisher::SHIPPING_DATE_BUFFER)));
+            return date('Y-m-d', strtotime($this->promised_date) - (86400 * PurchaseOrderPublisher::SHIPPING_DATE_BUFFER));
         }
 
         return '';
