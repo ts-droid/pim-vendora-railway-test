@@ -77,7 +77,9 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                             <td class="text-end js-total-quantity">{{ number_format($totalQuantity, 2, '.', '') }}</td>
                             <td class="text-end js-total-price">{{ number_format($total, 2, '.', '') }}</td>
                             <td></td>
-                            <td></td>
+                            @if($portalStatus == 'unconfirmed')
+                                <td></td>
+                            @endif
                         </tr>
                         </tbody>
                     </table>
