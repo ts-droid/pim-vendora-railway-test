@@ -19,11 +19,13 @@ class SupplierPortalController extends Controller
         $purchaseOrders['unconfirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->where('is_po_system', '=', 1)
             ->whereNull('published_at')
+            ->orderBy('date', 'desc')
             ->get();
 
         $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->where('is_po_system', '=', 1)
             ->whereNotNull('published_at')
+            ->orderBy('date', 'desc')
             ->get();
 
         return view('supplierPortal.pages.index', compact('purchaseOrders'));
