@@ -174,7 +174,7 @@ class PurchaseOrderPublisher
             // Update the order line unit cost
             $unitCost = $orderLine->unit_cost;
             $oldUnitCost = $orderLine->old_unit_cost;
-            $quantity = (int) ($item['quantity'] ?: $orderLine->quantity);
+            $quantity = (int) ($item['quantity'] ?? $orderLine->quantity);
 
             if (isset($item['unit_cost'])) {
                 $unitCost = (float) str_replace(',', '.', $item['unit_cost']);
