@@ -103,6 +103,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
     <script>
         $(function() {
             $('.js-datepicker').each(function() {
+                if ($(this).is('[readonly]')) {
+                    // Do not active for readonly inputs
+                    return;
+                }
+
                 $(this).datepicker({
                     minDate: 0,
                     firstDay: 1,
