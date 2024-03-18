@@ -11,8 +11,7 @@ class SupplierPortalController extends Controller
 {
     public function index(Request $request)
     {
-        $accessService = new SupplierPortalAccessService();
-        $supplier = $accessService->getActiveSupplier();
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
 
         // Fetch purchase orders
         $purchaseOrders = [];
@@ -25,7 +24,7 @@ class SupplierPortalController extends Controller
             ->whereNotNull('published_at')
             ->get();
 
-        return view('supplierPortal.pages.index', compact('supplier', 'purchaseOrders'));
+        return view('supplierPortal.pages.index', compact('purchaseOrders'));
     }
 
     public function order(PurchaseOrder $purchaseOrder, string $hash)
