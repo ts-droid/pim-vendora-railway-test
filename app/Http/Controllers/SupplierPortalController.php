@@ -16,11 +16,11 @@ class SupplierPortalController extends Controller
         // Fetch purchase orders
         $purchaseOrders = [];
 
-        $purchaseOrders['unconfirmed'] = PurchaseOrder::where('supplier_id', $supplier->id)
+        $purchaseOrders['unconfirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->whereNull('published_at')
             ->get();
 
-        $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->id)
+        $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->whereNotNull('published_at')
             ->get();
 
