@@ -54,4 +54,13 @@ class PurchaseOrder extends Model
     {
         return hash('md5', ($this->id . $this->created_at));
     }
+
+    public function getPortalStatus(): string
+    {
+        if (!$this->published_at) {
+            return 'unconfirmed';
+        }
+
+        return 'confirmed';
+    }
 }

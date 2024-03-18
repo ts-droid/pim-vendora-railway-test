@@ -7,6 +7,7 @@
             <div class="col-md-12">
                 <div><b>Order no:</b> {{ $purchaseOrder->order_number }}</div>
                 <div><b>Order date:</b> {{ $purchaseOrder->date }}</div>
+                <div><b>Status:</b> {{ $purchaseOrder->getPortalStatus() }}</div>
             </div>
         </div>
 
