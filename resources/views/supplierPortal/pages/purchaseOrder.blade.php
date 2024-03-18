@@ -41,6 +41,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                         @php($totalQuantity = 0)
 
                         @foreach($purchaseOrder->lines as $line)
+
                             @php($total += ($line->quantity * $line->unit_cost))
                             @php($totalQuantity += $line->quantity)
 
