@@ -21,6 +21,10 @@ class SupplierPortalController extends Controller
             ->whereNull('published_at')
             ->get();
 
+        $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->id)
+            ->whereNotNull('published_at')
+            ->get();
+
         return view('supplierPortal.pages.index', compact('supplier', 'purchaseOrders'));
     }
 
