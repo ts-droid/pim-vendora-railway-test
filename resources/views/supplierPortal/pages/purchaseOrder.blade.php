@@ -74,7 +74,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td class="text-end js-total-quantity">{{ number_format($totalQuantity, 2, '.', '') }}</td>
+                            <td class="text-end js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
                             <td class="text-end js-total-price">{{ number_format($total, 2, '.', '') }}</td>
                             <td></td>
                             @if($portalStatus == 'unconfirmed')
@@ -142,7 +142,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
             });
 
             $('.js-total-price').text(total.toFixed(2));
-            $('.js-total-quantity').text(totalQuantity.toFixed(2));
+            $('.js-total-quantity').text(totalQuantity.toFixed(0));
         }
 
         function confirmOrder()
