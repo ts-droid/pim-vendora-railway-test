@@ -25,6 +25,18 @@ class SupplierPortalController extends Controller
         $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->where('is_po_system', '=', 1)
             ->whereNotNull('published_at')
+            ->whereHas('lines', function ($query) {
+                $query->where('is_completed', '=', 0);
+            })
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $purchaseOrders['closed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
+            ->where('is_po_system', '=', 1)
+            ->whereNotNull('published_at')
+            ->whereDoesntHave('lines', function ($query) {
+                $query->where('is_completed', '=', 0);
+            })
             ->orderBy('date', 'desc')
             ->get();
 

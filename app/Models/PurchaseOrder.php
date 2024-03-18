@@ -61,6 +61,12 @@ class PurchaseOrder extends Model
             return 'unconfirmed';
         }
 
-        return 'confirmed';
+        foreach ($this->lines as $line) {
+            if ($line->is_completed == 0) {
+                return 'open';
+            }
+        }
+
+        return 'closed';
     }
 }
