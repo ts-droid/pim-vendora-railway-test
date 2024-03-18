@@ -13,7 +13,7 @@ class SupplierPortalAccessService
 
     public static function getActiveSupplier(): ?Supplier
     {
-        $supplier = Supplier::where('access_key', request()->cookie('supplier_access_key'))->first();
+        $supplier = Supplier::where('access_key', request()->input('supplier_access_key'))->first();
 
         return $supplier ?: null;
     }

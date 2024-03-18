@@ -16,18 +16,33 @@ class SupplierPortalMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
-
+        // Check if the access_key is present in the request
         if ($request->has('access_key')) {
             $accessKey = $request->input('access_key');
 
+            // Manually add the access_key to the request for immediate use
+            $request->merge(['supplier_access_key' => $accessKey]);
+
+            // Create the cookie and add it to the response for future requests
             $cookie = cookie('supplier_access_key', $accessKey, 360);
-            $response->cookie($cookie);
         }
         else {
+            // If not present in the request, try getting it from the cookie
             $accessKey = $request->cookie('supplier_access_key');
+
+            // Even if it's retrieved from the cookie, ensure it's in the request for consistent access
+            $request->merge(['supplier_access_key' => $accessKey]);
         }
 
+        // Continue with the request
+        $response = $next($request);
+
+        // If a new cookie was created, add it to the response
+        if (isset($cookie)) {
+            $response->cookie($cookie);
+        }
+
+        // Access key validation
         if (SupplierPortalAccessService::validateAccessKey($accessKey) === false) {
             abort(401);
         }
