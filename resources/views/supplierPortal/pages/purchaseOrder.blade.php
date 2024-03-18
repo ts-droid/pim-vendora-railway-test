@@ -1,3 +1,10 @@
+@php
+$portalStatus = $purchaseOrder->getPortalStatus();
+
+$priceEditable = $portalStatus == 'unconfirmed';
+$quantityEditable = $portalStatus == 'unconfirmed';
+@endphp
+
 @extends('supplierPortal.layout')
 
 @section('content')
@@ -7,7 +14,7 @@
             <div class="col-md-12">
                 <div><b>Order no:</b> {{ $purchaseOrder->order_number }}</div>
                 <div><b>Order date:</b> {{ $purchaseOrder->date }}</div>
-                <div><b>Status:</b> {{ $purchaseOrder->getPortalStatus() }}</div>
+                <div><b>Status:</b> {{ $portalStatus }}</div>
             </div>
         </div>
 
@@ -23,7 +30,9 @@
                             <th class="text-end">Quantity</th>
                             <th class="text-end">Total</th>
                             <th class="text-end">Shipping date</th>
-                            <th class="text-end">Status</th>
+                            @if($portalStatus == 'unconfirmed')
+                                <th class="text-end">Status</th>
+                            @endif
                         </tr>
                         </thead>
                         <tbody>
@@ -32,31 +41,34 @@
                         @php($totalQuantity = 0)
 
                         @foreach($purchaseOrder->lines as $line)
-
-                            @php($total += ($line->quantity * $line->unit_cost))
-                            @php($totalQuantity += $line->quantity)
+                            @php
+                                $total += ($line->quantity * $line->unit_cost);
+                                $totalQuantity += $line->quantity;
+                            @endphp
 
                             <tr class="js-item-row" data-id="{{ $line->id }}">
                                 <td>{{ $line->article_number }}</td>
                                 <td>{{ $line->description }}</td>
                                 <td style="width: 100px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}">
+                                    <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
                                 </td>
                                 <td style="width: 100px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}">
+                                    <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
                                 </td>
                                 <td style="width: 100px;" class="text-end js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', '') }}</td>
                                 <td style="width: 150px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}">
+                                    <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                 </td>
-                                <td style="width: 150px;">
-                                    <select class="form-select form-select-sm" name="status_{{ $line->id }}">
-                                        <option value="">-----</option>
-                                        <option value="confirm">Confirm</option>
-                                        <option value="decline">Decline</option>
-                                        <option value="eol">End of Life</option>
-                                    </select>
-                                </td>
+                                @if($portalStatus == 'unconfirmed')
+                                    <td style="width: 150px;">
+                                        <select class="form-select form-select-sm" name="status_{{ $line->id }}">
+                                            <option value="">-----</option>
+                                            <option value="confirm">Confirm</option>
+                                            <option value="decline">Decline</option>
+                                            <option value="eol">End of Life</option>
+                                        </select>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                         <tr>
@@ -73,10 +85,12 @@
                 </div>
 
                 <div class="text-end">
-                    <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
-                        <span class="spinner-border spinner-border-sm d-none"></span>
-                        Confirm Order
-                    </button>
+                    @if($portalStatus == 'unconfirmed')
+                        <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
+                            <span class="spinner-border spinner-border-sm d-none"></span>
+                            Confirm Order
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

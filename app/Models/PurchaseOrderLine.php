@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PurchaseOrderPublisher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,5 +39,14 @@ class PurchaseOrderLine extends Model
     public function article()
     {
         return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
+
+    public function getShippingDate()
+    {
+        if ($this->promised_date) {
+            return date('Y-m-d', strtotime($this->promised_date - (86400 * PurchaseOrderPublisher::SHIPPING_DATE_BUFFER)));
+        }
+
+        return '';
     }
 }

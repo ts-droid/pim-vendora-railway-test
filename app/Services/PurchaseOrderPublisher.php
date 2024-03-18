@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Mail;
 
 class PurchaseOrderPublisher
 {
+    const SHIPPING_DATE_BUFFER = 5; // Add 5 days to the shipping date as the ETA
+
     /**
      * Transform a draft order into a real order.
      *
@@ -165,7 +167,7 @@ class PurchaseOrderPublisher
             }
 
             // Set the shipping date
-            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * 5))); // Add 5 days to the promised date
+            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * self::SHIPPING_DATE_BUFFER))); // Add 5 days to the promised date
 
             if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
                 $orderPromisedDate = $shippingDate;
