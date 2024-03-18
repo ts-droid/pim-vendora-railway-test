@@ -4,13 +4,7 @@
     </div>
     <div class="header__links">
         <div class="header__link">
-            <a href="#">Link 1</a>
-        </div>
-        <div class="header__link">
-            <a href="#">Link 2</a>
-        </div>
-        <div class="header__link">
-            <a href="#">Link 3</a>
+            <a href="{{ route('supplierPortal.purchaseOrders.index') }}">Purhcase Orders</a>
         </div>
     </div>
 </div>
