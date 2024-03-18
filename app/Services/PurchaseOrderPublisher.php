@@ -153,17 +153,16 @@ class PurchaseOrderPublisher
                 continue;
             }
 
-            // Handle EOL items
-            if ($item['status'] == 'eol') {
-                $eolArticleNumbers[] = $orderLine->article_number;
-                $orderLine->delete();
-                continue;
-            }
+            // Handle non-confirming statuses
+            switch ($item['status'] ?? '') {
+                case 'eol':
+                    $eolArticleNumbers[] = $orderLine->article_number;
+                    $orderLine->delete();
+                    continue 2;
 
-            // Handle declined items
-            if ($items['status'] == 'decline') {
-                $orderLine->delete();
-                continue;
+                case 'decline':
+                    $orderLine->delete();
+                    continue 2;
             }
 
             // Set the shipping date

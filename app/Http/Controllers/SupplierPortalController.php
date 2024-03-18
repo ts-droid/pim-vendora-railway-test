@@ -52,15 +52,35 @@ class SupplierPortalController extends Controller
         return view('supplierPortal.pages.purchaseOrder', compact('purchaseOrder'));
     }
 
-    public function confirm(Request $request, PurchaseOrder $purchaseOrder, string $hash)
+    public function postOrder(Request $request, PurchaseOrder $purchaseOrder, string $hash)
     {
         if ($purchaseOrder->getHash() !== $hash) {
             abort(404);
         }
 
-        // Confirm the purchase order
-        $purchaseOrderPublisher = new PurchaseOrderPublisher();
-        $response = $purchaseOrderPublisher->publishOrder($purchaseOrder, $request->input('items'));
+        switch ($purchaseOrder->getPortalStatus()) {
+            case PurchaseOrder::PORTAL_STATUS_UNCONFIRMED:
+                return $this->publishOrder($request, $purchaseOrder);
+
+            case PurchaseOrder::PORTAL_STATUS_OPEN:
+                return $this->updateOrder($request, $purchaseOrder);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Invalid order status.']);
+    }
+
+    private function publishOrder(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $publisher = new PurchaseOrderPublisher();
+        $response = $publisher->publishOrder($purchaseOrder, $request->input('items'));
+
+        return response()->json($response);
+    }
+
+    private function updateOrder(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $publisher = new PurchaseOrderPublisher();
+        $response = $publisher->updateOrder($purchaseOrder, $request->input('items'));
 
         return response()->json($response);
     }

@@ -1,8 +1,8 @@
 @php
 $portalStatus = $purchaseOrder->getPortalStatus();
 
-$priceEditable = $portalStatus == 'unconfirmed';
-$quantityEditable = $portalStatus == 'unconfirmed';
+$priceEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
+$quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
 @endphp
 
 @extends('supplierPortal.layout')
@@ -30,7 +30,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                             <th class="text-end">Quantity</th>
                             <th class="text-end">Total</th>
                             <th class="text-end">Shipping date</th>
-                            @if($portalStatus == 'unconfirmed')
+                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                 <th class="text-end">Status</th>
                             @endif
                         </tr>
@@ -58,7 +58,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                                 <td style="width: 150px;">
                                     <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                 </td>
-                                @if($portalStatus == 'unconfirmed')
+                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                     <td style="width: 150px;">
                                         <select class="form-select form-select-sm" name="status_{{ $line->id }}">
                                             <option value="">-----</option>
@@ -77,7 +77,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                             <td class="text-end js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
                             <td class="text-end js-total-price">{{ number_format($total, 2, '.', '') }}</td>
                             <td></td>
-                            @if($portalStatus == 'unconfirmed')
+                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                 <td></td>
                             @endif
                         </tr>
@@ -86,10 +86,10 @@ $quantityEditable = $portalStatus == 'unconfirmed';
                 </div>
 
                 <div class="text-end">
-                    @if($portalStatus == 'unconfirmed')
+                    @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_CLOSED)
                         <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
                             <span class="spinner-border spinner-border-sm d-none"></span>
-                            Confirm Order
+                            Confirm
                         </button>
                     @endif
                 </div>
@@ -206,7 +206,7 @@ $quantityEditable = $portalStatus == 'unconfirmed';
             }
 
             // Post data
-            fetch('{{ route('supplierPortal.purchaseOrders.order.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}', {
+            fetch('{{ route('supplierPortal.purchaseOrders.order.post', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

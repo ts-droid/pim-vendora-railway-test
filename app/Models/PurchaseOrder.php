@@ -10,6 +10,10 @@ class PurchaseOrder extends Model
 {
     use HasFactory;
 
+    const PORTAL_STATUS_UNCONFIRMED = 'unconfirmed';
+    const PORTAL_STATUS_OPEN = 'open';
+    const PORTAL_STATUS_CLOSED = 'closed';
+
     protected $fillable = [
         'order_number',
         'status',
@@ -58,15 +62,15 @@ class PurchaseOrder extends Model
     public function getPortalStatus(): string
     {
         if (!$this->published_at) {
-            return 'unconfirmed';
+            return self::PORTAL_STATUS_UNCONFIRMED;
         }
 
         foreach ($this->lines as $line) {
             if ($line->is_completed == 0) {
-                return 'open';
+                return self::PORTAL_STATUS_OPEN;
             }
         }
 
-        return 'closed';
+        return self::PORTAL_STATUS_CLOSED;
     }
 }
