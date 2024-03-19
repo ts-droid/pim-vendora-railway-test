@@ -5,7 +5,7 @@
             <th></th>
             <th>Order Number</th>
             <th>Order Date</th>
-            <th>Last view date</th>
+            <th>Last view</th>
             <th></th>
         </tr>
         </thead>
@@ -18,7 +18,7 @@
                     </td>
                     <td>{{ $purchaseOrder->order_number }}</td>
                     <td>{{ $purchaseOrder->date }}</td>
-                    <td>{!! $purchaseOrder->viewed_at ?: '<i>Never</i>' !!}</td>
+                    <td>{!! $purchaseOrder->viewed_at ? date('Y-m-d H:i', strtotime($purchaseOrder->viewed_at)) : '<i>Never</i>' !!}</td>
                     <td class="text-end">
                         <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">View</a>
                     </td>
