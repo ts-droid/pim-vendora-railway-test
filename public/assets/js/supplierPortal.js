@@ -19,6 +19,13 @@ function formatCurrency(x) {
     return parts.join('.');
 }
 
+function currencyToFloat(x) {
+    // Remove all a-z, A-Z and spaces
+    x = x.replace(/[a-zA-Z\s]/g, '');
+
+    return parseFloat(x);
+}
+
 function showToastMessage(message) {
     // Create toast element
     const toast = document.createElement('div');

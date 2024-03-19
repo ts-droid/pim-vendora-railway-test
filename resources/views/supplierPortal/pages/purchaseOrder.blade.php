@@ -156,7 +156,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             let totalQuantity = 0;
 
             $('.js-price').each(function() {
-                total += parseFloat($(this).text());
+                total += currencyToFloat($(this).text());
             });
 
             $('.js-quantity').each(function() {
