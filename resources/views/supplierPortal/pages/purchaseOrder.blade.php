@@ -62,7 +62,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                 <td style="width: 100px;">
                                     <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
                                 </td>
-                                <td style="width: 100px;" class="text-end"><span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}</td>
+                                <td style="width: 100px;" class="text-end no-wrap">
+                                    <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
+                                </td>
                                 <td style="width: 150px;">
                                     <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                 </td>
@@ -89,7 +91,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             <td></td>
                             <td></td>
                             <td class="text-end fw-bold js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
-                            <td class="text-end fw-bold js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
+                            <td class="text-end fw-bold no-wrap js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
                             <td></td>
                             @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                 <td></td>

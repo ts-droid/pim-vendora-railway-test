@@ -65,3 +65,8 @@ table td {
 .copy-btn:hover {
     background-color: #cecece;
 }
+
+
+.no-wrap {
+    white-space: nowrap !important;
+}
