@@ -57,7 +57,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                 </td>
                                 <td>{{ $line->description }}</td>
                                 <td style="width: 150px;">
-                                    <div class="input-group">
+                                    <div class="input-group input-group-sm">
                                         <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
                                         <span class="input-group-text">{{ $purchaseOrder->currency }}</span>
                                     </div>
