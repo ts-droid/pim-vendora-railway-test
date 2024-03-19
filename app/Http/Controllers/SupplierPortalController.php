@@ -40,7 +40,11 @@ class SupplierPortalController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('supplierPortal.pages.index', compact('purchaseOrders'));
+        $breadcrumbs = [
+            'Purchase Orders' => ''
+        ];
+
+        return view('supplierPortal.pages.index', compact('breadcrumbs', 'purchaseOrders'));
     }
 
     public function order(PurchaseOrder $purchaseOrder, string $hash)
@@ -49,7 +53,12 @@ class SupplierPortalController extends Controller
             abort(404);
         }
 
-        return view('supplierPortal.pages.purchaseOrder', compact('purchaseOrder'));
+        $breadcrumbs = [
+            'Purchase Orders' => route('supplierPortal.purchaseOrders.index'),
+            'Order ' . $purchaseOrder->order_number => '',
+        ];
+
+        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder'));
     }
 
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder, string $hash)

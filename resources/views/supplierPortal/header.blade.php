@@ -1,6 +1,8 @@
 <div class="header">
     <div class="header__logo">
-        <img src="{{ asset('/assets/img/logo.png') }}">
+        <a href="{{ route('supplierPortal.purchaseOrders.index') }}">
+            <img src="{{ asset('/assets/img/logo.png') }}">
+        </a>
     </div>
     <div class="header__links">
         <div class="header__link">

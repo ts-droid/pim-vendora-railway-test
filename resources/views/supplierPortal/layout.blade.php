@@ -14,9 +14,29 @@
     <body>
         @include('supplierPortal.header')
 
-        <div class="container-fluid my-3">
+        <div class="container-fluid mt-2 mb-3">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6">
+                    @if(!empty($breadcrumbs))
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                @php($numBreadcrumbs = count($breadcrumbs))
+                                @php($i = 0)
+                                @foreach($breadcrumbs as $title => $url)
+                                    <li class="breadcrumb-item {{ ($numBreadcrumbs - 1) == $i ? 'active' : '' }}">
+                                        @if($url)
+                                            <a href="{{ $url }}">{{ $title }}</a>
+                                        @else
+                                            {{ $title }}
+                                        @endif
+                                    </li>
+                                    @php($i++)
+                                @endforeach
+                            </ol>
+                        </nav>
+                    @endif
+                </div>
+                <div class="col-md-6 text-end">
                     <b>You are logged in as:</b> {{ \App\Services\SupplierPortal\SupplierPortalAccessService::getActiveSupplier()->name }}
                 </div>
             </div>
