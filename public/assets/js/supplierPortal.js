@@ -13,6 +13,12 @@ async function copyToClipboard(string)
     }
 }
 
+function formatCurrency(x) {
+    const parts = x.toFixed(2).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return parts.join('.');
+}
+
 function showToastMessage(message) {
     // Create toast element
     const toast = document.createElement('div');
