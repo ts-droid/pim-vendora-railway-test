@@ -12,7 +12,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
         <div class="row mb-4">
             <div class="col-md-12">
-                <div><b>Order no:</b> {{ $purchaseOrder->order_number }}</div>
+                <div class="h4 mb-2">
+                    <b>Order no:</b> <span id="order-number">{{ $purchaseOrder->order_number }}</span> <span class="copy-btn" onclick="copyToClipboard('#order-number')"><i class="bi bi-copy"></i></span>
+                </div>
                 <div><b>Order date:</b> {{ $purchaseOrder->date }}</div>
                 <div><b>Status:</b> {{ $portalStatus }}</div>
             </div>
@@ -24,7 +26,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     <table class="table table-sm table-striped">
                         <thead>
                         <tr>
-                            <th>Article number</th>
+                            <th colspan="2">Article number</th>
                             <th>Description</th>
                             <th class="text-end">Unit price</th>
                             <th class="text-end">Quantity</th>
@@ -49,7 +51,10 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             @php($totalQuantity += $line->quantity)
 
                             <tr class="js-item-row" data-id="{{ $line->id }}">
-                                <td>{{ $line->article_number }}</td>
+                                <td><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
+                                <td>
+                                    <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
+                                </td>
                                 <td>{{ $line->description }}</td>
                                 <td style="width: 100px;">
                                     <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>

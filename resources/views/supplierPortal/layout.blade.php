@@ -43,11 +43,18 @@
         </div>
 
         @yield('content')
+
+        <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+            <div id="toastContainer" class="toast-container">
+                <!-- Toasts will go here -->
+            </div>
+        </div>
     </body>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="{{ asset('/assets/js/supplierPortal.js') }}"></script>
 
     @yield('script')
 </html>

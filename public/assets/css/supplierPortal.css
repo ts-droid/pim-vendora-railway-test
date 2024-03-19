@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
 .header {
     display: flex;
     align-items: center;
@@ -47,4 +49,18 @@ table td {
 }
 .row-status.red {
     background-color: #D73A49;
+}
+
+
+.copy-btn {
+    display: inline-block;
+    cursor: pointer;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 50%;
+}
+.copy-btn:hover {
+    background-color: #cecece;
 }
