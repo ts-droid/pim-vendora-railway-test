@@ -93,16 +93,16 @@ class PurchaseOrder extends Model
         if ($hasData) {
             if ($missingData) {
                 // Some data is missing for the order
-                return 'orange';
+                return ['orange', 'Some information is missing'];
             }
             else {
                 // No data is missing for the order
-                return 'green';
+                return ['green', 'All data is complete'];
             }
         }
         else {
             // No data is present for the order
-            return 'red';
+            return ['red', 'All information is missing'];
         }
     }
 }

@@ -12,9 +12,10 @@
         <tbody>
         @if($orders)
             @foreach($orders as $purchaseOrder)
+                @php(list($colorStatus, $colorText) = $purchaseOrder->getColorStatus())
                 <tr>
                     <td style="width: 1px;">
-                        <div class="row-status {{ $purchaseOrder->getColorStatus() }}"></div>
+                        <div class="row-status {{ $colorStatus }}" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ $colorText }}"></div>
                     </td>
                     <td>{{ $purchaseOrder->order_number }}</td>
                     <td>{{ $purchaseOrder->date }}</td>
