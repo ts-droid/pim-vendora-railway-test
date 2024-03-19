@@ -93,7 +93,7 @@ class PurchaseOrder extends Model
         if ($hasData) {
             if ($missingData) {
                 // Some data is missing for the order
-                return 'yellow';
+                return 'orange';
             }
             else {
                 // No data is missing for the order
