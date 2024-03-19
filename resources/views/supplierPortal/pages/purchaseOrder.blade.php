@@ -30,6 +30,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             <th class="text-end">Quantity</th>
                             <th class="text-end">Total</th>
                             <th class="text-end">Shipping date</th>
+                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                <th class="text-end">Tracking number</th>
+                            @endif
                             @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                 <th class="text-end">Status</th>
                             @endif
@@ -58,6 +61,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                 <td style="width: 150px;">
                                     <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                 </td>
+                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                    <td style="width: 250px;">
+                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" {{ $line->is_completed ? 'readonly' : '' }}>
+                                    </td>
+                                @endif
                                 @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                     <td style="width: 150px;">
                                         <select class="form-select form-select-sm" name="status_{{ $line->id }}">
@@ -166,6 +174,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 let unitCost = $(this).find('input[name="unit_cost_' + id + '"]').val();
                 let quantity = $(this).find('input[name="quantity_' + id + '"]').val();
                 let shippingDate = $(this).find('input[name="shipping_date_' + id + '"]').val();
+                let trackingNumber = $(this).find('input[name="tracking_number_' + id + '"]').val();
                 let status = $(this).find('select[name="status_' + id + '"]').val();
 
                 postData.items.push({
@@ -173,6 +182,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     unit_cost: unitCost,
                     quantity: quantity,
                     shipping_date: shippingDate,
+                    tracking_number: trackingNumber,
                     status: status
                 });
             });

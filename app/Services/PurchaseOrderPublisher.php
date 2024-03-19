@@ -199,6 +199,7 @@ class PurchaseOrderPublisher
                 'unit_cost' => $unitCost,
                 'old_unit_cost' => $oldUnitCost,
                 'amount' => round(($unitCost * $quantity), 2),
+                'tracking_number' => $item['tracking_number'] ?? null,
             ]);
         }
 
