@@ -11,19 +11,25 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
     <div class="container-fluid">
 
         <div class="row mb-4">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="h4 mb-2">
                     <b>Vendora Order no:</b> <span id="order-number">{{ $purchaseOrder->order_number }}</span> <span class="copy-btn" onclick="copyToClipboard('#order-number')"><i class="bi bi-copy"></i></span>
                 </div>
                 <div><b>Order date:</b> {{ $purchaseOrder->date }}</div>
                 <div><b>Status:</b> {{ $portalStatus }}</div>
             </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <div class="color-description-preview me-2" style="background-color: #ffd970;"></div>
+                    <div>= Adjustable fields</div>
+                </div>
+            </div>
         </div>
 
         <div class="row">
             <div class="col-md-12">
                 <div class="table-responsive">
-                    <table class="table table-sm table-striped">
+                    <table class="table table-sm table-striped po-view-table">
                         <thead>
                         <tr>
                             <th colspan="2">Article number</th>

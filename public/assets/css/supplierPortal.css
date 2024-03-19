@@ -70,3 +70,19 @@ table td {
 .no-wrap {
     white-space: nowrap !important;
 }
+
+.color-description-preview {
+    display: inline-block;
+    background-color: #dcdcdc;
+    height: 25px;
+    width: 25px;
+}
+
+.po-view-table input,
+.po-view-table select {
+    background-color: #ffd970;
+}
+.po-view-table input:read-only,
+.po-view-table select:read-only {
+    background-color: #ffffff;
+}
