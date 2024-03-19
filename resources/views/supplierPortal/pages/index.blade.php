@@ -28,7 +28,7 @@
                                             <td>{{ $purchaseOrder->order_number }}</td>
                                             <td>{{ $purchaseOrder->date }}</td>
                                             <td class="text-end">
-                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">View</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -67,7 +67,7 @@
                                             <td>{{ $purchaseOrder->order_number }}</td>
                                             <td>{{ $purchaseOrder->date }}</td>
                                             <td class="text-end">
-                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">View</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -105,7 +105,7 @@
                                             <td>{{ $purchaseOrder->order_number }}</td>
                                             <td>{{ $purchaseOrder->date }}</td>
                                             <td class="text-end">
-                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                                <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">View</a>
                                             </td>
                                         </tr>
                                     @endforeach

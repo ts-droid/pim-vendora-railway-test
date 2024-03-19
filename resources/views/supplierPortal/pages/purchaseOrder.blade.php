@@ -100,7 +100,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_CLOSED)
                         <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
                             <span class="spinner-border spinner-border-sm d-none"></span>
-                            Confirm
+                            Save
                         </button>
                     @endif
                 </div>
