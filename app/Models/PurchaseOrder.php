@@ -81,22 +81,24 @@ class PurchaseOrder extends Model
         $missingData = false;
 
         foreach ($this->lines as $line) {
-            if ($line->promised_data || $line->tracking_number) {
+            if ($line->promised_date || $line->tracking_number) {
                 $hasData = true;
             }
 
-            if (!$line->promised_data || !$line->tracking_number) {
+            if (!$line->promised_date || !$line->tracking_number) {
                 $missingData = true;
             }
         }
 
-        if ($hasData && !$missingData) {
-            // No data is missing for the order
-            return 'green';
-        }
-        elseif ($hasData && $missingData) {
-            // Some data is missing for the order
-            return 'yellow';
+        if ($hasData) {
+            if ($missingData) {
+                // Some data is missing for the order
+                return 'yellow';
+            }
+            else {
+                // No data is missing for the order
+                return 'green';
+            }
         }
         else {
             // No data is present for the order
