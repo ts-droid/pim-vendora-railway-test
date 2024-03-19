@@ -39,6 +39,7 @@ class PurchaseOrder extends Model
         'is_sent',
         'is_confirmed',
         'is_po_system',
+        'viewed_at',
     ];
 
     public function supplier()

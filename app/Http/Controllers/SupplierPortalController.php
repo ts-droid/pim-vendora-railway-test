@@ -53,6 +53,8 @@ class SupplierPortalController extends Controller
             abort(404);
         }
 
+        $purchaseOrder->update(['viewed_at' => date('Y-m-d H:i:s')]);
+
         $breadcrumbs = [
             'Purchase Orders' => route('supplierPortal.purchaseOrders.index'),
             'Order ' . $purchaseOrder->order_number => '',
