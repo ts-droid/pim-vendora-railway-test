@@ -81,8 +81,10 @@ table td {
 .po-view-table input,
 .po-view-table select {
     background-color: #ffd970;
+    border: 1px solid #000000 !important;
 }
 .po-view-table input:read-only,
 .po-view-table select:read-only {
     background-color: #ffffff;
+    border: 1px solid #ced4da !important;
 }
