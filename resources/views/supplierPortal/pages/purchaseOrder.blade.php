@@ -63,7 +63,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                 </td>
                                 @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                     <td style="width: 250px;">
-                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" {{ $line->is_completed ? 'readonly' : '' }}>
+                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
                                     </td>
                                 @endif
                                 @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
