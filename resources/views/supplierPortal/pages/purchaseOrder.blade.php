@@ -56,8 +56,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
                                 </td>
                                 <td>{{ $line->description }}</td>
-                                <td style="width: 100px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
+                                <td style="width: 150px;">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
+                                        <span class="input-group-text">{{ $purchaseOrder->currency }}</span>
+                                    </div>
                                 </td>
                                 <td style="width: 100px;">
                                     <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
