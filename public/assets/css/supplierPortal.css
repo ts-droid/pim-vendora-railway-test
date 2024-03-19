@@ -50,6 +50,12 @@ table td {
 .row-status.red {
     background-color: #D73A49;
 }
+.row-status.orange {
+    background-color: #ffcc17;
+}
+.row-status.green {
+    background-color: #50ac23;
+}
 
 
 .copy-btn {

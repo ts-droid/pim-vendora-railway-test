@@ -14,7 +14,7 @@
             @foreach($orders as $purchaseOrder)
                 <tr>
                     <td style="width: 1px;">
-                        <div class="row-status red"></div>
+                        <div class="row-status {{ $purchaseOrder->getColorStatus() }}"></div>
                     </td>
                     <td>{{ $purchaseOrder->order_number }}</td>
                     <td>{{ $purchaseOrder->date }}</td>

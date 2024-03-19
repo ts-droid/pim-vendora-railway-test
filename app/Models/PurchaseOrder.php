@@ -74,4 +74,33 @@ class PurchaseOrder extends Model
 
         return self::PORTAL_STATUS_CLOSED;
     }
+
+    public function getColorStatus()
+    {
+        $hasData = false;
+        $missingData = false;
+
+        foreach ($this->lines as $line) {
+            if ($line->promised_data || $line->tracking_number) {
+                $hasData = true;
+            }
+
+            if (!$line->promised_data || !$line->tracking_number) {
+                $missingData = true;
+            }
+        }
+
+        if ($hasData && !$missingData) {
+            // No data is missing for the order
+            return 'green';
+        }
+        elseif ($hasData && $missingData) {
+            // Some data is missing for the order
+            return 'yellow';
+        }
+        else {
+            // No data is present for the order
+            return 'red';
+        }
+    }
 }
