@@ -21,7 +21,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             <div class="col-md-6">
                 <div class="d-flex align-items-center">
                     <div class="color-description-preview me-2" style="background-color: #ffd970;"></div>
-                    <div>= Adjustable fields</div>
+                    <div>= Editable fields</div>
                 </div>
             </div>
         </div>
