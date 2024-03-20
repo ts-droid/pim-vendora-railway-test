@@ -61,6 +61,10 @@ table td {
     opacity: 50% !important;
 }
 
+.column-table .row:nth-child(even) .col {
+    background-color: #F4F4F4;
+}
+
 
 .copy-btn {
     display: inline-block;
