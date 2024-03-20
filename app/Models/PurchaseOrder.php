@@ -60,6 +60,16 @@ class PurchaseOrder extends Model
         return hash('md5', ($this->id . $this->created_at));
     }
 
+    public function hasInvoice(): bool
+    {
+        return $this->lines->where('invoice_id', '!=', 0)->count() > 0;
+    }
+
+    public function isFullyInvoiced(): bool
+    {
+        return $this->lines->where('invoice_id', 0)->count() === 0;
+    }
+
     public function getPortalStatus(): string
     {
         if (!$this->published_at) {
@@ -88,6 +98,10 @@ class PurchaseOrder extends Model
             if (!$line->promised_date || !$line->tracking_number) {
                 $missingData = true;
             }
+        }
+
+        if (!$this->isFullyInvoiced()) {
+            $missingData = true;
         }
 
         if ($hasData) {

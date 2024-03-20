@@ -26,6 +26,14 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
 
+        @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && !$purchaseOrder->isFullyInvoiced())
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#invoiceModal">Upload Invoice</button>
+                </div>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-md-12">
                 <div class="table-responsive">
@@ -125,6 +133,59 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
         </div>
 
     </div>
+
+
+    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('supplierPortal.purchaseOrders.order.uploadInvoice', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="js-invoice-form" enctype="multipart/form-data">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="invoiceModalLabel">Upload Invoice</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <p>
+                            Upload an invoice and mark the order rows associated with the invoice.
+                        </p>
+
+                        <div class="mb-3">
+                            <input type="file" class="form-control" name="invoice" id="invoice-file" accept="application/pdf">
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th style="width: 1px;">
+                                        <input type="checkbox" class="form-check-input js-all-invoice-rows">
+                                    </th>
+                                    <th>Article</th>
+                                    <th>Quantity</th>
+                                </tr>
+                                @foreach($purchaseOrder->lines as $line)
+                                    <tr class="{{ $line->invoice_id ? 'opacity-50' : '' }}">
+                                        <td>
+                                            @if(!$line->invoice_id)
+                                                <input type="checkbox" class="form-check-input js-invoice-row" name="purchase_order_lines[]" value="{{ $line->id }}">
+                                            @endif
+                                        </td>
+                                        <td>{{ $line->article_number }}</td>
+                                        <td>{{ $line->quantity }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -158,6 +219,28 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 $row.find('.js-price').text(formatCurrency(total));
 
                 updateTotal();
+            });
+
+            $('.js-all-invoice-rows').on('change', function() {
+                let checked = $(this).prop('checked');
+                $('.js-invoice-row').prop('checked', checked);
+            });
+
+            $('.js-invoice-form').on('submit', function() {
+
+                // Make sure an invoice is uploaded
+                if ($('#invoice-file').val() === '') {
+                    alert('Please upload an invoice.');
+                    return false;
+                }
+
+                // Make sure at least one row is selected
+                if ($('.js-invoice-row:checked').length === 0) {
+                    alert('Please select at least one row to associate with the invoice.');
+                    return false;
+                }
+
+                return true;
             });
         });
 

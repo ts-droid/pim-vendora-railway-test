@@ -57,6 +57,10 @@ table td {
     background-color: #50ac23;
 }
 
+.opacity-50 {
+    opacity: 50% !important;
+}
+
 
 .copy-btn {
     display: inline-block;

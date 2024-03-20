@@ -34,11 +34,17 @@ class PurchaseOrderLine extends Model
         'is_canceled',
         'is_locked',
         'reminder_sent_at',
+        'invoice_id',
     ];
 
     public function article()
     {
         return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
+
+    public function invoice()
+    {
+        return $this->belongsTo(SupplierInvoice::class, 'invoice_id', 'id');
     }
 
     public function getShippingDate()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrderPublisher;
+use App\Services\SupplierInvoiceService;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
 use Illuminate\Http\Request;
 
@@ -78,6 +79,27 @@ class SupplierPortalController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Invalid order status.']);
+    }
+
+    public function uploadInvoice(Request $request, PurchaseOrder $purchaseOrder, string $hash)
+    {
+        $request->validate([
+            'invoice' => 'required|file|mimes:pdf'
+        ]);
+
+        if ($request->has('invoice')) {
+            $file = $request->file('invoice');
+            $invoiceLines = $request->input('purchase_order_lines') ?: [];
+
+            $supplierInvoiceService = new SupplierInvoiceService();
+            $supplierInvoiceService->uploadInvoice(
+                $purchaseOrder,
+                $invoiceLines,
+                $file
+            );
+        }
+
+        return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $hash]);
     }
 
     private function publishOrder(Request $request, PurchaseOrder $purchaseOrder)
