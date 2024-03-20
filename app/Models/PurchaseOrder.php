@@ -114,7 +114,7 @@ class PurchaseOrder extends Model
             }
         }
 
-        if (!$this->isFullyInvoiced()) {
+        if (!$this->isFullyInvoiced() || !$this->missingETA()) {
             $missingData = true;
         }
 
