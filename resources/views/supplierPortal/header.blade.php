@@ -9,4 +9,5 @@
             <a href="{{ route('supplierPortal.purchaseOrders.index') }}">Purhcase Orders</a>
         </div>
     </div>
+    <div class="header__text">Desktop Version</div>
 </div>

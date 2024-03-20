@@ -35,6 +35,12 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
+.header__text {
+    font-weight: normal;
+    font-size: 14px;
+    margin-left: auto;
+}
+
 table td {
     vertical-align: middle!important;
 }
