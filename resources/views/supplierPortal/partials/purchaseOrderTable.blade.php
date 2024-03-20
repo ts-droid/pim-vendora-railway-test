@@ -9,6 +9,7 @@
 
     @if($orders)
         @foreach($orders as $purchaseOrder)
+            @php(list($colorStatus, $colorText) = $purchaseOrder->getColorStatus())
             <div class="row border-bottom">
                 <div class="col col-4 d-flex align-items-center py-1">
                     <div class="row-status {{ $colorStatus }} me-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ $colorText }}"></div>
