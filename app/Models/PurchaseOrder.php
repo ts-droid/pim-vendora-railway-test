@@ -77,6 +77,13 @@ class PurchaseOrder extends Model
         })->count() > 0;
     }
 
+    public function missingETA(): bool
+    {
+        return $this->lines->filter(function ($line) {
+            return $line->promised_data < date('Y-m-d') && !$line->is_completed;
+        })->count() > 0;
+    }
+
     public function getPortalStatus(): string
     {
         if (!$this->published_at) {

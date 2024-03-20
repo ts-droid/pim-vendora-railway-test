@@ -22,6 +22,7 @@
                     <td>{{ $purchaseOrder->date }}</td>
                     <td>{!! $purchaseOrder->viewed_at ? date('Y-m-d H:i', strtotime($purchaseOrder->viewed_at)) : '<i>Never</i>' !!}</td>
                     <td>
+                        <i class="bi {{ $purchaseOrder->missingETA() ? 'bi-check-circle text-muted' : 'bi-check-circle-fill text-success' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Shipping dates"></i>
                         <i class="bi {{ $purchaseOrder->missingTrackingNumbers() ? 'bi-check-circle text-muted' : 'bi-check-circle-fill text-success' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Tracking numbers"></i>
                         <i class="bi {{ $purchaseOrder->isFullyInvoiced() ? 'bi-check-circle-fill text-success' : 'bi-check-circle text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload invoice"></i>
                     </td>
