@@ -70,6 +70,13 @@ class PurchaseOrder extends Model
         return $this->lines->where('invoice_id', 0)->count() === 0;
     }
 
+    public function missingTrackingNumbers(): bool
+    {
+        return $this->lines->where('tracking_number', '')
+                ->orWhereNull('tracking_number')
+                ->count() > 0;
+    }
+
     public function getPortalStatus(): string
     {
         if (!$this->published_at) {
