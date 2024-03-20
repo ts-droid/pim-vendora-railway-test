@@ -6,6 +6,7 @@
             <th>Order Number</th>
             <th>Order Date</th>
             <th>Last view</th>
+            <th>Status</th>
             <th></th>
         </tr>
         </thead>
@@ -20,6 +21,9 @@
                     <td>{{ $purchaseOrder->order_number }}</td>
                     <td>{{ $purchaseOrder->date }}</td>
                     <td>{!! $purchaseOrder->viewed_at ? date('Y-m-d H:i', strtotime($purchaseOrder->viewed_at)) : '<i>Never</i>' !!}</td>
+                    <td>
+                        <i class="bi {{ $purchaseOrder->isFullyInvoiced() ? 'bi-check-circle-fill text-success' : 'bi-check-circle text-muted' }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload invoice"></i>
+                    </td>
                     <td class="text-end">
                         <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="btn btn-sm btn-primary">View</a>
                     </td>
