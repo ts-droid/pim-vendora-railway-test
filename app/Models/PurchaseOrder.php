@@ -72,9 +72,9 @@ class PurchaseOrder extends Model
 
     public function missingTrackingNumbers(): bool
     {
-        return $this->lines->where('tracking_number', '')
-                ->orWhere('tracking_number', '=', null)
-                ->count() > 0;
+        return $this->lines->filter(function ($line) {
+            return $line->tracking_number === null || $line->tracking_number === '';
+        })->count() > 0;
     }
 
     public function getPortalStatus(): string
