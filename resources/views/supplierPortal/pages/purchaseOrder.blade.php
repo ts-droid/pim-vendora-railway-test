@@ -65,7 +65,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             @php($totalQuantity += $line->quantity)
 
                             <tr class="js-item-row" data-id="{{ $line->id }}">
-                                <td style="width: 1px;"><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
+                                <td class="no-wrap" style="width: 1px;"><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
                                 <td>
                                     <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
                                 </td>
