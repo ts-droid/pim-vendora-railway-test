@@ -73,7 +73,7 @@ class PurchaseOrder extends Model
     public function missingTrackingNumbers(): bool
     {
         return $this->lines->where('tracking_number', '')
-                ->orWhereNull('tracking_number')
+                ->orWhere('tracking_number', '=', null)
                 ->count() > 0;
     }
 
