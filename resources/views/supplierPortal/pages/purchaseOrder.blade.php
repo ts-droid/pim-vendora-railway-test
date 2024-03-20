@@ -77,7 +77,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     </div>
                                 </td>
                                 <td style="width: 100px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
+                                    <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}"
+                                        data-default="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
                                 </td>
                                 <td style="width: 100px;" class="text-end no-wrap">
                                     <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
@@ -135,6 +136,33 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
     </div>
 
 
+    <!-- Quantity Reduction Modal -->
+    <div class="modal fade" id="quantityReductionModal" tabindex="-1" aria-labelledby="quantityReductionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="h5 fw-normal text-center mb-3">
+                        Do you want to move <span class="js-quantity-reduction-amount"></span> pcs of this item to a separate order row?
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="d-grid">
+                                <button class="btn btn-danger">No, delete</button>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-grid">
+                                <button class="btn btn-success">Yes, move</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Upload Invoice Modal -->
     <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -241,6 +269,29 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 }
 
                 return true;
+            });
+
+            $('.js-quantity').on('change', function() {
+                let $row = $(this).closest('.js-item-row');
+                let $modal = $('#quantityReductionModal');
+
+                let quantity = parseInt($(this).val());
+                let defaultQuantity = parseInt($(this).data('default'));
+
+                if (quantity >= defaultQuantity) {
+                    return;
+                }
+
+                let reduction = defaultQuantity - quantity;
+
+                $('.js-quantity-reduction-amount').html(reduction);
+
+                $modal.modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                $modal.modal('show');
             });
         });
 
