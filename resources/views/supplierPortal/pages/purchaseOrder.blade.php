@@ -54,7 +54,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             @endif
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="order-table-body">
 
                         @php($total = 0)
                         @php($totalQuantity = 0)
@@ -103,22 +103,24 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                 @endif
                             </tr>
                         @endforeach
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-end fw-bold js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
-                            <td class="text-end fw-bold no-wrap js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
-                            <td></td>
-                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                <td></td>
-                            @endif
-                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
-                                <td></td>
-                            @endif
-                        </tr>
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-end fw-bold js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
+                                <td class="text-end fw-bold no-wrap js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
+                                <td></td>
+                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                    <td></td>
+                                @endif
+                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                    <td></td>
+                                @endif
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 
@@ -138,6 +140,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
     <!-- Quantity Reduction Modal -->
     <div class="modal fade" id="quantityReductionModal" tabindex="-1" aria-labelledby="quantityReductionModalLabel" aria-hidden="true">
+
+        <div class="d-none js-quantity-reduction-id"></div>
+
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
@@ -147,12 +152,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     <div class="row">
                         <div class="col-6">
                             <div class="d-grid">
-                                <button class="btn btn-danger">No, delete</button>
+                                <button class="btn btn-danger" onclick="removeReduction()">No, delete</button>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="d-grid">
-                                <button class="btn btn-success">Yes, move</button>
+                                <button class="btn btn-success" onclick="moveReduction()">Yes, move</button>
                             </div>
                         </div>
                     </div>
@@ -218,7 +223,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
 @section('script')
     <script>
-        $(function() {
+        function initDatepicker()
+        {
             $('.js-datepicker').each(function() {
                 if ($(this).is('[readonly]')) {
                     // Do not active for readonly inputs
@@ -231,8 +237,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     dateFormat: 'yy-mm-dd'
                 });
             });
+        }
 
-            $('.js-unit-cost, .js-quantity').on('change', function() {
+        $(function() {
+            initDatepicker();
+
+            $(document).on('change', '.js-unit-cost, .js-quantity', function() {
                 let $row = $(this).closest('.js-item-row');
 
                 let unitCost = $row.find('.js-unit-cost').val();
@@ -249,12 +259,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 updateTotal();
             });
 
-            $('.js-all-invoice-rows').on('change', function() {
+            $(document).on('change', '.js-all-invoice-rows', function() {
                 let checked = $(this).prop('checked');
                 $('.js-invoice-row').prop('checked', checked);
             });
 
-            $('.js-invoice-form').on('submit', function() {
+            $(document).on('submit', '.js-invoice-form', function() {
 
                 // Make sure an invoice is uploaded
                 if ($('#invoice-file').val() === '') {
@@ -271,9 +281,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 return true;
             });
 
-            $('.js-quantity').on('change', function() {
+            $(document).on('change', '.js-quantity', function() {
                 let $row = $(this).closest('.js-item-row');
                 let $modal = $('#quantityReductionModal');
+
+                let rowID = $row.data('id');
 
                 let quantity = parseInt($(this).val());
                 let defaultQuantity = parseInt($(this).data('default'));
@@ -285,6 +297,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 let reduction = defaultQuantity - quantity;
 
                 $('.js-quantity-reduction-amount').html(reduction);
+                $('.js-quantity-reduction-id').html(rowID);
 
                 $modal.modal({
                     backdrop: 'static',
@@ -408,6 +421,100 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
         {
             $button.prop('disabled', false);
             $button.find('.spinner-border').addClass('d-none');
+        }
+
+        function removeReduction()
+        {
+            let rowID = $('.js-quantity-reduction-id').html();
+
+            // Update the default quantity to the new value
+            let $quantityInput = $('input[name="quantity_' + rowID + '"]');
+            let newDefaultQuantity = parseInt($quantityInput.val());
+
+            $quantityInput.data('default', newDefaultQuantity);
+
+            // Close the modal
+            $('#quantityReductionModal').modal('hide');
+        }
+
+        function moveReduction()
+        {
+            let rowID = parseInt($('.js-quantity-reduction-id').html());
+            let newQuantity = parseInt($('.js-quantity-reduction-amount').html());
+
+            let currencyCode = '{{ $purchaseOrder->currency }}';
+            let priceEditable = {{ $priceEditable ? 'true' : 'false' }};
+            let portalStatus = '{{ $portalStatus }}';
+
+            // Copy the row
+            $.post('{{ route('purchaseOrders.copyLine', [$purchaseOrder->id]) }}', {
+                line_id: rowID,
+                quantity: newQuantity
+            }, function(response) {
+                if (!response.success) {
+                    alert('Something went wrong when copying the row. Please try again.');
+                    return;
+                }
+                else {
+                    let newLine = response.data;
+
+                    let rowColumns = '<td class="no-warp"><span id="article-number-' + newLine.id + '">' + newLine.article_number + '</span></td>' +
+                        '<td>' +
+                        '<span class="copy-btn" onclick="copyToClipboard(\'#article-number-' + newLine.id + '\')"><i class="bi bi-copy"></i></span>' +
+                        '</td>' +
+                        '<td>' + newLine.description + '</td>' +
+                        '<td style="width: 150px;">' +
+                        '<div class="input-group input-group-sm">' +
+                        '<input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_' + newLine.id + '" value="' + newLine.unit_cost + '" ' + (priceEditable ? '' : 'readonly') + '>' +
+                        '<span class="input-group-text">' + currencyCode + '</span>' +
+                        '</div>' +
+                        '</td>' +
+                        '<td style="width: 100px">' +
+                        '<input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_' + newLine.id + '" value="' + newLine.quantity + '" data-default="' + newLine.quantity + '">' +
+                        '</td>' +
+                        '<td style="width: 100px;" class="text-end no-wrap">' +
+                        '<span class="js-price">' + formatCurrency(newLine.quantity * newLine.unit_cost) + '</span> ' + currencyCode +
+                        '</td>' +
+                        '<td>' +
+                        '<input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_' + newLine.id + '" value="">' +
+                        '</td>';
+
+                    if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
+                        rowColumns += '<td style="width: 250px;">' +
+                            '<input type="text" class="form-control form-control-sm text-end" name="tracking_number_' + newLine.id + '" value="' + newLine.tracking_number + '" placeholder="ex. 12345678901">' +
+                            '</td>';
+                    }
+
+                    if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED }}') {
+                        rowColumns += '<td style="width: 150px;">' +
+                            ' <select class="form-select form-select-sm" name="status_' + newLine.id + '">' +
+                            '<option value="">-----</option>' +
+                            '<option value="confirm">Confirm</option>' +
+                            '<option value="decline">Decline</option>' +
+                            '<option value="eol">End of Life</option>' +
+                            '</select>' +
+                            '</td>';
+                    }
+
+                    // Add new row
+                    $('#order-table-body').append(
+                        '<tr class="js-item-row" data-id="' + newLine.id + '">' +
+                        rowColumns +
+                        '</tr>'
+                    );
+
+                    // Close the modal
+                    $('#quantityReductionModal').modal('hide');
+
+                    // Recalculate the total
+                    updateTotal();
+
+                    // Re-initiate datepicker
+                    initDatepicker();
+
+                    // TODO: Make sure the new rows gets inserted into visma when saving
+                }
+            });
         }
     </script>
 @endsection

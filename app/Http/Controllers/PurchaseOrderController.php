@@ -35,7 +35,7 @@ class PurchaseOrderController extends Controller
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_order_lines.is_completed', '=', 0)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('purchase_order_lines.promised_date', '<', date('Y-m-d'))
                     ->orWhereNull('purchase_order_lines.promised_date');
             })
@@ -151,28 +151,28 @@ class PurchaseOrderController extends Controller
         }
 
         $order = PurchaseOrder::create([
-            'order_number' => (string) ($request->order_number ?? ''),
-            'status' => (string) ($request->status ?? ''),
-            'date' => (string) ($request->date ?? ''),
-            'promised_date' => (string) ($request->promised_date ?? ''),
-            'supplier_id' => (string) ($request->supplier_id ?? ''),
-            'supplier_number' => (string) ($request->supplier_id ?? ''),
-            'supplier_name' => (string) ($request->supplier_id ?? ''),
-            'currency' => (string) ($request->currency ?? ''),
-            'amount' => (float) ($request->amount ?? ''),
-            'is_draft' => (int) ($request->is_draft ?? 0),
+            'order_number' => (string)($request->order_number ?? ''),
+            'status' => (string)($request->status ?? ''),
+            'date' => (string)($request->date ?? ''),
+            'promised_date' => (string)($request->promised_date ?? ''),
+            'supplier_id' => (string)($request->supplier_id ?? ''),
+            'supplier_number' => (string)($request->supplier_id ?? ''),
+            'supplier_name' => (string)($request->supplier_id ?? ''),
+            'currency' => (string)($request->currency ?? ''),
+            'amount' => (float)($request->amount ?? ''),
+            'is_draft' => (int)($request->is_draft ?? 0),
         ]);
 
         foreach ($request->lines as $line) {
             $orderLine = PurchaseOrderLine::create([
                 'purchase_order_id' => $order->id,
-                'line_key' => (string) ($line['line_key'] ?? ''),
-                'article_number' => (string) ($line['article_number'] ?? ''),
-                'description' => (string) ($line['description'] ?? ''),
-                'quantity' => (int) ($line['quantity'] ?? 0),
-                'unit_cost' => (float) ($line['unit_cost'] ?? 0),
-                'amount' => (float) ($line['amount'] ?? 0),
-                'promised_date' => (string) ($line['promised_date'] ?? ''),
+                'line_key' => (string)($line['line_key'] ?? ''),
+                'article_number' => (string)($line['article_number'] ?? ''),
+                'description' => (string)($line['description'] ?? ''),
+                'quantity' => (int)($line['quantity'] ?? 0),
+                'unit_cost' => (float)($line['unit_cost'] ?? 0),
+                'amount' => (float)($line['amount'] ?? 0),
+                'promised_date' => (string)($line['promised_date'] ?? ''),
             ]);
         }
 
@@ -202,10 +202,10 @@ class PurchaseOrderController extends Controller
             ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
             ->value('max_line_key');
 
-        $lineKey = (int) $lineKey + 1;
+        $lineKey = (int)$lineKey + 1;
 
         // Decide the quantity
-        $quantity = (int) ($request->get('quantity') ?? 0);
+        $quantity = (int)($request->get('quantity') ?? 0);
         $quantity = max(1, $quantity);
 
         // Get the unit cost for the article
@@ -274,26 +274,24 @@ class PurchaseOrderController extends Controller
 
                 if ($quantity == 0) {
                     $orderLine->delete();
-                }
-                else {
+                } else {
                     $orderLine->update($updates);
                 }
 
                 // Should we update the unit cost to the pricelist?
-                $updatePricelist = (int) ($line['update_pricelist'] ?? 0);
+                $updatePricelist = (int)($line['update_pricelist'] ?? 0);
 
                 if ($updatePricelist && $oldUnitCost != $unitCost) {
                     $supplierPriceService = new SupplierArticlePriceService();
                     $supplierPriceService->createSupplierArticlePrice([
-                        'article_number' => (string) $orderLine->article_number,
+                        'article_number' => (string)$orderLine->article_number,
                         'price' => $unitCost,
-                        'currency' => (string) $purchaseOrder->currency,
+                        'currency' => (string)$purchaseOrder->currency,
                     ]);
                 }
 
                 $updatedLineKeys[] = $line['line_key'];
-            }
-            else {
+            } else {
                 // Create a new order line
                 $createData = [];
 
@@ -453,5 +451,48 @@ class PurchaseOrderController extends Controller
         $reminderService->remindPurchaseOrderDraft($purchaseOrder);
 
         return ApiResponseController::success();
+    }
+
+    public function copyLine(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $lineID = (int) $request->input('line_id');
+        $quantity = (int) $request->input('quantity');
+
+        if (!$lineID || $quantity <= 0) {
+            return ApiResponseController::error('Missing or invalid "line_id" or "quantity" parameter.');
+        }
+
+        $originalLine = PurchaseOrderLine::find($lineID);
+
+        // Calculate new line_key
+        $maxLineKey = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
+            ->value('max_line_key');
+
+        $newLineKey = $maxLineKey + 1;
+
+        // Deduct quantity from the original line
+        $originalLine->update([
+            'quantity' => $originalLine->quantity - $quantity,
+        ]);
+
+        // Copy to a new line
+        $newLine = $originalLine->replicate();
+        $newLine->fill([
+            'line_key' => $newLineKey,
+            'quantity' => $quantity,
+            'quantity_received' => 0,
+            'promised_date' => '',
+            'is_completed' => 0,
+            'is_canceled' => 0,
+            'reminder_sent_at' => null,
+            'tracking_number' => null,
+            'invoice_id' => 0,
+        ]);
+
+        $newLine->save();
+        $newLine->refresh();
+
+        return ApiResponseController::success($newLine->toArray());
     }
 }

@@ -90,10 +90,11 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         }
 
         $lines = [];
+        $processedLinesKeys = [];
 
         foreach ($remoteOrder['lines'] as $remoteLine) {
             $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->where('article_number', $remoteLine['inventory']['number'])
+                ->where('line_key', $remoteLine['lineNbr'])
                 ->first();
 
             if (!$localLine) {
@@ -119,6 +120,29 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 $localLine->update([
                     'line_key' => $remoteLine['lineNbr']
                 ]);
+            }
+
+            $processedLinesKeys[] = $remoteLine['lineNbr'];
+        }
+
+        // Add new order lines to Visma.net
+        $newOrderLines = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->whereNotIn('line_key', $processedLinesKeys)
+            ->get();
+
+        if ($newOrderLines) {
+            foreach ($newOrderLines as $newOrderLine) {
+                $lines[] = [
+                    'operation' => 'Insert',
+                    'lineNumber' => ['value' => $newOrderLine->line_key],
+                    'inventory' => ['value' => $newOrderLine->article_number],
+                    'lineType' => ['value' => 'GoodsForInventory'],
+                    'lineDescription' => ['value' => $newOrderLine->description],
+                    'orderQty' => ['value' => $newOrderLine->quantity],
+                    'unitCost' => ['value' => $newOrderLine->unit_cost],
+                    'amount' => ['value' => $newOrderLine->amount],
+                    'promised' => ['value' => $newOrderLine->promised_date],
+                ];
             }
         }
 

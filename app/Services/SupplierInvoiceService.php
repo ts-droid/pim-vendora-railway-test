@@ -33,7 +33,6 @@ class SupplierInvoiceService
             'invoice_id' => $supplierInvoice->id,
         ]);
 
-
         // Send email to Vendora with the invoice
         Mail::to('invoice@vendora.se')->queue(
             new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $file)
