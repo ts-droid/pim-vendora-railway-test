@@ -94,7 +94,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         foreach ($remoteOrder['lines'] as $remoteLine) {
             $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->where('line_key', $remoteLine['lineNbr'])
+                ->where('article_number', $remoteLine['inventory']['number'])
                 ->first();
 
             if (!$localLine) {
