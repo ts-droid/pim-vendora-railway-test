@@ -68,6 +68,24 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'is_draft' => 0,
         ]);
 
+        // Update the line keys
+        $response = $this->callAPI('GET', '/v1/purchaseorder/' . $orderNumber);
+        $remoteOrder = $response['response'] ?? [];
+
+        $orderLines = $remoteOrder['lines'] ?? [];
+        foreach ($orderLines as $remoteLine) {
+            $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+                ->where('article_number', $remoteLine['inventory']['number'])
+                ->where('quantity', $remoteLine['orderQty'])
+                ->first();
+
+            if ($localLine) {
+                $localLine->update([
+                    'line_key' => $remoteLine['lineNbr']
+                ]);
+            }
+        }
+
         return [
             'success' => true,
         ];
@@ -94,7 +112,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         foreach ($remoteOrder['lines'] as $remoteLine) {
             $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->where('article_number', $remoteLine['inventory']['number'])
+                ->where('article_number', $remoteLine['inventory']['number']) // TODO: Change this to match on "line_key"
                 ->first();
 
             if (!$localLine) {
