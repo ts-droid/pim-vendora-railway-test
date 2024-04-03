@@ -386,7 +386,7 @@ class VismaNetController extends Controller
         }
 
         // Fetch sales orders related to the invoices
-        if ($orderNumbers) {
+        if ($orderNumbers && false) {
             // Remove duplicates
             $orderNumbers = array_unique($orderNumbers);
 
