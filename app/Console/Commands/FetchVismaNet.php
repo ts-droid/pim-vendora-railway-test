@@ -94,18 +94,14 @@ class FetchVismaNet extends Command
                 $this->call('visma:fetch', ['type' => 'inventory-receipts']);
                 $this->call('visma:fetch', ['type' => 'currency']);
                 $this->call('visma:fetch', ['type' => 'transactions']);
-                //$this->call('visma:fetch', ['type' => 'payments']);
 
                 // Calculate customer credit values
-                $customers = Customer::all();
-                if ($customers) {
-                    $customerCreditService = new CustomerCreditService();
+                $this->calculateCustomersCreditBalance();
+                break;
 
-                    foreach ($customers as $customer) {
-                        $customerCreditService->calculateCustomerCreditBalance($customer);
-                        $customerCreditService->calculateVendoraRating($customer);
-                    }
-                }
+            case 'hourly':
+                $this->call('visma:fetch', ['type' => 'articles']);
+                $this->call('visma:fetch', ['type' => 'sales-orders']);
                 break;
 
             case 'all':
@@ -119,5 +115,18 @@ class FetchVismaNet extends Command
         }
 
         StatusIndicatorController::ping('Visma.net sync', 86400);
+    }
+
+    private function calculateCustomersCreditBalance()
+    {
+        $customers = Customer::all();
+        if ($customers) {
+            $customerCreditService = new CustomerCreditService();
+
+            foreach ($customers as $customer) {
+                $customerCreditService->calculateCustomerCreditBalance($customer);
+                $customerCreditService->calculateVendoraRating($customer);
+            }
+        }
     }
 }
