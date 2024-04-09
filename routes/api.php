@@ -10,6 +10,7 @@ use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\LanguageApiController;
 use App\Http\Controllers\MarketingContentController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ProductSeoController;
 use App\Http\Controllers\PromptAPIController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Reports\ArticleSalesController;
@@ -198,6 +199,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-sales-persons', [TopSalesPersonsController::class, 'index'])->name('reports.topSalesPersons');
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
+    });
+
+    Route::prefix('/product-seo')->group(function() {
+        Route::get('/meta-data/queue', [ProductSeoController::class, 'queueMetaData']);
     });
 
 });
