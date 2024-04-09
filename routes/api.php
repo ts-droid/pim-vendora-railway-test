@@ -202,7 +202,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     });
 
     Route::prefix('/product-seo')->group(function() {
-        Route::get('/meta-data/queue', [ProductSeoController::class, 'queueMetaData']);
+        Route::post('/meta-data/queue', [ProductSeoController::class, 'queueMetaData']);
     });
 
 });
