@@ -150,6 +150,7 @@ class SalesDashboardReporter
             'turnover' => [
                 'month' => [
                     'amount' => $periodSummary['current']['turnover'],
+                    'amount_last' => $periodSummary['last']['turnover'],
                     'amount_shipping' => $periodSummary['current']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
                 ],
@@ -167,6 +168,7 @@ class SalesDashboardReporter
             'margin' => [
                 'month' => [
                     'amount' => $periodSummary['current']['margin'],
+                    'amount_last' => $periodSummary['last']['margin'],
                     'amount_shipping' => $periodSummary['current']['margin_shipping'],
                     'change' => $monthMarginChange,
                 ],
@@ -184,6 +186,7 @@ class SalesDashboardReporter
             'profit' => [
                 'month' => [
                     'amount' => $periodSummary['current']['profit'],
+                    'amount_last' => $periodSummary['last']['profit'],
                     'amount_shipping' => $periodSummary['current']['profit_shipping'],
                     'change' => $monthProfitChange,
                 ],
