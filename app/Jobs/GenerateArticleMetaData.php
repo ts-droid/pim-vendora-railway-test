@@ -60,13 +60,13 @@ class GenerateArticleMetaData implements ShouldQueue
 
             $articleUpdate['meta_title_' . self::DEFAULT_LANGUAGE] = $metaTitle;
 
-            foreach ($languages as $locale) {
-                if ($locale == self::DEFAULT_LANGUAGE) {
+            foreach ($languages as $language) {
+                if ($language->language_code == self::DEFAULT_LANGUAGE) {
                     continue;
                 }
 
-                list($translation) = $translationController->translate([$metaTitle], self::DEFAULT_LANGUAGE, $locale);
-                $articleUpdate['meta_title_' . $locale] = $translation;
+                list($translation) = $translationController->translate([$metaTitle], self::DEFAULT_LANGUAGE, $language->language_code);
+                $articleUpdate['meta_title_' . $language->language_code] = $translation;
             }
         }
 
@@ -79,13 +79,13 @@ class GenerateArticleMetaData implements ShouldQueue
 
             $articleUpdate['meta_description_' . self::DEFAULT_LANGUAGE] = $metaDescription;
 
-            foreach ($languages as $locale) {
-                if ($locale == self::DEFAULT_LANGUAGE) {
+            foreach ($languages as $language) {
+                if ($language->language_code == self::DEFAULT_LANGUAGE) {
                     continue;
                 }
 
-                list($translation) = $translationController->translate([$metaDescription], self::DEFAULT_LANGUAGE, $locale);
-                $articleUpdate['meta_description_' . $locale] = $translation;
+                list($translation) = $translationController->translate([$metaDescription], self::DEFAULT_LANGUAGE, $language->language_code);
+                $articleUpdate['meta_description_' . $language->language_code] = $translation;
             }
         }
 
