@@ -58,6 +58,8 @@ class GenerateArticleMetaData implements ShouldQueue
                 'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
             ]);
 
+            $metaTitle = remove_quotations($metaTitle);
+
             $articleUpdate['meta_title_' . self::DEFAULT_LANGUAGE] = $metaTitle;
 
             foreach ($languages as $language) {

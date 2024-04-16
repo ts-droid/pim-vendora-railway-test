@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('remove_quotations')) {
+    function remove_quotations(string $string)
+    {
+        $string = trim($string);
+
+        return trim($string, '"');
+    }
+}
+
 if (!function_exists('normalize_array')) {
     function weight_array(array $array)
     {

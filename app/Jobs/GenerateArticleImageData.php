@@ -66,6 +66,8 @@ class GenerateArticleImageData implements ShouldQueue
                 'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
             ]);
 
+            $altText = remove_quotations($altText);
+
             $imageUpdate['alt_text_' . self::DEFAULT_LANGUAGE] = $altText;
 
             foreach ($languages as $language) {
