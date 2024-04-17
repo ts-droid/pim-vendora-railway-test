@@ -23,6 +23,12 @@ class ArticleTagController extends Controller
             ->pluck('article_id')
             ->toArray();
 
+        $articleTag->articles = [];
+
+        if ($articleTag->article_ids) {
+            $articleTag->articles = Article::whereIn('id', $articleTag->article_ids)->get();
+        }
+
         return ApiResponseController::success($articleTag->toArray());
     }
 
