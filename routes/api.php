@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ArticlePriceListController;
+use App\Http\Controllers\ArticleTagController;
 use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
@@ -134,6 +135,14 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
         Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
         Route::post('/{article}/images/{articleImage}/solid', [ArticleController::class, 'updateImageSolid'])->name('articles.updateImageSolid');
+    });
+
+    Route::prefix('/article-tags')->group(function() {
+        Route::get('/', [ArticleTagController::class, 'get'])->name('articleTags.get');
+        Route::post('/', [ArticleTagController::class, 'store'])->name('articleTags.store');
+        Route::post('/{articleTag}', [ArticleTagController::class, 'update'])->name('articleTags.update');
+        Route::post('/{articleTag}/delete', [ArticleTagController::class, 'delete'])->name('articleTags.delete');
+        Route::post('/{articleTag}/connect/{article}', [ArticleTagController::class, 'connect'])->name('articleTags.connect');
     });
 
     Route::prefix('/customer-invoices')->group(function() {
