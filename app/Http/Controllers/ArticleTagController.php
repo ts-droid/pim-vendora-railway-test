@@ -18,6 +18,11 @@ class ArticleTagController extends Controller
 
     public function getTag(ArticleTag $articleTag)
     {
+        $articleTag->article_ids = DB::table('article_tag_connections')
+            ->where('article_tag_id', $articleTag->id)
+            ->pluck('article_id')
+            ->toArray();
+
         return ApiResponseController::success($articleTag->toArray());
     }
 
