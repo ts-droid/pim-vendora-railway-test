@@ -140,9 +140,11 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/article-tags')->group(function() {
         Route::get('/', [ArticleTagController::class, 'get'])->name('articleTags.get');
         Route::post('/', [ArticleTagController::class, 'store'])->name('articleTags.store');
+        Route::get('/{articleTag}', [ArticleTagController::class, 'getTag'])->name('articleTags.getTag');
         Route::post('/{articleTag}', [ArticleTagController::class, 'update'])->name('articleTags.update');
         Route::post('/{articleTag}/delete', [ArticleTagController::class, 'delete'])->name('articleTags.delete');
         Route::post('/{articleTag}/connect/{article}', [ArticleTagController::class, 'connect'])->name('articleTags.connect');
+        Route::post('/{articleTag}/disconnect/{article}', [ArticleTagController::class, 'disconnect'])->name('articleTags.disconnect');
     });
 
     Route::prefix('/customer-invoices')->group(function() {

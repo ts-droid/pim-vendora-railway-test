@@ -16,6 +16,11 @@ class ArticleTagController extends Controller
         return ApiResponseController::success($articleTags->toArray());
     }
 
+    public function getTag(ArticleTag $articleTag)
+    {
+        return ApiResponseController::success($articleTag->toArray());
+    }
+
     public function store(Request $request)
     {
         $data = [];
@@ -55,6 +60,16 @@ class ArticleTagController extends Controller
             'article_id' => $article->id,
             'article_tag_id' => $articleTag->id,
         ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function disconnect(ArticleTag $articleTag, Article $article)
+    {
+        DB::table('article_tag_connections')
+            ->where('article_id', $article->id)
+            ->where('article_tag_id', $articleTag->id)
+            ->delete();
 
         return ApiResponseController::success();
     }
