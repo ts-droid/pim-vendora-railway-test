@@ -12,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureApiKeyIsValid
 {
     private array $except = [
-        '/api/v1/marketing-content/article'
+        '/api/v1/marketing-content/article',
+        '/api/v1/marketing-content/blog-post'
     ];
 
     /**
