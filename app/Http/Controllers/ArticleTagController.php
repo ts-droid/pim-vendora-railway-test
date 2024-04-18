@@ -32,6 +32,16 @@ class ArticleTagController extends Controller
         return ApiResponseController::success($articleTag->toArray());
     }
 
+    public function connections()
+    {
+        $connections = DB::table('article_tag_connections')
+            ->join('articles', 'articles.id', '=', 'article_tag_connections.article_id')
+            ->select('article_id', 'article_tag_id', 'article_number')
+            ->get();
+
+        return ApiResponseController::success($connections->toArray());
+    }
+
     public function store(Request $request)
     {
         $data = [];

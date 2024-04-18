@@ -140,6 +140,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/article-tags')->group(function() {
         Route::get('/', [ArticleTagController::class, 'get'])->name('articleTags.get');
         Route::post('/', [ArticleTagController::class, 'store'])->name('articleTags.store');
+        Route::post('/connections', [ArticleTagController::class, 'connections'])->name('articleTags.connections');
         Route::get('/{articleTag}', [ArticleTagController::class, 'getTag'])->name('articleTags.getTag');
         Route::post('/{articleTag}', [ArticleTagController::class, 'update'])->name('articleTags.update');
         Route::post('/{articleTag}/delete', [ArticleTagController::class, 'delete'])->name('articleTags.delete');
