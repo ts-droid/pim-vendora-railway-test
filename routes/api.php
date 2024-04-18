@@ -109,6 +109,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         });
 
         Route::post('/blog-post', [MarketingContentController::class, 'blogPostStream']);
+        Route::post('/review-post', [MarketingContentController::class, 'reviewPostStream']);
     });
 
     Route::prefix('/suppliers')->group(function() {

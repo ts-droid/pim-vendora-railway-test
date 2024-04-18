@@ -10,7 +10,8 @@ class GzipMiddleware
 {
     private array $except = [
         '/api/v1/marketing-content/article',
-        '/api/v1/marketing-content/blog-post'
+        '/api/v1/marketing-content/blog-post',
+        '/api/v1/marketing-content/review-post'
     ];
 
     /**
