@@ -60,6 +60,87 @@ class MarketingContentController extends Controller
         return ApiResponseController::success();
     }
 
+    public function blogPostStream(Request $request)
+    {
+        set_time_limit(0);
+
+        while(ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        $languageCode = $request->json()->get('language_code', 'en');
+        $title = $request->json()->get('title');
+        $content = $request->json()->get('content');
+        $site = $request->json()->get('site');
+
+        $language = Language::where('language_code', $languageCode)->first();
+
+        $languageTitle = $language ? $language->title : $languageCode;
+
+        $variables = [
+            'title' => $title,
+            'content' => $content,
+            'site' => $site,
+            'language' => $languageTitle,
+        ];
+
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode('share_blog_post');
+
+        $system = $this->replaceVariables($prompt->system, $variables);
+        $message = $this->replaceVariables($prompt->message, $variables);
+
+        $postData = [
+            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $system,
+                ],
+                [
+                    'role' => 'user',
+                    'content' => $message,
+                ]
+            ],
+            'stream' => true,
+        ];
+
+        // Stream the response from OpenAI to the client
+        $response = new StreamedResponse(function() use ($postData) {
+            $ch = curl_init((env('OPEN_AI_ENDPOINT') . '/chat/completions'));
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . env('OPEN_AI_KEY')
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
+                echo $data;
+                ob_flush();
+                flush();
+                return strlen($data);
+            });
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+
+            curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                dd('Curl error: ' . curl_error($ch));
+            }
+
+            curl_close($ch);
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+
+        return $response;
+    }
+
     public function articleStream(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
         set_time_limit(0);

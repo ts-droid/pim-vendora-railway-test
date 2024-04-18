@@ -107,6 +107,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
             Route::POST('/{articleMarketingContent}/stream', [MarketingContentController::class, 'articleStream'])->name('marketingContent.article.stream');
             Route::post('/{articleMarketingContent}/delete', [MarketingContentController::class, 'articleDelete'])->name('marketingContent.article.delete');
         });
+
+        Route::get('/blog-post', [MarketingContentController::class, 'blogPostStream']);
     });
 
     Route::prefix('/suppliers')->group(function() {
