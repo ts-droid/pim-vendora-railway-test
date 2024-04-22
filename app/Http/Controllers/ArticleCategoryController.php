@@ -74,6 +74,10 @@ class ArticleCategoryController extends Controller
             }
         }
 
+        if (isset($data['is_active'])) {
+            $updateData['is_active'] = (int) $data['is_active'];
+        }
+
         $category->update($updateData);
 
         return $category;
