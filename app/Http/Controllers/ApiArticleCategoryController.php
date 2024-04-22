@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\ArticleCategory;
 use Illuminate\Http\Request;
 
@@ -20,7 +21,14 @@ class ApiArticleCategoryController extends Controller
 
     public function get(ArticleCategory $articleCategory)
     {
-        return ApiResponseController::success($articleCategory->toArray());
+        $response = $articleCategory->toArray();
+
+        $response['articles'] = Article::whereJsonContains()
+            ->where('category_id', $articleCategory->id)
+            ->get()
+            ->toArray();
+
+        return ApiResponseController::success($response);
     }
 
     public function store(Request $request)
