@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class ArticleCategoryController extends Controller
 {
+    public function getAllCategoryIDs()
+    {
+        return ArticleCategory::pluck('id')->toArray();
+    }
+
     public function getCategoryTree(array $categoryIDs, int $parentID = 0)
     {
         $categories = ArticleCategory::whereIn('id', $categoryIDs)

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiArticleCategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ArticlePriceListController;
 use App\Http\Controllers\ArticleTagController;
@@ -138,6 +139,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
         Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
         Route::post('/{article}/images/{articleImage}/solid', [ArticleController::class, 'updateImageSolid'])->name('articles.updateImageSolid');
+    });
+
+    Route::prefix('/article-categories')->group(function() {
+        Route::get('/', [ApiArticleCategoryController::class, 'getAll']);
     });
 
     Route::prefix('/article-tags')->group(function() {
