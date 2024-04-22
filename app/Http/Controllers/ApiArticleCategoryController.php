@@ -23,7 +23,7 @@ class ApiArticleCategoryController extends Controller
     {
         $response = $articleCategory->toArray();
 
-        $response['articles'] = Article::whereJsonContains('category_id', $articleCategory->id)
+        $response['articles'] = Article::whereJsonContains('category_ids', $articleCategory->id)
             ->get()
             ->toArray();
 
