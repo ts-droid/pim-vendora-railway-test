@@ -143,6 +143,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/article-categories')->group(function() {
         Route::get('/', [ApiArticleCategoryController::class, 'getAll']);
+        Route::post('/', [ApiArticleCategoryController::class, 'store']);
+        Route::get('/{articleCategory}', [ApiArticleCategoryController::class, 'get']);
+        Route::post('/{articleCategory}', [ApiArticleCategoryController::class, 'update']);
     });
 
     Route::prefix('/article-tags')->group(function() {
