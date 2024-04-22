@@ -146,6 +146,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [ApiArticleCategoryController::class, 'store']);
         Route::get('/{articleCategory}', [ApiArticleCategoryController::class, 'get']);
         Route::post('/{articleCategory}', [ApiArticleCategoryController::class, 'update']);
+        Route::post('/{articleCategory}/connect', [ApiArticleCategoryController::class, 'connect']);
+        Route::post('/{articleCategory}/disconnect', [ApiArticleCategoryController::class, 'disconnect']);
     });
 
     Route::prefix('/article-tags')->group(function() {

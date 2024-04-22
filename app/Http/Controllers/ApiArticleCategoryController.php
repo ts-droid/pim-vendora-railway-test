@@ -50,4 +50,37 @@ class ApiArticleCategoryController extends Controller
 
         return ApiResponseController::success($articleCategory->toArray());
     }
+
+    public function connect(Request $request, ArticleCategory $articleCategory)
+    {
+        $article = Article::find($request->input('article_id'));
+        if (!$article) {
+            return ApiResponseController::error('Article not found');
+        }
+
+        $categoryIDs = array_merge($article->category_ids, [$articleCategory->id]);
+        $categoryIDs = array_unique($categoryIDs);
+
+        $article->update([
+            'category_ids' => $categoryIDs
+        ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function disconnect(Request $request, ArticleCategory $articleCategory)
+    {
+        $article = Article::find($request->input('article_id'));
+        if (!$article) {
+            return ApiResponseController::error('Article not found');
+        }
+
+        $categoryIDs = array_diff($article->category_ids, [$articleCategory->id]);
+
+        $article->update([
+            'category_ids' => $categoryIDs
+        ]);
+
+        return ApiResponseController::success();
+    }
 }
