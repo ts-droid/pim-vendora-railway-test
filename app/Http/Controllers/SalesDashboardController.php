@@ -43,6 +43,30 @@ class SalesDashboardController extends Controller
         ]);
     }
 
+    public function eol(Request $request)
+    {
+        $customerNumber = (string) $request->input('customer_number');
+
+        $startDate = date('Y-01-01');
+        $endDate = date('Y-m-d');
+
+        // Fetch the customer ID
+        $customerID = Customer::where('customer_number', $customerNumber)
+            ->pluck('external_id')
+            ->first();
+
+        $articles = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+            ->select('articles.article_number', 'articles.description', 'articles.stock')
+            ->where('status', '!=', 'Active')
+            ->where('sales_orders.customer', '=', $customerID)
+            ->whereBetween('sales_orders.date', [$startDate, $endDate])
+            ->get();
+
+        return ApiResponseController::success($articles->toArray());
+    }
+
     public function suggestions(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');

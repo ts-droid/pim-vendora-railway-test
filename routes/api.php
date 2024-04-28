@@ -225,6 +225,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
+        Route::get('/sales-dashboard/eol', [SalesDashboardController::class, 'eol']);
     });
 
     Route::prefix('/product-seo')->group(function() {
