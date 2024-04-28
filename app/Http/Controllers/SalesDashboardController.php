@@ -100,6 +100,6 @@ class SalesDashboardController extends Controller
                 ->toArray();
         }
 
-        return ApiResponseController::success($suppliers);
+        return ApiResponseController::success(array_values($suppliers));
     }
 }
