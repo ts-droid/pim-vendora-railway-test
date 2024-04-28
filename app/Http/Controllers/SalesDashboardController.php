@@ -46,6 +46,7 @@ class SalesDashboardController extends Controller
     public function suggestions(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
+        $sorting = (string) $request->input('sorting', 'bestseller');
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
@@ -90,12 +91,23 @@ class SalesDashboardController extends Controller
 
         // Fetch suggestions for each supplier
         foreach ($suppliers as &$supplier) {
-            $supplier['suggestions'] = DB::table('articles')
+            $query = DB::table('articles')
                 ->select('article_number', 'description')
                 ->where('supplier_number', $supplier['supplier']['number'])
-                ->whereNotIn('article_number', $supplier['article_numbers'])
-                ->orderBy('sales_60_days', 'DESC')
-                ->limit(5)
+                ->whereNotIn('article_number', $supplier['article_numbers']);
+
+            switch ($sorting) {
+                case 'latest':
+                    $query->orderBy('created_at', 'DESC');
+                    break;
+
+                case 'bestseller':
+                default:
+                    $query->orderBy('sales_60_days', 'DESC');
+                    break;
+            }
+
+            $supplier['suggestions'] = $query->limit(5)
                 ->get()
                 ->toArray();
         }
