@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\Supplier;
 use App\Services\Reports\SalesDashboardReporter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SalesDashboardController extends Controller
 {
@@ -38,5 +41,65 @@ class SalesDashboardController extends Controller
             'countryChart' => $countryChart,
             'period' => $period,
         ]);
+    }
+
+    public function suggestions(Request $request)
+    {
+        $customerNumber = (string) $request->input('customer_number');
+
+        $startDate = date('Y-01-01');
+        $endDate = date('Y-m-d');
+
+        // Fetch the customer ID
+        $customerID = Customer::where('customer_number', $customerNumber)
+            ->pluck('external_id')
+            ->first();
+
+        // Fetch all purchased articles and suppliers
+        $articles = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+            ->select('articles.article_number', 'articles.supplier_number')
+            ->where('sales_orders.customer', '=', $customerID)
+            ->whereBetween('sales_orders.date', [$startDate, $endDate])
+            ->get();
+
+        $suppliers = [];
+        $articleNumbers = [];
+
+        foreach($articles as $article) {
+            if (in_array($article->article_number, $articleNumbers)) {
+                continue;
+            }
+
+            $articleNumbers[] = $article->article_number;
+
+            if (!isset($suppliers[$article->supplier_number])) {
+                $supplier = Supplier::where('number', $article->supplier_number)
+                    ->first()
+                    ->toArray();
+
+                $suppliers[$article->supplier_number] = [
+                    'supplier' => $supplier,
+                    'article_numbers' => []
+                ];
+            }
+
+            $suppliers[$article->supplier_number]['article_numbers'][] = $article->article_number;
+        }
+
+        // Fetch suggestions for each supplier
+        foreach ($suppliers as &$supplier) {
+            $supplier['suggestions'] = DB::table('articles')
+                ->select('article_number', 'description')
+                ->where('supplier_number', $supplier['supplier']['number'])
+                ->whereNotIn('article_number', $supplier['article_numbers'])
+                ->orderBy('sales_60_days', 'DESC')
+                ->limit(5)
+                ->get()
+                ->toArray();
+        }
+
+        return ApiResponseController::success($suppliers);
     }
 }
