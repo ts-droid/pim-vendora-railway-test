@@ -43,6 +43,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('mark-suppliers')->daily();
             $schedule->command('bestsellers:calculate')->daily();
             $schedule->command('articles:process-eol')->daily();
+            $schedule->command('calculate-customer-revenue')->daily();
         }
 
         // Run only in staging
