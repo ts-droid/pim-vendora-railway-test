@@ -31,7 +31,7 @@ class CalculateCustomerRevenue extends Command
         $endDate = date('Y-m-d');
 
         $invoices = DB::table('customer_invoices')
-            ->whereBetween([$startDate, $endDate])
+            ->whereBetween('date', [$startDate, $endDate])
             ->get();
 
         $customerRevenues = [];
