@@ -47,7 +47,9 @@ class ArticlePriceService
         $priceList = [];
 
         foreach ($articles as $article) {
-            $articlePrice = ArticlePrice::where('article_number', $article->article_number)->first();
+            $articlePrice = ArticlePrice::where('article_number', $article->article_number)
+                ->where('customer_id', $customerID)
+                ->first();
 
             $basePrice = (float) ($articlePrice->{'base_price_' . $currency} ?? 0);
             $basePrice = $basePrice ?: $article->retail_price;
