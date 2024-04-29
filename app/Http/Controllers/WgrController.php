@@ -73,8 +73,6 @@ class WgrController extends Controller
                     $priceItem['percentMaster'],
                 );
             }
-
-            break;
         }
     }
 
