@@ -57,7 +57,6 @@ class CalculateCustomerRevenue extends Command
 
             $customer->revenue = (int) $revenue;
             $customer->save();
-            die();
         }
     }
 }
