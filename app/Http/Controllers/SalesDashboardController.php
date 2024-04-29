@@ -100,7 +100,7 @@ class SalesDashboardController extends Controller
         $articles = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
-            ->select('articles.article_number', 'articles.description', 'articles.sales_60_days')
+            ->select('articles.article_number', 'articles.description', 'articles.sales_60_days', 'articles.supplier_number')
             ->whereIn('sales_orders.customer', $similarCustomers->pluck('external_id'))
             ->whereNotIn('articles.article_number', $articleNumbers)
             ->whereBetween('sales_orders.date', [$startDate, $endDate])
