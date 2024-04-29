@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Customer;
 use App\Services\ArticlePriceService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class WgrController extends Controller
 {
@@ -56,8 +57,21 @@ class WgrController extends Controller
             return;
         }
 
+        $startDate = date('Y-m-d', strtotime('-1 year'));
+        $endDate = date('Y-m-d');
+
         foreach ($customers as $customer) {
             if (!$customer->customer_number) {
+                continue;
+            }
+
+            // Only fetch for customers that have at least 1 invoice in the last year
+            $hasInvoices = DB::table('customer_invoices')
+                ->where('customer_number', $customer->customer_number)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->exists();
+
+            if (!$hasInvoices) {
                 continue;
             }
 
