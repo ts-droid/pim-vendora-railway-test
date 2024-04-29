@@ -181,7 +181,7 @@ class SalesDashboardController extends Controller
 
         // Fetch suggestions for each supplier
         foreach ($suppliers as &$supplier) {
-            if (!$supplier) {
+            if (!$supplier['supplier']) {
                 $supplier['suggestions'] = [];
                 continue;
             }
