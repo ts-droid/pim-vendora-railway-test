@@ -49,7 +49,15 @@ class CalculateCustomerRevenue extends Command
 
         // Set new revenue for customers
         foreach ($customerRevenues as $customerNumber => $revenue) {
-            Customer::where('customer_number', $customerNumber)->update(['revenue' => (int) $revenue]);
+            $customer = Customer::where('customer_number', $customerNumber)->first();
+
+            if (!$customer) {
+                continue;
+            }
+
+            $customer->revenue = (int) $revenue;
+            $customer->save();
+            die();
         }
     }
 }
