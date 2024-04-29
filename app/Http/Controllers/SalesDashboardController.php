@@ -67,6 +67,66 @@ class SalesDashboardController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function intel(Request $request)
+    {
+        $customerNumber = (string) $request->input('customer_number');
+        $revenue = (float) $request->input('revenue');
+
+        $startDate = date('Y-01-01');
+        $endDate = date('Y-m-d');
+
+        // Fetch the main customer
+        $customer = Customer::where('customer_number', $customerNumber)->first();
+
+        // Fetch customers with similar revenue
+        $revenueMin = $customer->revenue * (1 - ($revenue * 0.01));
+        $revenueMax = $customer->revenue * (1 + ($revenue * 0.01));
+
+        $similarCustomers = Customer::whereBetween('revenue', [$revenueMin, $revenueMax])
+            ->where('customer_number', '!=', $customerNumber)
+            ->get();
+
+        // Fetch all articles purchased by the main customer
+        $articleNumbers = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+            ->select('articles.article_number')
+            ->where('sales_orders.customer', '=', $customer->external_id)
+            ->whereBetween('sales_orders.date', [$startDate, $endDate])
+            ->get()
+            ->pluck('article_number');
+
+        // Fetch all articles purchased by the similar customers
+        $articles = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+            ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
+            ->select('articles.article_number', 'articles.description', 'articles.sales_60_days')
+            ->whereIn('sales_orders.customer', $similarCustomers->pluck('external_id'))
+            ->whereNotIn('articles.article_number', $articleNumbers)
+            ->whereBetween('sales_orders.date', [$startDate, $endDate])
+            ->get();
+
+        // Group by supplier
+        $articlesBySupplier = [];
+
+        foreach($articles as $article) {
+            if (!isset($articlesBySupplier[$article->supplier_number])) {
+                $supplier = Supplier::where('number', $article->supplier_number)->first();
+
+                $articlesBySupplier[$article->supplier_number] = [
+                    'supplier' => $supplier ? $supplier->toArray() : null,
+                    'articles' => []
+                ];
+            }
+
+            $articlesBySupplier[$article->supplier_number]['articles'][] = $article;
+        }
+
+        $articlesBySupplier = array_values($articlesBySupplier);
+
+        return ApiResponseController::success($articlesBySupplier);
+    }
+
     public function suggestions(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
