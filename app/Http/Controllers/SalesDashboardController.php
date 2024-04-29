@@ -161,11 +161,10 @@ class SalesDashboardController extends Controller
 
             if (!isset($suppliers[$article->supplier_number])) {
                 $supplier = Supplier::where('number', $article->supplier_number)
-                    ->first()
-                    ->toArray();
+                    ->first();
 
                 $suppliers[$article->supplier_number] = [
-                    'supplier' => $supplier,
+                    'supplier' => $supplier ? $supplier->toArray() : null,
                     'article_numbers' => []
                 ];
             }
