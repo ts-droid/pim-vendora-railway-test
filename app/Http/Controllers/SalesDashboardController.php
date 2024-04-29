@@ -181,6 +181,11 @@ class SalesDashboardController extends Controller
 
         // Fetch suggestions for each supplier
         foreach ($suppliers as &$supplier) {
+            if (!$supplier) {
+                $supplier['suggestions'] = [];
+                continue;
+            }
+
             $query = DB::table('articles')
                 ->select('article_number', 'description')
                 ->where('supplier_number', $supplier['supplier']['number'])
