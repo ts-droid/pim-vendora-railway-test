@@ -45,7 +45,7 @@ class CalculateCustomerRevenue extends Command
         }
 
         // Reset revenue for all customers
-        Customer::update(['revenue' => 0]);
+        DB::table('customers')->update(['revenue' => 0]);
 
         // Set new revenue for customers
         foreach ($customerRevenues as $customerNumber => $revenue) {
