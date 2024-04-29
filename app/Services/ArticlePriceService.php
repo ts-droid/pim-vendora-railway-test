@@ -21,9 +21,9 @@ class ArticlePriceService
         $basePrice = (float) ($articlePrice->{'base_price_' . $currency} ?? 0);
         $basePrice = $basePrice ?: $retailPrice;
 
-        $percent = (float) ($articlePrice->{'percent'} ?? 0);
-        $percentInner = (float) ($articlePrice->{'percent_inner'} ?? 0);
-        $percentMaster = (float) ($articlePrice->{'percent_master'} ?? 0);
+        $percent = (float) ($articlePrice->{'percent'} ?? 100);
+        $percentInner = (float) ($articlePrice->{'percent_inner'} ?? 100);
+        $percentMaster = (float) ($articlePrice->{'percent_master'} ?? 100);
 
         return [
             'default' => ($basePrice * ($percent / 100)),
@@ -52,9 +52,9 @@ class ArticlePriceService
             $basePrice = (float) ($articlePrice->{'base_price_' . $currency} ?? 0);
             $basePrice = $basePrice ?: $article->retail_price;
 
-            $percent = (float) ($articlePrice->{'percent'} ?? 0);
-            $percentInner = (float) ($articlePrice->{'percent_inner'} ?? 0);
-            $percentMaster = (float) ($articlePrice->{'percent_master'} ?? 0);
+            $percent = (float) ($articlePrice->{'percent'} ?? 100);
+            $percentInner = (float) ($articlePrice->{'percent_inner'} ?? 100);
+            $percentMaster = (float) ($articlePrice->{'percent_master'} ?? 100);
 
             $priceList[] = [
                 'article_number' => $article->article_number,
@@ -74,14 +74,24 @@ class ArticlePriceService
             ->where('customer_id', $customerID)
             ->first();
 
-        if ($articlePrice) {
-            $articlePrice->update([
-                'percent' => $percent,
-                'percent_inner' => $percentInner,
-                'percent_master' => $percentMaster,
-            ]);
+        $isDefault = true;
+        if ($percent != 100 || $percentInner != 100 || $percentMaster != 100) {
+            $isDefault = false;
         }
-        else {
+
+        if ($articlePrice) {
+            if ($isDefault) {
+                $articlePrice->delete();
+            }
+            else {
+                $articlePrice->update([
+                    'percent' => $percent,
+                    'percent_inner' => $percentInner,
+                    'percent_master' => $percentMaster,
+                ]);
+            }
+        }
+        elseif(!$isDefault) {
             ArticlePrice::create([
                 'article_number' => $articleNumber,
                 'customer_id' => $customerID,
