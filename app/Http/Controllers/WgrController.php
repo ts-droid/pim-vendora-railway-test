@@ -48,8 +48,6 @@ class WgrController extends Controller
      */
     public function fetchPriceLists(): void
     {
-        return;
-
         $priceService = new ArticlePriceService();
         $WGRController = new WgrController();
 
@@ -75,6 +73,8 @@ class WgrController extends Controller
                     $priceItem['percentMaster'],
                 );
             }
+
+            break;
         }
     }
 
