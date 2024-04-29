@@ -108,8 +108,15 @@ class SalesDashboardController extends Controller
 
         // Group by supplier
         $articlesBySupplier = [];
+        $articleNumbers = [];
 
         foreach($articles as $article) {
+            if (in_array($article->article_number, $articleNumbers)) {
+                continue;
+            }
+
+            $articleNumbers[] = $article->article_number;
+
             if (!isset($articlesBySupplier[$article->supplier_number])) {
                 $supplier = Supplier::where('number', $article->supplier_number)->first();
 
