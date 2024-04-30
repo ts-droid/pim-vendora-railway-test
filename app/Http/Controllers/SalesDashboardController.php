@@ -152,7 +152,8 @@ class SalesDashboardController extends Controller
                     ->whereBetween('sales_orders.date', [$startDate, $endDate])
                     ->groupBy('sales_orders.customer')
                     ->get()
-                    ->pluck('customer');
+                    ->pluck('customer')
+                    ->toArray();
 
                 $customerNames = [];
 
