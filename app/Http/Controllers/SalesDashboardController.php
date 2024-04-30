@@ -62,8 +62,10 @@ class SalesDashboardController extends Controller
             ->where('articles.status', '!=', 'Active')
             ->where('sales_orders.customer', '=', $customerID)
             ->whereBetween('sales_orders.date', [$startDate, $endDate])
-            ->groupBy('sales_order_lines.article_number')
             ->get();
+
+        // Filter out duplicates of article_number
+        $articles = $articles->unique('article_number');
 
         return ApiResponseController::success($articles->toArray());
     }
