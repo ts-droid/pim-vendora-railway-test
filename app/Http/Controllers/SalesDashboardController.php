@@ -67,7 +67,10 @@ class SalesDashboardController extends Controller
         // Filter out duplicates of article_number
         $articles = $articles->unique('article_number');
 
-        return ApiResponseController::success($articles->toArray());
+        $articles = $articles->toArray();
+        $articles = array_values($articles);
+
+        return ApiResponseController::success($articles);
     }
 
     public function intel(Request $request)
