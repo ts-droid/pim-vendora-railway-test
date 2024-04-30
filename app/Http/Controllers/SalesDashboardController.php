@@ -70,7 +70,6 @@ class SalesDashboardController extends Controller
     public function intel(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
-        $revenue = (float) $request->input('revenue');
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
@@ -79,12 +78,38 @@ class SalesDashboardController extends Controller
         $customer = Customer::where('customer_number', $customerNumber)->first();
 
         // Fetch customers with similar revenue
-        $revenueMin = $customer->revenue * (1 - ($revenue * 0.01));
-        $revenueMax = $customer->revenue * (1 + ($revenue * 0.01));
+        $customersAbove = Customer::where('revenue', '>', $customer->revenue)
+            ->orderBy('revenue', 'ASC')
+            ->limit(4)
+            ->get()
+            ->toArray();
 
-        $similarCustomers = Customer::whereBetween('revenue', [$revenueMin, $revenueMax])
-            ->where('customer_number', '!=', $customerNumber)
-            ->get();
+        $customersBelow = Customer::where('revenue', '<', $customer->revenue)
+            ->orderBy('revenue', 'DESC')
+            ->limit(4)
+            ->get()
+            ->toArray();
+
+        $countAbove = $customersAbove->count();
+        $countBelow = $customersBelow->count();
+
+        // Initialize the number to take from each group
+        $numFromAbove = min(2, $countAbove);
+        $numFromBelow = 4 - $numFromAbove;
+
+        // Check if there are enough below, if not adjust from above
+        if ($numFromBelow > $countBelow) {
+            $numFromBelow = $countBelow;
+            $numFromAbove = 4 - $numFromBelow;
+        }
+
+        // Select the customers from above and below
+        $selectedAbove = array_slice($customersAbove, 0, $numFromAbove);
+        $selectedBelow = array_slice($customersBelow, 0, $numFromBelow);
+
+        // Combined selected customers
+        $similarCustomers = array_merge($selectedAbove, $selectedBelow);
+        $similarCustomers = collect($similarCustomers);
 
         // Fetch all articles purchased by the main customer
         $articleNumbers = DB::table('sales_order_lines')
