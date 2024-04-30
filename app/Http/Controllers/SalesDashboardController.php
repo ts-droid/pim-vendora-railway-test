@@ -151,6 +151,10 @@ class SalesDashboardController extends Controller
                 ];
             }
 
+            if (count($articlesBySupplier[$article->supplier_number]['articles']) >= 5) {
+                continue;
+            }
+
             $customerIDs = DB::table('sales_order_lines')
                 ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
                 ->select('sales_orders.customer')
