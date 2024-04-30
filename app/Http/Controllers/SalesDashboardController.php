@@ -187,6 +187,7 @@ class SalesDashboardController extends Controller
     {
         $customerNumber = (string) $request->input('customer_number');
         $sorting = (string) $request->input('sorting', 'bestseller');
+        $numProducts = (int) $request->input('num_products', 5);
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
@@ -251,7 +252,7 @@ class SalesDashboardController extends Controller
                     break;
             }
 
-            $supplier['suggestions'] = $query->limit(5)
+            $supplier['suggestions'] = $query->limit($numProducts)
                 ->get()
                 ->toArray();
         }
