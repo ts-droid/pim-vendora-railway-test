@@ -145,8 +145,26 @@ class SalesDashboardController extends Controller
             if (!isset($articlesBySupplier[$article->supplier_number])) {
                 $supplier = Supplier::where('number', $article->supplier_number)->first();
 
+                $customerIDs = DB::table('sales_order_lines')
+                    ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                    ->select('sales_orders.customer')
+                    ->where('sales_order_lines.article_number', 'ST-BTSX3M-ND')
+                    ->whereBetween('sales_orders.date', [$startDate, $endDate])
+                    ->groupBy('sales_orders.customer')
+                    ->get()
+                    ->pluck('customer');
+
+                $customerNames = [];
+
+                foreach ($similarCustomers as $similarCustomer) {
+                    if (in_array($similarCustomer->external_id, $customerIDs)) {
+                        $customerNames[] = $similarCustomer['name'];
+                    }
+                }
+
                 $articlesBySupplier[$article->supplier_number] = [
                     'supplier' => $supplier ? $supplier->toArray() : null,
+                    'customers' => $customerNames,
                     'articles' => []
                 ];
             }
