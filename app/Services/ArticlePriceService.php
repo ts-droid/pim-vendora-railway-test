@@ -35,7 +35,7 @@ class ArticlePriceService
     public function getPriceList(int $customerID, string $currency, string $supplierNumber = '')
     {
         $articlesQuery = DB::table('articles')
-            ->select('article_number', 'description', 'stock', ('retail_price_' . $currency . ' AS retail_price'))
+            ->select('article_number', 'description', 'stock', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'))
             ->orderBy('article_number');
 
         if ($supplierNumber) {
@@ -62,7 +62,7 @@ class ArticlePriceService
             $innerPrice = ($basePrice * ($percentInner / 100));
             $masterPrice = ($basePrice * ($percentMaster / 100));
 
-            $inPrice = 0;
+            $inPrice = $article->cost_price_avg;
 
             $priceList[] = [
                 'article_number' => $article->article_number,
