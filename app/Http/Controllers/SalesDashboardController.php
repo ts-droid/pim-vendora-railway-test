@@ -90,8 +90,8 @@ class SalesDashboardController extends Controller
             ->get()
             ->toArray();
 
-        $countAbove = $customersAbove->count();
-        $countBelow = $customersBelow->count();
+        $countAbove = count($customersAbove);
+        $countBelow = count($customersBelow);
 
         // Initialize the number to take from each group
         $numFromAbove = min(2, $countAbove);
