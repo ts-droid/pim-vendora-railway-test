@@ -58,9 +58,9 @@ class ArticlePriceService
             $percentInner = (float) ($articlePrice->{'percent_inner'} ?? 100);
             $percentMaster = (float) ($articlePrice->{'percent_master'} ?? 100);
 
-            $defaultPrice = ($basePrice * ($percent / 100));
-            $innerPrice = ($basePrice * ($percentInner / 100));
-            $masterPrice = ($basePrice * ($percentMaster / 100));
+            $defaultPrice = ($basePrice * ($percent / 100)) * 0.8;
+            $innerPrice = ($basePrice * ($percentInner / 100)) * 0.8;
+            $masterPrice = ($basePrice * ($percentMaster / 100)) * 0.8;
 
             $inPrice = $article->cost_price_avg;
 
@@ -72,7 +72,7 @@ class ArticlePriceService
                 'default' => $defaultPrice,
                 'inner' => $innerPrice,
                 'master' => $masterPrice,
-                'margin' => $inPrice ? round(($defaultPrice / $inPrice), 2) : 0,
+                'margin' => $inPrice ? round(($defaultPrice / $inPrice * 100), 2) : 0,
             ];
         }
 
