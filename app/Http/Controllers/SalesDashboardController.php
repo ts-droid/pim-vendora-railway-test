@@ -148,7 +148,7 @@ class SalesDashboardController extends Controller
                 $customerIDs = DB::table('sales_order_lines')
                     ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
                     ->select('sales_orders.customer')
-                    ->where('sales_order_lines.article_number', 'ST-BTSX3M-ND')
+                    ->where('sales_order_lines.article_number', $article->article_number)
                     ->whereBetween('sales_orders.date', [$startDate, $endDate])
                     ->groupBy('sales_orders.customer')
                     ->get()
@@ -158,7 +158,7 @@ class SalesDashboardController extends Controller
                 $customerNames = [];
 
                 foreach ($similarCustomers as $similarCustomer) {
-                    if (in_array($similarCustomer->external_id, $customerIDs)) {
+                    if (in_array($similarCustomer['external_id'], $customerIDs)) {
                         $customerNames[] = $similarCustomer['name'];
                     }
                 }
