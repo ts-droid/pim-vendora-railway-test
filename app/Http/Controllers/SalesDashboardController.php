@@ -77,12 +77,20 @@ class SalesDashboardController extends Controller
     public function intel(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
+        $new = (bool) ($request->input('type') == 'new');
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
 
         // Fetch the main customer
         $customer = Customer::where('customer_number', $customerNumber)->first();
+
+        // Fetch completed articles
+        $completedArticleIDs = Customer::where('customer_number', $customerNumber)
+            ->pluck('intel_articles')
+            ->first();
+
+        $completedArticleIDs = explode(',', $completedArticleIDs);
 
         // Fetch customers with similar revenue
         $customersAbove = Customer::where('revenue', '>', $customer->revenue)
@@ -129,14 +137,22 @@ class SalesDashboardController extends Controller
             ->pluck('article_number');
 
         // Fetch all articles purchased by the similar customers
-        $articles = DB::table('sales_order_lines')
+        $articlesQuery = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
             ->select('articles.article_number', 'articles.description', 'articles.sales_60_days', 'articles.supplier_number')
             ->whereIn('sales_orders.customer', $similarCustomers->pluck('external_id'))
-            ->whereNotIn('articles.article_number', $articleNumbers)
-            ->whereBetween('sales_orders.date', [$startDate, $endDate])
-            ->get();
+            ->whereBetween('sales_orders.date', [$startDate, $endDate]);
+
+        if ($new) {
+            $articlesQuery->whereNotIn('articles.article_number', $articleNumbers)
+                ->whereNotIn('articles.id', $completedArticleIDs);
+        }
+        else {
+            $articlesQuery->whereIn('articles.id', $completedArticleIDs);
+        }
+
+        $articles = $articlesQuery->get();
 
         // Group by supplier
         $articlesBySupplier = [];
