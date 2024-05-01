@@ -197,18 +197,18 @@ class SalesDashboardController extends Controller
         $isDone = (bool) $request->input('is_done', false);
 
         $customer = Customer::where('customer_number', $customerNumber)->first();
-        $articleID = Article::where('article_number', $articleNumber)->pluck('id')->first();
+        $article = Article::where('article_number', $articleNumber)->first();
 
-        if (!$customer || !$articleID) {
+        if (!$customer || !$article) {
             return ApiResponseController::error('Customer or article not found');
         }
 
         $intelIDs = explode(',', $customer->intel_articles);
         if ($isDone) {
-            $intelIDs[] = $articleID;
+            $intelIDs[] = $article->id;
         }
         else {
-            $intelIDs = array_diff($intelIDs, [$articleID]);
+            $intelIDs = array_diff($intelIDs, [$article->id]);
         }
 
         // Remove duplicates
@@ -230,18 +230,18 @@ class SalesDashboardController extends Controller
         $isDone = (bool) $request->input('is_done', false);
 
         $customer = Customer::where('customer_number', $customerNumber)->first();
-        $articleID = Article::where('article_number', $articleNumber)->pluck('id')->first();
+        $article = Article::where('article_number', $articleNumber)->first();
 
-        if (!$customer || !$articleID) {
+        if (!$customer || !$article) {
             return ApiResponseController::error('Customer or article not found');
         }
 
         $suggestionIDs = explode(',', $customer->suggestions_articles);
         if ($isDone) {
-            $suggestionIDs[] = $articleID;
+            $suggestionIDs[] = $article->id;
         }
         else {
-            $suggestionIDs = array_diff($suggestionIDs, [$articleID]);
+            $suggestionIDs = array_diff($suggestionIDs, [$article->id]);
         }
 
         // Remove duplicates
