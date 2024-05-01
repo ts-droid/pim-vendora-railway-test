@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Customer;
 use App\Models\Supplier;
 use App\Services\Reports\SalesDashboardReporter;
@@ -189,11 +190,78 @@ class SalesDashboardController extends Controller
         return ApiResponseController::success($articlesBySupplier);
     }
 
+    public function intelComplete(Request $request)
+    {
+        $customerNumber = (string) $request->input('customer_number');
+        $articleNumber = (string) $request->input('article_number');
+        $isDone = (bool) $request->input('is_done', false);
+
+        $customer = Customer::where('customer_number', $customerNumber)->first();
+        $articleID = Article::where('article_number', $articleNumber)->pluck('id')->first();
+
+        if (!$customer || !$articleID) {
+            return ApiResponseController::error('Customer or article not found');
+        }
+
+        $intelIDs = explode(',', $customer->intel_articles);
+        if ($isDone) {
+            $intelIDs[] = $articleID;
+        }
+        else {
+            $intelIDs = array_diff($intelIDs, [$articleID]);
+        }
+
+        // Remove duplicates
+        $intelIDs = array_unique($intelIDs);
+
+        // Remove empty values
+        $intelIDs = array_filter($intelIDs);
+
+        $customer->intel_articles = implode(',', $intelIDs);
+        $customer->save();
+
+        return ApiResponseController::success();
+    }
+
+    public function suggestionsComplete(Request $request)
+    {
+        $customerNumber = (string) $request->input('customer_number');
+        $articleNumber = (string) $request->input('article_number');
+        $isDone = (bool) $request->input('is_done', false);
+
+        $customer = Customer::where('customer_number', $customerNumber)->first();
+        $articleID = Article::where('article_number', $articleNumber)->pluck('id')->first();
+
+        if (!$customer || !$articleID) {
+            return ApiResponseController::error('Customer or article not found');
+        }
+
+        $suggestionIDs = explode(',', $customer->suggestions_articles);
+        if ($isDone) {
+            $suggestionIDs[] = $articleID;
+        }
+        else {
+            $suggestionIDs = array_diff($suggestionIDs, [$articleID]);
+        }
+
+        // Remove duplicates
+        $suggestionIDs = array_unique($suggestionIDs);
+
+        // Remove empty values
+        $suggestionIDs = array_filter($suggestionIDs);
+
+        $customer->suggestions_articles = implode(',', $suggestionIDs);
+        $customer->save();
+
+        return ApiResponseController::success();
+    }
+
     public function suggestions(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
         $sorting = (string) $request->input('sorting', 'bestseller');
         $numProducts = (int) $request->input('num_products', 5);
+        $new = (bool) $request->input('type') == 'new';
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
@@ -202,6 +270,13 @@ class SalesDashboardController extends Controller
         $customerID = Customer::where('customer_number', $customerNumber)
             ->pluck('external_id')
             ->first();
+
+        // Fetch suggested articles
+        $suggestedArticleIDs = Customer::where('customer_number', $customerNumber)
+            ->pluck('suggestions_articles')
+            ->first();
+
+        $suggestedArticleIDs = explode(',', $suggestedArticleIDs);
 
         // Fetch all purchased articles and suppliers
         $articles = DB::table('sales_order_lines')
@@ -244,8 +319,15 @@ class SalesDashboardController extends Controller
 
             $query = DB::table('articles')
                 ->select('article_number', 'description')
-                ->where('supplier_number', $supplier['supplier']['number'])
-                ->whereNotIn('article_number', $supplier['article_numbers']);
+                ->where('supplier_number', $supplier['supplier']['number']);
+
+            if ($new) {
+                $query->whereNotIn('article_number', $supplier['article_numbers'])
+                    ->whereNotIn('id', $suggestedArticleIDs);
+            }
+            else {
+                $query->whereIn('id', $suggestedArticleIDs);
+            }
 
             switch ($sorting) {
                 case 'latest':

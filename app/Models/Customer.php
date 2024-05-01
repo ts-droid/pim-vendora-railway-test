@@ -30,5 +30,7 @@ class Customer extends Model
         'vendora_rating',
         'access_key',
         'revenue',
+        'suggestions_articles',
+        'intel_articles',
     ];
 }
