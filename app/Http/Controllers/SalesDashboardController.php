@@ -282,6 +282,9 @@ class SalesDashboardController extends Controller
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
 
+        $languageController = new LanguageController();
+        $languages = $languageController->getAllLanguages();
+
         // Fetch the customer ID
         $customerID = Customer::where('customer_number', $customerNumber)
             ->pluck('external_id')
@@ -333,8 +336,13 @@ class SalesDashboardController extends Controller
                 continue;
             }
 
+            $columns = ['article_number', 'description'];
+            foreach ($languages as $language) {
+                $columns[] = 'reseller_url_' . $language->language_code;
+            }
+
             $query = DB::table('articles')
-                ->select('article_number', 'description')
+                ->select($columns)
                 ->where('supplier_number', $supplier['supplier']['number']);
 
             if ($new) {
