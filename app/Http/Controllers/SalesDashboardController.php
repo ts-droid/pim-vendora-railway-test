@@ -82,6 +82,9 @@ class SalesDashboardController extends Controller
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
 
+        $languageController = new LanguageController();
+        $languages = $languageController->getAllLanguages();
+
         // Fetch the main customer
         $customer = Customer::where('customer_number', $customerNumber)->first();
 
@@ -137,10 +140,16 @@ class SalesDashboardController extends Controller
             ->pluck('article_number');
 
         // Fetch all articles purchased by the similar customers
+        $columns = ['articles.article_number', 'articles.description', 'articles.sales_60_days', 'articles.supplier_number'];
+        foreach ($languages as $language) {
+            $columns[] = 'reseller_url_' . $language->language_code;
+        }
+
+
         $articlesQuery = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
-            ->select('articles.article_number', 'articles.description', 'articles.sales_60_days', 'articles.supplier_number')
+            ->select($columns)
             ->whereIn('sales_orders.customer', $similarCustomers->pluck('external_id'))
             ->whereBetween('sales_orders.date', [$startDate, $endDate]);
 
