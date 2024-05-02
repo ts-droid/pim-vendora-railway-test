@@ -64,6 +64,11 @@ class ArticlePriceService
 
             $inPrice = $article->cost_price_avg;
 
+            $margin = 0;
+            if ($defaultPrice && $inPrice) {
+                $margin = (($defaultPrice - $inPrice) / $defaultPrice) * 100;
+            }
+
             $priceList[] = [
                 'article_number' => $article->article_number,
                 'article_name' => $article->description,
@@ -72,7 +77,7 @@ class ArticlePriceService
                 'default' => $defaultPrice,
                 'inner' => $innerPrice,
                 'master' => $masterPrice,
-                'margin' => $inPrice ? round(($defaultPrice / $inPrice * 100), 2) : 0,
+                'margin' => $inPrice ? round($margin, 2) : 0,
             ];
         }
 
