@@ -49,6 +49,8 @@ class WgrController extends Controller
      */
     public function fetchPriceLists(): void
     {
+        return;
+
         $priceService = new ArticlePriceService();
         $WGRController = new WgrController();
 
@@ -159,6 +161,7 @@ class WgrController extends Controller
             foreach ($languages as $language) {
                 $articleData['shop_title_' . $language->language_code] = $productData['title_' . $language->language_code] ?? '';
                 $articleData['shop_description_' . $language->language_code] = $productData['description_' . $language->language_code] ?? '';
+                $articleData['reseller_url_' . $language->language_code] = $productData['url'][$language->language_code] ?? '';
             }
 
             // Images
