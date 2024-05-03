@@ -32,11 +32,24 @@ class ArticlePriceService
         ];
     }
 
-    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '')
+    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '')
     {
         $articlesQuery = DB::table('articles')
-            ->select('article_number', 'description', 'stock', 'external_cost', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'))
-            ->orderBy('article_number');
+            ->select('article_number', 'description', 'stock', 'external_cost', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'));
+
+        switch ($sorting) {
+            case 'latest':
+                $articlesQuery->orderBy('created_at', 'DESC');
+                break;
+
+            case 'bestsellers':
+                $articlesQuery->orderBy('sales_30_days', 'DESC');
+                break;
+
+            default:
+                $articlesQuery->orderBy('article_number');
+                break;
+        }
 
         if ($supplierNumber) {
             $articlesQuery->where('supplier_number', $supplierNumber);
