@@ -32,7 +32,7 @@ class ArticlePriceService
         ];
     }
 
-    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '')
+    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '', string $articleNumber = '')
     {
         $articlesQuery = DB::table('articles')
             ->select('article_number', 'description', 'stock', 'external_cost', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'));
@@ -51,7 +51,10 @@ class ArticlePriceService
                 break;
         }
 
-        if ($supplierNumber) {
+        if ($articleNumber) {
+            $articlesQuery->where('article_number', $articleNumber);
+        }
+        elseif ($supplierNumber) {
             $articlesQuery->where('supplier_number', $supplierNumber);
         }
 

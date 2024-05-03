@@ -14,6 +14,7 @@ class ArticlePriceListController extends Controller
         $currency = (string) $request->input('currency');
         $brandName = (string) $request->input('brand_name');
         $sorting = (string) $request->input('sorting');
+        $articleNumber = (string) $request->input('article_number');
 
         if (!$customerID || !$currency) {
             return ApiResponseController::error('Missing "customer_id" or "currency" parameter.');
@@ -30,7 +31,7 @@ class ArticlePriceListController extends Controller
         }
 
         $priceService = new ArticlePriceService();
-        $priceList  = $priceService->getPriceList($customerID, $currency, $supplierNumber, $sorting);
+        $priceList  = $priceService->getPriceList($customerID, $currency, $supplierNumber, $sorting, $articleNumber);
 
         return ApiResponseController::success($priceList);
     }
