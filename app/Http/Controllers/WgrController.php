@@ -148,8 +148,11 @@ class WgrController extends Controller
                 'webshop_created_at' => $productData['timeCreated'] ?? '',
                 'review_links' => json_encode(json_decode($productData['reviewLinksJSON'], true)),
                 'is_hidden' => ($productData['isHidden'] ?? false) ? 1 : 0,
-                'images' => []
             ];
+
+            if (!$skipImages) {
+                $articleData['images'] = [];
+            }
 
             // Currency fields
             foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
