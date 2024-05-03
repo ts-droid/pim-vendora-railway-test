@@ -32,7 +32,7 @@ class ArticlePriceService
         ];
     }
 
-    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '', string $articleNumber = '')
+    public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '', string $articleNumber = '', string $eolStatus = '')
     {
         $articlesQuery = DB::table('articles')
             ->select('article_number', 'description', 'stock', 'external_cost', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'));
@@ -56,6 +56,22 @@ class ArticlePriceService
         }
         elseif ($supplierNumber) {
             $articlesQuery->where('supplier_number', $supplierNumber);
+        }
+
+        switch ($eolStatus) {
+            case 'eol_stock':
+                $articlesQuery->where('status', '!=', 'Active')
+                    ->where('stock', '>', 0);
+                break;
+
+            case 'eol_no_stock':
+                $articlesQuery->where('status', '!=', 'Active')
+                    ->where('stock', '<=', 0);
+                break;
+
+            default:
+                $articlesQuery->where('status', '=', 'Active');
+                break;
         }
 
         $articles = $articlesQuery->get();

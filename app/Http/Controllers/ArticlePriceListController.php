@@ -14,6 +14,7 @@ class ArticlePriceListController extends Controller
         $currency = (string) $request->input('currency');
         $brandName = (string) $request->input('brand_name');
         $sorting = (string) $request->input('sorting');
+        $eolStatus = (string) $request->input('eol_status');
         $articleNumber = (string) $request->input('article_number');
 
         if (!$customerID || !$currency) {
@@ -31,7 +32,7 @@ class ArticlePriceListController extends Controller
         }
 
         $priceService = new ArticlePriceService();
-        $priceList  = $priceService->getPriceList($customerID, $currency, $supplierNumber, $sorting, $articleNumber);
+        $priceList  = $priceService->getPriceList($customerID, $currency, $supplierNumber, $sorting, $articleNumber, $eolStatus);
 
         return ApiResponseController::success($priceList);
     }
