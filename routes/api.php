@@ -12,6 +12,7 @@ use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\LanguageApiController;
 use App\Http\Controllers\MarketingContentController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PaymentReportController;
 use App\Http\Controllers\ProductSeoController;
 use App\Http\Controllers\PromptAPIController;
 use App\Http\Controllers\PurchaseOrderController;
@@ -222,6 +223,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-articles', [TopArticlesController::class, 'index'])->name('reports.topArticles');
         Route::get('/top-customers', [TopCustomersController::class, 'index'])->name('reports.topCustomers');
         Route::get('/top-sales-persons', [TopSalesPersonsController::class, 'index'])->name('reports.topSalesPersons');
+
+        Route::get('/payment-report', [PaymentReportController::class, 'index']);
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
