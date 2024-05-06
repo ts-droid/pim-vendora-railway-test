@@ -344,9 +344,6 @@ class VismaNetController extends Controller
                     continue;
                 }
 
-                echo json_encode($invoice);
-                die();
-
                 $invoiceData = [
                     'invoice_number' => (string) ($invoice['referenceNumber'] ?? ''),
                     'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
@@ -362,6 +359,10 @@ class VismaNetController extends Controller
                 // Calculate paid at date
                 $applications = $invoice['applications'] ?? null;
                 if ($applications) {
+
+                    echo json_encode($invoice);
+                    die();
+
                     foreach ($applications as $application) {
                         if (floatval($application['balance']) == 0) {
                             $invoiceData['paid_at'] = date('Y-m-d', strtotime($application['applicationDate']));
