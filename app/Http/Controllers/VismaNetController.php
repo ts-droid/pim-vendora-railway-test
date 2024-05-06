@@ -357,15 +357,28 @@ class VismaNetController extends Controller
                 ];
 
                 // Calculate paid at date
+                $amountPaid = 0;
+                $payDate = '';
+
                 $applications = $invoice['applications'] ?? null;
                 if ($applications) {
-
-                    echo json_encode($invoice);
-                    die();
-
                     foreach ($applications as $application) {
-                        if (floatval($application['balance']) == 0) {
-                            $invoiceData['paid_at'] = date('Y-m-d', strtotime($application['applicationDate']));
+                        $docType = $application['docType'] ?? '';
+                        $applicationDate = date('Y-m-d', strtotime($application['applicationDate']));
+                        $applicationAmount = (float) ($application['amountPaid'] ?? 0);
+
+                        if ($docType !== 'PMT') {
+                            continue;
+                        }
+
+                        $amountPaid += $applicationAmount;
+
+                        if (!$payDate || $payDate < $applicationDate) {
+                            $payDate = $applicationDate;
+                        }
+
+                        if ($amountPaid >= $invoiceData['amount']) {
+                            $invoiceData['paid_at'] = $payDate;
                             break;
                         }
                     }
