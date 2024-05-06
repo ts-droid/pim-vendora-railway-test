@@ -32,5 +32,7 @@ class Customer extends Model
         'revenue',
         'suggestions_articles',
         'intel_articles',
+        'average_payment_days',
+        'worst_payment_days',
     ];
 }

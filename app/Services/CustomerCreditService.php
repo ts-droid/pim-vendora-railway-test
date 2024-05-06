@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Http\Controllers\ConfigController;
 use App\Models\Article;
 use App\Models\Customer;
+use App\Models\CustomerInvoice;
 use App\Models\SalesOrder;
 use App\Services\VismaNet\VismaNetApiService;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,80 @@ class CustomerCreditService
     {
         // TODO: Implement this method
         return;
+    }
+
+    public function calculatePaymentDays(Customer $customer)
+    {
+        $periods = [3, 6, 12];
+        $maxPeriod = max($periods);
+
+        $periodStartDates = [];
+        foreach ($periods as $period) {
+            $periodStartDates[$period] = date('Y-m-d', strtotime('-' . $period . ' months'));
+        }
+
+        // Fetch all invoices for the customer within the periods
+        $invoices = CustomerInvoice::where('customer_number', $customer->customer_number)
+            ->where('date', '>=', date('Y-m-d', strtotime('-' . $maxPeriod . ' months')))
+            ->whereNotNull('paid_at')
+            ->get();
+
+        $average = [];
+        $worst = [];
+
+        foreach ($invoices as $invoice) {
+            foreach ($periodStartDates as $period => $startDate) {
+                if ($invoice->date < $startDate) {
+                    continue;
+                }
+
+                $days = floor((strtotime($invoice->paid_at) - strtotime($invoice->date)) / 86400);
+
+                // Update average
+                if (!isset($average[$period])) {
+                    $average[$period] = [0, 0];
+                }
+
+                $average[$period][0] += $days;
+                $average[$period][1]++;
+
+                // Update worst
+                if (!isset($worst[$period])) {
+                    $worst[$period] = 0;
+                }
+
+                if ($days > $worst[$period]) {
+                    $worst[$period] = $days;
+                }
+            }
+        }
+
+        // Calculate averages
+        foreach ($average as $key => $value) {
+            if ($value[1]) {
+                $average[$key] = round($value[0] / $value[1]);
+            }
+            else {
+                $average[$key] = 0;
+            }
+        }
+
+        // Make sure all values are set
+        foreach ($periods as $period) {
+            if (!isset($average[$period])) {
+                $average[$period] = 0;
+            }
+
+            if (!isset($worst[$period])) {
+                $worst[$period] = 0;
+            }
+        }
+
+        // Convert values to json objects to store on customer
+        $customer->update([
+            'average_payment_days' => json_encode($average),
+            'worst_payment_days' => json_encode($worst),
+        ]);
     }
 
     /**

@@ -126,6 +126,7 @@ class FetchVismaNet extends Command
             foreach ($customers as $customer) {
                 $customerCreditService->calculateCustomerCreditBalance($customer);
                 $customerCreditService->calculateVendoraRating($customer);
+                $customerCreditService->calculatePaymentDays($customer);
             }
         }
     }
