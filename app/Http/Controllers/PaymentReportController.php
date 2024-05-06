@@ -21,7 +21,7 @@ class PaymentReportController extends Controller
                 $customer->credit_due = CustomerInvoice::where('status', 'Open')
                     ->where('customer_number', $customer->customer_number)
                     ->whereNull('paid_at')
-                    ->sum('total');
+                    ->sum('amount');
             }
         }
 
