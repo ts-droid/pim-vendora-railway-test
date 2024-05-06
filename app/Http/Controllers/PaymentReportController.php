@@ -13,7 +13,7 @@ class PaymentReportController extends Controller
         $startDate = $request->input('start_date') ?: date('Y-m-d');
         $endDate = $request->input('end_date') ?: date('Y-m-d');
 
-        $customers = Customer::select('id', 'name', 'country', 'credit_limit', 'credit_balance')
+        $customers = Customer::select('id', 'customer_number', 'name', 'country', 'credit_limit', 'credit_balance')
             ->get();
 
         if ($customers) {
