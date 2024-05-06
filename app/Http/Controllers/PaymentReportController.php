@@ -15,6 +15,12 @@ class PaymentReportController extends Controller
         $customers = Customer::select('id', 'name', 'country', 'credit_limit', 'credit_balance')
             ->get();
 
+        if ($customers) {
+            foreach ($customers as &$customer) {
+                $customer->credit_due = 123;
+            }
+        }
+
         return ApiResponseController::success([
             'customers' => $customers->toArray()
         ]);
