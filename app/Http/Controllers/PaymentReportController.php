@@ -10,7 +10,7 @@ class PaymentReportController extends Controller
 {
     public function index(Request $request)
     {
-        $period = (string) $request->input('period', 6);
+        $period = (int) $request->input('period', 6);
         $startDate = $request->input('start_date') ?: date('Y-m-d');
         $endDate = $request->input('end_date') ?: date('Y-m-d');
 
@@ -25,11 +25,11 @@ class PaymentReportController extends Controller
                     ->where('due_date', '<', date('Y-m-d'))
                     ->sum('amount');
 
-                $averagePaymentDats = json_decode($customer->average_payment_days, true);
-                $customer->average_payment_days = $averagePaymentDats[$period] ?? 0;
+                $averagePaymentDays = json_decode($customer->average_payment_days, true);
+                $customer->average_payment = $averagePaymentDays[$period] ?? 0;
 
-                $worstPaymentDats = json_decode($customer->worst_payment_days, true);
-                $customer->worst_payment_days = $worstPaymentDats[$period] ?? 0;
+                $worstPaymentDays = json_decode($customer->worst_payment_days, true);
+                $customer->worst_payment = $worstPaymentDays[$period] ?? 0;
             }
         }
 
