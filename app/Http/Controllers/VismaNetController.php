@@ -350,9 +350,22 @@ class VismaNetController extends Controller
                     'credit_terms' => (string) ($invoice['creditTerms']['description'] ?? ''),
                     'currency' => (string) ($invoice['currencyId'] ?? ''),
                     'amount' => (float) ($invoice['amount'] ?? 0),
+                    'paid_at' => null,
                     'lines' => []
                 ];
 
+                // Calculate paid at date
+                $applications = $invoice['applications'] ?? null;
+                if ($applications) {
+                    foreach ($applications as $application) {
+                        if (floatval($application['balance']) == 0) {
+                            $invoiceData['paid_at'] = date('Y-m-d', strtotime($application['applicationDate']));
+                            break;
+                        }
+                    }
+                }
+
+                // Add invoice lines
                 foreach (($invoice['invoiceLines'] ?? []) as $invoiceLine) {
                     $salesOrderNumber = (string) ($invoiceLine['soOrderNbr'] ?? '');
                     $orderNumbers[] = $salesOrderNumber;

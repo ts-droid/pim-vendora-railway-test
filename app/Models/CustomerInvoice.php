@@ -18,6 +18,7 @@ class CustomerInvoice extends Model
         'credit_terms',
         'currency',
         'amount',
+        'paid_at',
     ];
 
     public function customer()
