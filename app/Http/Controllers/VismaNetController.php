@@ -344,6 +344,9 @@ class VismaNetController extends Controller
                     continue;
                 }
 
+                echo json_encode($invoice);
+                die();
+
                 $invoiceData = [
                     'invoice_number' => (string) ($invoice['referenceNumber'] ?? ''),
                     'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
