@@ -64,6 +64,7 @@ class CustomerController extends Controller
             'country' => (string)($request->country ?? ''),
             'shop_url' => (string)($request->shop_url ?? ''),
             'access_key' => Str::random(32),
+            'credit_limit' => ($request->credit_limit ?? 0)
         ];
 
         // Upload logo?
