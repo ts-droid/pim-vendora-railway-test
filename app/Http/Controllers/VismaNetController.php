@@ -319,7 +319,9 @@ class VismaNetController extends Controller
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
-        $params = [];
+        $params = [
+            'expandApplications' => true
+        ];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_invoices_fetch');
 
