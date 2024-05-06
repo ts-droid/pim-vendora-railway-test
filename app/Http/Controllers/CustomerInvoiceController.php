@@ -56,6 +56,7 @@ class CustomerInvoiceController extends Controller
         $validator = Validator::make($request->all(), [
             'invoice_number' => 'required|string',
             'date' => 'required|string',
+            'due_date' => 'required|string',
             'customer_number' => 'required|string',
             'currency' => 'required|string',
             'amount' => 'required|numeric',
@@ -71,11 +72,13 @@ class CustomerInvoiceController extends Controller
         $invoice = CustomerInvoice::create([
             'invoice_number' => ($request->invoice_number ?? ''),
             'date' => ($request->date ?? ''),
+            'due_date' => ($request->due_date ?? ''),
             'status' => ($request->status ?? ''),
             'customer_number' => ($request->customer_number ?? ''),
             'credit_terms' => ($request->credit_terms ?? ''),
             'currency' => ($request->currency ?? ''),
             'amount' => ($request->amount ?? ''),
+            'paid_at' => ($request->paid_at ?? null),
         ]);
 
         foreach ($request->lines as $line) {
