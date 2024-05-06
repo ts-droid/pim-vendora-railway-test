@@ -10,7 +10,7 @@ class PaymentReportController extends Controller
 {
     public function index(Request $request)
     {
-        $period = (int) $request->input('period', 6);
+        $period = (string) $request->input('period', 6);
         $startDate = $request->input('start_date') ?: date('Y-m-d');
         $endDate = $request->input('end_date') ?: date('Y-m-d');
 
