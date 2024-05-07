@@ -34,13 +34,15 @@ class PaymentReportController extends Controller
 
                 $customer->worst_payment_invoice_id = json_decode($customer->worst_payment_invoice_id, true);
 
-                $customer->worst_payment_invoice = [];
+                $worstPaymentInvoices = [];
 
                 if ($customer->worst_payment_invoice_id) {
                     foreach ($customer->worst_payment_invoice_id as $period => $invoiceID) {
-                        $customer->worst_payment_invoice[$period] = CustomerInvoice::where('id', $invoiceID)->first();
+                        $worstPaymentInvoices[$period] = CustomerInvoice::where('id', $invoiceID)->first();
                     }
                 }
+
+                $customer->worst_payment_invoice = $worstPaymentInvoices;
             }
         }
 
