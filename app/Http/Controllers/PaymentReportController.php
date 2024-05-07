@@ -25,6 +25,8 @@ class PaymentReportController extends Controller
                     ->where('due_date', '<', date('Y-m-d'))
                     ->get();
 
+                $customer->due_invoices = $dueInvoices;
+
                 $customer->credit_due = $dueInvoices->sum('amount');
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
