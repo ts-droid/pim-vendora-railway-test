@@ -35,7 +35,11 @@ class ArticlePriceService
     public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '', string $articleNumber = '', string $eolStatus = '')
     {
         $articlesQuery = DB::table('articles')
-            ->select('article_number', 'description', 'stock', 'external_cost', 'cost_price_avg', ('retail_price_' . $currency . ' AS retail_price'));
+            ->select(
+                'article_number', 'description', 'stock', 'external_cost', 'cost_price_avg',
+                ('retail_price_' . $currency . ' AS retail_price'),
+                ('rek_price_' . $currency . ' AS rek_price')
+            );
 
         switch ($sorting) {
             case 'latest':
@@ -104,6 +108,11 @@ class ArticlePriceService
                 $margin = (($defaultPrice - $inPrice) / $defaultPrice) * 100;
             }
 
+            $resellerMargin = 0;
+            if ($defaultPrice && $article->rek_price) {
+                $resellerMargin = (($article->rek_price - $defaultPrice) / $article->rek_price) * 100;
+            }
+
             $priceList[] = [
                 'article_number' => $article->article_number,
                 'article_name' => $article->description,
@@ -112,7 +121,9 @@ class ArticlePriceService
                 'default' => $defaultPrice,
                 'inner' => $innerPrice,
                 'master' => $masterPrice,
+                'rek_price' => $article->rek_price,
                 'margin' => $inPrice ? round($margin, 2) : 0,
+                'reseller_margin' => round($resellerMargin, 2),
             ];
         }
 
