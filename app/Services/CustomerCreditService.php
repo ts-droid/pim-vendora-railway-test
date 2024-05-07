@@ -92,12 +92,17 @@ class CustomerCreditService
             if (!isset($worst[$period])) {
                 $worst[$period] = 0;
             }
+
+            if (!isset($worstInvoiceIDs[$period])) {
+                $worstInvoiceIDs[$period] = 0;
+            }
         }
 
         // Convert values to json objects to store on customer
         $customer->update([
             'average_payment_days' => json_encode($average),
             'worst_payment_days' => json_encode($worst),
+            'worst_payment_invoice_id' => json_encode($worstInvoiceIDs)
         ]);
     }
 
