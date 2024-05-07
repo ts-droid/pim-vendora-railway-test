@@ -33,7 +33,7 @@ class ProductSeoController extends Controller
         }
 
         $supplierNumber = Supplier::where('id', '=', $supplierID)->value('number');
-        if ($supplierNumber) {
+        if (!$supplierNumber) {
             return ApiResponseController::error('Supplier not found');
         }
 
@@ -85,7 +85,7 @@ class ProductSeoController extends Controller
         }
 
         $supplierNumber = Supplier::where('id', '=', $supplierID)->value('number');
-        if ($supplierNumber) {
+        if (!$supplierNumber) {
             return ApiResponseController::error('Supplier not found');
         }
 
