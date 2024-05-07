@@ -11,6 +11,14 @@ class InventoryTurnoverController extends Controller
     public function index(Request $request)
     {
         $period = (int) $request->input('period', 3);
+        $supplierID = (int) $request->integer('supplier', 0);
+
+        $supplierNumber = null;
+        if ($supplierID) {
+            $supplierNumber = DB::table('suppliers')
+                ->where('id', $supplierID)
+                ->value('supplier_number');
+        }
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
@@ -26,9 +34,14 @@ class InventoryTurnoverController extends Controller
             ->toArray();
 
         // Fetch all articles
-        $articles = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at')
-            ->get();
+        $articlesQuery = DB::table('articles')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at');
+
+        if ($supplierNumber) {
+            $articlesQuery->where('supplier_number', $supplierNumber);
+        }
+
+        $articles = $articlesQuery->get();
 
         if ($articles) {
             foreach ($articles as &$article) {
