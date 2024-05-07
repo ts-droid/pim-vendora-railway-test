@@ -25,11 +25,8 @@ class PaymentReportController extends Controller
                     ->where('due_date', '<', date('Y-m-d'))
                     ->sum('amount');
 
-                $averagePaymentDays = json_decode($customer->average_payment_days, true);
-                $customer->average_payment = $averagePaymentDays[$period] ?? 0;
-
-                $worstPaymentDays = json_decode($customer->worst_payment_days, true);
-                $customer->worst_payment = $worstPaymentDays[$period] ?? 0;
+                $customer->average_payment = json_decode($customer->average_payment_days, true);
+                $customer->worst_payment = json_decode($customer->worst_payment_days, true);
             }
         }
 

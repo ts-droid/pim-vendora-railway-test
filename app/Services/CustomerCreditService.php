@@ -26,7 +26,7 @@ class CustomerCreditService
 
     public function calculatePaymentDays(Customer $customer)
     {
-        $periods = [3, 6, 12];
+        $periods = [3, 6, 12, 24];
         $maxPeriod = max($periods);
 
         $periodStartDates = [];
