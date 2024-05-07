@@ -27,7 +27,7 @@ class InventoryTurnoverController extends Controller
 
         // Fetch all articles
         $articles = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at')
             ->get();
 
         if ($articles) {
