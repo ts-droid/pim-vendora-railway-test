@@ -87,6 +87,8 @@ class ArticlePriceService
                 ->where('customer_id', $customerID)
                 ->first();
 
+            $rekPrice = $article->rek_price * 0.8;
+
             $basePrice = (float) ($articlePrice->{'base_price_' . $currency} ?? 0);
             $basePrice = $basePrice ?: $article->retail_price;
 
@@ -109,8 +111,8 @@ class ArticlePriceService
             }
 
             $resellerMargin = 0;
-            if ($defaultPrice && $article->rek_price) {
-                $resellerMargin = (($article->rek_price - $defaultPrice) / $article->rek_price) * 100;
+            if ($defaultPrice && $rekPrice) {
+                $resellerMargin = (($rekPrice - $defaultPrice) / $rekPrice) * 100;
             }
 
             $priceList[] = [
@@ -121,7 +123,7 @@ class ArticlePriceService
                 'default' => $defaultPrice,
                 'inner' => $innerPrice,
                 'master' => $masterPrice,
-                'rek_price' => $article->rek_price,
+                'rek_price' => $rekPrice,
                 'margin' => $inPrice ? round($margin, 2) : 0,
                 'reseller_margin' => round($resellerMargin, 2),
             ];
