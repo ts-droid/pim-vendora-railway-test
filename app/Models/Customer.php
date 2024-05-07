@@ -26,6 +26,7 @@ class Customer extends Model
         'is_hidden',
         'disable_auto_order_process',
         'credit_limit',
+        'credit_terms',
         'credit_balance',
         'vendora_rating',
         'access_key',
