@@ -35,5 +35,6 @@ class Customer extends Model
         'intel_articles',
         'average_payment_days',
         'worst_payment_days',
+        'worst_payment_invoice_id',
     ];
 }

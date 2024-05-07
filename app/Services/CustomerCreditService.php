@@ -42,6 +42,7 @@ class CustomerCreditService
 
         $average = [];
         $worst = [];
+        $worstInvoiceIDs = [];
 
         foreach ($invoices as $invoice) {
             foreach ($periodStartDates as $period => $startDate) {
@@ -62,10 +63,12 @@ class CustomerCreditService
                 // Update worst
                 if (!isset($worst[$period])) {
                     $worst[$period] = 0;
+                    $worstInvoiceIDs[$period] = 0;
                 }
 
                 if ($days > $worst[$period]) {
                     $worst[$period] = $days;
+                    $worstInvoiceIDs[$period] = $invoice->id;
                 }
             }
         }
