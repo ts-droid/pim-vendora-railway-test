@@ -17,7 +17,7 @@ class InventoryTurnoverController extends Controller
         if ($supplierID) {
             $supplierNumber = DB::table('suppliers')
                 ->where('id', $supplierID)
-                ->value('supplier_number');
+                ->value('number');
         }
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
