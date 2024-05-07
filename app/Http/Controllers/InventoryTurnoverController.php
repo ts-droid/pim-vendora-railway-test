@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InventoryTurnoverController extends Controller
 {
@@ -11,7 +12,8 @@ class InventoryTurnoverController extends Controller
     {
         $period = (int) $request->input('period', 6);
 
-        $articles = Article::select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost')
+        $articles = DB::table('articles')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost')
             ->get();
 
         if ($articles) {
