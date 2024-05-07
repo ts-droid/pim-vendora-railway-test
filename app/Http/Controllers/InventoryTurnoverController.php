@@ -44,14 +44,14 @@ class InventoryTurnoverController extends Controller
                             $article->stock_turnover_rate += $orderLine->quantity;
                         }
 
-                        if ($orderLine->date >= $lastPeriodStartDate) {
+                        if ($orderLine->date >= $lastPeriodStartDate && $orderLine->date < $startDate) {
                             $article->stock_turnover_rate_last_period += $orderLine->quantity;
                         }
                     }
                 }
 
-                $article->stock_turnover_rate = $article->stock_turnover_rate / $period;
-                $article->stock_turnover_rate_last_period = $article->stock_turnover_rate_last_period / $period;
+                $article->stock_turnover_rate = intval($article->stock_turnover_rate / $period);
+                $article->stock_turnover_rate_last_period = intval($article->stock_turnover_rate_last_period / $period);
             }
         }
 
