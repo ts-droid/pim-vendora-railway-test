@@ -19,11 +19,13 @@ class PaymentReportController extends Controller
 
         if ($customers) {
             foreach ($customers as &$customer) {
-                $customer->credit_due = CustomerInvoice::where('status', 'Open')
+                $dueInvoices = CustomerInvoice::where('status', 'Open')
                     ->where('customer_number', $customer->customer_number)
                     ->whereNull('paid_at')
                     ->where('due_date', '<', date('Y-m-d'))
-                    ->sum('amount');
+                    ->get();
+
+                $customer->credit_due = $dueInvoices->sum('amount');
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
                 $customer->worst_payment = json_decode($customer->worst_payment_days, true);
