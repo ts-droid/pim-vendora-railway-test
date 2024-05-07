@@ -14,7 +14,7 @@ class PaymentReportController extends Controller
         $startDate = $request->input('start_date') ?: date('Y-m-d');
         $endDate = $request->input('end_date') ?: date('Y-m-d');
 
-        $customers = Customer::select('id', 'customer_number', 'name', 'country', 'credit_limit', 'credit_terms', 'credit_balance', 'average_payment_days', 'worst_payment_days')
+        $customers = Customer::select('id', 'customer_number', 'name', 'country', 'credit_limit', 'credit_terms', 'credit_balance', 'average_payment_days', 'worst_payment_days', 'worst_payment_invoice_id')
             ->get();
 
         if ($customers) {
@@ -31,6 +31,11 @@ class PaymentReportController extends Controller
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
                 $customer->worst_payment = json_decode($customer->worst_payment_days, true);
+
+                $customer->worst_payment_invoice = null;
+                if ($customer->worst_payment_invoice_id) {
+                    $customer->worst_payment_invoice = CustomerInvoice::where('id', $customer->worst_payment_invoice_id)->first();
+                }
             }
         }
 
