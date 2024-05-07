@@ -9,6 +9,7 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\InventoryReceiptController;
+use App\Http\Controllers\InventoryTurnoverController;
 use App\Http\Controllers\LanguageApiController;
 use App\Http\Controllers\MarketingContentController;
 use App\Http\Controllers\NewsletterController;
@@ -225,6 +226,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-sales-persons', [TopSalesPersonsController::class, 'index'])->name('reports.topSalesPersons');
 
         Route::get('/payment-report', [PaymentReportController::class, 'index']);
+
+        Route::get('/inventory-turnover', [InventoryTurnoverController::class, 'index']);
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
