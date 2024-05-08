@@ -47,6 +47,7 @@ class SalesDashboardController extends Controller
     public function eol(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');
+        $type = (string) $request->input('type');
 
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
@@ -56,14 +57,25 @@ class SalesDashboardController extends Controller
             ->pluck('external_id')
             ->first();
 
-        $articles = DB::table('sales_order_lines')
+        $articlesQuery = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
             ->join('articles', 'articles.article_number', '=', 'sales_order_lines.article_number')
             ->select('articles.article_number', 'articles.description', 'articles.stock')
             ->where('articles.status', '!=', 'Active')
             ->where('sales_orders.customer', '=', $customerID)
-            ->whereBetween('sales_orders.date', [$startDate, $endDate])
-            ->get();
+            ->whereBetween('sales_orders.date', [$startDate, $endDate]);
+
+        switch ($type) {
+            case 'no_stock':
+                $articlesQuery->where('stock', '<=', 0);
+                break;
+
+            case 'has_stock':
+                $articlesQuery->where('stock', '>', 0);
+                break;
+        }
+
+        $articles = $articlesQuery->get();
 
         // Filter out duplicates of article_number
         $articles = $articles->unique('article_number');
