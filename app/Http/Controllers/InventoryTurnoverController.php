@@ -24,6 +24,8 @@ class InventoryTurnoverController extends Controller
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
         $endDate = date('Y-m-d');
 
+        $totalStockValue = 0;
+
         // Fetch all order lines within the period
         $orderLines = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
@@ -39,6 +41,10 @@ class InventoryTurnoverController extends Controller
 
         if ($supplierNumber) {
             $articlesQuery->where('supplier_number', $supplierNumber);
+
+            // Fetch total stock value to be able to calculate percentage of total
+            $totalStockValue = DB::table('articles')
+                ->sum(DB::raw('stock * IF(cost_price_avg > 0, cost_price_avg, external_cost)'));
         }
 
         $articles = $articlesQuery->get();
@@ -90,6 +96,10 @@ class InventoryTurnoverController extends Controller
         }
         if (count($turnoverRatesLastPeriod)) {
             $summary['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
+        }
+
+        if ($totalStockValue) {
+            $summary['percent_of_total'] = round(($summary['stock_value'] / $totalStockValue) * 100, 2);
         }
 
         return ApiResponseController::success([
