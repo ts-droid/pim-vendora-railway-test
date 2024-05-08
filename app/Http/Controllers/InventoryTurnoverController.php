@@ -43,6 +43,17 @@ class InventoryTurnoverController extends Controller
 
         $articles = $articlesQuery->get();
 
+        $summary = [
+            'stock_value' => 0,
+            'stock' => 0,
+            'avg_rate' => 0,
+            'avg_rate_last_period' => 0,
+            'percent_of_total' => 0,
+        ];
+
+        $turnoverRates = [];
+        $turnoverRatesLastPeriod = [];
+
         if ($articles) {
             foreach ($articles as &$article) {
                 $article->cost_price = $article->cost_price_avg ?: $article->external_cost;
@@ -65,11 +76,25 @@ class InventoryTurnoverController extends Controller
 
                 $article->stock_turnover_rate = intval($article->stock_turnover_rate / $period);
                 $article->stock_turnover_rate_last_period = intval($article->stock_turnover_rate_last_period / $period);
+
+                $turnoverRates[] = $article->stock_turnover_rate;
+                $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
+
+                $summary['stock_value'] += $article->stock_value;
+                $summary['stock'] += $article->stock;
             }
+        }
+
+        if (count($turnoverRates)) {
+            $summary['avg_rate'] = array_sum($turnoverRates) / count($turnoverRates);
+        }
+        if (count($turnoverRatesLastPeriod)) {
+            $summary['avg_rate_last_period'] = array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod);
         }
 
         return ApiResponseController::success([
             'articles' => $articles->toArray(),
+            'summary' => $summary,
         ]);
     }
 }
