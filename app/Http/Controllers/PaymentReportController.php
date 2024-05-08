@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
 
 class PaymentReportController extends Controller
@@ -17,17 +18,11 @@ class PaymentReportController extends Controller
         $customers = Customer::select('id', 'customer_number', 'name', 'country', 'credit_limit', 'credit_terms', 'credit_balance', 'average_payment_days', 'worst_payment_days', 'worst_payment_invoice_id')
             ->get();
 
+        $customerCreditService = new CustomerCreditService();
+
         if ($customers) {
             foreach ($customers as &$customer) {
-                $dueInvoices = CustomerInvoice::where('status', 'Open')
-                    ->where('customer_number', $customer->customer_number)
-                    ->whereNull('paid_at')
-                    ->where('due_date', '<', date('Y-m-d'))
-                    ->get();
-
-                $customer->due_invoices = $dueInvoices;
-
-                $customer->credit_due = $dueInvoices->sum('amount');
+                list($customer->credit_due, $customer->due_invoices) = $customerCreditService->getAmountDue($customer->customer_number);
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
                 $customer->worst_payment = json_decode($customer->worst_payment_days, true);

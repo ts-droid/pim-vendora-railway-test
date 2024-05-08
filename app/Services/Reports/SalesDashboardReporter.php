@@ -381,7 +381,7 @@ class SalesDashboardReporter
                     'credit_limit' => $invoiceLine->customer_credit_limit,
                     'credit_balance' => $invoiceLine->customer_credit_balance,
                     'vendora_rating' => $invoiceLine->customer_vendora_rating,
-                    'amount_due' => $customerCreditService->getAmountDue($invoiceLine->customer_number),
+                    'amount_due' => $customerCreditService->getAmountDue($invoiceLine->customer_number)[0],
                     'amount' => 0,
                     'amount_last_year' => 0,
                     'change' => 'inf',

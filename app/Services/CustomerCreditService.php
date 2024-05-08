@@ -12,10 +12,18 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerCreditService
 {
-    public function getAmountDue(string $customerNumber): float
+    public function getAmountDue(string $customerNumber): array
     {
-        // TODO: Implement this method
-        return 0;
+        $dueInvoices = CustomerInvoice::where('status', 'Open')
+            ->where('customer_number', $customerNumber)
+            ->whereNull('paid_at')
+            ->where('due_date', '<', date('Y-m-d'))
+            ->get();
+
+        return [
+            $dueInvoices->sum('amount'),
+            $dueInvoices
+        ];
     }
 
     public function calculateVendoraRating(Customer $customer): void
