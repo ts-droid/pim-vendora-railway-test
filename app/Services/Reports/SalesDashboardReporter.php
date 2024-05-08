@@ -382,6 +382,9 @@ class SalesDashboardReporter
                     'credit_balance' => $invoiceLine->customer_credit_balance,
                     'vendora_rating' => $invoiceLine->customer_vendora_rating,
                     'amount_due' => $customerCreditService->getAmountDue($invoiceLine->customer_number)[0],
+                    'credit_terms' => 0, // TODO: Load this
+                    'average_payment_days' => 0, // TODO: Load this
+                    'worst_payment_days' => 0, // TODO: Load this
                     'amount' => 0,
                     'amount_last_year' => 0,
                     'change' => 'inf',
