@@ -86,10 +86,10 @@ class InventoryTurnoverController extends Controller
         }
 
         if (count($turnoverRates)) {
-            $summary['avg_rate'] = array_sum($turnoverRates) / count($turnoverRates);
+            $summary['avg_rate'] = intval(array_sum($turnoverRates) / count($turnoverRates));
         }
         if (count($turnoverRatesLastPeriod)) {
-            $summary['avg_rate_last_period'] = array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod);
+            $summary['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
         }
 
         return ApiResponseController::success([
