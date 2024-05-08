@@ -73,7 +73,7 @@ class ArticlePriceService
                     ->where('stock', '<=', 0);
                 break;
 
-            default:
+            case 'active':
                 $articlesQuery->where('status', '=', 'Active');
                 break;
         }
