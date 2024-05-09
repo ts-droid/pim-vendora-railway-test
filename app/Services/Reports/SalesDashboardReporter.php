@@ -382,9 +382,9 @@ class SalesDashboardReporter
                     'credit_balance' => $invoiceLine->customer_credit_balance,
                     'vendora_rating' => $invoiceLine->customer_vendora_rating,
                     'amount_due' => $customerCreditService->getAmountDue($invoiceLine->customer_number)[0],
-                    'credit_terms' => 0, // TODO: Load this
-                    'average_payment_days' => 0, // TODO: Load this
-                    'worst_payment_days' => 0, // TODO: Load this
+                    'credit_terms' => $invoiceLine->customer_credit_terms,
+                    'average_payment_days' => $customerCreditService->getAveragePaymentDays($invoiceLine->customer_number, 24),
+                    'worst_payment_days' => $customerCreditService->getWorstPaymentDays($invoiceLine->customer_number, 24),
                     'amount' => 0,
                     'amount_last_year' => 0,
                     'change' => 'inf',
@@ -591,6 +591,7 @@ class SalesDashboardReporter
                 'customers.country AS customer_country',
                 'customers.credit_limit AS customer_credit_limit',
                 'customers.credit_balance AS customer_credit_balance',
+                'customers.credit_terms AS customer_credit_terms',
                 'customers.vendora_rating AS customer_vendora_rating',
                 'suppliers.number AS supplier_number',
                 'suppliers.name AS supplier_name',

@@ -26,6 +26,40 @@ class CustomerCreditService
         ];
     }
 
+    public function getAveragePaymentDays(string $customerNumber, int $period): int
+    {
+        $json = Customer::where('customer_number', $customerNumber)
+            ->select('average_payment_days')
+            ->first();
+
+        if (!$json) {
+            return 0;
+        }
+
+        $json = $json->value('average_payment_days');
+
+        $paymentDays = json_decode($json, true);
+
+        return $paymentDays[$period] ?? 0;
+    }
+
+    public function getWorstPaymentDays(string $customerNumber, int $period): int
+    {
+        $json = Customer::where('customer_number', $customerNumber)
+            ->select('worst_payment_days')
+            ->first();
+
+        if (!$json) {
+            return 0;
+        }
+
+        $json = $json->value('worst_payment_days');
+
+        $paymentDays = json_decode($json, true);
+
+        return $paymentDays[$period] ?? 0;
+    }
+
     public function calculateVendoraRating(Customer $customer): void
     {
         // TODO: Implement this method
