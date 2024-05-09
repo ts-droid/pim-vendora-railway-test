@@ -37,8 +37,9 @@ class CustomerCreditService
         }
 
         $json = $json->value('average_payment_days');
-
         $paymentDays = json_decode($json, true);
+
+        $period = (string) $period;
 
         return $paymentDays[$period] ?? 0;
     }
@@ -54,8 +55,9 @@ class CustomerCreditService
         }
 
         $json = $json->value('worst_payment_days');
-
         $paymentDays = json_decode($json, true);
+
+        $period = (string) $period;
 
         return $paymentDays[$period] ?? 0;
     }
