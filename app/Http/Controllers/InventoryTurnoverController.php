@@ -26,6 +26,11 @@ class InventoryTurnoverController extends Controller
             $supplierName = $supplier->brand_name;
         }
 
+        $includeEmptySuppliers = false;
+        if ($supplierID == 242) {
+            $includeEmptySuppliers = true;
+        }
+
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
         $endDate = date('Y-m-d');
@@ -54,6 +59,11 @@ class InventoryTurnoverController extends Controller
             }
             else {
                 $articlesQuery->where('supplier_number', $supplierNumber);
+            }
+
+            if ($includeEmptySuppliers) {
+                $articlesQuery->orWhere('supplier_number', '')
+                    ->orWhereNull('supplier_number');
             }
 
             // Fetch total stock value to be able to calculate percentage of total
