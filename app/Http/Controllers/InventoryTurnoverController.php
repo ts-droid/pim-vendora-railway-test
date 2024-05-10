@@ -113,6 +113,11 @@ class InventoryTurnoverController extends Controller
                 $article->stock_turnover_rate = intval($article->stock_turnover_rate / $period);
                 $article->stock_turnover_rate_last_period = intval($article->stock_turnover_rate_last_period / $period);
 
+                $article->stock_time = 0;
+                if ($article->stock_turnover_rate) {
+                    $article->stock_time = round($article->stock / $article->stock_turnover_rate, 1);
+                }
+
                 $turnoverRates[] = $article->stock_turnover_rate;
                 $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
 
