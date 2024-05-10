@@ -81,6 +81,7 @@ class InventoryTurnoverController extends Controller
             'avg_rate_with_value' => 0,
             'avg_rate_with_value_last_period' => 0,
             'percent_of_total' => 0,
+            'stock_time' => 0,
         ];
 
         $turnoverRates = [];
@@ -137,6 +138,10 @@ class InventoryTurnoverController extends Controller
         }
         if (count($turnoverRatesLastPeriodWithValue)) {
             $summary['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
+        }
+
+        if ($summary['avg_rate']) {
+            $summary['stock_time'] = $summary['stock'] / $summary['avg_rate'];
         }
 
         if ($totalStockValue) {
