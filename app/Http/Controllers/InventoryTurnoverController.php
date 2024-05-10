@@ -14,10 +14,16 @@ class InventoryTurnoverController extends Controller
         $supplierID = (int) $request->integer('supplier', 0);
 
         $supplierNumber = null;
+        $supplierName = null;
+
         if ($supplierID) {
-            $supplierNumber = DB::table('suppliers')
+            $supplier = DB::table('suppliers')
+                ->select('number', 'brand_name')
                 ->where('id', $supplierID)
-                ->value('number');
+                ->first();
+
+            $supplierNumber = $supplier->number;
+            $supplierName = $supplier->brand_name;
         }
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
@@ -41,6 +47,10 @@ class InventoryTurnoverController extends Controller
 
         if ($supplierNumber) {
             $articlesQuery->where('supplier_number', $supplierNumber);
+
+            if ($supplierName) {
+                $articlesQuery->where('description', 'LIKE', '%' . $supplierName . '%');
+            }
 
             // Fetch total stock value to be able to calculate percentage of total
             $totalStockValue = DB::table('articles')
