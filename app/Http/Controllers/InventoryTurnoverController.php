@@ -78,11 +78,16 @@ class InventoryTurnoverController extends Controller
             'stock' => 0,
             'avg_rate' => 0,
             'avg_rate_last_period' => 0,
+            'avg_rate_with_value' => 0,
+            'avg_rate_with_value_last_period' => 0,
             'percent_of_total' => 0,
         ];
 
         $turnoverRates = [];
         $turnoverRatesLastPeriod = [];
+
+        $turnoverRatesWithValue = [];
+        $turnoverRatesLastPeriodWithValue = [];
 
         if ($articles) {
             foreach ($articles as &$article) {
@@ -110,6 +115,11 @@ class InventoryTurnoverController extends Controller
                 $turnoverRates[] = $article->stock_turnover_rate;
                 $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
 
+                if ($article->stock_value > 0) {
+                    $turnoverRatesWithValue[] = $article->stock_turnover_rate;
+                    $turnoverRatesLastPeriodWithValue[] = $article->stock_turnover_rate_last_period;
+                }
+
                 $summary['stock_value'] += $article->stock_value;
                 $summary['stock'] += $article->stock;
             }
@@ -120,6 +130,13 @@ class InventoryTurnoverController extends Controller
         }
         if (count($turnoverRatesLastPeriod)) {
             $summary['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
+        }
+
+        if (count($turnoverRatesWithValue)) {
+            $summary['avg_rate_with_value'] = intval(array_sum($turnoverRatesWithValue) / count($turnoverRatesWithValue));
+        }
+        if (count($turnoverRatesLastPeriodWithValue)) {
+            $summary['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
         }
 
         if ($totalStockValue) {
