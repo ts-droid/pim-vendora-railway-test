@@ -46,10 +46,14 @@ class InventoryTurnoverController extends Controller
             ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at');
 
         if ($supplierNumber) {
-            $articlesQuery->where('supplier_number', $supplierNumber);
-
             if ($supplierName) {
-                $articlesQuery->where('description', 'LIKE', '%' . $supplierName . '%');
+                $articlesQuery->where(function($query) use ($supplierNumber, $supplierName) {
+                    $query->orWhere('supplier_number', $supplierNumber)
+                        ->orWhere('description', 'LIKE', '%' . $supplierName . '%');
+                });
+            }
+            else {
+                $articlesQuery->where('supplier_number', $supplierNumber);
             }
 
             // Fetch total stock value to be able to calculate percentage of total
