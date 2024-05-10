@@ -17,26 +17,10 @@ class InventoryTurnoverController extends Controller
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
         $endDate = date('Y-m-d');
 
-        // Load all suppliers
+        // Fetch all suppliers
         $suppliers = Supplier::select('number', 'brand_name')
             ->where('brand_name', '!=', '')
             ->get();
-
-        $supplierSummaries = [];
-
-        foreach ($suppliers as $supplier) {
-            $supplierSummaries[$supplier->number] = [
-                'supplier_name' => $supplier->brand_name,
-                'stock_value' => 0,
-                'stock' => 0,
-                'avg_rate' => 0,
-                'avg_rate_last_period' => 0,
-                'avg_rate_with_value' => 0,
-                'avg_rate_with_value_last_period' => 0,
-                'percent_of_total' => 0,
-                'stock_time' => 0,
-            ];
-        }
 
         // Fetch all articles
         $articles = DB::table('articles')
@@ -51,16 +35,31 @@ class InventoryTurnoverController extends Controller
             ->select('sales_order_lines.article_number', 'sales_order_lines.quantity', 'sales_orders.date', 'articles.supplier_number')
             ->whereBetween('sales_orders.date', [$lastPeriodStartDate, $endDate])
             ->get()
-            ->groupBy('article_number');
+            ->groupBy('supplier_number');
 
-        foreach ($orderLines as $orderLine) {
-            if (!isset($supplierSummaries[$orderLine->supplier_number])) {
-                continue;
+        // Generate summary per supplier
+        $supplierSummaries = [];
+
+        foreach ($suppliers as $supplier) {
+            $supplierSummaries[$supplier->number] = [
+                'supplier_name' => $supplier->brand_name,
+                'stock_value' => 0,
+                'stock' => 0,
+                'avg_rate' => 0,
+                'avg_rate_last_period' => 0,
+                'avg_rate_with_value' => 0,
+                'avg_rate_with_value_last_period' => 0,
+                'percent_of_total' => 0,
+                'stock_time' => 0,
+            ];
+
+            $supplierOrderLines = $orderLines[$supplier->number] ?? [];
+
+            foreach ($supplierOrderLines as $orderLine) {
+                $costPrice = $articles[$orderLine->article_number]->cost_price_avg ?: $articles[$orderLine->article_number]->external_cost;
+
+                $supplierSummaries[$supplier->number]['stock_value'] += $articles[$orderLine->article_number]->stock * $costPrice;
             }
-
-            $costPrice = $articles[$orderLine->article_number]->cost_price_avg ?: $articles[$orderLine->article_number]->external_cost;
-
-            $supplierSummaries[$orderLine->supplier_number]['stock_value'] += $articles[$orderLine->article_number]->stock * $costPrice;
         }
 
         return ApiResponseController::success([
