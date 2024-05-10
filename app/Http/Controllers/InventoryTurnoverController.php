@@ -24,9 +24,10 @@ class InventoryTurnoverController extends Controller
 
         // Fetch all articles
         $articles = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at', 'supplier_number')
             ->get()
-            ->keyBy('article_number');
+            ->keyBy('article_number')
+            ->groupBy('supplier_number');
 
         // Fetch all order lines within the period
         $orderLines = DB::table('sales_order_lines')
@@ -54,11 +55,17 @@ class InventoryTurnoverController extends Controller
             ];
 
             $supplierOrderLines = $orderLines[$supplier->number] ?? [];
+            $supplierArticles = $articles[$supplier->number] ?? [];
+
+            foreach ($supplierArticles as $article) {
+                $costPrice = $article->cost_price_avg ?: $article->external_cost;
+
+                $supplierSummaries[$supplier->number]['stock_value'] += $article->stock * $costPrice;
+            }
+
 
             foreach ($supplierOrderLines as $orderLine) {
-                $costPrice = $articles[$orderLine->article_number]->cost_price_avg ?: $articles[$orderLine->article_number]->external_cost;
 
-                $supplierSummaries[$supplier->number]['stock_value'] += $articles[$orderLine->article_number]->stock * $costPrice;
             }
         }
 
