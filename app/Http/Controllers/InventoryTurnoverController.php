@@ -48,7 +48,7 @@ class InventoryTurnoverController extends Controller
         $orderLines = DB::table('sales_order_lines')
             ->join('sales_orders', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
             ->join('articles', 'sales_order_lines.article_number', '=', 'articles.article_number')
-            ->select('article_number', 'quantity', 'sales_orders.date', 'articles.supplier_number')
+            ->select('sales_order_lines.article_number', 'sales_order_lines.quantity', 'sales_orders.date', 'articles.supplier_number')
             ->whereBetween('sales_orders.date', [$lastPeriodStartDate, $endDate])
             ->get()
             ->groupBy('article_number')
