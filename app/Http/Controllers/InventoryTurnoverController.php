@@ -3,11 +3,72 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class InventoryTurnoverController extends Controller
 {
+    public function brands(Request $request)
+    {
+        $period = (int) $request->input('period', 3);
+
+        $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
+        $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
+        $endDate = date('Y-m-d');
+
+        // Load all suppliers
+        $suppliers = Supplier::select('number', 'brand_name')
+            ->where('brand_name', '!=', '')
+            ->get();
+
+        $supplierSummaries = [];
+
+        foreach ($suppliers as $supplier) {
+            $supplierSummaries[$supplier->number] = [
+                'supplier_name' => $supplier->brand_name,
+                'stock_value' => 0,
+                'stock' => 0,
+                'avg_rate' => 0,
+                'avg_rate_last_period' => 0,
+                'avg_rate_with_value' => 0,
+                'avg_rate_with_value_last_period' => 0,
+                'percent_of_total' => 0,
+                'stock_time' => 0,
+            ];
+        }
+
+        // Fetch all articles
+        $articles = DB::table('articles')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at')
+            ->get()
+            ->keyBy('article_number');
+
+        // Fetch all order lines within the period
+        $orderLines = DB::table('sales_order_lines')
+            ->join('sales_orders', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
+            ->join('articles', 'sales_order_lines.article_number', '=', 'articles.article_number')
+            ->select('article_number', 'quantity', 'sales_orders.date', 'articles.supplier_number')
+            ->whereBetween('sales_orders.date', [$lastPeriodStartDate, $endDate])
+            ->get()
+            ->groupBy('article_number')
+            ->toArray();
+
+        foreach ($orderLines as $orderLine) {
+            if (!isset($orderLine->supplier_number)) {
+                continue;
+            }
+
+            $costPrice = $articles[$orderLine->article_number]->cost_price_avg ?: $articles[$orderLine->article_number]->external_cost;
+
+            $supplierSummaries[$orderLine->supplier_number]['stock_value'] += $articles[$orderLine->article_number]->stock * $costPrice;
+        }
+
+        return ApiResponseController::success([
+            'suppliers' => $supplierSummaries,
+        ]);
+    }
+
     public function index(Request $request)
     {
         $period = (int) $request->input('period', 3);

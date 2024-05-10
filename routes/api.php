@@ -228,6 +228,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/payment-report', [PaymentReportController::class, 'index']);
 
         Route::get('/inventory-turnover', [InventoryTurnoverController::class, 'index']);
+        Route::get('/inventory-turnover/brands', [InventoryTurnoverController::class, 'brands']);
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
