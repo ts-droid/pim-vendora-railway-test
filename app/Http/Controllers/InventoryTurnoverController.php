@@ -30,7 +30,6 @@ class InventoryTurnoverController extends Controller
         $articles = DB::table('articles')
             ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at', 'supplier_number')
             ->get()
-            ->keyBy('article_number')
             ->groupBy('supplier_number');
 
         // Fetch all order lines within the period
@@ -40,7 +39,7 @@ class InventoryTurnoverController extends Controller
             ->select('sales_order_lines.article_number', 'sales_order_lines.quantity', 'sales_orders.date', 'articles.supplier_number')
             ->whereBetween('sales_orders.date', [$lastPeriodStartDate, $endDate])
             ->get()
-            ->groupBy('supplier_number');
+            ->groupBy('article_number');
 
         // Generate summary per supplier
         $supplierSummaries = [];
@@ -58,19 +57,56 @@ class InventoryTurnoverController extends Controller
                 'stock_time' => 0, // TODO: Calculate this
             ];
 
-            $supplierOrderLines = $orderLines[$supplier->number] ?? [];
             $supplierArticles = $articles[$supplier->number] ?? [];
 
-            foreach ($supplierArticles as $article) {
-                $costPrice = $article->cost_price_avg ?: $article->external_cost;
+            $turnoverRates = [];
+            $turnoverRatesLastPeriod = [];
+            $stockTimes = [];
 
-                $supplierSummaries[$supplier->number]['stock_value'] += $article->stock * $costPrice;
+            foreach ($supplierArticles as &$article) {
+                //$articleOrderLines = $orderLines[$article->article_number] ?? null;
+
+                $article->cost_price = $article->cost_price_avg ?: $article->external_cost;
+
+                $article->stock_turnover_rate = 0;
+                $article->stock_turnover_rate_last_period = 0;
+
+                if (isset($orderLines[$article->article_number])) {
+                    foreach ($orderLines[$article->article_number] as $orderLine) {
+                        if ($orderLine->date >= $startDate) {
+                            $article->stock_turnover_rate += $orderLine->quantity;
+                        }
+
+                        if ($orderLine->date >= $lastPeriodStartDate && $orderLine->date < $startDate) {
+                            $article->stock_turnover_rate_last_period += $orderLine->quantity;
+                        }
+                    }
+                }
+
+                $article->stock_turnover_rate = intval($article->stock_turnover_rate / $period);
+                $article->stock_turnover_rate_last_period = intval($article->stock_turnover_rate_last_period / $period);
+
+                $article->stock_time = 0;
+                if ($article->stock_turnover_rate) {
+                    $article->stock_time = round($article->stock / $article->stock_turnover_rate, 1);
+                }
+
+                $turnoverRates[] = $article->stock_turnover_rate;
+                $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
+                $stockTimes[] = $article->stock_time;
+
+                $supplierSummaries[$supplier->number]['stock_value'] += $article->stock * $article->cost_price;
                 $supplierSummaries[$supplier->number]['stock'] += $article->stock;
             }
 
-
-            foreach ($supplierOrderLines as $orderLine) {
-
+            if (count($turnoverRates)) {
+                $supplierSummaries[$supplier->number]['avg_rate'] = intval(array_sum($turnoverRates) / count($turnoverRates));
+            }
+            if (count($turnoverRatesLastPeriod)) {
+                $supplierSummaries[$supplier->number]['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
+            }
+            if (count($stockTimes)) {
+                $supplierSummaries[$supplier->number]['avg_rate_last_period'] = intval(array_sum($stockTimes) / count($stockTimes));
             }
 
             if ($totalStockValue) {
