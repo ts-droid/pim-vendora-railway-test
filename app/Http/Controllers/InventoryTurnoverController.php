@@ -22,7 +22,7 @@ class InventoryTurnoverController extends Controller
             ->sum(DB::raw('stock * IF(cost_price_avg > 0, cost_price_avg, external_cost)'));
 
         // Fetch all suppliers
-        $suppliers = Supplier::select('number', 'brand_name')
+        $suppliers = Supplier::select('id', 'number', 'brand_name')
             ->where('brand_name', '!=', '')
             ->get();
 
@@ -46,15 +46,16 @@ class InventoryTurnoverController extends Controller
 
         foreach ($suppliers as $supplier) {
             $supplierSummaries[$supplier->number] = [
+                'supplier_id' => $supplier->id,
                 'supplier_name' => $supplier->brand_name,
                 'stock_value' => 0,
                 'stock' => 0,
-                'avg_rate' => 0, // TODO: Calculate this
-                'avg_rate_last_period' => 0, // TODO: Calculate this
-                'avg_rate_with_value' => 0, // TODO: Calculate this
-                'avg_rate_with_value_last_period' => 0, // TODO: Calculate this
+                'avg_rate' => 0,
+                'avg_rate_last_period' => 0,
+                'avg_rate_with_value' => 0,
+                'avg_rate_with_value_last_period' => 0,
                 'percent_of_total' => 0,
-                'stock_time' => 0, // TODO: Calculate this
+                'stock_time' => 0,
             ];
 
             $supplierArticles = $articles[$supplier->number] ?? [];
