@@ -55,7 +55,7 @@ class InventoryTurnoverController extends Controller
             ->toArray();
 
         foreach ($orderLines as $orderLine) {
-            if (!isset($orderLine->supplier_number)) {
+            if (!isset($supplierSummaries[$orderLine->supplier_number])) {
                 continue;
             }
 
