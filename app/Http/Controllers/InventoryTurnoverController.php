@@ -61,11 +61,8 @@ class InventoryTurnoverController extends Controller
 
             $turnoverRates = [];
             $turnoverRatesLastPeriod = [];
-            $stockTimes = [];
 
             foreach ($supplierArticles as &$article) {
-                //$articleOrderLines = $orderLines[$article->article_number] ?? null;
-
                 $article->cost_price = $article->cost_price_avg ?: $article->external_cost;
 
                 $article->stock_turnover_rate = 0;
@@ -93,7 +90,6 @@ class InventoryTurnoverController extends Controller
 
                 $turnoverRates[] = $article->stock_turnover_rate;
                 $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
-                $stockTimes[] = $article->stock_time;
 
                 $supplierSummaries[$supplier->number]['stock_value'] += $article->stock * $article->cost_price;
                 $supplierSummaries[$supplier->number]['stock'] += $article->stock;
@@ -105,8 +101,9 @@ class InventoryTurnoverController extends Controller
             if (count($turnoverRatesLastPeriod)) {
                 $supplierSummaries[$supplier->number]['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
             }
-            if (count($stockTimes)) {
-                $supplierSummaries[$supplier->number]['avg_rate_last_period'] = intval(array_sum($stockTimes) / count($stockTimes));
+
+            if ($supplierSummaries[$supplier->number]['avg_rate']) {
+                $supplierSummaries[$supplier->number]['stock_time'] = round($supplierSummaries[$supplier->number]['stock'] / $supplierSummaries[$supplier->number]['avg_rate'], 1);
             }
 
             if ($totalStockValue) {
