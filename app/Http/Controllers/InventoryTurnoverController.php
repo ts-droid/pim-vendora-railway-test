@@ -51,8 +51,7 @@ class InventoryTurnoverController extends Controller
             ->select('sales_order_lines.article_number', 'sales_order_lines.quantity', 'sales_orders.date', 'articles.supplier_number')
             ->whereBetween('sales_orders.date', [$lastPeriodStartDate, $endDate])
             ->get()
-            ->groupBy('article_number')
-            ->toArray();
+            ->groupBy('article_number');
 
         foreach ($orderLines as $orderLine) {
             if (!isset($supplierSummaries[$orderLine->supplier_number])) {
