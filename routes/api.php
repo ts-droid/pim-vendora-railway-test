@@ -16,6 +16,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PaymentReportController;
 use App\Http\Controllers\ProductSeoController;
 use App\Http\Controllers\PromptAPIController;
+use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Reports\ArticleSalesController;
 use App\Http\Controllers\Reports\SalesDataController;
@@ -229,6 +230,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/inventory-turnover', [InventoryTurnoverController::class, 'index']);
         Route::get('/inventory-turnover/brands', [InventoryTurnoverController::class, 'brands']);
+
+        Route::get('/purchase-history', [PurchaseHistoryController::class, 'index']);
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
