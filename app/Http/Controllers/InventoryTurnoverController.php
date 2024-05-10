@@ -62,8 +62,13 @@ class InventoryTurnoverController extends Controller
             $turnoverRates = [];
             $turnoverRatesLastPeriod = [];
 
+            $turnoverRatesWithValue = [];
+            $turnoverRatesLastPeriodWithValue = [];
+
             foreach ($supplierArticles as &$article) {
                 $article->cost_price = $article->cost_price_avg ?: $article->external_cost;
+
+                $article->stock_value = $article->stock * $article->cost_price;
 
                 $article->stock_turnover_rate = 0;
                 $article->stock_turnover_rate_last_period = 0;
@@ -91,7 +96,12 @@ class InventoryTurnoverController extends Controller
                 $turnoverRates[] = $article->stock_turnover_rate;
                 $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
 
-                $supplierSummaries[$supplier->number]['stock_value'] += $article->stock * $article->cost_price;
+                if ($article->stock_value) {
+                    $turnoverRatesWithValue[] = $article->stock_turnover_rate;
+                    $turnoverRatesLastPeriodWithValue[] = $article->stock_turnover_rate_last_period;
+                }
+
+                $supplierSummaries[$supplier->number]['stock_value'] += $article->stock_value;
                 $supplierSummaries[$supplier->number]['stock'] += $article->stock;
             }
 
@@ -100,6 +110,13 @@ class InventoryTurnoverController extends Controller
             }
             if (count($turnoverRatesLastPeriod)) {
                 $supplierSummaries[$supplier->number]['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
+            }
+
+            if (count($turnoverRatesWithValue)) {
+                $supplierSummaries[$supplier->number]['avg_rate_with_value'] = intval(array_sum($turnoverRatesWithValue) / count($turnoverRatesWithValue));
+            }
+            if (count($turnoverRatesLastPeriodWithValue)) {
+                $supplierSummaries[$supplier->number]['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
             }
 
             if ($supplierSummaries[$supplier->number]['avg_rate']) {
