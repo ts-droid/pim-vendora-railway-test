@@ -162,8 +162,8 @@ class InventoryTurnoverController extends Controller
             return ApiResponseController::error('Article not found');
         }
 
-        $article_cost_price = $article->cost_price_avg ?: $article->external_cost;
-        $article->stock_value = $article->stock * $article_cost_price;
+        $article->cost_price = $article->cost_price_avg ?: $article->external_cost;
+        $article->stock_value = $article->stock * $article->cost_price;
 
         $article->stock_turnover_rate = 0;
         $article->stock_turnover_rate_last_period = 0;
