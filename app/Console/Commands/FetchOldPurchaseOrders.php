@@ -42,7 +42,8 @@ class FetchOldPurchaseOrders extends Command
             'SELECT *
             FROM BST
             WHERE LEVERERAD = 1
-                AND MAKUL = 0'
+                AND MAKUL = 0
+            LIMIT 1'
         );
 
         if (!empty($orders)) {
