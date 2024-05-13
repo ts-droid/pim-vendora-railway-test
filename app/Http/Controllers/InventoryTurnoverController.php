@@ -166,7 +166,7 @@ class InventoryTurnoverController extends Controller
         $article->stock_value = $article->stock * $article_cost_price;
 
         $article->stock_turnover_rate = 0;
-        $article_stock_turnover_rate_last_period = 0;
+        $article->stock_turnover_rate_last_period = 0;
 
         if ($orderLines && count($orderLines) > 0) {
             foreach ($orderLines as $orderLine) {
