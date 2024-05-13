@@ -265,6 +265,10 @@ class InventoryTurnoverController extends Controller
             'avg_rate_with_value_last_period' => 0,
             'percent_of_total' => 0,
             'stock_time' => 0,
+            'non_neg_summary' => [
+                'stock' => 0,
+                'sold_units' => 0,
+            ],
         ];
 
         $turnoverRates = [];
@@ -285,6 +289,10 @@ class InventoryTurnoverController extends Controller
                     foreach ($orderLines[$article->article_number] as $orderLine) {
                         if ($orderLine->date >= $startDate) {
                             $article->stock_turnover_rate += $orderLine->quantity;
+
+                            if ($article->stock >= 0) {
+                                $summary['non_neg_summary']['sold_units'] += $orderLine->quantity;
+                            }
                         }
 
                         if ($orderLine->date >= $lastPeriodStartDate && $orderLine->date < $startDate) {
@@ -311,6 +319,10 @@ class InventoryTurnoverController extends Controller
 
                 $summary['stock_value'] += $article->stock_value;
                 $summary['stock'] += $article->stock;
+
+                if ($article->stock >= 0) {
+                    $summary['non_neg_summary']['stock'] += $article->stock;
+                }
             }
         }
 
@@ -328,8 +340,8 @@ class InventoryTurnoverController extends Controller
             $summary['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
         }
 
-        if ($summary['avg_rate']) {
-            $summary['stock_time'] = $summary['stock'] / $summary['avg_rate'];
+        if ($summary['non_neg_summary']['sold_units']) {
+            $summary['stock_time'] = $summary['non_neg_summary']['stock'] / $summary['non_neg_summary']['sold_units'];
         }
 
         if ($totalStockValue) {
