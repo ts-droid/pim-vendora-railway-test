@@ -60,11 +60,11 @@ class InventoryTurnoverController extends Controller
             ],
         ];
 
-        $turnoverRates = [];
-        $turnoverRatesLastPeriod = [];
+        $turnoverRatesSummary = [];
+        $turnoverRatesLastPeriodSummary = [];
 
-        $turnoverRatesWithValue = [];
-        $turnoverRatesLastPeriodWithValue = [];
+        $turnoverRatesWithValueSummary = [];
+        $turnoverRatesLastPeriodWithValueSummary = [];
 
         // Generate summary per supplier
         $supplierSummaries = [];
@@ -139,12 +139,12 @@ class InventoryTurnoverController extends Controller
                 $supplierSummaries[$supplier->number]['stock_value'] += $article->stock_value;
                 $supplierSummaries[$supplier->number]['stock'] += $article->stock;
 
-                $turnoverRates[] = $article->stock_turnover_rate;
-                $turnoverRatesLastPeriod[] = $article->stock_turnover_rate_last_period;
+                $turnoverRatesSummary[] = $article->stock_turnover_rate;
+                $turnoverRatesLastPeriodSummary[] = $article->stock_turnover_rate_last_period;
 
                 if ($article->stock_value > 0) {
-                    $turnoverRatesWithValue[] = $article->stock_turnover_rate;
-                    $turnoverRatesLastPeriodWithValue[] = $article->stock_turnover_rate_last_period;
+                    $turnoverRatesWithValueSummary[] = $article->stock_turnover_rate;
+                    $turnoverRatesLastPeriodWithValueSummary[] = $article->stock_turnover_rate_last_period;
                 }
 
                 if ($article->stock >= 0) {
@@ -182,18 +182,18 @@ class InventoryTurnoverController extends Controller
             }
         }
 
-        if (count($turnoverRates)) {
-            $summary['avg_rate'] = intval(array_sum($turnoverRates) / count($turnoverRates));
+        if (count($turnoverRatesSummary)) {
+            $summary['avg_rate'] = intval(array_sum($turnoverRatesSummary) / count($turnoverRatesSummary));
         }
-        if (count($turnoverRatesLastPeriod)) {
-            $summary['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriod) / count($turnoverRatesLastPeriod));
+        if (count($turnoverRatesLastPeriodSummary)) {
+            $summary['avg_rate_last_period'] = intval(array_sum($turnoverRatesLastPeriodSummary) / count($turnoverRatesLastPeriodSummary));
         }
 
-        if (count($turnoverRatesWithValue)) {
-            $summary['avg_rate_with_value'] = intval(array_sum($turnoverRatesWithValue) / count($turnoverRatesWithValue));
+        if (count($turnoverRatesWithValueSummary)) {
+            $summary['avg_rate_with_value'] = intval(array_sum($turnoverRatesWithValueSummary) / count($turnoverRatesWithValueSummary));
         }
-        if (count($turnoverRatesLastPeriodWithValue)) {
-            $summary['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
+        if (count($turnoverRatesLastPeriodWithValueSummary)) {
+            $summary['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValueSummary) / count($turnoverRatesLastPeriodWithValueSummary));
         }
 
         if ($summary['non_neg_summary']['sold_units']) {
