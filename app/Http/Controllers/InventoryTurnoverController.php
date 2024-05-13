@@ -188,7 +188,7 @@ class InventoryTurnoverController extends Controller
             $article->stock_time = round($article->stock / $article->stock_turnover_rate, 1);
         }
 
-        return ApiResponseController::success(['article' => $article->toArray()]);
+        return ApiResponseController::success(['article' => (array) $article]);
     }
 
     public function index(Request $request)
