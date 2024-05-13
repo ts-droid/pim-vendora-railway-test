@@ -41,6 +41,10 @@ class InventoryTurnoverController extends Controller
             ->get()
             ->groupBy('article_number');
 
+        // Fetch total stock value
+        $totalStockValue = DB::table('articles')
+            ->sum(DB::raw('stock * IF(cost_price_avg > 0, cost_price_avg, external_cost)'));
+
         $summary = [
             'stock_value' => 0,
             'stock' => 0,
@@ -166,6 +170,10 @@ class InventoryTurnoverController extends Controller
 
         if ($summary['non_neg_summary']['sold_units']) {
             $summary['stock_time'] = $summary['non_neg_summary']['stock'] / $summary['non_neg_summary']['sold_units'];
+        }
+
+        if ($totalStockValue) {
+            $summary['percent_of_total'] = round(($summary['stock_value'] / $totalStockValue) * 100, 2);
         }
 
         return ApiResponseController::success([
