@@ -230,7 +230,7 @@ class InventoryTurnoverController extends Controller
 
         // Fetch the article
         $article = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at')
+            ->select('id', 'article_number', 'description', 'stock', 'cost_price_avg', 'external_cost', 'webshop_created_at', 'rek_price_SEK')
             ->where('article_number', $articleNumber)
             ->first();
 
