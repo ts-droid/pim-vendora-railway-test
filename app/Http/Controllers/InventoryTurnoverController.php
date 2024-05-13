@@ -137,7 +137,7 @@ class InventoryTurnoverController extends Controller
     public function article(Request $request)
     {
         $period = (int) $request->input('period', 3);
-        $articleNumber = (int) $request->input('article_number');
+        $articleNumber = $request->input('article_number');
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
