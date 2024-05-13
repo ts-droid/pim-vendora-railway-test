@@ -56,6 +56,10 @@ class InventoryTurnoverController extends Controller
                 'avg_rate_with_value_last_period' => 0,
                 'percent_of_total' => 0,
                 'stock_time' => 0,
+                'non_neg_summary' => [
+                    'stock' => 0,
+                    'sold_units' => 0,
+                ],
             ];
 
             $supplierArticles = $articles[$supplier->number] ?? [];
@@ -78,6 +82,10 @@ class InventoryTurnoverController extends Controller
                     foreach ($orderLines[$article->article_number] as $orderLine) {
                         if ($orderLine->date >= $startDate) {
                             $article->stock_turnover_rate += $orderLine->quantity;
+
+                            if ($article->stock >= 0) {
+                                $supplierSummaries[$supplier->number]['non_neg_summary']['sold_units'] += $orderLine->quantity;
+                            }
                         }
 
                         if ($orderLine->date >= $lastPeriodStartDate && $orderLine->date < $startDate) {
@@ -104,6 +112,10 @@ class InventoryTurnoverController extends Controller
 
                 $supplierSummaries[$supplier->number]['stock_value'] += $article->stock_value;
                 $supplierSummaries[$supplier->number]['stock'] += $article->stock;
+
+                if ($article->stock >= 0) {
+                    $supplierSummaries[$supplier->number]['non_neg_summary']['stock'] += $article->stock;
+                }
             }
 
             if (count($turnoverRates)) {
@@ -120,8 +132,8 @@ class InventoryTurnoverController extends Controller
                 $supplierSummaries[$supplier->number]['avg_rate_with_value_last_period'] = intval(array_sum($turnoverRatesLastPeriodWithValue) / count($turnoverRatesLastPeriodWithValue));
             }
 
-            if ($supplierSummaries[$supplier->number]['avg_rate']) {
-                $supplierSummaries[$supplier->number]['stock_time'] = round($supplierSummaries[$supplier->number]['stock'] / $supplierSummaries[$supplier->number]['avg_rate'], 1);
+            if ($supplierSummaries[$supplier->number]['non_neg_summary']['sold_units']) {
+                $supplierSummaries[$supplier->number]['stock_time'] = round($supplierSummaries[$supplier->number]['non_neg_summary']['stock'] / $supplierSummaries[$supplier->number]['non_neg_summary']['sold_units'], 1);
             }
 
             if ($totalStockValue) {
