@@ -46,7 +46,7 @@ class FetchOldPurchaseOrders extends Command
             LIMIT 1'
         );
 
-        if (!empty($orders)) {
+        if (empty($orders)) {
             $this->error('No old purchase orders found.');
             return;
         }
