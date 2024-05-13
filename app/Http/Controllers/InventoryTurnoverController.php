@@ -197,7 +197,7 @@ class InventoryTurnoverController extends Controller
         }
 
         if ($summary['non_neg_summary']['sold_units']) {
-            $summary['stock_time'] = $summary['non_neg_summary']['stock'] / $summary['non_neg_summary']['sold_units'];
+            $summary['stock_time'] = $summary['non_neg_summary']['stock'] / ($summary['non_neg_summary']['sold_units'] / $period);
         }
 
         if ($totalStockValue) {
@@ -417,7 +417,7 @@ class InventoryTurnoverController extends Controller
         }
 
         if ($summary['non_neg_summary']['sold_units']) {
-            $summary['stock_time'] = $summary['non_neg_summary']['stock'] / $summary['non_neg_summary']['sold_units'];
+            $summary['stock_time'] = round($summary['non_neg_summary']['stock'] / ($summary['non_neg_summary']['sold_units'] / $period), 1);
         }
 
         if ($totalStockValue) {
