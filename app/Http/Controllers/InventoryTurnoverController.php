@@ -100,6 +100,7 @@ class InventoryTurnoverController extends Controller
 
                             if ($article->stock >= 0) {
                                 $supplierSummaries[$supplier->number]['non_neg_summary']['sold_units'] += $orderLine->quantity;
+                                $summary['non_neg_summary']['sold_units'] += $orderLine->quantity;
                             }
                         }
 
@@ -134,6 +135,10 @@ class InventoryTurnoverController extends Controller
 
                 $summary['stock_value'] += $article->stock_value;
                 $summary['stock'] += $article->stock;
+
+                if ($article->stock >= 0) {
+                    $summary['non_neg_summary']['stock'] += $article->stock;
+                }
             }
 
             if (count($turnoverRates)) {
@@ -157,6 +162,10 @@ class InventoryTurnoverController extends Controller
             if ($totalStockValue) {
                 $supplierSummaries[$supplier->number]['percent_of_total'] = round(($supplierSummaries[$supplier->number]['stock_value'] / $totalStockValue) * 100, 2);
             }
+        }
+
+        if ($summary['non_neg_summary']['sold_units']) {
+            $summary['stock_time'] = $summary['non_neg_summary']['stock'] / $summary['non_neg_summary']['sold_units'];
         }
 
         return ApiResponseController::success([
