@@ -131,6 +131,9 @@ class InventoryTurnoverController extends Controller
                 if ($article->stock >= 0) {
                     $supplierSummaries[$supplier->number]['non_neg_summary']['stock'] += $article->stock;
                 }
+
+                $summary['stock_value'] += $article->stock_value;
+                $summary['stock'] += $article->stock;
             }
 
             if (count($turnoverRates)) {
