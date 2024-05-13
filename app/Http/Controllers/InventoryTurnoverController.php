@@ -41,6 +41,21 @@ class InventoryTurnoverController extends Controller
             ->get()
             ->groupBy('article_number');
 
+        $summary = [
+            'stock_value' => 0,
+            'stock' => 0,
+            'avg_rate' => 0,
+            'avg_rate_last_period' => 0,
+            'avg_rate_with_value' => 0,
+            'avg_rate_with_value_last_period' => 0,
+            'percent_of_total' => 0,
+            'stock_time' => 0,
+            'non_neg_summary' => [
+                'stock' => 0,
+                'sold_units' => 0,
+            ],
+        ];
+
         // Generate summary per supplier
         $supplierSummaries = [];
 
@@ -143,6 +158,7 @@ class InventoryTurnoverController extends Controller
 
         return ApiResponseController::success([
             'suppliers' => $supplierSummaries,
+            'summary' => $summary,
         ]);
     }
 
