@@ -419,20 +419,10 @@ class VismaNetController extends Controller
                 }
 
                 $amountPaid += $applicationAmount;
+                $amountPaid = round($amountPaid, 2);
 
                 if (!$payDate || $payDate < $applicationDate) {
                     $payDate = $applicationDate;
-                }
-
-                if ($invoiceData['invoice_number'] == '700799') {
-                    $array = [
-                        'amount_paid' => $amountPaid,
-                        'amountInCurrency' => $invoice['amountInCurrency'],
-                        'pay_date' => $payDate,
-                    ];
-
-                    log_data(json_encode($array));
-
                 }
 
                 if ($amountPaid >= $invoice['amountInCurrency']) {
