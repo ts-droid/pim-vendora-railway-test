@@ -318,8 +318,6 @@ class VismaNetController extends Controller
 
         $invoices = $this->callAPI('GET', '/v1/customerInvoice?' . http_build_query($params));
 
-        log_data(json_encode($invoices));
-
         if ($invoices) {
             foreach ($invoices as $invoice) {
                 $this->importCustomerInvoice($invoice);
@@ -426,7 +424,7 @@ class VismaNetController extends Controller
                     $payDate = $applicationDate;
                 }
 
-                if ($amountPaid >= $invoiceData['amount']) {
+                if ($amountPaid >= $invoiceData['amountInCurrency']) {
                     $invoiceData['paid_at'] = $payDate;
                     break;
                 }
