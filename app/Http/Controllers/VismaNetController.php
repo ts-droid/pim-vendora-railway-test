@@ -325,7 +325,7 @@ class VismaNetController extends Controller
         }
 
         if (count($invoices) === self::PAGE_SIZE) {
-            FetchCustomerInvoicePage::dispatch($pageNumber + 1);
+            //FetchCustomerInvoicePage::dispatch($pageNumber + 1);
         }
     }
 
