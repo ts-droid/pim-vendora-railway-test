@@ -408,11 +408,6 @@ class VismaNetController extends Controller
         $payDate = '';
 
         $applications = $invoice['applications'] ?? null;
-
-        if ($invoiceData['invoice_number'] == '700799') {
-            log_data(json_encode($applications));
-        }
-
         if ($applications) {
             foreach ($applications as $application) {
                 $docType = $application['docType'] ?? '';
@@ -430,7 +425,14 @@ class VismaNetController extends Controller
                 }
 
                 if ($invoiceData['invoice_number'] == '700799') {
-                    log_data((string) $amountPaid);
+                    $array = [
+                        'amount_paid' => $amountPaid,
+                        'amountInCurrency' => $invoice['amountInCurrency'],
+                        'pay_date' => $payDate,
+                    ];
+
+                    log_data(json_encode($array));
+
                 }
 
                 if ($amountPaid >= $invoice['amountInCurrency']) {
