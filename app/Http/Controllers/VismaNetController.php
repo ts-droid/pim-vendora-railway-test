@@ -424,7 +424,7 @@ class VismaNetController extends Controller
                     $payDate = $applicationDate;
                 }
 
-                if ($amountPaid >= $invoiceData['amountInCurrency']) {
+                if ($amountPaid >= $invoice['amountInCurrency']) {
                     $invoiceData['paid_at'] = $payDate;
                     break;
                 }
