@@ -325,7 +325,7 @@ class VismaNetController extends Controller
         }
 
         if (count($invoices) === self::PAGE_SIZE) {
-            //FetchCustomerInvoicePage::dispatch($pageNumber + 1);
+            // FetchCustomerInvoicePage::dispatch($pageNumber + 1);
         }
     }
 
@@ -408,6 +408,11 @@ class VismaNetController extends Controller
         $payDate = '';
 
         $applications = $invoice['applications'] ?? null;
+
+        if ($invoiceData['invoice_number'] == '700799') {
+            log_data(json_encode($applications));
+        }
+
         if ($applications) {
             foreach ($applications as $application) {
                 $docType = $application['docType'] ?? '';
@@ -422,6 +427,10 @@ class VismaNetController extends Controller
 
                 if (!$payDate || $payDate < $applicationDate) {
                     $payDate = $applicationDate;
+                }
+
+                if ($invoiceData['invoice_number'] == '700799') {
+                    log_data((string) $amountPaid);
                 }
 
                 if ($amountPaid >= $invoice['amountInCurrency']) {
