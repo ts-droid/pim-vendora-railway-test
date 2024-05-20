@@ -90,6 +90,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/customers')->group(function() {
         Route::get('/', [CustomerController::class, 'get'])->name('customers.get');
         Route::post('/', [CustomerController::class, 'store'])->name('customers.store');
+        Route::get('/top-list', [CustomerController::class, 'topList'])->name('customers.topList');
         Route::post('/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     });
 

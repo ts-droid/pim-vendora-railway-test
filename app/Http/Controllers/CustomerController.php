@@ -10,6 +10,17 @@ use Illuminate\Support\Str;
 
 class CustomerController extends Controller
 {
+    public function topList(Request $request)
+    {
+        $limit = (int) $request->get('limit', 10);
+
+        $customers = Customer::orderBy('sales_last_30_days', 'DESC')
+            ->limit($limit)
+            ->get();
+
+        return ApiResponseController::success($customers->toArray());
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(Customer::class, $request);
