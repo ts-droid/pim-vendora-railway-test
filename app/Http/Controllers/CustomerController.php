@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ArticlePrice;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use Illuminate\Http\Request;
@@ -13,12 +14,29 @@ class CustomerController extends Controller
     public function topList(Request $request)
     {
         $limit = (int) $request->get('limit', 10);
+        $articleNumber = $request->get('article_number');
 
         $customers = Customer::orderBy('sales_last_30_days', 'DESC')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->toArray();
 
-        return ApiResponseController::success($customers->toArray());
+        if ($articleNumber) {
+            foreach ($customers as &$customer) {
+                $priceRow = ArticlePrice::where('article_number', $articleNumber)
+                    ->where('customer_id', $customer['id'])
+                    ->first();
+
+                $customer['article_data'] = [
+                    'price' => $priceRow->base_price_SEK ?? 0,
+                    'percent' => $priceRow->percent ?? 100,
+                    'percent_inner' => $priceRow->percent_inner ?? 100,
+                    'percent_master' => $priceRow->percent_master ?? 100,
+                ];
+            }
+        }
+
+        return ApiResponseController::success($customers);
     }
 
     public function get(Request $request)
