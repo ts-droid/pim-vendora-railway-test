@@ -108,8 +108,10 @@ class ArticleQuantityCalculator
         if ($onOrderByDateQuantities === null) {
 
             // Fetch data from WGR order hold queue
-            $WGRService = new WGROrderQueueService();
-            $onOrderByDateQuantities = $WGRService->getQuantityInQueueByDate();
+            //$WGRService = new WGROrderQueueService();
+            //$onOrderByDateQuantities = $WGRService->getQuantityInQueueByDate();
+
+            $onOrderByDateQuantities = [];
 
             // Fetch normal sales orders
             $orderLines = DB::table('sales_order_lines')
