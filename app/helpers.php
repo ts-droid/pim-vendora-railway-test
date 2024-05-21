@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('default_ai_model')) {
+    function default_ai_model()
+    {
+        return \App\Http\Controllers\ConfigController::getConfig('openai_default_model');
+    }
+}
+
 if (!function_exists('remove_quotations')) {
     function remove_quotations(string $string)
     {

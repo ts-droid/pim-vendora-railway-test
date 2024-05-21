@@ -14,7 +14,7 @@ class OpenAIController extends Controller
 
     public function __construct(string $model = '')
     {
-        $this->model = $model ?: env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview');
+        $this->model = $model ?: default_ai_model();
 
         if (in_array($this->model, ['pplx-7b-online', 'pplx-70b-online'])) {
             $this->apiKey = env('PPLX_KEY', '');

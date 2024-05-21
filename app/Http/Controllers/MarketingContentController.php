@@ -91,7 +91,7 @@ class MarketingContentController extends Controller
         $message = $this->replaceVariables($prompt->message, $variables);
 
         $postData = [
-            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'model' => default_ai_model(),
             'messages' => [
                 [
                     'role' => 'system',
@@ -172,7 +172,7 @@ class MarketingContentController extends Controller
         $message = $this->replaceVariables($prompt->message, $variables);
 
         $postData = [
-            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'model' => default_ai_model(),
             'messages' => [
                 [
                     'role' => 'system',
@@ -255,7 +255,7 @@ class MarketingContentController extends Controller
         $message = $this->replaceVariables($articleMarketingContent->message, $variables);
 
         $postData = [
-            'model' => env('OPEN_AI_DEFAULT_MODEL', 'gpt-4-1106-preview'),
+            'model' => default_ai_model(),
             'messages' => [
                 [
                     'role' => 'system',
