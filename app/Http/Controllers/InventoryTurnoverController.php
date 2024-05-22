@@ -12,6 +12,7 @@ class InventoryTurnoverController extends Controller
     public function brands(Request $request)
     {
         $period = (int) $request->input('period', 3);
+        $period = max(1, $period);
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
         $startDate = date('Y-m-d', strtotime('-' . $period . ' months'));
@@ -213,6 +214,8 @@ class InventoryTurnoverController extends Controller
     public function article(Request $request)
     {
         $period = (int) $request->input('period', 3);
+        $period = max(1, $period);
+
         $articleNumber = $request->input('article_number');
 
         $lastPeriodStartDate = date('Y-m-d', strtotime('-' . ($period * 2) . ' months'));
@@ -270,6 +273,8 @@ class InventoryTurnoverController extends Controller
     public function index(Request $request)
     {
         $period = (int) $request->input('period', 3);
+        $period = max(1, $period);
+
         $supplierID = (int) $request->integer('supplier', 0);
 
         $supplierNumber = null;
