@@ -13,7 +13,12 @@ class PurchaseHistoryController extends Controller
 
         $orderLines = DB::table('purchase_order_lines')
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-            ->select('purchase_orders.order_number', 'purchase_orders.date', DB::raw('SUM(quantity) AS quantity'))
+            ->select(
+                'purchase_orders.order_number',
+                'purchase_orders.date',
+                DB::raw('SUM(purchase_order_lines.quantity) AS quantity'),
+                DB::raw('AVG(purchase_order_lines.unit_cost) AS average_unit_cost')
+            )
             ->where('article_number', $articleNumber)
             ->groupBy('purchase_order_id')
             ->orderBy('purchase_orders.date', 'DESC')
