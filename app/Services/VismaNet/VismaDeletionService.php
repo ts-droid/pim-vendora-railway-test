@@ -3,6 +3,7 @@
 namespace App\Services\VismaNet;
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderLine;
 
 class VismaDeletionService extends VismaNetApiService
 {
@@ -19,8 +20,14 @@ class VismaDeletionService extends VismaNetApiService
         }
 
         // Delete all purchase orders not found in the Visma.net API response.
-        PurchaseOrder::whereNotIn('order_number', $orderNumbers)
+        $orderIDs = PurchaseOrder::whereNotIn('order_number', $orderNumbers)
             ->where('status', '!=', 'Draft')
-            ->delete();
+            ->where('date', '>=', '2023-01-01')
+            ->pluck('id')
+            ->get();
+
+        PurchaseOrder::whereIn('id', $orderIDs)->delete();
+
+        PurchaseOrderLine::whereIn('purchase_order_id', $orderIDs)->delete();
     }
 }
