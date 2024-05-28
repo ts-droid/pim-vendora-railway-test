@@ -57,10 +57,13 @@ class CalculateArticleShippingTime implements ShouldQueue
 
         // Update the articles with the calculated delivery days
         foreach($deliveryDays as $articleNumber => $days) {
-            Article::where('article_number', $articleNumber)->update(['delivery_days' => $days]);
+            Article::where('article_number', strval($articleNumber))->update(['delivery_days' => $days]);
         }
 
         // Reset all other articles to 0 days
-        Article::whereNotIn('article_number', array_keys($deliveryDays))->update(['delivery_days' => 0]);
+        $updatedArticleNumbers = array_keys($deliveryDays);
+        $updatedArticleNumbers = array_map('strval', $updatedArticleNumbers);
+
+        Article::whereNotIn('article_number', $updatedArticleNumbers)->update(['delivery_days' => 0]);
     }
 }
