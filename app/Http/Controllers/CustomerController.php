@@ -92,6 +92,9 @@ class CustomerController extends Controller
             'margin' => 0,
         ];
 
+        $articles = [];
+        $brands = [];
+
         // Load all customer invoice lines
         $invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
@@ -102,17 +105,38 @@ class CustomerController extends Controller
             ->get();
 
         foreach ($invoiceLines as $invoiceLine) {
+            // Add to summary
             $summary['turnover'] += $invoiceLine->amount;
             $summary['cost'] += $invoiceLine->cost;
+
+            // Add to articles
+            if (!isset($articles[$invoiceLine->article_number])) {
+                $articles[$invoiceLine->article_number] = [
+                    'article_number' => $invoiceLine->article_number,
+                    'description' => $invoiceLine->description,
+                    'last_purchase_date' => '', // TODO: Calculate this
+                    'last_purchase_quantity' => 0, // TODO: Calculate this
+                    'total_units' => 0, // TODO: Calculate this
+                    'avg_purchase_price' => 0, // TODO: Calculate this
+                    'margin' => 0, // TODO: Calculate this
+                    'customer_margin' => 0, // TODO: Calculate this
+                ];
+            }
+
+
+            // Add to brands
         }
 
+        // Calculate profit and margin on summary
         $summary['profit'] = $summary['turnover'] - $summary['cost'];
         if ($summary['turnover']) {
             $summary['margin'] = round(($summary['turnover'] - $summary['cost']) / $summary['turnover'] * 100, 2);
         }
 
         return ApiResponseController::success([
-            'summary' => $summary
+            'summary' => $summary,
+            'articles' => $articles,
+            'brands' => $brands,
         ]);
     }
 
