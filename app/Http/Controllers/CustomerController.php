@@ -68,6 +68,11 @@ class CustomerController extends Controller
         return ApiResponseController::success($customers->toArray());
     }
 
+    public function getCustomer(Request $request, Customer $customer)
+    {
+        return ApiResponseController::success($customer->toArray());
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
