@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -77,6 +78,42 @@ class CustomerController extends Controller
         $customerArray['amount_due'] = $customerCreditService->getAmountDue($customer['customer_number'])[0];
 
         return ApiResponseController::success($customerArray);
+    }
+
+    public function getCustomerSales(Request $request, Customer $customer)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $summary = [
+            'turnover' => 0,
+            'profit' => 0,
+            'cost' => 0,
+            'margin' => 0,
+        ];
+
+        // Load all customer invoice lines
+        $invoiceLines = DB::table('customer_invoice_lines')
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->where('customer_invoices.customer_number', $customer->customer_number)
+            ->where('customer_invoices.date', '>=', $startDate)
+            ->where('customer_invoices.date', '<=', $endDate)
+            ->select('customer_invoice_lines.*')
+            ->get();
+
+        foreach ($invoiceLines as $invoiceLine) {
+            $summary['turnover'] += $invoiceLine->amount;
+            $summary['cost'] += $invoiceLine->cost;
+        }
+
+        $summary['profit'] = $summary['turnover'] - $summary['cost'];
+        if ($summary['turnover']) {
+            $summary['margin'] = round(($summary['turnover'] - $summary['cost']) / $summary['turnover'] * 100, 2);
+        }
+
+        return ApiResponseController::success([
+            'summary' => $summary
+        ]);
     }
 
     public function store(Request $request)
