@@ -101,7 +101,10 @@ class CustomerController extends Controller
             ->where('customer_invoices.customer_number', $customer->customer_number)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
-            ->select('customer_invoice_lines.*')
+            ->select(
+                'customer_invoice_lines.*',
+                'customer_invoices.date'
+            )
             ->get();
 
         foreach ($invoiceLines as $invoiceLine) {
@@ -114,13 +117,32 @@ class CustomerController extends Controller
                 $articles[$invoiceLine->article_number] = [
                     'article_number' => $invoiceLine->article_number,
                     'description' => $invoiceLine->description,
-                    'last_purchase_date' => '', // TODO: Calculate this
-                    'last_purchase_quantity' => 0, // TODO: Calculate this
-                    'total_units' => 0, // TODO: Calculate this
-                    'avg_purchase_price' => 0, // TODO: Calculate this
-                    'margin' => 0, // TODO: Calculate this
+                    'last_purchase_date' => $invoiceLine->date,
+                    'last_purchase_quantity' => $invoiceLine->quantity,
+                    'total_units' => 0,
+                    'total_amount' => 0,
+                    'total_cost' => 0,
+                    'avg_in_price' => 0,
+                    'avg_purchase_price' => 0,
+                    'margin' => 0,
                     'customer_margin' => 0, // TODO: Calculate this
                 ];
+            }
+
+            $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
+            $articles[$invoiceLine->article_number]['total_amount'] += $invoiceLine->amount;
+            $articles[$invoiceLine->article_number]['total_cost'] += $invoiceLine->cost;
+
+            $articles[$invoiceLine->article_number]['avg_in_price'] = $articles[$invoiceLine->article_number]['total_cost'] / $articles[$invoiceLine->article_number]['total_units'];
+            $articles[$invoiceLine->article_number]['avg_purchase_price'] = $articles[$invoiceLine->article_number]['total_amount'] / $articles[$invoiceLine->article_number]['total_units'];
+
+            if ($articles[$invoiceLine->article_number]['total_amount'] > 0) {
+                $articles[$invoiceLine->article_number]['margin'] = round(($articles[$invoiceLine->article_number]['total_amount'] - $articles[$invoiceLine->article_number]['total_cost']) / $articles[$invoiceLine->article_number]['total_amount'] * 100, 2);
+            }
+
+            if ($invoiceLine->date > $articles[$invoiceLine->article_number]['last_purchase_date']) {
+                $articles[$invoiceLine->article_number]['last_purchase_date'] = $invoiceLine->date;
+                $articles[$invoiceLine->article_number]['last_purchase_quantity'] = $invoiceLine->quantity;
             }
 
 
