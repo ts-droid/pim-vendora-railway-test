@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArticlePrice;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -70,7 +71,12 @@ class CustomerController extends Controller
 
     public function getCustomer(Request $request, Customer $customer)
     {
-        return ApiResponseController::success($customer->toArray());
+        $customerArray = $customer->toArray();
+
+        $customerCreditService = new CustomerCreditService();
+        $customerArray['amount_due'] = $customerCreditService->getAmountDue($customer['customer_number'])[0];
+
+        return ApiResponseController::success($customerArray);
     }
 
     public function store(Request $request)
