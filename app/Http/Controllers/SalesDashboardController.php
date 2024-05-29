@@ -44,6 +44,18 @@ class SalesDashboardController extends Controller
         ]);
     }
 
+    public function summary(Request $request)
+    {
+        $period = [
+            $request->input('start_date', date('Y-01-01')),
+            $request->input('end_date', date('Y-m-d'))
+        ];
+
+        $reporter = new SalesDashboardReporter([], '', '', $period, false);
+
+        return ApiResponseController::success($reporter->getSummary());
+    }
+
     public function eol(Request $request)
     {
         $customerNumber = (string) $request->input('customer_number');

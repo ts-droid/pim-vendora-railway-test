@@ -236,6 +236,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/purchase-history', [PurchaseHistoryController::class, 'index']);
 
         Route::get('/sales-dashboard', [SalesDashboardController::class, 'index']);
+        Route::get('/sales-dashboard/summary', [SalesDashboardController::class, 'summary']);
         Route::get('/sales-dashboard/suggestions', [SalesDashboardController::class, 'suggestions']);
         Route::post('/sales-dashboard/suggestions/complete', [SalesDashboardController::class, 'suggestionsComplete']);
         Route::get('/sales-dashboard/intel', [SalesDashboardController::class, 'intel']);
