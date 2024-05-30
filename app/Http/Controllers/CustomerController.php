@@ -96,6 +96,24 @@ class CustomerController extends Controller
         $articles = [];
         $brands = [];
 
+        $perMonth = [];
+        $date = $startDate;
+        while($date <= $endDate) {
+            $label = substr($date, 0, 7);
+
+            if (!isset($perMonth[$label])) {
+                $perMonth[$label] = [
+                    'label' => $label,
+                    'turnover' => 1,
+                    'cost' => 2,
+                    'profit' => 3,
+                    'margin' => 4,
+                ];
+            }
+
+            $date = date('Y-m-d', strtotime($date . ' +1 days'));
+        }
+
         // Load all customer invoice lines
         $invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
@@ -195,6 +213,7 @@ class CustomerController extends Controller
 
         return ApiResponseController::success([
             'summary' => $summary,
+            'per_month' => $perMonth,
             'articles' => $articles,
             'brands' => $brands,
         ]);
