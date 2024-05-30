@@ -98,12 +98,14 @@ class CustomerController extends Controller
         // Load all customer invoice lines
         $invoiceLines = DB::table('customer_invoice_lines')
             ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->join('articles', 'articles.article_number', '=', 'customer_invoice_lines.article_number')
             ->where('customer_invoices.customer_number', $customer->customer_number)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
             ->select(
                 'customer_invoice_lines.*',
-                'customer_invoices.date'
+                'customer_invoices.date',
+                'articles.supplier_number'
             )
             ->get();
 
@@ -129,15 +131,44 @@ class CustomerController extends Controller
                 ];
             }
 
+            // Add to brands
+            if (!isset($brands[$invoiceLine->supplier_number])) {
+                $brands[$invoiceLine->supplier_number] = [
+                    'supplier_number' => $invoiceLine->supplier_number,
+                    'brand' => $invoiceLine->description,
+                    'last_purchase_date' => $invoiceLine->date,
+                    'last_purchase_quantity' => $invoiceLine->quantity,
+                    'total_units' => 0,
+                    'total_amount' => 0,
+                    'total_cost' => 0,
+                    'avg_in_price' => 0,
+                    'avg_purchase_price' => 0,
+                    'margin' => 0,
+                    'customer_margin' => 0, // TODO: Calculate this
+                ];
+            }
+
+
             $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
+            $brands[$invoiceLine->supplier_number]['total_units'] += $invoiceLine->quantity;
+
             $articles[$invoiceLine->article_number]['total_amount'] += $invoiceLine->amount;
+            $brands[$invoiceLine->supplier_number]['total_amount'] += $invoiceLine->amount;
+
             $articles[$invoiceLine->article_number]['total_cost'] += $invoiceLine->cost;
+            $brands[$invoiceLine->supplier_number]['total_cost'] += $invoiceLine->cost;
 
             $articles[$invoiceLine->article_number]['avg_in_price'] = $articles[$invoiceLine->article_number]['total_cost'] / $articles[$invoiceLine->article_number]['total_units'];
+            $brands[$invoiceLine->supplier_number]['avg_in_price'] = $brands[$invoiceLine->supplier_number]['total_cost'] / $brands[$invoiceLine->supplier_number]['total_units'];
+
             $articles[$invoiceLine->article_number]['avg_purchase_price'] = $articles[$invoiceLine->article_number]['total_amount'] / $articles[$invoiceLine->article_number]['total_units'];
+            $brands[$invoiceLine->supplier_number]['avg_purchase_price'] = $brands[$invoiceLine->supplier_number]['total_amount'] / $brands[$invoiceLine->supplier_number]['total_units'];
 
             if ($articles[$invoiceLine->article_number]['total_amount'] > 0) {
                 $articles[$invoiceLine->article_number]['margin'] = round(($articles[$invoiceLine->article_number]['total_amount'] - $articles[$invoiceLine->article_number]['total_cost']) / $articles[$invoiceLine->article_number]['total_amount'] * 100, 2);
+            }
+            if ($brands[$invoiceLine->supplier_number]['total_amount'] > 0) {
+                $brands[$invoiceLine->supplier_number]['margin'] = round(( $brands[$invoiceLine->supplier_number]['total_amount'] -  $brands[$invoiceLine->supplier_number]['total_cost']) /  $brands[$invoiceLine->supplier_number]['total_amount'] * 100, 2);
             }
 
             if ($invoiceLine->date > $articles[$invoiceLine->article_number]['last_purchase_date']) {
@@ -145,8 +176,10 @@ class CustomerController extends Controller
                 $articles[$invoiceLine->article_number]['last_purchase_quantity'] = $invoiceLine->quantity;
             }
 
-
-            // Add to brands
+            if ($invoiceLine->date > $brands[$invoiceLine->supplier_number]['last_purchase_date']) {
+                $brands[$invoiceLine->supplier_number]['last_purchase_date'] = $invoiceLine->date;
+                $brands[$invoiceLine->supplier_number]['last_purchase_quantity'] = $invoiceLine->quantity;
+            }
         }
 
         // Calculate profit and margin on summary
