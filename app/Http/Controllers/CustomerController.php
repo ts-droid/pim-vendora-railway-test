@@ -104,6 +104,8 @@ class CustomerController extends Controller
             if (!isset($perMonth[$label])) {
                 $perMonth[$label] = [
                     'label' => $label,
+                    'start_date' => $label . '-01',
+                    'end_date' => date('Y-m-t', strtotime($label . '-01')),
                     'turnover' => 1,
                     'cost' => 2,
                     'profit' => 3,
@@ -171,6 +173,15 @@ class CustomerController extends Controller
                 ];
             }
 
+            // Add to per month data
+            foreach ($perMonth as &$monthData) {
+                if ($invoiceLine->date < $monthData['start_date'] || $invoiceLine->date > $monthData['end_date']) {
+                    continue;
+                }
+
+                $monthData['turnover'] += $invoiceLine->amount;
+                $monthData['cost'] += $invoiceLine->cost;
+            }
 
             $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
             $brands[$invoiceLine->supplier_number]['total_units'] += $invoiceLine->quantity;
@@ -209,6 +220,14 @@ class CustomerController extends Controller
         $summary['profit'] = $summary['turnover'] - $summary['cost'];
         if ($summary['turnover']) {
             $summary['margin'] = round(($summary['turnover'] - $summary['cost']) / $summary['turnover'] * 100, 2);
+        }
+
+        // Calculate profit and margin on per month data
+        foreach ($perMonth as &$monthData) {
+            $monthData['profit'] = $monthData['turnover'] - $monthData['cost'];
+            if ($monthData['turnover']) {
+                $monthData['margin'] = round(($monthData['turnover'] - $monthData['cost']) / $monthData['turnover'] * 100, 2);
+            }
         }
 
         return ApiResponseController::success([
