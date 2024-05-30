@@ -140,6 +140,7 @@ class CustomerController extends Controller
             ->select(
                 'customer_invoice_lines.*',
                 'customer_invoices.date',
+                'articles.id AS article_id',
                 'articles.supplier_number'
             )
             ->get();
@@ -154,6 +155,7 @@ class CustomerController extends Controller
             ->select(
                 'customer_invoice_lines.*',
                 'customer_invoices.date',
+                'articles.id AS article_id',
                 'articles.supplier_number'
             )
             ->get();
@@ -210,8 +212,8 @@ class CustomerController extends Controller
                 $monthData['turnover'] += $invoiceLine->amount;
                 $monthData['cost'] += $invoiceLine->cost;
 
-                if (!isset($monthData['articles'][$invoiceLine->article_number])) {
-                    $monthData['articles'][$invoiceLine->article_number] = [
+                if (!isset($monthData['articles'][$invoiceLine->article_id])) {
+                    $monthData['articles'][$invoiceLine->article_id] = [
                         'turnover' => 0,
                         'cost' => 0,
                         'profit' => 0,
@@ -224,8 +226,8 @@ class CustomerController extends Controller
                     ];
                 }
 
-                $monthData['articles'][$invoiceLine->article_number]['turnover'] += $invoiceLine->amount;
-                $monthData['articles'][$invoiceLine->article_number]['cost'] += $invoiceLine->cost;
+                $monthData['articles'][$invoiceLine->article_id]['turnover'] += $invoiceLine->amount;
+                $monthData['articles'][$invoiceLine->article_id]['cost'] += $invoiceLine->cost;
             }
 
             $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
@@ -270,9 +272,9 @@ class CustomerController extends Controller
                 $monthData['turnover_last'] += $invoiceLine->amount;
                 $monthData['cost_last'] += $invoiceLine->cost;
 
-                if (isset($monthData['articles'][$invoiceLine->article_number])) {
-                    $monthData['articles'][$invoiceLine->article_number]['turnover_last'] += $invoiceLine->amount;
-                    $monthData['articles'][$invoiceLine->article_number]['cost_last'] += $invoiceLine->cost;
+                if (isset($monthData['articles'][$invoiceLine->article_id])) {
+                    $monthData['articles'][$invoiceLine->article_id]['turnover_last'] += $invoiceLine->amount;
+                    $monthData['articles'][$invoiceLine->article_id]['cost_last'] += $invoiceLine->cost;
                 }
             }
         }
