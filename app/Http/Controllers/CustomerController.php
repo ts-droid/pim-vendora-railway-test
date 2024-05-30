@@ -108,8 +108,8 @@ class CustomerController extends Controller
                 $perMonth[$label] = [
                     'label' => $label,
                     'start_date' => $label . '-01',
-                    'end_date' => date('Y-m-t', strtotime($label . '-01' . ' -1 years')),
-                    'start_date_last' => $label . '-01',
+                    'end_date' => date('Y-m-t', strtotime($label . '-01')),
+                    'start_date_last' => date('Y-m-01', strtotime($label . '-01' . ' -1 years')),
                     'end_date_last' => date('Y-m-t', strtotime($label . '-01' . ' -1 years')),
                     'turnover' => 0,
                     'cost' => 0,
