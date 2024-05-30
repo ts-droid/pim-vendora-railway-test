@@ -106,10 +106,14 @@ class CustomerController extends Controller
                     'label' => $label,
                     'start_date' => $label . '-01',
                     'end_date' => date('Y-m-t', strtotime($label . '-01')),
-                    'turnover' => 1,
-                    'cost' => 2,
-                    'profit' => 3,
-                    'margin' => 4,
+                    'turnover' => 0,
+                    'cost' => 0,
+                    'profit' => 0,
+                    'margin' => 0,
+                    'turnover_last' => 0,
+                    'cost_last' => 0,
+                    'profit_last' => 0,
+                    'margin_last' => 0,
                 ];
             }
 
