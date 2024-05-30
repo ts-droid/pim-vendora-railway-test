@@ -259,8 +259,8 @@ class CustomerController extends Controller
 
             if ($invoiceLine->rek_price) {
                 $rekPriceExcl = $invoiceLine->rek_price * 0.8;
-                $articles[$invoiceLine->supplier_number]['customer_margin'] = round(( $rekPriceExcl -  $articles[$invoiceLine->article_number]['avg_purchase_price']) /  $rekPriceExcl * 100, 2);
-                $brands[$invoiceLine->supplier_number]['customer_margin'] = round(( $rekPriceExcl -  $brands[$invoiceLine->article_number]['avg_purchase_price']) /  $rekPriceExcl * 100, 2);
+                $articles[$invoiceLine->article_number]['customer_margin'] = round(( $rekPriceExcl -  $articles[$invoiceLine->article_number]['avg_purchase_price']) /  $rekPriceExcl * 100, 2);
+                $brands[$invoiceLine->supplier_number]['customer_margin'] = round(( $rekPriceExcl -  $brands[$invoiceLine->supplier_number]['avg_purchase_price']) /  $rekPriceExcl * 100, 2);
             }
 
             if ($invoiceLine->date > $articles[$invoiceLine->article_number]['last_purchase_date']) {
