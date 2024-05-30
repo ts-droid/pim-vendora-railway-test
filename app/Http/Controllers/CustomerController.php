@@ -168,6 +168,7 @@ class CustomerController extends Controller
             // Add to articles
             if (!isset($articles[$invoiceLine->article_number])) {
                 $articles[$invoiceLine->article_number] = [
+                    'article_id' => $invoiceLine->article_id,
                     'article_number' => $invoiceLine->article_number,
                     'description' => $invoiceLine->description,
                     'last_purchase_date' => $invoiceLine->date,
