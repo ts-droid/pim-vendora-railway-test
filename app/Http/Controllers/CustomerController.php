@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArticlePrice;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\Supplier;
 use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -133,9 +134,13 @@ class CustomerController extends Controller
 
             // Add to brands
             if (!isset($brands[$invoiceLine->supplier_number])) {
+                $supplier = Supplier::where('number', $invoiceLine->supplier_number)->first();
+                $supplierName = $supplier->name ?? '';
+                $brandName = $supplier->brand_name ?? '';
+
                 $brands[$invoiceLine->supplier_number] = [
                     'supplier_number' => $invoiceLine->supplier_number,
-                    'brand' => $invoiceLine->description,
+                    'brand' => $brandName ?: $supplierName,
                     'last_purchase_date' => $invoiceLine->date,
                     'last_purchase_quantity' => $invoiceLine->quantity,
                     'total_units' => 0,
