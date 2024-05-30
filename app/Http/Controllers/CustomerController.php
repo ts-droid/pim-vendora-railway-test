@@ -210,8 +210,8 @@ class CustomerController extends Controller
                 $monthData['turnover'] += $invoiceLine->amount;
                 $monthData['cost'] += $invoiceLine->cost;
 
-                if (!isset($monthData[$invoiceLine->article_number])) {
-                    $monthData[$invoiceLine->article_number] = [
+                if (!isset($monthData['articles'][$invoiceLine->article_number])) {
+                    $monthData['articles'][$invoiceLine->article_number] = [
                         'turnover' => 0,
                         'cost' => 0,
                         'profit' => 0,
@@ -224,8 +224,8 @@ class CustomerController extends Controller
                     ];
                 }
 
-                $monthData[$invoiceLine->article_number]['turnover'] += $invoiceLine->amount;
-                $monthData[$invoiceLine->article_number]['cost'] += $invoiceLine->cost;
+                $monthData['articles'][$invoiceLine->article_number]['turnover'] += $invoiceLine->amount;
+                $monthData['articles'][$invoiceLine->article_number]['cost'] += $invoiceLine->cost;
             }
 
             $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
@@ -270,9 +270,9 @@ class CustomerController extends Controller
                 $monthData['turnover_last'] += $invoiceLine->amount;
                 $monthData['cost_last'] += $invoiceLine->cost;
 
-                if (isset($monthData[$invoiceLine->article_number])) {
-                    $monthData[$invoiceLine->article_number]['turnover_last'] += $invoiceLine->amount;
-                    $monthData[$invoiceLine->article_number]['cost_last'] += $invoiceLine->cost;
+                if (isset($monthData['articles'][$invoiceLine->article_number])) {
+                    $monthData['articles'][$invoiceLine->article_number]['turnover_last'] += $invoiceLine->amount;
+                    $monthData['articles'][$invoiceLine->article_number]['cost_last'] += $invoiceLine->cost;
                 }
             }
         }
