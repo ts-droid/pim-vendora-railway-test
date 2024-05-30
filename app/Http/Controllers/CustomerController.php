@@ -107,18 +107,23 @@ class CustomerController extends Controller
             if (!isset($perMonth[$label])) {
                 $perMonth[$label] = [
                     'label' => $label,
+
                     'start_date' => $label . '-01',
                     'end_date' => date('Y-m-t', strtotime($label . '-01')),
                     'start_date_last' => date('Y-m-01', strtotime($label . '-01' . ' -1 years')),
                     'end_date_last' => date('Y-m-t', strtotime($label . '-01' . ' -1 years')),
+
                     'turnover' => 0,
                     'cost' => 0,
                     'profit' => 0,
                     'margin' => 0,
+
                     'turnover_last' => 0,
                     'cost_last' => 0,
                     'profit_last' => 0,
                     'margin_last' => 0,
+
+                    'articles' => [],
                 ];
             }
 
@@ -204,6 +209,23 @@ class CustomerController extends Controller
 
                 $monthData['turnover'] += $invoiceLine->amount;
                 $monthData['cost'] += $invoiceLine->cost;
+
+                if (!isset($monthData[$invoiceLine->article_number])) {
+                    $monthData[$invoiceLine->article_number] = [
+                        'turnover' => 0,
+                        'cost' => 0,
+                        'profit' => 0,
+                        'margin' => 0,
+
+                        'turnover_last' => 0,
+                        'cost_last' => 0,
+                        'profit_last' => 0,
+                        'margin_last' => 0,
+                    ];
+                }
+
+                $monthData[$invoiceLine->article_number]['turnover'] += $invoiceLine->amount;
+                $monthData[$invoiceLine->article_number]['cost'] += $invoiceLine->cost;
             }
 
             $articles[$invoiceLine->article_number]['total_units'] += $invoiceLine->quantity;
@@ -247,6 +269,11 @@ class CustomerController extends Controller
 
                 $monthData['turnover_last'] += $invoiceLine->amount;
                 $monthData['cost_last'] += $invoiceLine->cost;
+
+                if (isset($monthData[$invoiceLine->article_number])) {
+                    $monthData[$invoiceLine->article_number]['turnover_last'] += $invoiceLine->amount;
+                    $monthData[$invoiceLine->article_number]['cost_last'] += $invoiceLine->cost;
+                }
             }
         }
 
@@ -266,6 +293,18 @@ class CustomerController extends Controller
             $monthData['profit_last'] = $monthData['turnover_last'] - $monthData['cost_last'];
             if ($monthData['turnover_last']) {
                 $monthData['margin_last'] = round(($monthData['turnover_last'] - $monthData['cost_last']) / $monthData['turnover_last'] * 100, 2);
+            }
+
+            foreach ($monthData['articles'] as &$monthArticle) {
+                $monthArticle['profit'] = $monthArticle['turnover'] - $monthArticle['cost'];
+                $monthArticle['profit_last'] = $monthArticle['turnover_last'] - $monthArticle['cost_last'];
+
+                if ($monthArticle['turnover']) {
+                    $monthArticle['margin'] = round(($monthArticle['turnover'] - $monthArticle['cost']) / $monthArticle['turnover'] * 100, 2);
+                }
+                if ($monthArticle['turnover_last']) {
+                    $monthArticle['margin_last'] = round(($monthArticle['turnover_last'] - $monthArticle['cost_last']) / $monthArticle['turnover_last'] * 100, 2);
+                }
             }
         }
 
