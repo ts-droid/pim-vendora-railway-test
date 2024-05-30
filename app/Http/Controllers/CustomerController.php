@@ -245,8 +245,8 @@ class CustomerController extends Controller
                     continue;
                 }
 
-                $monthData['turnover'] += $invoiceLine->amount;
-                $monthData['cost'] += $invoiceLine->cost;
+                $monthData['turnover_last'] += $invoiceLine->amount;
+                $monthData['turnover_last'] += $invoiceLine->cost;
             }
         }
 
