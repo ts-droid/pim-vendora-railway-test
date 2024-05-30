@@ -269,11 +269,36 @@ class CustomerController extends Controller
             }
         }
 
+        // Fetch order data
+        $orderCount = DB::table('sales_orders')
+            ->where('customer', $customer->external_id)
+            ->where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->where('order_type', '!=', 'RC')
+            ->count();
+
+        $returnCount = DB::table('sales_orders')
+            ->where('customer', $customer->external_id)
+            ->where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->where('order_type', 'RC')
+            ->count();
+
+        $returnValue = DB::table('sales_orders')
+            ->where('customer', $customer->external_id)
+            ->where('date', '>=', $startDate)
+            ->where('date', '<=', $endDate)
+            ->where('order_type', 'RC')
+            ->sum('order_total');
+
         return ApiResponseController::success([
             'summary' => $summary,
             'per_month' => $perMonth,
             'articles' => $articles,
             'brands' => $brands,
+            'order_count' => $orderCount,
+            'return_count' => $returnCount,
+            'return_value' => $returnValue,
         ]);
     }
 
