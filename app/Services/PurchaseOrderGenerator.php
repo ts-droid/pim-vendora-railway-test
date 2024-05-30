@@ -222,7 +222,10 @@ class PurchaseOrderGenerator
             }
         }
 
-        $newOrderNumber = ((int) PurchaseOrder::all()->max('order_number')) + 1;
+        $newOrderNumber = PurchaseOrder::where('order_number', 'NOT LIKE', '%OLD-%')
+            ->get()
+            ->max('order_number');
+        $newOrderNumber = intval($newOrderNumber) + 1;
 
         // Create the purchase order
         $purchaseOrder = PurchaseOrder::create([
