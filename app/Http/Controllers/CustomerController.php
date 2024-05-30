@@ -141,7 +141,8 @@ class CustomerController extends Controller
                 'customer_invoice_lines.*',
                 'customer_invoices.date',
                 'articles.id AS article_id',
-                'articles.supplier_number'
+                'articles.supplier_number',
+                'articles.rek_price_SEK AS rek_price',
             )
             ->get();
 
@@ -156,7 +157,8 @@ class CustomerController extends Controller
                 'customer_invoice_lines.*',
                 'customer_invoices.date',
                 'articles.id AS article_id',
-                'articles.supplier_number'
+                'articles.supplier_number',
+                'articles.rek_price_SEK AS rek_price',
             )
             ->get();
 
@@ -173,13 +175,14 @@ class CustomerController extends Controller
                     'description' => $invoiceLine->description,
                     'last_purchase_date' => $invoiceLine->date,
                     'last_purchase_quantity' => $invoiceLine->quantity,
+                    'rek_price' => $invoiceLine->rek_price,
                     'total_units' => 0,
                     'total_amount' => 0,
                     'total_cost' => 0,
                     'avg_in_price' => 0,
                     'avg_purchase_price' => 0,
                     'margin' => 0,
-                    'customer_margin' => 0, // TODO: Calculate this
+                    'customer_margin' => 0,
                 ];
             }
 
@@ -194,13 +197,14 @@ class CustomerController extends Controller
                     'brand' => $brandName ?: $supplierName,
                     'last_purchase_date' => $invoiceLine->date,
                     'last_purchase_quantity' => $invoiceLine->quantity,
+                    'rek_price' => $invoiceLine->rek_price,
                     'total_units' => 0,
                     'total_amount' => 0,
                     'total_cost' => 0,
                     'avg_in_price' => 0,
                     'avg_purchase_price' => 0,
                     'margin' => 0,
-                    'customer_margin' => 0, // TODO: Calculate this
+                    'customer_margin' => 0,
                 ];
             }
 
@@ -251,6 +255,11 @@ class CustomerController extends Controller
             }
             if ($brands[$invoiceLine->supplier_number]['total_amount'] > 0) {
                 $brands[$invoiceLine->supplier_number]['margin'] = round(( $brands[$invoiceLine->supplier_number]['total_amount'] -  $brands[$invoiceLine->supplier_number]['total_cost']) /  $brands[$invoiceLine->supplier_number]['total_amount'] * 100, 2);
+            }
+
+            if ($invoiceLine->rek_price) {
+                $articles[$invoiceLine->supplier_number]['customer_margin'] = round(( $invoiceLine->rek_price -  $articles[$invoiceLine->article_number]['avg_purchase_price']) /  $invoiceLine->rek_price * 100, 2);
+                $brands[$invoiceLine->supplier_number]['customer_margin'] = round(( $invoiceLine->rek_price -  $brands[$invoiceLine->article_number]['avg_purchase_price']) /  $invoiceLine->rek_price * 100, 2);
             }
 
             if ($invoiceLine->date > $articles[$invoiceLine->article_number]['last_purchase_date']) {
