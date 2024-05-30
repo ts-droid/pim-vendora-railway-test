@@ -86,6 +86,9 @@ class CustomerController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
+        $startDateLast = date('Y-m-d', strtotime($startDate . ' -1 year'));
+        $endDateLast = date('Y-m-d', strtotime($endDate . ' -1 year'));
+
         $summary = [
             'turnover' => 0,
             'profit' => 0,
@@ -105,7 +108,9 @@ class CustomerController extends Controller
                 $perMonth[$label] = [
                     'label' => $label,
                     'start_date' => $label . '-01',
-                    'end_date' => date('Y-m-t', strtotime($label . '-01')),
+                    'end_date' => date('Y-m-t', strtotime($label . '-01' . ' -1 years')),
+                    'start_date_last' => $label . '-01',
+                    'end_date_last' => date('Y-m-t', strtotime($label . '-01' . ' -1 years')),
                     'turnover' => 0,
                     'cost' => 0,
                     'profit' => 0,
@@ -127,6 +132,20 @@ class CustomerController extends Controller
             ->where('customer_invoices.customer_number', $customer->customer_number)
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate)
+            ->select(
+                'customer_invoice_lines.*',
+                'customer_invoices.date',
+                'articles.supplier_number'
+            )
+            ->get();
+
+        // Load customer invoice lines from last year
+        $invoiceLinesLast = DB::table('customer_invoice_lines')
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->join('articles', 'articles.article_number', '=', 'customer_invoice_lines.article_number')
+            ->where('customer_invoices.customer_number', $customer->customer_number)
+            ->where('customer_invoices.date', '>=', $startDateLast)
+            ->where('customer_invoices.date', '<=', $endDateLast)
             ->select(
                 'customer_invoice_lines.*',
                 'customer_invoices.date',
@@ -220,6 +239,17 @@ class CustomerController extends Controller
             }
         }
 
+        foreach ($invoiceLinesLast as $invoiceLine) {
+            foreach ($perMonth as &$monthData) {
+                if ($invoiceLine->date < $monthData['start_date_last'] || $invoiceLine->date > $monthData['end_date_last']) {
+                    continue;
+                }
+
+                $monthData['turnover'] += $invoiceLine->amount;
+                $monthData['cost'] += $invoiceLine->cost;
+            }
+        }
+
         // Calculate profit and margin on summary
         $summary['profit'] = $summary['turnover'] - $summary['cost'];
         if ($summary['turnover']) {
@@ -231,6 +261,11 @@ class CustomerController extends Controller
             $monthData['profit'] = $monthData['turnover'] - $monthData['cost'];
             if ($monthData['turnover']) {
                 $monthData['margin'] = round(($monthData['turnover'] - $monthData['cost']) / $monthData['turnover'] * 100, 2);
+            }
+
+            $monthData['profit_last'] = $monthData['turnover_last'] - $monthData['cost_last'];
+            if ($monthData['turnover_last']) {
+                $monthData['margin_last'] = round(($monthData['turnover_last'] - $monthData['cost_last']) / $monthData['turnover_last'] * 100, 2);
             }
         }
 
