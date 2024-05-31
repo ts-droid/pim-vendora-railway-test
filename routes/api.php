@@ -8,6 +8,7 @@ use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
+use App\Http\Controllers\EsignController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\InventoryTurnoverController;
 use App\Http\Controllers\LanguageApiController;
@@ -254,4 +255,13 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/images/queue/brand', [ProductSeoController::class, 'queueBrandImageData']);
     });
 
+    Route::prefix('/e-sign')->group(function() {
+        Route::get('/templates', [EsignController::class, 'getTemplates']);
+        Route::post('/templates', [EsignController::class, 'storeTemplate']);
+        Route::get('/templates/{template}', [EsignController::class, 'getTemplate']);
+        Route::post('/templates/{template}', [EsignController::class, 'updateTemplate']);
+        Route::post('/templates/{template}/sections', [EsignController::class, 'storeSection']);
+        Route::post('/templates/{template}/sections{section}', [EsignController::class, 'updateSection']);
+        Route::any('/templates/{template}/sections{section}/delete', [EsignController::class, 'deleteSection']);
+    });
 });
