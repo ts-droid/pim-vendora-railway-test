@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SignDocument;
 use App\Models\SignTemplate;
 use App\Models\SignTemplateSection;
 use Illuminate\Http\Request;
@@ -96,5 +97,26 @@ class EsignController extends Controller
         $section->delete();
 
         return ApiResponseController::success();
+    }
+
+    public function storeDocument(Request $request)
+    {
+        $document = SignDocument::create($request->only([
+            'system',
+            'prompt',
+            'document',
+            'name',
+            'recipient_email',
+            'recipient_name',
+            'recipient_company',
+            'recipient_org_nr',
+        ]));
+
+        return ApiResponseController::success($document->toArray());
+    }
+
+    public function getDocument(SignDocument $document)
+    {
+        return ApiResponseController::success($document->toArray());
     }
 }
