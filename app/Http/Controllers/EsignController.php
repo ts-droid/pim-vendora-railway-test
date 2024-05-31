@@ -119,4 +119,20 @@ class EsignController extends Controller
     {
         return ApiResponseController::success($document->toArray());
     }
+
+    public function updateDocument(Request $request, SignDocument $document)
+    {
+        $document->update($request->only([
+            'system',
+            'prompt',
+            'document',
+            'name',
+            'recipient_email',
+            'recipient_name',
+            'recipient_company',
+            'recipient_org_nr',
+        ]));
+
+        return ApiResponseController::success($document->toArray());
+    }
 }
