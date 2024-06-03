@@ -28,7 +28,7 @@ class EsignService
 
         // Send the sign link to the recipient
         try {
-            Mail::to($document->recipient_email)->send(new \App\Mail\DocumentSign($document));
+            Mail::to($document->recipient_email)->queue(new \App\Mail\DocumentSign($document));
             $document->update([
                 'sent_at' => now(),
                 'status' => 'sent',
