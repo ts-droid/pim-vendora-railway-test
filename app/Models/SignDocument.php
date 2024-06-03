@@ -20,5 +20,21 @@ class SignDocument extends Model
         'recipient_name',
         'recipient_company',
         'recipient_org_nr',
+        'sent_at',
+        'signed_at',
+        'sign_ip',
+        'sign_user_agent',
+        'sign_mac_address',
+        'hash',
     ];
+
+    public function getAccessHash()
+    {
+        return md5($this->id . $this->created_at . '6VYADDntAadd%aH4mM');
+    }
+
+    public function base64PDF()
+    {
+        return base64_encode(file_get_contents($this->filename));
+    }
 }

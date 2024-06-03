@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
@@ -61,6 +62,12 @@ Route::prefix('/purchase-order')->group(function() {
 
     Route::any('/{purchaseOrder}/{hash}/prices-confirm', [PurchaseOrderPriceController::class, 'confirm'])->name('purchaseOrder.pricesConfirm');
     Route::any('/{purchaseOrder}/{hash}/prices-reject', [PurchaseOrderPriceController::class, 'reject'])->name('purchaseOrder.pricesReject');
+});
+
+Route::prefix('/e-sign')->group(function() {
+    Route::get('/document/{document}/{secret}', [EsignRecipientController::class, 'document'])->name('esign.document');
+    Route::get('/document/{document}/{secret}/sign', [EsignRecipientController::class, 'signDocument'])->name('esign.document.sign');
+    Route::get('/document/{document}/{secret}/download', [EsignRecipientController::class, 'downloadDocument'])->name('esign.document.download');
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);

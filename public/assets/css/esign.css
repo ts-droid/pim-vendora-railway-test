@@ -1,0 +1,36 @@
+body {
+    background-color: #ededed;
+}
+.document-info {
+    background-color: #FFFFFF;
+    padding: 1rem;
+}
+.document-preview {
+    /*background-color: #FFFFFF;*/
+}
+#pdf-container {
+    width: 100%;
+    text-align: center;
+    overflow: auto;
+}
+.document-sign-button {
+    display: inline-block;
+    background-color: #3CC885;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+}
+.document-sign-button:hover {
+    background-color: #29B472;
+}
+.document-download-button {
+    display: inline-block;
+    background-color: #F3F6F6;
+    color: #000000 !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SignDocument;
 use App\Models\SignTemplate;
 use App\Models\SignTemplateSection;
+use App\Services\Esign\EsignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -122,6 +123,10 @@ class EsignController extends Controller
 
     public function updateDocument(Request $request, SignDocument $document)
     {
+        if ($document->sent_at !== null) {
+            return ApiResponseController::error('Document has already been sent and can not be modified.');
+        }
+
         $document->update($request->only([
             'system',
             'prompt',
@@ -132,6 +137,11 @@ class EsignController extends Controller
             'recipient_company',
             'recipient_org_nr',
         ]));
+
+        if (intval($request->input('send')) === 1) {
+            $signSerivce = new EsignService();
+            $signSerivce->sendDocument($document);
+        }
 
         return ApiResponseController::success($document->toArray());
     }
