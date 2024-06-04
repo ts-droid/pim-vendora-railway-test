@@ -13,6 +13,7 @@ use App\Models\SalesPerson;
 use App\Models\Supplier;
 use App\Services\ApiLogger;
 use App\Services\VismaNet\VismaNetSalesOrderService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -34,6 +35,8 @@ class VismaNetController extends Controller
         'vismanet_erp_interactive_api:read',
         'vismanet_erp_interactive_api:update'
     ];
+
+    const MAX_TRIES = 3; // Maximum number of tries to for callAPI() if the request fails
 
     // Number of calls made to the API
     private int $callCount = 0;
@@ -995,9 +998,10 @@ class VismaNetController extends Controller
      * @param string $endpoint
      * @param array $params
      * @param string $accessToken
+     * @param int $tries
      * @return array|mixed
      */
-    private function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '')
+    private function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
     {
         if ($this->callCount > 0) {
             sleep(self::SLEEP_TIME);
@@ -1018,21 +1022,31 @@ class VismaNetController extends Controller
             $url = self::API_URL . '/API/controller/api' . $endpoint;
         }
 
-        switch (strtoupper($method)) {
-            case 'POST':
-                $response = HTTP::withHeaders($headers)
-                    ->connectTimeout(600)
-                    ->timeout(600)
-                    ->post($url, $params);
-                break;
+        try {
+            switch (strtoupper($method)) {
+                case 'POST':
+                    $response = HTTP::withHeaders($headers)
+                        ->connectTimeout(600)
+                        ->timeout(600)
+                        ->post($url, $params);
+                    break;
 
-            case 'GET':
-            default:
-                $response = HTTP::withHeaders($headers)
-                    ->connectTimeout(600)
-                    ->timeout(600)
-                    ->get($url);
-                break;
+                case 'GET':
+                default:
+                    $response = HTTP::withHeaders($headers)
+                        ->connectTimeout(600)
+                        ->timeout(600)
+                        ->get($url);
+                    break;
+            }
+        }
+        catch (Exception $e) {
+            if ($tries < self::MAX_TRIES) {
+                $tries++;
+                return $this->callAPI($method, $endpoint, $params, $accessToken, $tries);
+            }
+
+            return [];
         }
 
         $this->callCount++;
