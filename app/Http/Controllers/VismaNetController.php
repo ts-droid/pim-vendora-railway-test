@@ -207,6 +207,45 @@ class VismaNetController extends Controller
         }
     }
 
+    public function fetchPurchaseReceipts(string $updatedAfter = ''): void
+    {
+        $params = [];
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_receipts_fetch');
+
+        if ($updatedAfter) {
+            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTimeCondition'] = '>';
+        }
+
+        $receipts = $this->getPagedResult('/v2/PurchaseReceipt', $params);
+
+        $purchaseOrderNumbers = [];
+
+        if ($receipts) {
+            foreach ($receipts as $receipt) {
+                if (!($receipt['lines'] ?? false)) {
+                    continue;
+                }
+
+                foreach ($receipt['lines'] as $line) {
+                    $purchaseOrderNumbers[] = $line['poOrderNbr'];
+                }
+            }
+        }
+
+        $purchaseOrderNumbers = array_unique($purchaseOrderNumbers);
+        $purchaseOrderNumbers = array_filter($purchaseOrderNumbers);
+
+        if (count($purchaseOrderNumbers) == 0) {
+            return;
+        }
+
+        foreach ($purchaseOrderNumbers as $purchaseOrderNumber) {
+            $this->fetchPurchaseOrders('', $purchaseOrderNumber);
+        }
+    }
+
     /**
      * Fetches purchase orders from Visma.net updated after the given date.
      * If no date is given, the last updated date is fetched from the database.

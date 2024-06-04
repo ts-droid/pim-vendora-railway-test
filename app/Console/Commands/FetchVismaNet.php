@@ -61,6 +61,10 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchPurchaseOrders();
                 break;
 
+            case 'purchase-receipts':
+                $vismaNetController->fetchPurchaseReceipts();
+                break;
+
             case 'inventory-receipts':
                 $vismaNetController->fetchInventoryReceipts();
                 break;
@@ -91,6 +95,7 @@ class FetchVismaNet extends Command
                 $this->call('visma:fetch', ['type' => 'suppliers']);
                 $this->call('visma:fetch', ['type' => 'invoices']);
                 $this->call('visma:fetch', ['type' => 'purchase-orders']);
+                $this->call('visma:fetch', ['type' => 'purchase-receipts']);
                 $this->call('visma:fetch', ['type' => 'inventory-receipts']);
                 $this->call('visma:fetch', ['type' => 'currency']);
                 $this->call('visma:fetch', ['type' => 'transactions']);
