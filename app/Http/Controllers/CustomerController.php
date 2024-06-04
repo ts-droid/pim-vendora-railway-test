@@ -244,11 +244,19 @@ class CustomerController extends Controller
             $articles[$invoiceLine->article_number]['total_cost'] += $invoiceLine->cost;
             $brands[$invoiceLine->supplier_number]['total_cost'] += $invoiceLine->cost;
 
-            $articles[$invoiceLine->article_number]['avg_in_price'] = $articles[$invoiceLine->article_number]['total_cost'] / $articles[$invoiceLine->article_number]['total_units'];
-            $brands[$invoiceLine->supplier_number]['avg_in_price'] = $brands[$invoiceLine->supplier_number]['total_cost'] / $brands[$invoiceLine->supplier_number]['total_units'];
+            if ($articles[$invoiceLine->article_number]['total_units']) {
+                $articles[$invoiceLine->article_number]['avg_in_price'] = $articles[$invoiceLine->article_number]['total_cost'] / $articles[$invoiceLine->article_number]['total_units'];
+            }
+            if ($brands[$invoiceLine->supplier_number]['total_units']) {
+                $brands[$invoiceLine->supplier_number]['avg_in_price'] = $brands[$invoiceLine->supplier_number]['total_cost'] / $brands[$invoiceLine->supplier_number]['total_units'];
+            }
 
-            $articles[$invoiceLine->article_number]['avg_purchase_price'] = $articles[$invoiceLine->article_number]['total_amount'] / $articles[$invoiceLine->article_number]['total_units'];
-            $brands[$invoiceLine->supplier_number]['avg_purchase_price'] = $brands[$invoiceLine->supplier_number]['total_amount'] / $brands[$invoiceLine->supplier_number]['total_units'];
+            if ($articles[$invoiceLine->article_number]['total_units']) {
+                $articles[$invoiceLine->article_number]['avg_purchase_price'] = $articles[$invoiceLine->article_number]['total_amount'] / $articles[$invoiceLine->article_number]['total_units'];
+            }
+            if ($brands[$invoiceLine->supplier_number]['total_units']) {
+                $brands[$invoiceLine->supplier_number]['avg_purchase_price'] = $brands[$invoiceLine->supplier_number]['total_amount'] / $brands[$invoiceLine->supplier_number]['total_units'];
+            }
 
             if ($articles[$invoiceLine->article_number]['total_amount'] > 0) {
                 $articles[$invoiceLine->article_number]['margin'] = round(($articles[$invoiceLine->article_number]['total_amount'] - $articles[$invoiceLine->article_number]['total_cost']) / $articles[$invoiceLine->article_number]['total_amount'] * 100, 2);
