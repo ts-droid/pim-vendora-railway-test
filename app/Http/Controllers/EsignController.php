@@ -140,6 +140,17 @@ class EsignController extends Controller
         return ApiResponseController::success($document->toArray());
     }
 
+    public function deleteDocument(Request $request, SignDocument $document)
+    {
+        if ($document->status !== 'draft') {
+            return ApiResponseController::error('Document can not be deleted.');
+        }
+
+        $document->delete();
+
+        return ApiResponseController::success();
+    }
+
     public function updateDocument(Request $request, SignDocument $document)
     {
         if ($document->sent_at !== null) {
