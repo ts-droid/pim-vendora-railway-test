@@ -390,14 +390,14 @@ class PurchaseOrderGenerator
         $suggestedMonthStock = $suggestedStock * $this->settings['weight_month_' . $weightMonth];
 
         // Add the VIP orders to the suggested stock
-        foreach ($vipSalesOrders as $line) {
+        /*foreach ($vipSalesOrders as $line) {
             if ($line->article_number != $article->article_number) {
                 continue;
             }
 
             $suggestedStock += (int) $line->quantity;
             $suggestedMonthStock += (int) $line->quantity;
-        }
+        }*/
 
 
         // Sum up the current stock
