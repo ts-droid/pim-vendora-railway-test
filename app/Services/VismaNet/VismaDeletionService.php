@@ -23,8 +23,7 @@ class VismaDeletionService extends VismaNetApiService
         $orderIDs = PurchaseOrder::whereNotIn('order_number', $orderNumbers)
             ->where('status', '!=', 'Draft')
             ->where('date', '>=', '2023-01-01')
-            ->pluck('id')
-            ->get();
+            ->pluck('id');
 
         PurchaseOrder::whereIn('id', $orderIDs)->delete();
 
