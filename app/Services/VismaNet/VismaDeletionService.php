@@ -25,8 +25,10 @@ class VismaDeletionService extends VismaNetApiService
             ->where('date', '>=', '2023-01-01')
             ->pluck('id');
 
-        PurchaseOrder::whereIn('id', $orderIDs)->delete();
+        if ($orderIDs->count() > 0) {
+            PurchaseOrder::whereIn('id', $orderIDs)->delete();
 
-        PurchaseOrderLine::whereIn('purchase_order_id', $orderIDs)->delete();
+            PurchaseOrderLine::whereIn('purchase_order_id', $orderIDs)->delete();
+        }
     }
 }
