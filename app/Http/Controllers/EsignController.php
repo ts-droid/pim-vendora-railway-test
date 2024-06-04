@@ -100,6 +100,14 @@ class EsignController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getDocuments()
+    {
+        $documents = SignDocument::orderBy('id', 'DESC')
+            ->get();
+
+        return ApiResponseController::success($documents->toArray());
+    }
+
     public function storeDocument(Request $request)
     {
         $document = SignDocument::create($request->only([
