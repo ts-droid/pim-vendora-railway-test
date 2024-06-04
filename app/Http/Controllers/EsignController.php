@@ -105,7 +105,18 @@ class EsignController extends Controller
         $documents = SignDocument::orderBy('id', 'DESC')
             ->get();
 
-        return ApiResponseController::success($documents->toArray());
+        $documentsArray = [];
+
+        if ($documents) {
+            foreach ($documents as &$document) {
+                $array = $document->toArray();
+                $array['access_hash'] = $document->getAccessHash();
+
+                $documentsArray[] = $array;
+            }
+        }
+
+        return ApiResponseController::success($documentsArray);
     }
 
     public function storeDocument(Request $request)
