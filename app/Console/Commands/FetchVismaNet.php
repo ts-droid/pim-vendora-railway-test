@@ -93,7 +93,6 @@ class FetchVismaNet extends Command
                 $this->call('visma:fetch', ['type' => 'customers']);
                 $this->call('visma:fetch', ['type' => 'sales-persons']);
                 $this->call('visma:fetch', ['type' => 'suppliers']);
-                $this->call('visma:fetch', ['type' => 'invoices']);
                 $this->call('visma:fetch', ['type' => 'purchase-orders']);
                 $this->call('visma:fetch', ['type' => 'purchase-receipts']);
                 $this->call('visma:fetch', ['type' => 'inventory-receipts']);
@@ -107,6 +106,7 @@ class FetchVismaNet extends Command
             case 'hourly':
                 $this->call('visma:fetch', ['type' => 'articles']);
                 $this->call('visma:fetch', ['type' => 'sales-orders']);
+                $this->call('visma:fetch', ['type' => 'invoices']);
                 break;
 
             case 'all':
