@@ -227,9 +227,10 @@ class ArticleQuantityCalculator
         $stock = Article::where('article_number', $articleNumber)->pluck('stock_on_hand')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
-        $onOrderQueue = self::getOnOrderQueue($articleNumber);
+        //$onOrderQueue = self::getOnOrderQueue($articleNumber);
 
-        return $stock + $incoming - $onOrder - $onOrderQueue;
+        //return $stock + $incoming - $onOrder - $onOrderQueue;
+        return $stock + $incoming - $onOrder;
     }
 
     /**
