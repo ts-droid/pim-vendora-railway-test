@@ -376,7 +376,8 @@ class PurchaseOrderGenerator
         ];
 
         // Calculate the average sales volume for the periods and weight them against the weight value
-        $suggestedStock = ($periods['last_7_days']['sales_volume'] * $periods['last_7_days']['weight'] * $foresightDays);
+        $suggestedStock = ArticleQuantityCalculator::getOnOrder($article->article_number);
+        $suggestedStock += ($periods['last_7_days']['sales_volume'] * $periods['last_7_days']['weight'] * $foresightDays);
         $suggestedStock += ($periods['last_30_days']['sales_volume'] * $periods['last_30_days']['weight'] * $foresightDays);
         $suggestedStock += ($periods['last_90_days']['sales_volume'] * $periods['last_90_days']['weight'] * $foresightDays);
         $suggestedStock += ($periods['last_year']['sales_volume'] * $periods['last_year']['weight'] * $foresightDays);

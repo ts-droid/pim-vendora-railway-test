@@ -78,15 +78,16 @@ class SalesVolumeCalculator
             }
         }
 
-        // Load all order lines for the period
-        $orderLines = DB::table('sales_order_lines')
+        // Load all invoice lines for the period
+        $invoiceLines = DB::table('customer_invoice_lines')
             ->select(
-                'sales_order_lines.article_number', 'sales_order_lines.quantity',
-                'sales_orders.date'
+                'customer_invoice_lines.article_number',
+                'customer_invoice_lines.quantity',
+                'customer_invoices.date'
             )
-            ->leftJoin('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->where('sales_orders.date', '>=', $minDate)
-            ->where('sales_orders.date', '<=', $maxDate)
+            ->leftJoin('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->where('customer_invoices.date', '>=', $minDate)
+            ->where('customer_invoices.date', '<=', $maxDate)
             ->get();
 
         foreach ($periods as $column => $period) {
@@ -95,16 +96,16 @@ class SalesVolumeCalculator
             $articleSummary = [];
 
             // Calculate the sales volume for each article
-            foreach ($orderLines as $orderLine) {
-                if ($orderLine->date < $startDate || $orderLine->date > $endDate) {
+            foreach ($invoiceLines as $invoiceLine) {
+                if ($invoiceLine->date < $startDate || $invoiceLine->date > $endDate) {
                     continue;
                 }
 
-                if (!isset($articleSummary[$orderLine->article_number])) {
-                    $articleSummary[$orderLine->article_number] = 0;
+                if (!isset($articleSummary[$invoiceLine->article_number])) {
+                    $articleSummary[$invoiceLine->article_number] = 0;
                 }
 
-                $articleSummary[$orderLine->article_number] += (int) $orderLine->quantity;
+                $articleSummary[$invoiceLine->article_number] += (int) $invoiceLine->quantity;
             }
 
             // Reset sales volume for all articles
