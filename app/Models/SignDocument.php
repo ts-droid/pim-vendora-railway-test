@@ -11,15 +11,17 @@ class SignDocument extends Model
 
     protected $fillable = [
         'status',
+        'template_id',
+        'template_sections',
         'system',
         'prompt',
         'document',
-        'filename',
         'name',
         'recipient_email',
         'recipient_name',
         'recipient_company',
         'recipient_org_nr',
+        'filename',
         'sent_at',
         'signed_at',
         'sign_ip',

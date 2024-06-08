@@ -122,6 +122,8 @@ class EsignController extends Controller
     public function storeDocument(Request $request)
     {
         $document = SignDocument::create($request->only([
+            'template_id',
+            'template_sections',
             'system',
             'prompt',
             'document',
@@ -158,6 +160,8 @@ class EsignController extends Controller
         }
 
         $document->update($request->only([
+            'template_id',
+            'template_sections',
             'system',
             'prompt',
             'document',
