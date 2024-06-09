@@ -207,15 +207,23 @@ class EsignController extends Controller
             return ApiResponseController::error('Document can not be modified.');
         }
 
-        $document->update($request->only([
-            'tab_id',
-            'template_id',
-            'template_sections',
-            'system',
-            'prompt',
-            'document',
-            'name',
-        ]));
+        if ($document->status !== 'draft') {
+            // Limit what data can be updated
+            $document->update($request->only([
+                'tab_id',
+            ]));
+        }
+        else {
+            $document->update($request->only([
+                'tab_id',
+                'template_id',
+                'template_sections',
+                'system',
+                'prompt',
+                'document',
+                'name',
+            ]));
+        }
 
         return ApiResponseController::success($document->toArray());
     }
