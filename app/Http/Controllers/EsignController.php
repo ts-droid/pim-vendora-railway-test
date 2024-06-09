@@ -204,10 +204,6 @@ class EsignController extends Controller
     public function updateDocument(Request $request, SignDocument $document)
     {
         if ($document->status !== 'draft') {
-            return ApiResponseController::error('Document can not be modified.');
-        }
-
-        if ($document->status !== 'draft') {
             // Limit what data can be updated
             $document->update($request->only([
                 'tab_id',
