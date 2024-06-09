@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SignDocument;
 use App\Models\SignDocumentRecipient;
+use App\Models\SignTab;
 use App\Models\SignTemplate;
 use App\Models\SignTemplateSection;
 use App\Services\Esign\EsignService;
@@ -107,11 +108,16 @@ class EsignController extends Controller
 
 
 
-    public function getDocuments()
+    public function getDocuments(Request $request)
     {
-        $documents = SignDocument::orderBy('id', 'DESC')
-            ->with('recipients')
-            ->get();
+        $documentsQuery = SignDocument::orderBy('id', 'DESC')
+            ->with('recipients');
+
+        if ($request->has('tab_id')) {
+            $documentsQuery->where('tab_id', $request->input('tab_id'));
+        }
+
+        $documents = $documentsQuery->get();
 
         $documentsArray = [];
 
@@ -130,6 +136,7 @@ class EsignController extends Controller
     public function storeDocument(Request $request)
     {
         $data = $request->only([
+            'tab_id',
             'template_id',
             'template_sections',
             'system',
@@ -201,6 +208,7 @@ class EsignController extends Controller
         }
 
         $document->update($request->only([
+            'tab_id',
             'template_id',
             'template_sections',
             'system',
@@ -260,6 +268,43 @@ class EsignController extends Controller
         }
 
         $recipient->delete();
+
+        return ApiResponseController::success();
+    }
+
+
+
+
+    public function getTabs()
+    {
+        $tabs = SignTab::all();
+
+        return ApiResponseController::success($tabs->toArray());
+    }
+
+    public function storeTab(Request $request)
+    {
+        $tab = SignTab::create($request->only([
+            'name'
+        ]));
+
+        return ApiResponseController::success($tab->toArray());
+    }
+
+    public function updateTab(Request $request, SignTab $tab)
+    {
+        $tab->update($request->only([
+            'name'
+        ]));
+
+        return ApiResponseController::success($tab->toArray());
+    }
+
+    public function deleteTab(SignTab $tab)
+    {
+        SignDocument::where('tab_id', $tab->id)->update(['tab_id' => 0]);
+
+        $tab->delete();
 
         return ApiResponseController::success();
     }
