@@ -6,6 +6,7 @@ use App\Models\SignDocument;
 use App\Services\PdfMerger;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use setasign\Fpdi\Fpdi;
 
 class EsignService
 {
@@ -83,8 +84,33 @@ class EsignService
             return $filePath;
         }
 
+        // Generate the document
         $pdf = Pdf::loadView('esign.document', compact('document'));
+        $pdf->setPaper('A4', 'portrait');
         $pdf->save($filePath);
+
+        // Apply template to the document
+        $templatePath = public_path('/assets/other/letter_template.pdf');
+
+        $fpdi = new Fpdi();
+
+        $fpdi->setSourceFile($templatePath);
+        $templatePageID = $fpdi->importPage(1);
+
+        $pageCount = $fpdi->setSourceFile($filePath);
+
+        for ($i = 1;$i <= $pageCount;$i++) {
+            $fpdi->AddPage();
+
+            $fpdi->useTemplate($templatePageID);
+
+            $generatedPageID = $fpdi->importPage($i);
+            $fpdi->useTemplate($generatedPageID);
+        }
+
+        // Save the final document
+        @unlink($filePath);
+        file_put_contents($filePath, $fpdi->Output('S'));
 
         return $filePath;
     }

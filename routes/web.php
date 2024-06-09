@@ -24,6 +24,31 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+function wrapText($pdf, $text, $width)
+{
+    $lines = [];
+    $words = explode(' ', $text);
+    $line = '';
+
+    foreach ($words as $word) {
+        $testLine = $line ? $line . ' ' . $word : $word;
+        $testWidth = $pdf->GetStringWidth($testLine);
+
+        if ($testWidth > $width) {
+            $lines[] = $line;
+            $line = $word;
+        } else {
+            $line = $testLine;
+        }
+    }
+
+    if ($line) {
+        $lines[] = $line;
+    }
+
+    return $lines;
+}
+
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
