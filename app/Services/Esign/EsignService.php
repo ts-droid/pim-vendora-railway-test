@@ -12,6 +12,19 @@ use setasign\Fpdi\PdfParser\StreamReader;
 
 class EsignService
 {
+    public function generateFile(SignDocument $document)
+    {
+        if ($document->filename) {
+            return $document;
+        }
+
+        $filename = $this->generateDocument($document);
+
+        $document->update(['filename' => $filename]);
+
+        return $document;
+    }
+
     public function sendDocument(SignDocument $document)
     {
         // Make sure the document is not already sent
@@ -23,11 +36,6 @@ class EsignService
         if ($document->recipients->count() == 0) {
             return false;
         }
-
-        // Generate the document
-        $filename = $this->generateDocument($document);
-
-        $document->update(['filename' => $filename]);
 
         // Send a sign link to each recipient
         foreach ($document->recipients as $recipient) {

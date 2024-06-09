@@ -266,6 +266,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/documents', [EsignController::class, 'getDocuments']);
         Route::post('/documents', [EsignController::class, 'storeDocument']);
+        Route::post('/documents/upload', [EsignController::class, 'uploadDocument']);
         Route::get('/documents/{document}', [EsignController::class, 'getDocument']);
         Route::post('/documents/{document}', [EsignController::class, 'updateDocument']);
         Route::post('/documents/{document}/send', [EsignController::class, 'sendDocument']);

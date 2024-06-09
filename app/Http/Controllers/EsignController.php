@@ -141,6 +141,33 @@ class EsignController extends Controller
         return ApiResponseController::success($document->toArray());
     }
 
+    public function uploadDocument(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|mimes:pdf',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        // Create empty document, to get ID
+        $document = SignDocument::create();
+
+        // Upload the document to storage
+        $fileContents = $request->file('file')->getContent();
+
+        $filename = 'esign/' . time() . '_' . $document->id . '.pdf';
+
+        $filename = DoSpacesController::store($filename, $fileContents);
+
+        // Update the document with the filename
+        $document->update(['filename' => $filename]);
+
+        return ApiResponseController::success($document->toArray());
+    }
+
     public function getDocument(SignDocument $document)
     {
         $document->load('recipients');
@@ -182,6 +209,9 @@ class EsignController extends Controller
     public function sendDocument(SignDocument $document)
     {
         $signService = new EsignService();
+
+        $document = $signService->generateFile($document);
+
         $success = $signService->sendDocument($document);
 
         if (!$success) {
