@@ -11,6 +11,7 @@ class SignDocument extends Model
     use HasFactory;
 
     protected $fillable = [
+        'type',
         'status',
         'template_id',
         'template_sections',

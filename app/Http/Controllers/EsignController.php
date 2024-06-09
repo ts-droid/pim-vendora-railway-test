@@ -129,14 +129,18 @@ class EsignController extends Controller
 
     public function storeDocument(Request $request)
     {
-        $document = SignDocument::create($request->only([
+        $data = $request->only([
             'template_id',
             'template_sections',
             'system',
             'prompt',
             'document',
             'name',
-        ]));
+        ]);
+
+        $data['type'] = 'document';
+
+        $document = SignDocument::create($data);
 
         return ApiResponseController::success($document->toArray());
     }
@@ -153,7 +157,9 @@ class EsignController extends Controller
         }
 
         // Create empty document, to get ID
-        $document = SignDocument::create();
+        $document = SignDocument::create([
+            'type' => 'file'
+        ]);
 
         // Upload the document to storage
         $fileContents = $request->file('file')->getContent();
