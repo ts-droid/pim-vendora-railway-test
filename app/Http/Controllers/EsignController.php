@@ -183,10 +183,6 @@ class EsignController extends Controller
 
     public function deleteDocument(Request $request, SignDocument $document)
     {
-        if ($document->status !== 'draft') {
-            return ApiResponseController::error('Document can not be deleted.');
-        }
-
         SignDocumentRecipient::where('sign_document_id', $document->id)->delete();
 
         if ($document->filename) {
