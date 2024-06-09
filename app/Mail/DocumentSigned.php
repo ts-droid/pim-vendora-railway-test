@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Http\Controllers\ConfigController;
 use App\Models\SignDocument;
 use App\Models\SignDocumentRecipient;
 use Illuminate\Bus\Queueable;
@@ -16,6 +17,9 @@ class DocumentSigned extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $subjectText;
+    public string $contentText;
+
     /**
      * Create a new message instance.
      */
@@ -24,7 +28,11 @@ class DocumentSigned extends Mailable
         public SignDocumentRecipient $recipient,
     )
     {
-        //
+        $this->subjectText = ConfigController::getConfig('signed_email_subject');
+        $this->contentText = nl2br(ConfigController::getConfig('signed_email_body'));
+
+        // Replace variables
+        $this->contentText = str_replace('%recipient_name%', $this->recipient->name, $this->contentText);
     }
 
     /**
@@ -33,7 +41,7 @@ class DocumentSigned extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Document Signed',
+            subject: $this->subjectText,
         );
     }
 
