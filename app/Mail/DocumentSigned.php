@@ -55,7 +55,7 @@ class DocumentSigned extends Mailable
     public function attachments(): array
     {
         return [
-            Attachment::fromData(fn() => file_get_contents($this->document->filename), 'signed_document.pdf')
+            Attachment::fromData(fn() => $this->document->getDocumentContent(), 'signed_document.pdf')
                 ->withMime('application/pdf')
         ];
     }

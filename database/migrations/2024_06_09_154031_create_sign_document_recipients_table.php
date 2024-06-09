@@ -16,8 +16,8 @@ return new class extends Migration
             $table->integer('sign_document_id');
             $table->string('email');
             $table->string('name');
-            $table->string('ip');
-            $table->string('user_agent');
+            $table->string('ip')->default('');
+            $table->string('user_agent')->default('');
             $table->string('access_key');
             $table->timestamp('signed_at')->nullable();
             $table->timestamp('sent_at')->nullable();

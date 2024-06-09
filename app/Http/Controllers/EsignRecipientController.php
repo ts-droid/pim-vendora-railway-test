@@ -61,8 +61,10 @@ class EsignRecipientController extends Controller
             $signService->appendCertificate($document);
 
             // Generate and store hash of signed PDF
+            $documentContent = $document->getDocumentContent();
+
             $document->update([
-                'hash' => hash_file('sha256', $document->filename)
+                'hash' => hash('sha256', $documentContent)
             ]);
 
             // Email signed document to all recipients

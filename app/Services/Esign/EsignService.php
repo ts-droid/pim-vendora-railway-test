@@ -2,11 +2,13 @@
 
 namespace App\Services\Esign;
 
+use App\Http\Controllers\DoSpacesController;
 use App\Models\SignDocument;
 use App\Services\PdfMerger;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\StreamReader;
 
 class EsignService
 {
@@ -23,9 +25,9 @@ class EsignService
         }
 
         // Generate the document
-        $filePath = $this->generateDocument($document);
+        $filename = $this->generateDocument($document);
 
-        $document->update(['filename' => $filePath]);
+        $document->update(['filename' => $filename]);
 
         // Send a sign link to each recipient
         foreach ($document->recipients as $recipient) {
@@ -49,49 +51,24 @@ class EsignService
 
     public function appendCertificate(SignDocument $document): void
     {
-        $directory = storage_path('app/esign');
-        $filePath = $directory . '/certificate_' . $document->id . '.pdf';
+        $documentContent = $document->getDocumentContent();
 
-        // Make sure directory exists
-        if (!is_dir($directory)) {
-            mkdir($directory);
-        }
-
-        // Make sure the file does not already exist
-        if (file_exists($filePath)) {
-            @unlink($filePath);
-        }
-
-        $pdf = Pdf::loadView('esign.sign_certificate', compact('document'));
-        $pdf->save($filePath);
+        $certificatePdf = Pdf::loadView('esign.sign_certificate', compact('document'));
+        $certificateContent = $certificatePdf->output();
 
         // Merge the certificate with the document
         $pdfMerger = new PdfMerger();
-        $pdfMerger->mergePdfs($document->filename, $filePath, $document->filename);
+        $mergedPdfContent = $pdfMerger->mergePdfContents($documentContent, $certificateContent);
 
-        // Remove the certificate file
-        @unlink($filePath);
+        DoSpacesController::update($document->filename, $mergedPdfContent);
     }
 
     private function generateDocument(SignDocument $document): string
     {
-        $directory = storage_path('app/esign');
-        $filePath = $directory . '/' . $document->id . '.pdf';
-
-        // Make sure directory exists
-        if (!is_dir($directory)) {
-            mkdir($directory);
-        }
-
-        // Make sure the file does not already exist
-        if (file_exists($filePath)) {
-            return $filePath;
-        }
-
-        // Generate the document
+        // Generate the base document
         $pdf = Pdf::loadView('esign.document', compact('document'));
         $pdf->setPaper('A4', 'portrait');
-        $pdf->save($filePath);
+        $pdfContent = $pdf->output();
 
         // Apply template to the document
         $templatePath = public_path('/assets/other/letter_template.pdf');
@@ -101,7 +78,7 @@ class EsignService
         $fpdi->setSourceFile($templatePath);
         $templatePageID = $fpdi->importPage(1);
 
-        $pageCount = $fpdi->setSourceFile($filePath);
+        $pageCount = $fpdi->setSourceFile(StreamReader::createByString($pdfContent));
 
         for ($i = 1;$i <= $pageCount;$i++) {
             $fpdi->AddPage();
@@ -113,9 +90,10 @@ class EsignService
         }
 
         // Save the final document
-        @unlink($filePath);
-        file_put_contents($filePath, $fpdi->Output('S'));
+        $filename = 'esign/' . time() . '_' . $document->id . '.pdf';
 
-        return $filePath;
+        DoSpacesController::store($filename, $fpdi->Output('S'));
+
+        return $filename;
     }
 }
