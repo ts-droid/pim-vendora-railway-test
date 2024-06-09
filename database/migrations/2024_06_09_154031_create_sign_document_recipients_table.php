@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('sign_document_id');
             $table->string('email');
-            $table->string('email');
+            $table->string('name');
             $table->string('ip');
             $table->string('user_agent');
             $table->string('access_key');
