@@ -189,6 +189,10 @@ class EsignController extends Controller
 
         SignDocumentRecipient::where('sign_document_id', $document->id)->delete();
 
+        if ($document->filename) {
+            DoSpacesController::delete($document->filename);
+        }
+
         $document->delete();
 
         return ApiResponseController::success();
