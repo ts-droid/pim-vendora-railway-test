@@ -17,8 +17,8 @@ class EsignService
             return false;
         }
 
-        // Make sure a recipient email and name is set
-        if (!$document->recipient_email || !$document->recipient_name) {
+        // Make sure the document has at least 1 recipient
+        if ($document->recipients->count() == 0) {
             return false;
         }
 
@@ -27,18 +27,22 @@ class EsignService
 
         $document->update(['filename' => $filePath]);
 
-        // Send the sign link to the recipient
-        try {
-            Mail::to($document->recipient_email)->queue(new \App\Mail\DocumentSign($document));
-            $document->update([
-                'sent_at' => now(),
-                'status' => 'sent',
-            ]);
+        // Send a sign link to each recipient
+        foreach ($document->recipients as $recipient) {
+            try {
+                Mail::to($recipient->email)->queue(new \App\Mail\DocumentSign($document, $recipient));
+
+                $recipient->update(['sent_at' => now()]);
+            }
+            catch (\Exception $e) {
+                log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . ', Recipient ID: ' . $recipient->id . '). (Error: ' . $e->getMessage() . ')');
+            }
         }
-        catch (\Exception $e) {
-            dd($e->getMessage());
-            log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . '). (Error: ' . $e->getMessage() . ')');
-        }
+
+        $document->update([
+            'sent_at' => now(),
+            'status' => 'sent',
+        ]);
 
         return true;
     }

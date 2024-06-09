@@ -17,18 +17,16 @@ class SignDocument extends Model
         'prompt',
         'document',
         'name',
-        'recipient_email',
-        'recipient_name',
-        'recipient_company',
-        'recipient_org_nr',
         'filename',
         'sent_at',
         'signed_at',
-        'sign_ip',
-        'sign_user_agent',
-        'sign_mac_address',
         'hash',
     ];
+
+    public function recipients()
+    {
+        return $this->hasMany(SignDocumentRecipient::class);
+    }
 
     public function getAccessHash()
     {

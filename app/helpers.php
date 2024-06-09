@@ -2,6 +2,46 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('get_user_ip')) {
+    function get_user_ip()
+    {
+        // Cloudflare
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            return $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }
+
+        // Laravel Forge Load Balancer
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ipAddresses = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            return trim($ipAddresses[0]);
+        }
+
+        // Other Proxies
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        }
+
+        if (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+            return $_SERVER['HTTP_X_FORWARDED'];
+        }
+
+        if (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
+            return $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+        }
+
+        if (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+            return $_SERVER['HTTP_FORWARDED_FOR'];
+        }
+
+        if (!empty($_SERVER['HTTP_FORWARDED'])) {
+            return $_SERVER['HTTP_FORWARDED'];
+        }
+
+        // Default
+        return request()->ip();
+    }
+}
+
 if (!function_exists('default_ai_model')) {
     function default_ai_model()
     {

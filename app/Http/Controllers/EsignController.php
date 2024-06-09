@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\SignDocument;
+use App\Models\SignDocumentRecipient;
 use App\Models\SignTemplate;
 use App\Models\SignTemplateSection;
 use App\Services\Esign\EsignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class EsignController extends Controller
 {
@@ -100,9 +102,15 @@ class EsignController extends Controller
         return ApiResponseController::success();
     }
 
+
+
+
+
+
     public function getDocuments()
     {
         $documents = SignDocument::orderBy('id', 'DESC')
+            ->with('recipients')
             ->get();
 
         $documentsArray = [];
@@ -128,10 +136,6 @@ class EsignController extends Controller
             'prompt',
             'document',
             'name',
-            'recipient_email',
-            'recipient_name',
-            'recipient_company',
-            'recipient_org_nr',
         ]));
 
         return ApiResponseController::success($document->toArray());
@@ -139,6 +143,8 @@ class EsignController extends Controller
 
     public function getDocument(SignDocument $document)
     {
+        $document->load('recipients');
+
         return ApiResponseController::success($document->toArray());
     }
 
@@ -148,6 +154,8 @@ class EsignController extends Controller
             return ApiResponseController::error('Document can not be deleted.');
         }
 
+        SignDocumentRecipient::where('sign_document_id', $document->id)->delete();
+
         $document->delete();
 
         return ApiResponseController::success();
@@ -155,8 +163,8 @@ class EsignController extends Controller
 
     public function updateDocument(Request $request, SignDocument $document)
     {
-        if ($document->sent_at !== null) {
-            return ApiResponseController::error('Document has already been sent and can not be modified.');
+        if ($document->status !== 'draft') {
+            return ApiResponseController::error('Document can not be modified.');
         }
 
         $document->update($request->only([
@@ -166,17 +174,57 @@ class EsignController extends Controller
             'prompt',
             'document',
             'name',
-            'recipient_email',
-            'recipient_name',
-            'recipient_company',
-            'recipient_org_nr',
         ]));
 
-        if (intval($request->input('send')) === 1) {
-            $signSerivce = new EsignService();
-            $signSerivce->sendDocument($document);
+        return ApiResponseController::success($document->toArray());
+    }
+
+    public function sendDocument(SignDocument $document)
+    {
+        $signService = new EsignService();
+        $success = $signService->sendDocument($document);
+
+        if (!$success) {
+            return ApiResponseController::error('Failed to send document.');
         }
 
-        return ApiResponseController::success($document->toArray());
+        return ApiResponseController::success();
+    }
+
+    public function addRecipient(Request $request, SignDocument $document)
+    {
+        if ($document->status !== 'draft') {
+            return ApiResponseController::error('Document can not be modified.');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'email' => 'required|string|email',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $recipient = SignDocumentRecipient::create([
+            'sign_document_id' => $document->id,
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'access_key' => Str::random(32),
+        ]);
+
+        return ApiResponseController::success($recipient->toArray());
+    }
+
+    public function deleteRecipient(SignDocument $document, SignDocumentRecipient $recipient)
+    {
+        if ($document->status !== 'draft') {
+            return ApiResponseController::error('Document can not be modified.');
+        }
+
+        $recipient->delete();
+
+        return ApiResponseController::success();
     }
 }

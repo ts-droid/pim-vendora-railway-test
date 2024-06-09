@@ -268,6 +268,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/documents', [EsignController::class, 'storeDocument']);
         Route::get('/documents/{document}', [EsignController::class, 'getDocument']);
         Route::post('/documents/{document}', [EsignController::class, 'updateDocument']);
+        Route::post('/documents/{document}/send', [EsignController::class, 'sendDocument']);
         Route::any('/documents/{document}/delete', [EsignController::class, 'deleteDocument']);
+        Route::post('/documents/{document}/recipients', [EsignController::class, 'addRecipient']);
+        Route::any('/documents/{document}/recipients/{recipient}/delete', [EsignController::class, 'deleteRecipient']);
     });
 });

@@ -10,8 +10,9 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Attachment;
 
-class DocumentSign extends Mailable
+class DocumentSigned extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -32,7 +33,7 @@ class DocumentSign extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Document to sign',
+            subject: 'Document Signed',
         );
     }
 
@@ -42,7 +43,7 @@ class DocumentSign extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'esign.mail',
+            view: 'esign.mail_signed',
         );
     }
 
@@ -53,6 +54,9 @@ class DocumentSign extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromData(fn() => file_get_contents($this->document->filename), 'signed_document.pdf')
+                ->withMime('application/pdf')
+        ];
     }
 }

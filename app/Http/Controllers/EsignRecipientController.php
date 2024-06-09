@@ -2,53 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DocumentSigned;
 use App\Models\SignDocument;
+use App\Models\SignDocumentRecipient;
 use App\Services\Esign\EsignService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class EsignRecipientController extends Controller
 {
     public function document(SignDocument $document, string $secret)
     {
-        if ($document->getAccessHash() !== $secret) {
+        $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->where('access_key', $secret)
+            ->first();
+
+        if (!$recipient) {
             abort(404);
         }
 
-        return view('esign.recipient.document', compact('document'));
+        return view('esign.recipient.document', compact('document', 'recipient'));
     }
 
     public function signDocument(SignDocument $document, string $secret)
     {
-        if ($document->getAccessHash() !== $secret) {
+        $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->where('access_key', $secret)
+            ->first();
+
+        if (!$recipient) {
             abort(404);
         }
 
-        if ($document->signed_at) {
+        if ($recipient->signed_at) {
             abort(401);
         }
 
-        $document->update([
+        $recipient->update([
             'signed_at' => now(),
-            'sign_ip' => request()->ip(),
-            'sign_user_agent' => request()->userAgent(),
-            'status' => 'signed'
+            'ip' => get_user_ip(),
+            'user_agent' => request()->userAgent(),
         ]);
 
-        // Append signature to PDF
-        $signService = new EsignService();
-        $signService->appendCertificate($document);
+        // Check if all recipients have signed
+        $missingSignatures = SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->whereNull('signed_at')
+            ->count();
 
-        // Generate and store hash of signed PDF
-        $document->update([
-            'hash' => hash_file('sha256', $document->filename)
-        ]);
+        if (!$missingSignatures) {
+            // All recipients have signed
+            $document->update([
+                'signed_at' => now(),
+                'status' => 'signed',
+            ]);
+
+            // Append signature to PDF
+            $signService = new EsignService();
+            $signService->appendCertificate($document);
+
+            // Generate and store hash of signed PDF
+            $document->update([
+                'hash' => hash_file('sha256', $document->filename)
+            ]);
+
+            // Email signed document to all recipients
+            foreach ($document->recipients as $recipient) {
+                try {
+                    Mail::to($recipient->email)->queue(new DocumentSigned($document, $recipient));
+                }
+                catch (\Exception $e) {
+                    // Silent fail
+                }
+            }
+        }
 
         return redirect()->route('esign.document', ['document' => $document, 'secret' => $secret]);
     }
 
     public function downloadDocument(SignDocument $document, string $secret)
     {
-        if ($document->getAccessHash() !== $secret) {
+        $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->where('access_key', $secret)
+            ->first();
+
+        if (!$recipient) {
             abort(404);
         }
 

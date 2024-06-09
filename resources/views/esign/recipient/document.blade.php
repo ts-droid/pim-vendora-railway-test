@@ -15,29 +15,22 @@
         <div class="container py-5">
             <div class="row">
                 <div class="col-md-10 offset-md-1">
-                    <div class="document-info mb-4">
-                        <h1 class="h3">{{ $document->name }}</h1>
-                        <div><b>Sent at:</b> {{ $document->sent_at }}</div>
-                        <div><b>Recipient:</b> {{ $document->recipient_name }} ({{ $document->recipient_email }})</div>
-                    </div>
                     <div class="document-preview mb-4">
                         <div id="pdf-container"></div>
                     </div>
-                    @if($document->signed_at)
+                    @if($recipient->signed_at)
                         <div class="document-info">
-                            <div>This document was signed at <b>{{ $document->signed_at }}</b></div>
-                            <br>
-                            <div class="mb-4">
-                                <b>Signed by:</b><br>
-                                {{ $document->recipient_name }} ({{ $document->recipient_email }})<br>
-                                <small>{{ $document->sign_ip }}</small><br>
-                                <small>{{ $document->sign_user_agent }}</small>
-                            </div>
-                            <a href="{{ route('esign.document.download', ['document' => $document->id, 'secret' => $document->getAccessHash()]) }}" class="document-download-button"><i class="bi bi-download me-1"></i> Download Signed Document</a>
+                            You signed this document at {{ $recipient->signed_at }}.<br>
+                            You will receive a copy of the signed document after all parties have signed.
                         </div>
                     @else
-                        <div class="text-end">
-                            <a class="document-sign-button" href="{{ route('esign.document.sign', ['document' => $document->id, 'secret' => $document->getAccessHash()]) }}"><i class="bi bi-check-lg"></i> Sign Document</a>
+                        <div class="document-info">
+                            <p class="small text-muted">
+                                By signing this document electronically, you acknowledge and agree that your electronic signature is
+                                legally binding and has the same legal effect as a handwritten signature. This document is signed in
+                                accordance with the Electronic Signatures in Global and National Commerce Act (ESIGN) and the Uniform Electronic Transactions Act (UETA).
+                            </p>
+                            <a class="document-sign-button" href="{{ route('esign.document.sign', ['document' => $document->id, 'secret' => $recipient->access_key]) }}"><i class="bi bi-check-lg"></i> Sign Document</a>
                         </div>
                     @endif
                 </div>
