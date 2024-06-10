@@ -86,6 +86,8 @@ class CustomerController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
+        $returnsStartDate = max($startDate, '2023-01-01');
+
         $startDateLast = date('Y-m-d', strtotime($startDate . ' -1 year'));
         $endDateLast = date('Y-m-d', strtotime($endDate . ' -1 year'));
 
@@ -339,16 +341,23 @@ class CustomerController extends Controller
 
         $returnCount = DB::table('sales_orders')
             ->where('customer', $customer->external_id)
-            ->where('date', '>=', $startDate)
+            ->where('date', '>=', $returnsStartDate)
             ->where('date', '<=', $endDate)
             ->where('order_type', 'RC')
             ->count();
 
         $returnValue = DB::table('sales_orders')
             ->where('customer', $customer->external_id)
-            ->where('date', '>=', $startDate)
+            ->where('date', '>=', $returnsStartDate)
             ->where('date', '<=', $endDate)
             ->where('order_type', 'RC')
+            ->sum('order_total');
+
+        $returnRevenue = DB::table('sales_orders')
+            ->where('customer', $customer->external_id)
+            ->where('date', '>=', $returnsStartDate)
+            ->where('date', '<=', $endDate)
+            ->where('order_type', '!=', 'RC')
             ->sum('order_total');
 
         return ApiResponseController::success([
@@ -359,6 +368,7 @@ class CustomerController extends Controller
             'order_count' => $orderCount,
             'return_count' => $returnCount,
             'return_value' => $returnValue,
+            'return_percent' => $returnRevenue ? round($returnValue / $returnRevenue * 100, 2) : 0,
         ]);
     }
 
