@@ -143,6 +143,7 @@ class EsignController extends Controller
             'prompt',
             'document',
             'name',
+            'valid_until',
         ]);
 
         $data['type'] = 'document';
@@ -218,6 +219,7 @@ class EsignController extends Controller
                 'prompt',
                 'document',
                 'name',
+                'valid_until',
             ]));
         }
 
