@@ -36,5 +36,6 @@ class Customer extends Model
         'average_payment_days',
         'worst_payment_days',
         'worst_payment_invoice_id',
+        'return_rate',
     ];
 }

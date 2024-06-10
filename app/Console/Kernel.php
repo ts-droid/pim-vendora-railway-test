@@ -44,6 +44,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('bestsellers:calculate')->daily();
             $schedule->command('articles:process-eol')->daily();
             $schedule->command('calculate-customer-revenue')->daily();
+            $schedule->command('calculate-customer-return-rate')->daily();
             $schedule->command('calculate-article-shipping-time')->daily();
         }
 
