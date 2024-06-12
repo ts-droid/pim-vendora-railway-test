@@ -248,7 +248,7 @@ class ArticleQuantityCalculator
         $articleSalesPerMonth = $salesPerMonthQuantities[$articleNumber] ?? 0;
 
         // Add order on hold if current date is between start and end date
-        if (time() >= strtotime($startDate) && time() <= strtotime($endDate)) {
+        /*if (time() >= strtotime($startDate) && time() <= strtotime($endDate)) {
 
             $holdQuantity = self::getOnOrderQueue($articleNumber);
 
@@ -257,7 +257,7 @@ class ArticleQuantityCalculator
 
             $articleSalesPerMonth += $holdSalesPerMonth;
 
-        }
+        }*/
 
         return round($articleSalesPerMonth);
     }
