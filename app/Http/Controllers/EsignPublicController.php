@@ -14,13 +14,10 @@ class EsignPublicController extends Controller
             abort(404);
         }
 
-        $headers = [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="document.pdf"',
-            'Content-Transfer-Encoding' => 'binary',
-            'Accept-Ranges' => 'bytes',
-        ];
+        $fileContent = $document->getDocumentContent();
 
-        return Response::make($document->getDocumentContent(), 200, $headers);
+        return response()->streamDownload(function() use ($fileContent) {
+            echo $fileContent;
+        }, 'document.pdf', ['Content-Type' => 'application/pdf']);
     }
 }
