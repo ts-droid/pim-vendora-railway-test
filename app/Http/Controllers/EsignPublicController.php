@@ -16,6 +16,9 @@ class EsignPublicController extends Controller
 
         return response($document->getDocumentContent())
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="document.pdf"');
+            ->header('Content-Disposition', 'inline; filename="document.pdf"')
+            ->header('Cache-Control', 'no-cache, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }
