@@ -14,10 +14,8 @@ class EsignPublicController extends Controller
             abort(404);
         }
 
-        $fileContent = $document->getDocumentContent();
-
-        return response()->streamDownload(function() use ($fileContent) {
-            echo $fileContent;
-        }, 'document.pdf', ['Content-Type' => 'application/pdf']);
+        return response($document->getDocumentContent())
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="document.pdf"');
     }
 }
