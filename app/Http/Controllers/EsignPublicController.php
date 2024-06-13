@@ -17,6 +17,8 @@ class EsignPublicController extends Controller
         $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="document.pdf"',
+            'Content-Transfer-Encoding' => 'binary',
+            'Accept-Ranges' => 'bytes',
         ];
 
         return Response::make($document->getDocumentContent(), 200, $headers);
