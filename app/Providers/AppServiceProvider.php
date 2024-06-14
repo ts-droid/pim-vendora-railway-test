@@ -24,11 +24,5 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        Gate::define('viewPulse', function() {
-            return in_array(get_user_ip(), [
-                '95.143.200.80'
-            ]);
-        });
     }
 }
