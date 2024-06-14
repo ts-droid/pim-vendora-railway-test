@@ -25,6 +25,17 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function() {
+
+    $string = "Looking for the best protection for your iPad or drawing tablet? Paperlike brings you closer to a real paper experience. It's perfect for those who love to draw, sketch or take digital notes. Nanodots® technology gives the feeling of writing on real paper with Apple Pencil or other pens.";
+
+    $translator = new \App\Http\Controllers\TranslationController();
+    $translations = $translator->translateOpenAI([$string], 'en', 'sv');
+
+    dd($translations);
+
+});
+
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
