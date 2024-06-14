@@ -15,7 +15,7 @@ class AllianzApiService
             'Content-Type' => 'application/json',
         ];
 
-        $url = $this->getBaseUrl() . $endpoint;
+        $url = $this->getEndpoint($endpoint);
 
         switch (strtoupper($method)) {
             case 'POST':
@@ -62,7 +62,7 @@ class AllianzApiService
         }
 
         // Get new token
-        $response = Http::post($this->getBaseUrl() . '/uatm/v1/idp/oauth2/authorize', [
+        $response = Http::post($this->getEndpoint('oauth_token'), [
             'apiKey' => config('allianz.api_key'),
         ]);
 
@@ -80,13 +80,8 @@ class AllianzApiService
         return $token;
     }
 
-    private function getBaseUrl()
+    protected function getEndpoint(string $key)
     {
-        if (config('allianz.production')) {
-            return 'https://api.allianz-trade.com';
-        }
-        else {
-            return 'https://api-services.uat.1placedessaisons.com';
-        }
+        return config('allianz.endpoints.' . $key . '.' . (config('allianz.production') ? 'prod' : 'test'));
     }
 }

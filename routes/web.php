@@ -24,36 +24,6 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test', function() {
-    $companySearch = new \App\Services\Allianz\AllianzCompanySearch();
-    $gradeCover = new \App\Services\Allianz\AllianzGradeCover();
-
-
-    $gradeCover->new();
-    die();
-
-
-    $jobID = 'ba37a6bb-1ea1-46bb-af32-49d2925a87d6';
-    $gradeCover->checkStatus($jobID);
-    die();
-
-
-    $customer = $companySearch->searchCustomer('Dustin Aktiebolag', 'SE');
-
-    if ($customer === null) {
-        die('Failed to find customer.');
-    }
-
-    $companyID = $customer['companyId'];
-
-    $jobID = $gradeCover->requestGradeCover($companyID);
-    if ($jobID === null) {
-        die('Failed to submit job grade cover request.');
-    }
-
-    dd($jobID);
-});
-
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
