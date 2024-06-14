@@ -18,7 +18,8 @@
         "prodigyphp/laravel-ssh-tunnel": "^3.4",
         "sentry/sentry-laravel": "^4.1",
         "setasign/fpdf": "^1.8",
-        "setasign/fpdi": "^2.6"
+        "setasign/fpdi": "^2.6",
+        "laravel/pulse": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",
