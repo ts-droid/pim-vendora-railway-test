@@ -13,6 +13,9 @@ class TranslationServiceManager
 {
     const BASE_LANGUAGE = 'en';
 
+    private array $tableWhitelist = ['articles'];
+    private array $tableBlacklist = [];
+
     private array $locales;
 
     private int $batchSize = 0;
@@ -47,6 +50,14 @@ class TranslationServiceManager
         $tableNames = array_map('current', $tables);
 
         foreach ($tableNames as $tableName) {
+            if (count($this->tableWhitelist) && !in_array($tableName, $this->tableWhitelist)) {
+                continue;
+            }
+
+            if (count($this->tableBlacklist) && in_array($tableName, $this->tableBlacklist)) {
+                continue;
+            }
+
             $this->translateTable($tableName);
 
             if ($this->batchCompleted) {
