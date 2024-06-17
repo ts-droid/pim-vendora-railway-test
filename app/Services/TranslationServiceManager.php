@@ -106,6 +106,7 @@ class TranslationServiceManager
 
                 // Check if this column already is translated
                 $hasTranslation = Translation::where('table', $tableName)
+                    ->where('table_id', $row->id)
                     ->where('field', $columnName)
                     ->where('language_code', $locale)
                     ->where('service_id', $this->service->id)
