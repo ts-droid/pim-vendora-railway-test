@@ -41,6 +41,8 @@ class TranslationController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
+        $isOpenAI = (bool) ($request->openai ?? 0);
+
         $strings = $request->strings;
         $sourceLang = $request->source_lang;
         $targetLang = $request->target_lang;
@@ -55,7 +57,12 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
-        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
+        if ($isOpenAI) {
+            $translations = $this->translateOpenAI($strings, $sourceLang, $targetLang, $excludes);
+        }
+        else {
+            $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
+        }
 
         // Replace language URLs
         $languageController = new LanguageController();
