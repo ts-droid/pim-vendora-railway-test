@@ -19,16 +19,13 @@ class Kernel extends ConsoleKernel
         if (App::environment('production')) {
 
             $schedule->command('visma:check')->everyTwoMinutes()->withoutOverlapping();
-
-            $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
-
-            $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
-
-            $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
-
-            $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
-
             $schedule->command('purchase-orders:send-reminders')->hourly();
+
+            // TODO: Can me moved to long loved processes
+            $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
+            $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
+            $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
+            $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
 
             // Visma.net
             $schedule->command('visma:fetch daily')->dailyAt('02:00');
