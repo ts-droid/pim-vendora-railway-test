@@ -25,18 +25,6 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test', function () {
-   $start = microtime(true);
-
-   sleep(1);
-
-   $duration = microtime(true) - $start;
-   \Laravel\Pulse\Facades\Pulse::record('command_duration', 'quick', $duration)
-       ->avg()
-       ->max()
-       ->count();
-});
-
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();

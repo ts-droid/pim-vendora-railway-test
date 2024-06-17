@@ -33,7 +33,7 @@ class OpenAIController extends Controller
         $toLanguage = $languageController->getLanguageByCode($toLocale);
 
         return $this->chatCompletion(
-            'You will be provided with a sentence in ' . ($fromLanguage->title ?? '') . ', and your task is to translate it into ' . ($toLanguage->title ?? '') . '.',
+            'You will be provided with a sentence in ' . ($fromLanguage->title ?? '') . ', and your task is to translate it into ' . ($toLanguage->title ?? '') . '. You must only provide the translation in the response and no other text for information.',
             $text,
         );
     }

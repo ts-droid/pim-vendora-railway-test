@@ -135,6 +135,42 @@ class TranslationController extends Controller
         return $translations;
     }
 
+    public function translateOpenAI(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
+    {
+        // Merge excludes with global excludes
+        $globalExcludes = ConfigController::getConfig('translation_excludes');
+        $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
+
+        $excludes = array_merge($excludes, $globalExcludes);
+
+        $excludes = array_filter($excludes);
+
+        // Replace excludes with placeholders
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($strings);$j++) {
+                $strings[$j] = str_replace($excludes[$i], '[1010_' . $i . ']', $strings[$j]);
+            }
+        }
+
+        // Translate all the strings
+        $openAIController = new OpenAIController();
+
+        $translations = [];
+
+        foreach ($strings as $string) {
+            $translations[] = $openAIController->translate($string, $sourceLang, $targetLang);
+        }
+
+        // Replace placeholders with excludes
+        for ($i = 0;$i < count($excludes);$i++) {
+            for ($j = 0;$j < count($translations);$j++) {
+                $translations[$j] = str_replace('[1010_' . $i . ']', $excludes[$i], $translations[$j]);
+            }
+        }
+
+        return $translations;
+    }
+
     /**
      * Formats the language code to work with DeepL API
      *
