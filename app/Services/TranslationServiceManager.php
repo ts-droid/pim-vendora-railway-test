@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\OpenAIController;
+use App\Http\Controllers\TranslationController;
 use App\Models\Translation;
 use App\Models\TranslationService;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ class TranslationServiceManager
 
     private TranslationService $service;
 
-    private OpenAIController $openAIController;
+    private TranslationController $translationController;
 
     function __construct(
         TranslationService $service,
@@ -30,11 +31,7 @@ class TranslationServiceManager
         $this->batchSize = $batchSize;
         $this->service = $service;
 
-        switch ($this->service->name) {
-            case 'openai':
-                $this->openAIController = new OpenAIController();
-                break;
-        }
+        $this->translationController = new TranslationController();
 
         $languageController = new LanguageController();
 
@@ -120,7 +117,8 @@ class TranslationServiceManager
 
                 switch ($this->service->name) {
                     case 'openai':
-                        $translation = $this->openAIController->translate($row->text, self::BASE_LANGUAGE, $locale);
+                        $translateResponse = $this->translationController->translateOpenAI([$row->text], self::BASE_LANGUAGE, $locale);
+                        $translation = $translateResponse[0];
                         break;
 
                     default:
