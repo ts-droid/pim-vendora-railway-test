@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\OpenAIController;
 use App\Models\Translation;
+use App\Models\TranslationService;
 use Illuminate\Support\Facades\DB;
 
 class TranslationServiceManager
@@ -12,12 +14,27 @@ class TranslationServiceManager
 
     private array $locales;
 
-    private int $batchSize = 10;
+    private int $batchSize = 0;
     private int $batchCount = 0;
+    private bool $batchCompleted = false;
 
-    function __construct(int $batchSize = 10)
+    private TranslationService $service;
+
+    private OpenAIController $openAIController;
+
+    function __construct(
+        TranslationService $service,
+        int $batchSize
+    )
     {
         $this->batchSize = $batchSize;
+        $this->service = $service;
+
+        switch ($this->service->name) {
+            case 'openai':
+                $this->openAIController = new OpenAIController();
+                break;
+        }
 
         $languageController = new LanguageController();
 
@@ -34,6 +51,10 @@ class TranslationServiceManager
 
         foreach ($tableNames as $tableName) {
             $this->translateTable($tableName);
+
+            if ($this->batchCompleted) {
+                return;
+            }
         }
     }
 
@@ -60,6 +81,10 @@ class TranslationServiceManager
 
         foreach ($languageColumns as $languageColumn) {
             $this->translateColumn($tableName, $languageColumn);
+
+            if ($this->batchCompleted) {
+                return;
+            }
         }
     }
 
@@ -72,10 +97,50 @@ class TranslationServiceManager
             )
             ->get();
 
-        dd($rows);
+        foreach ($rows as $row) {
+            if (!$row->text) {
+                continue;
+            }
 
-        echo $tableName . ' . ' . $columnName;
-        die();
+            foreach ($this->locales as $locale) {
+                if ($locale == self::BASE_LANGUAGE) {
+                    continue;
+                }
+
+                // Check if this column already is translated
+                $hasTranslation = Translation::where('table', $tableName)
+                    ->where('field', $columnName)
+                    ->where('language_code', $locale)
+                    ->where('service_id', $this->service->id)
+                    ->exists();
+
+                if ($hasTranslation) {
+                    continue;
+                }
+
+                switch ($this->service->name) {
+                    case 'openai':
+                        $translation = $this->openAIController->translate($row->text, self::BASE_LANGUAGE, $locale);
+                        break;
+
+                    default:
+                        $translation = '';
+                        break;
+                }
+
+                if (!$translation) {
+                    continue;
+                }
+
+                $this->storeTranslation($tableName, $columnName, $row->id, $translation, $locale, $this->service->id);
+
+                $this->batchCount++;
+                if ($this->batchCount >= $this->batchSize) {
+                    $this->batchCompleted = true;
+                    return;
+                }
+            }
+        }
     }
 
     protected function storeTranslation(string $table, string $field, int $tableID, string $translatedText, string $languageCode, int $serviceID)
