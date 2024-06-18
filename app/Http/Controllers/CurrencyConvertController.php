@@ -36,20 +36,39 @@ class CurrencyConvertController extends Controller
             return $value;
         }
 
-        $currencyRate = $this->getCurrencyRate($toCurrency, $date);
+        // Start by converting into SEK it not already in SEK
+        if ($fromCurrency != 'SEK') {
+            $currencyRate = $this->getCurrencyRate($fromCurrency, $date);
+            if (!$currencyRate) {
+                return 0;
+            }
 
+            if ($currencyRate->mult_div == 'Multiply') {
+                $value = $value * $currencyRate->rate;
+            }
+            else {
+                $value = $value / $currencyRate->rate;
+            }
+        }
+
+        if ($toCurrency == 'SEK') {
+            return $value;
+        }
+
+        // Convert from SEK to requested currency
+        $currencyRate = $this->getCurrencyRate($toCurrency, $date);
         if (!$currencyRate) {
             return 0;
         }
 
         if ($currencyRate->mult_div == 'Multiply') {
-            $newValue = $value / $currencyRate->rate;
+            $value = $value / $currencyRate->rate;
         }
         else {
-            $newValue = $value * $currencyRate->rate;
+            $value = $value * $currencyRate->rate;
         }
 
-        return $newValue;
+        return $value;
     }
 
     private function getCurrencyRate(string $currency, string $date)
