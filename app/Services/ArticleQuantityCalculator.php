@@ -276,7 +276,7 @@ class ArticleQuantityCalculator
             $salesPerMonthQuantities = DB::table('customer_invoice_lines')
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->where('customer_invoices.date', '>=', $startDate)
-                ->where('customer_invoices.date', '<=', $startDate)
+                ->where('customer_invoices.date', '<=', $endDate)
                 ->select('customer_invoice_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
                 ->groupBy('customer_invoice_lines.article_number')
                 ->get()
