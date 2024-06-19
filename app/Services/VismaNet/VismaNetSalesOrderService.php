@@ -111,6 +111,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
             // Update existing sales order
             $salesOrder = SalesOrder::find($existingSalesOrder[0]['id']);
 
+            // Force update of order lines, will remove order lines that are not present int the request
+            $orderData['force_order_lines'] = 1;
+
             $salesOrderController->update(new Request($orderData), $salesOrder);
         }
     }

@@ -92,6 +92,8 @@ class SalesOrderController extends Controller
         $fillables = (new SalesOrder)->getFillable();
         $lineFillables = (new SalesOrderLine)->getFillable();
 
+        $forceOrderLines = (bool) $request->input('force_order_lines', 0);
+
         // Update the sales order
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
@@ -103,6 +105,7 @@ class SalesOrderController extends Controller
 
         // Update the lines
         $totalQuantity = 0;
+        $updatedLineNumbers = [];
 
         foreach (($request->lines ?? []) as $line) {
             $salesOrderLine = SalesOrderLine::where([
@@ -123,6 +126,8 @@ class SalesOrderController extends Controller
                 }
                 else {
                     $salesOrderLine->save();
+
+                    $updatedLineNumbers[] = $line['line_number'];
                 }
             }
             else {
@@ -138,9 +143,18 @@ class SalesOrderController extends Controller
                 $createData['sales_order_id'] = $salesOrder->id;
 
                 $salesOrderLine = SalesOrderLine::create($createData);
+
+                $updatedLineNumbers[] = $line['line_number'];
             }
 
             $totalQuantity += (int) $salesOrderLine->quantity;
+        }
+
+        // Delete removed order lines
+        if ($forceOrderLines) {
+            SalesOrderLine::where('sales_order_id', '=', $salesOrder->id)
+                ->whereNotIn('line_number', $updatedLineNumbers)
+                ->delete();
         }
 
         $salesOrder->update(['order_total_quantity' => $totalQuantity]);
