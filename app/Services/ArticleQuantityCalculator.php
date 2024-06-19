@@ -273,12 +273,12 @@ class ArticleQuantityCalculator
             $days = round((strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24));
 
             // Fetch the results from the database
-            $salesPerMonthQuantities = DB::table('sales_order_lines')
-                ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-                ->where('sales_orders.date', '>=', $startDate)
-                ->where('sales_orders.date', '<=', $endDate)
-                ->select('sales_order_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
-                ->groupBy('sales_order_lines.article_number')
+            $salesPerMonthQuantities = DB::table('customer_invoice_lines')
+                ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+                ->where('customer_invoices.date', '>=', $startDate)
+                ->where('customer_invoices.date', '<=', $startDate)
+                ->select('customer_invoice_lines.article_number', DB::raw('SUM(quantity) as total_quantity'))
+                ->groupBy('customer_invoice_lines.article_number')
                 ->get()
                 ->keyBy('article_number')
                 ->map(function ($row) use ($days) {
