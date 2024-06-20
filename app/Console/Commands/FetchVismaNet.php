@@ -10,6 +10,7 @@ use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetTransactionService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class FetchVismaNet extends Command
 {
@@ -90,23 +91,23 @@ class FetchVismaNet extends Command
 
             case 'daily':
                 // Fetch all data from Visma
-                $this->call('visma:fetch', ['type' => 'customers']);
-                $this->call('visma:fetch', ['type' => 'sales-persons']);
-                $this->call('visma:fetch', ['type' => 'suppliers']);
-                $this->call('visma:fetch', ['type' => 'purchase-orders']);
-                $this->call('visma:fetch', ['type' => 'purchase-receipts']);
-                $this->call('visma:fetch', ['type' => 'inventory-receipts']);
-                $this->call('visma:fetch', ['type' => 'currency']);
-                $this->call('visma:fetch', ['type' => 'transactions']);
+                Artisan::call('visma:fetch', ['type' => 'customers']);
+                Artisan::call('visma:fetch', ['type' => 'sales-persons']);
+                Artisan::call('visma:fetch', ['type' => 'suppliers']);
+                Artisan::call('visma:fetch', ['type' => 'purchase-orders']);
+                Artisan::call('visma:fetch', ['type' => 'purchase-receipts']);
+                Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
+                Artisan::call('visma:fetch', ['type' => 'currency']);
+                Artisan::call('visma:fetch', ['type' => 'transactions']);
 
                 // Calculate customer credit values
                 $this->calculateCustomersCreditBalance();
                 break;
 
             case 'hourly':
-                $this->call('visma:fetch', ['type' => 'articles']);
-                $this->call('visma:fetch', ['type' => 'sales-orders']);
-                $this->call('visma:fetch', ['type' => 'invoices']);
+                Artisan::call('visma:fetch', ['type' => 'articles']);
+                Artisan::call('visma:fetch', ['type' => 'sales-orders']);
+                Artisan::call('visma:fetch', ['type' => 'invoices']);
                 break;
 
             case 'all':

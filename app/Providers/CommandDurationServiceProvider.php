@@ -37,6 +37,10 @@ class CommandDurationServiceProvider extends ServiceProvider
                 return;
             }
 
+            $command = $this->getFullCommand($event);
+
+            dump($command);
+
             $this->startTimes[$event->command] = microtime(true);
         });
 
@@ -58,5 +62,29 @@ class CommandDurationServiceProvider extends ServiceProvider
                 unset($this->startTimes[$event->command]);
             }
         });
+    }
+
+    private function getFullCommand($event): string
+    {
+        $commandName = $event->command;
+
+        $input = $event->input;
+
+        $arguments = $input->getArguments();
+        $options = $input->getOptions();
+
+        $command = $commandName;
+
+        foreach ($arguments as $name => $value) {
+            if ($value == $commandName) {
+                continue;
+            }
+
+            if (!is_null($value)) {
+                $command .= ' ' . $value;
+            }
+        }
+
+        return $command;
     }
 }
