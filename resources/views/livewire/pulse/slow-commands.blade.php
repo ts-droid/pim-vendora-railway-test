@@ -33,10 +33,10 @@
                             {{ round($command->count) }}
                         </x-pulse::td>
                         <x-pulse::td numeric class="text-gray-700 dark:text-gray-300 font-bold">
-                            {{ number_format($command->avg, 2, '.', ' ') }} <small>s</small>
+                            {{ number_format($command->avg, 2, '.', ' ') }} <small>{{ $command->avg_unit }}</small>
                         </x-pulse::td>
                         <x-pulse::td numeric class="text-gray-700 dark:text-gray-300 font-bold">
-                            {{ number_format($command->max, 2, '.', ' ') }} <small>s</small>
+                            {{ number_format($command->max, 2, '.', ' ') }} <small>{{ $command->max_unit }}</small>
                         </x-pulse::td>
                     </tr>
                 @endforeach
