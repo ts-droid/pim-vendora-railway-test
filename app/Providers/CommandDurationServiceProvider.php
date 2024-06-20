@@ -39,9 +39,7 @@ class CommandDurationServiceProvider extends ServiceProvider
 
             $command = $this->getFullCommand($event);
 
-            dump($command);
-
-            $this->startTimes[$event->command] = microtime(true);
+            $this->startTimes[$command] = microtime(true);
         });
 
         Event::listen(CommandFinished::class, function(CommandFinished $event) {
@@ -49,17 +47,19 @@ class CommandDurationServiceProvider extends ServiceProvider
                 return;
             }
 
-            if (isset($this->startTimes[$event->command])) {
-                $duration = microtime(true) - $this->startTimes[$event->command];
+            $command = $this->getFullCommand($event);
+
+            if (isset($this->startTimes[$command])) {
+                $duration = microtime(true) - $this->startTimes[$command];
 
                 if ($duration > $this->threshold) {
-                    Pulse::record('command_duration', $event->command, $duration)
+                    Pulse::record('command_duration', $command, $duration)
                         ->avg()
                         ->max()
                         ->count();
                 }
 
-                unset($this->startTimes[$event->command]);
+                unset($this->startTimes[$command]);
             }
         });
     }
@@ -69,9 +69,7 @@ class CommandDurationServiceProvider extends ServiceProvider
         $commandName = $event->command;
 
         $input = $event->input;
-
         $arguments = $input->getArguments();
-        $options = $input->getOptions();
 
         $command = $commandName;
 
