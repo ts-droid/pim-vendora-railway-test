@@ -14,6 +14,10 @@ class SlowCommands extends Card
     {
         $slowCommands = $this->aggregate('command_duration', ['avg', 'max', 'count']);
 
+        // Sort by max duration collection
+        $slowCommands = $slowCommands->sortByDesc('max');
+
+        // Format the seconds
         foreach ($slowCommands as &$command) {
             list($command->avg, $command->avg_unit) = $this->formatSeconds($command->avg);
             list($command->max, $command->max_unit) = $this->formatSeconds($command->max);

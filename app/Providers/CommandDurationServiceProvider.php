@@ -11,7 +11,7 @@ use Laravel\Pulse\Facades\Pulse;
 class CommandDurationServiceProvider extends ServiceProvider
 {
     protected $startTimes = [];
-    protected $threshold = 60;
+    protected $threshold = 600;
 
     protected $blackList = [
         'queue:work',
