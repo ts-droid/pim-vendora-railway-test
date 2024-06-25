@@ -28,16 +28,26 @@ class OpenAIController extends Controller
 
     public function translate(string $text, string $fromLocale, string $toLocale): string
     {
+        // Fetch languages
         $languageController = new LanguageController();
         $fromLanguage = $languageController->getLanguageByCode($fromLocale);
         $toLanguage = $languageController->getLanguageByCode($toLocale);
 
-        return $this->chatCompletion(
-            'You will be provided with a sentence in ' . ($fromLanguage->title ?? '') . ', and your task is to translate it into ' . ($toLanguage->title ?? '') . '.
-            You must only provide the translation in the response and no other text for information.
-            If HTML tags are present, you must ensure to keep the tags in the translation and not remove or modify them.',
-            $text,
-        );
+        // Load translation prompt
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode('translation_prompt');
+
+        $inputs = [
+            'fromLanguage' => ($fromLanguage->title ?? ''),
+            'toLanguage' => ($toLanguage->title ?? ''),
+            'text' => $text,
+        ];
+
+        $system = $promptController->replaceInputs($prompt->system, $inputs);
+        $message = $promptController->replaceInputs($prompt->message, $inputs);
+
+        // Generate translation
+        return $this->chatCompletion($system, $message);
     }
 
     public function chatCompletionWithTranslations(string $system, string $message, string $baseLocale): array
