@@ -86,6 +86,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/translate')->group(function() {
         Route::post('/', [TranslationController::class, 'translateRequest'])->name('translate');
+        Route::get('/engines', [TranslationController::class, 'getEngines']);
     });
 
     Route::prefix('/customers')->group(function() {

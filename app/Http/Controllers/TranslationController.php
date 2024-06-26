@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TranslationServiceManager;
 use DeepL\Translator;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,6 +20,13 @@ class TranslationController extends Controller
     function __construct()
     {
         $this->translator = new Translator(self::API_KEY);
+    }
+
+    public function getEngines() {
+        $manager = new TranslationServiceManager();
+        $services = $manager->getAllServices();
+
+        return ApiResponseController::success($services->toArray());
     }
 
     /**
