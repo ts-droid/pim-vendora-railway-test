@@ -4,156 +4,109 @@ namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\OpenAIController;
-use App\Http\Controllers\TranslationController;
+use App\Models\Article;
 use App\Models\Translation;
 use App\Models\TranslationService;
 use Illuminate\Support\Facades\DB;
 
 class TranslationServiceManager
 {
-    const BASE_LANGUAGE = 'en';
+    const BASE_LOCALE = 'en';
 
-    private array $tableWhitelist = ['articles'];
-    private array $tableBlacklist = [];
-
-    private array $locales;
-
-    private int $batchSize = 0;
-    private int $batchCount = 0;
-    private bool $batchCompleted = false;
-
-    private TranslationService $service;
-
-    private TranslationController $translationController;
-
-    function __construct(
-        TranslationService $service,
-        int $batchSize
-    )
+    /**
+     * Execute a batch of translations.
+     * Returns true if the entire batch was fulfilled, otherwise false.
+     * @param int $batchSize
+     * @return bool
+     */
+    public function executeBatch(int $batchSize): bool
     {
-        $this->batchSize = $batchSize;
-        $this->service = $service;
+        $batchCount = 0;
 
-        $this->translationController = new TranslationController();
+        $services = $this->getAllServices();
 
-        $languageController = new LanguageController();
+        $languages = (new LanguageController())->getAllLanguages();
 
-        $languages = $languageController->getAllLanguages();
-        foreach ($languages as $language) {
-            $this->locales[] = $language->language_code;
+        $tables = [
+            'articles' => [
+                'shop_title',
+                //'shop_description'
+            ],
+        ];
+
+        foreach ($services as $service) {
+            foreach ($languages as $language) {
+
+                foreach ($tables as $table => $fields) {
+                    foreach ($fields as $field) {
+
+                        $baseField = $field . '_' . self::BASE_LOCALE;
+
+                        $translatedIDs = DB::table('translations')
+                            ->select('table_id')
+                            ->where('table', $table)
+                            ->where('field', $field)
+                            ->where('language_code', $language->language_code)
+                            ->where('service_id', $service->id)
+                            ->get()
+                            ->pluck('table_id')
+                            ->toArray();
+
+                        $rows = DB::table($table)
+                            ->select('id', $baseField)
+                            ->where($baseField, '!=', '')
+                            ->whereNotIn('id', $translatedIDs)
+                            ->get();
+
+                        foreach ($rows as $row) {
+                            $success = $this->translateAndStore(
+                                $table,
+                                $field,
+                                $row->id,
+                                $language->language_code,
+                                $service,
+                                $row->{$baseField},
+                            );
+
+                            if ($success) {
+                                $batchCount++;
+                            }
+
+                            if ($batchCount >= $batchSize) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        return false;
     }
 
-    public function translateDatabase()
+    public function translateAndStore(string $table, string $field, int $tableID, string $languageCode, TranslationService $service, string $text): bool
     {
-        $tables = DB::select('SHOW TABLES');
-        $tableNames = array_map('current', $tables);
+        switch ($service->name) {
+            case 'openai':
+                $openaiController = new OpenAIController();
+                $translatedText = $openaiController->translate($text, self::BASE_LOCALE, $languageCode);
+                break;
 
-        foreach ($tableNames as $tableName) {
-            if (count($this->tableWhitelist) && !in_array($tableName, $this->tableWhitelist)) {
-                continue;
-            }
-
-            if (count($this->tableBlacklist) && in_array($tableName, $this->tableBlacklist)) {
-                continue;
-            }
-
-            $this->translateTable($tableName);
-
-            if ($this->batchCompleted) {
-                return;
-            }
+            default:
+                $translatedText = '';
+                break;
         }
+
+        if (!$translatedText) {
+            return false;
+        }
+
+        $this->storeTranslation($table, $field, $tableID, $translatedText, $languageCode, $service->id);
+
+        return true;
     }
 
-    private function translateTable(string $tableName)
-    {
-        $columns = DB::select("SHOW COLUMNS FROM $tableName");
-        $columnNames = array_map(function($column) {
-            return $column->Field;
-        }, $columns);
-
-        // Extract language columns
-        $languageColumns = array_filter($columnNames, function($column) {
-            return str_ends_with($column, '_' . self::BASE_LANGUAGE);
-        });
-
-        if (!$languageColumns) {
-            return;
-        }
-
-        // Remove language suffix
-        $languageColumns = array_map(function($column) {
-            return substr($column, 0, -3);
-        }, $languageColumns);
-
-        foreach ($languageColumns as $languageColumn) {
-            $this->translateColumn($tableName, $languageColumn);
-
-            if ($this->batchCompleted) {
-                return;
-            }
-        }
-    }
-
-    private function translateColumn(string $tableName, string $columnName)
-    {
-        $rows = DB::table($tableName)
-            ->select(
-                'id',
-                $columnName . '_' . self::BASE_LANGUAGE . ' AS text'
-            )
-            ->get();
-
-        foreach ($rows as $row) {
-            if (!$row->text) {
-                continue;
-            }
-
-            foreach ($this->locales as $locale) {
-                if ($locale == self::BASE_LANGUAGE) {
-                    continue;
-                }
-
-                // Check if this column already is translated
-                $hasTranslation = Translation::where('table', $tableName)
-                    ->where('table_id', $row->id)
-                    ->where('field', $columnName)
-                    ->where('language_code', $locale)
-                    ->where('service_id', $this->service->id)
-                    ->exists();
-
-                if ($hasTranslation) {
-                    continue;
-                }
-
-                switch ($this->service->name) {
-                    case 'openai':
-                        $translateResponse = $this->translationController->translateOpenAI([$row->text], self::BASE_LANGUAGE, $locale);
-                        $translation = $translateResponse[0];
-                        break;
-
-                    default:
-                        $translation = '';
-                        break;
-                }
-
-                if (!$translation) {
-                    continue;
-                }
-
-                $this->storeTranslation($tableName, $columnName, $row->id, $translation, $locale, $this->service->id);
-
-                $this->batchCount++;
-                if ($this->batchCount >= $this->batchSize) {
-                    $this->batchCompleted = true;
-                    return;
-                }
-            }
-        }
-    }
-
-    protected function storeTranslation(string $table, string $field, int $tableID, string $translatedText, string $languageCode, int $serviceID)
+    public function storeTranslation(string $table, string $field, int $tableID, string $translatedText, string $languageCode, int $serviceID)
     {
         $translation = Translation::where('table', $table)
             ->where('table_id', $tableID)
@@ -175,5 +128,10 @@ class TranslationServiceManager
                 'translation' => $translatedText
             ]);
         }
+    }
+
+    public function getAllServices()
+    {
+        return TranslationService::all();
     }
 }
