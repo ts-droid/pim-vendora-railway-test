@@ -362,6 +362,9 @@ class VismaNetController extends Controller
 
         if ($invoices) {
             foreach ($invoices as $invoice) {
+                if (!is_array($invoice)) {
+                    continue;
+                }
                 $this->importCustomerInvoice($invoice);
             }
         }
@@ -402,6 +405,9 @@ class VismaNetController extends Controller
             $fetchedData = count($invoices) > 0;
 
             foreach ($invoices as $invoice) {
+                if (!is_array($invoice)) {
+                    continue;
+                }
                 $orderNumbers = array_merge($orderNumbers, $this->importCustomerInvoice($invoice));
             }
         }
