@@ -36,8 +36,31 @@ class ArticleController extends Controller
             ->get()
             ->keyBy('article_number');
 
+        $translationServiceID = translation_service();
+
         if ($articles) {
             foreach ($articles as &$article) {
+
+                // Use different translations?
+                if ($translationServiceID) {
+                    foreach ($article as $key => $value) {
+                        if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+                            $languageCode = $matches[1];
+                            $translation = TranslationServiceManager::getTranslation('articles', 'shop_title', $article->id, $languageCode, $translationServiceID);
+                            if ($translation) {
+                                $article->{$key} = $translation->translation;
+                            }
+                        }
+                        else if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+                            $languageCode = $matches[1];
+                            $translation = TranslationServiceManager::getTranslation('articles', 'shop_description', $article->id, $languageCode, $translationServiceID);
+                            if ($translation) {
+                                $article->{$key} = $translation->translation;
+                            }
+                        }
+                    }
+                }
+
                 $article->supplier_price = 0;
                 $article->supplier_price_currency = '';
 
