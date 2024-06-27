@@ -39,6 +39,10 @@ class Article extends Model
     {
         static::retrieved(function ($article) {
             $article->shop_title_sv = $article->getAttribute('shop_title_sv');
+            $article->shop_title_fi = $article->getAttribute('shop_title_fi');
+            $article->shop_title_en = $article->getAttribute('shop_title_en');
+            $article->shop_title_no = $article->getAttribute('shop_title_no');
+            $article->shop_title_da = $article->getAttribute('shop_title_da');
 
             $supplierPriceService = new SupplierArticlePriceService();
             $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
