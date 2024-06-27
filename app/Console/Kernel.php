@@ -43,6 +43,8 @@ class Kernel extends ConsoleKernel
             $schedule->command('calculate-customer-revenue')->daily();
             $schedule->command('calculate-customer-return-rate')->daily();
             $schedule->command('calculate-article-shipping-time')->daily();
+
+            //$schedule->command('allianz:fetch-grades')->daily();
         }
 
         // Run only in staging
