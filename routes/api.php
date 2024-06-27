@@ -95,6 +95,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-list', [CustomerController::class, 'topList'])->name('customers.topList');
         Route::get('/{customer}', [CustomerController::class, 'getCustomer'])->name('customers.getCustomer');
         Route::get('/{customer}/sales', [CustomerController::class, 'getCustomerSales'])->name('customers.getCustomerSales');
+        Route::get('/{customer}/allianz', [CustomerController::class, 'getCustomerAllianz'])->name('customers.getCustomerAllianz');
         Route::post('/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     });
 

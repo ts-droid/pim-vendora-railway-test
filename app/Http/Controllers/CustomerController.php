@@ -6,6 +6,7 @@ use App\Models\ArticlePrice;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
+use App\Services\Allianz\AllianzGradeCover;
 use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,14 @@ class CustomerController extends Controller
         $customerArray['amount_due'] = $customerCreditService->getAmountDue($customer['customer_number'])[0];
 
         return ApiResponseController::success($customerArray);
+    }
+
+    public function getCustomerAllianz(Request $request, Customer $customer)
+    {
+        $gradeCoverService = new AllianzGradeCover();
+        $gradeData = $gradeCoverService->getCustomerGradeData($customer);
+
+        return ApiResponseController::success($gradeData);
     }
 
     public function getCustomerSales(Request $request, Customer $customer)
