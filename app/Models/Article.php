@@ -44,6 +44,12 @@ class Article extends Model
             $article->shop_title_no = $article->getAttribute('shop_title_no');
             $article->shop_title_da = $article->getAttribute('shop_title_da');
 
+            $article->shop_description_sv = $article->getAttribute('shop_description_sv');
+            $article->shop_description_fi = $article->getAttribute('shop_description_fi');
+            $article->shop_description_en = $article->getAttribute('shop_description_en');
+            $article->shop_description_no = $article->getAttribute('shop_description_no');
+            $article->shop_description_da = $article->getAttribute('shop_description_da');
+
             $supplierPriceService = new SupplierArticlePriceService();
             $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
 
@@ -119,6 +125,23 @@ class Article extends Model
 
             // Fetch translations from the translation service
             $translation = TranslationServiceManager::getTranslation('articles', 'shop_title', $this->id, $languageCode, $translationServiceID);
+            if ($translation) {
+                $value = $translation->translation;
+            }
+
+            return $value;
+        }
+        else if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+            $translationServiceID = translation_service();
+            if (!$translationServiceID) {
+                return $value;
+            }
+
+            // Extract the language code from the attribute name
+            $languageCode = $matches[1];
+
+            // Fetch translations from the translation service
+            $translation = TranslationServiceManager::getTranslation('articles', 'shop_description', $this->id, $languageCode, $translationServiceID);
             if ($translation) {
                 $value = $translation->translation;
             }
