@@ -38,6 +38,8 @@ class Article extends Model
     protected static function booted()
     {
         static::retrieved(function ($article) {
+            $article->shop_title_sv = $article->getAttribute('shop_title_sv');
+
             $supplierPriceService = new SupplierArticlePriceService();
             $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
 
