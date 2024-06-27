@@ -131,7 +131,7 @@ class Article extends Model
 
             return $value;
         }
-        else if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+        else if (preg_match('/^shop_description_(\w+)$/', $key, $matches)) {
             $translationServiceID = translation_service();
             if (!$translationServiceID) {
                 return $value;

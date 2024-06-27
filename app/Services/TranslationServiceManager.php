@@ -30,7 +30,7 @@ class TranslationServiceManager
         $tables = [
             'articles' => [
                 'shop_title',
-                //'shop_description'
+                'shop_description'
             ],
         ];
 

@@ -7,6 +7,7 @@ use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
+use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Utilities\ImageBackgroundAnalyzer;
 use Illuminate\Http\Request;
@@ -83,6 +84,29 @@ class ArticleController extends Controller
         $articles = array_map(function ($article) {
             return get_object_vars($article);
         }, $articles);
+
+        // Use different translations?
+        $translationServiceID = translation_service();
+        if ($translationServiceID) {
+            foreach ($articles as $article) {
+                foreach ($article as $key => $value) {
+                    if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+                        $languageCode = $matches[1];
+                        $translation = TranslationServiceManager::getTranslation('articles', 'shop_title', $article['id'], $languageCode, $translationServiceID);
+                        if ($translation) {
+                            $article[$key] = $translation->translation;
+                        }
+                    }
+                    else if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+                        $languageCode = $matches[1];
+                        $translation = TranslationServiceManager::getTranslation('articles', 'shop_description', $article['id'], $languageCode, $translationServiceID);
+                        if ($translation) {
+                            $article[$key] = $translation->translation;
+                        }
+                    }
+                }
+            }
+        }
 
         // Convert results to requested currency
         if ($currency && $articles) {
