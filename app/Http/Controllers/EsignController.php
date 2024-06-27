@@ -59,6 +59,21 @@ class EsignController extends Controller
         return ApiResponseController::success($template->toArray());
     }
 
+    public function deleteTemplate(Request $request, SignTemplate $template)
+    {
+        // Delete all sections
+        if ($template->sections) {
+            foreach ($template->sections as $section) {
+                $section->delete();
+            }
+        }
+
+        // Delete the template
+        $template->delete();
+
+        return ApiResponseController::success();
+    }
+
     public function storeSection(Request $request, SignTemplate $template)
     {
         $validator = Validator::make($request->all(), [
