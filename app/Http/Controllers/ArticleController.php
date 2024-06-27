@@ -88,7 +88,7 @@ class ArticleController extends Controller
         // Use different translations?
         $translationServiceID = translation_service();
         if ($translationServiceID) {
-            foreach ($articles as $article) {
+            foreach ($articles as &$article) {
                 foreach ($article as $key => $value) {
                     if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
                         $languageCode = $matches[1];
