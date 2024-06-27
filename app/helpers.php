@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('translation_service')) {
+    function translation_service()
+    {
+        $service = \Illuminate\Support\Facades\Cache::store('array')->get('translation_service', null);
+        if (!$service) {
+            return '';
+        }
+
+        return $service->id;
+    }
+}
+
 if (!function_exists('get_user_ip')) {
     function get_user_ip()
     {

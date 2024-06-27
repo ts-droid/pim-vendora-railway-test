@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\ArticleQuantityCalculator;
 use App\Services\SupplierArticlePriceService;
+use App\Services\TranslationServiceManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -94,6 +95,33 @@ class Article extends Model
     public function stock_logs()
     {
         return $this->hasMany(StockLog::class, 'article_number', 'article_number');
+    }
+
+    public function getAttribute($key)
+    {
+        // Get the original attribute value
+        $value = parent::getAttribute($key);
+
+        if (preg_match('/^shop_title_(\w+)$/', $key, $matches)) {
+            $translationServiceID = translation_service();
+            if (!$translationServiceID) {
+                return $value;
+            }
+
+            // Extract the language code from the attribute name
+            $languageCode = $matches[1];
+
+            // Fetch translations from the translation service
+            $translation = TranslationServiceManager::getTranslation('articles', 'shop_title', $this->id, $languageCode, $translationServiceID);
+            if ($translation) {
+                $value = $translation->translation;
+            }
+
+            return $value;
+        }
+
+        // For all other attributes, return the original value
+        return $value;
     }
 
     public function getStockIncomingAttribute()

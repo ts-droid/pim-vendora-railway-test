@@ -108,12 +108,7 @@ class TranslationServiceManager
 
     public function storeTranslation(string $table, string $field, int $tableID, string $translatedText, string $languageCode, int $serviceID)
     {
-        $translation = Translation::where('table', $table)
-            ->where('table_id', $tableID)
-            ->where('field', $field)
-            ->where('language_code', $languageCode)
-            ->where('service_id', $serviceID)
-            ->first();
+        $translation = self::getTranslation($table, $field, $tableID, $languageCode, $serviceID);
 
         if ($translation) {
             $translation->update(['translation' => $translatedText]);
@@ -133,5 +128,15 @@ class TranslationServiceManager
     public function getAllServices()
     {
         return TranslationService::all();
+    }
+
+    public static function getTranslation(string $table, string $field, string $tableID, string $languageCode, int $serviceID)
+    {
+        return Translation::where('table', $table)
+            ->where('table_id', $tableID)
+            ->where('field', $field)
+            ->where('language_code', $languageCode)
+            ->where('service_id', $serviceID)
+            ->first();
     }
 }
