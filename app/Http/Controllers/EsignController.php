@@ -323,7 +323,6 @@ class EsignController extends Controller
         }
 
         $dbCollectables = array_unique($dbCollectables);
-        $dbCollectables = array_filter($dbCollectables);
 
         ConfigController::setConfigs(['esign_collectables' => json_encode($dbCollectables)]);
 
