@@ -312,7 +312,7 @@ class EsignController extends Controller
         foreach ($collectables as $key => $value) {
             if ($value == '1') {
                 // Mark as collectable
-                $dbCollectables[] = $value;
+                $dbCollectables[] = $key;
             }
             else if ($value == '0') {
                 // Mark as not collectable
