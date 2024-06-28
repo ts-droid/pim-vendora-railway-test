@@ -23,7 +23,7 @@ class EsignRecipientController extends Controller
 
         $collectables = $document->collectables ? json_decode($document->collectables, true) : [];
         $collectables = array_filter($collectables, function ($collectable) use ($document) {
-            return in_array($collectable, $document->document);
+            return str_contains($document->document, $collectable);
         });
 
         return view('esign.recipient.document', compact('document', 'recipient', 'collectables'));
