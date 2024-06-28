@@ -267,6 +267,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/templates/{template}/sections/{section}', [EsignController::class, 'updateSection']);
         Route::any('/templates/{template}/sections/{section}/delete', [EsignController::class, 'deleteSection']);
 
+        Route::get('/variables', [EsignController::class, 'getVariables']);
+        Route::post('/variables', [EsignController::class, 'setVariables']);
+
         Route::get('/tabs', [EsignController::class, 'getTabs']);
         Route::post('/tabs', [EsignController::class, 'storeTab']);
         Route::post('/tabs/{tab}', [EsignController::class, 'updateTab']);

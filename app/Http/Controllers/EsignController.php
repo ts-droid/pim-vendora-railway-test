@@ -294,6 +294,34 @@ class EsignController extends Controller
     }
 
 
+    public function getVariables()
+    {
+        $json = ConfigController::getConfig('esign_variables') ?: '[]';
+        $array = json_decode($json, true);
+
+        return ApiResponseController::success($array);
+    }
+
+    public function setVariables(Request $request)
+    {
+        $variables = $request->input('variables') ?: '[]';
+
+        if ($variables) {
+
+            $dbVariables = ConfigController::getConfig('esign_variables') ?: '[]';
+            $dbVariables = json_decode($dbVariables, true);
+
+            $variables = json_decode($variables, true);
+            foreach ($variables as $key => $value) {
+                $dbVariables[$key] = $value;
+            }
+
+            ConfigController::setConfigs(['esign_variables' => json_encode($dbVariables)]);
+        }
+
+        return ApiResponseController::success();
+    }
+
 
 
     public function getTabs()
