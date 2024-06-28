@@ -25,6 +25,8 @@ class SignDocument extends Model
         'signed_at',
         'hash',
         'valid_until',
+        'collectables',
+        'collectables_data',
     ];
 
     public function recipients()

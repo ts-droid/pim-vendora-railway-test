@@ -235,6 +235,7 @@ class EsignController extends Controller
                 'document',
                 'name',
                 'valid_until',
+                'collectables',
             ]));
         }
 
