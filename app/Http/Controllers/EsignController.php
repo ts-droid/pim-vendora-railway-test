@@ -293,6 +293,30 @@ class EsignController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getCollectables()
+    {
+        $json = ConfigController::getConfig('esign_collectables') ?: '[]';
+        $array = json_decode($json, true);
+
+        return ApiResponseController::success($array);
+    }
+
+    public function setCollectables(Request $request)
+    {
+        $collectables = $request->input('collectables') ?: '[]';
+        $collectables = json_decode($collectables, true);
+
+        $dbCollectables = ConfigController::getConfig('esign_collectables') ?: '[]';
+        $dbCollectables = json_decode($dbCollectables, true);
+
+        foreach ($collectables as $key => $value) {
+            $dbCollectables[$key] = $value;
+        }
+
+        ConfigController::setConfigs(['esign_collectables' => json_encode($dbCollectables)]);
+
+        return ApiResponseController::success();
+    }
 
     public function getVariables()
     {
@@ -305,19 +329,16 @@ class EsignController extends Controller
     public function setVariables(Request $request)
     {
         $variables = $request->input('variables') ?: '[]';
+        $variables = json_decode($variables, true);
 
-        if ($variables) {
+        $dbVariables = ConfigController::getConfig('esign_variables') ?: '[]';
+        $dbVariables = json_decode($dbVariables, true);
 
-            $dbVariables = ConfigController::getConfig('esign_variables') ?: '[]';
-            $dbVariables = json_decode($dbVariables, true);
-
-            $variables = json_decode($variables, true);
-            foreach ($variables as $key => $value) {
-                $dbVariables[$key] = $value;
-            }
-
-            ConfigController::setConfigs(['esign_variables' => json_encode($dbVariables)]);
+        foreach ($variables as $key => $value) {
+            $dbVariables[$key] = $value;
         }
+
+        ConfigController::setConfigs(['esign_variables' => json_encode($dbVariables)]);
 
         return ApiResponseController::success();
     }

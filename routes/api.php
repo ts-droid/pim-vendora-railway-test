@@ -269,6 +269,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/variables', [EsignController::class, 'getVariables']);
         Route::post('/variables', [EsignController::class, 'setVariables']);
+        Route::get('/collectables', [EsignController::class, 'getCollectables']);
+        Route::post('/collectables', [EsignController::class, 'setCollectables']);
 
         Route::get('/tabs', [EsignController::class, 'getTabs']);
         Route::post('/tabs', [EsignController::class, 'storeTab']);
