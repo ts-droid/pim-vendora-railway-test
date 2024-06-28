@@ -309,8 +309,17 @@ class EsignController extends Controller
         $dbCollectables = ConfigController::getConfig('esign_collectables') ?: '[]';
         $dbCollectables = json_decode($dbCollectables, true);
 
-        foreach ($collectables as $value) {
-            $dbCollectables[] = $value;
+        foreach ($collectables as $key => $value) {
+            if ($value == '1') {
+                // Mark as collectable
+                $dbCollectables[] = $value;
+            }
+            else if ($value == '0') {
+                // Mark as not collectable
+                if (in_array($key, $dbCollectables)) {
+                    $dbCollectables = array_diff($dbCollectables, [$key]);
+                }
+            }
         }
 
         $dbCollectables = array_unique($dbCollectables);
