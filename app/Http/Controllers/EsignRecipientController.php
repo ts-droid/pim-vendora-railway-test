@@ -21,7 +21,12 @@ class EsignRecipientController extends Controller
             abort(404);
         }
 
-        return view('esign.recipient.document', compact('document', 'recipient'));
+        $collectables = $document->collectables ? json_decode($document->collectables, true) : [];
+        $collectables = array_filter($collectables, function ($collectable) use ($document) {
+            return in_array($collectable, $document->document);
+        });
+
+        return view('esign.recipient.document', compact('document', 'recipient', 'collectables'));
     }
 
     public function signDocument(SignDocument $document, string $secret)

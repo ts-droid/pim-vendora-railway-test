@@ -24,14 +24,29 @@
                             You will receive a copy of the signed document after all parties have signed.
                         </div>
                     @else
-                        <div class="document-info">
-                            <p class="small text-muted">
-                                By signing this document electronically, you acknowledge and agree that your electronic signature is
-                                legally binding and has the same legal effect as a handwritten signature. This document is signed in
-                                accordance with the Electronic Signatures in Global and National Commerce Act (ESIGN) and the Uniform Electronic Transactions Act (UETA).
-                            </p>
-                            <a class="document-sign-button" href="{{ route('esign.document.sign', ['document' => $document->id, 'secret' => $recipient->access_key]) }}"><i class="bi bi-check-lg"></i> Sign Document</a>
-                        </div>
+                        <form method="POST" action="{{ route('esign.document.sign', ['document' => $document->id, 'secret' => $recipient->access_key]) }}">
+                            @csrf
+
+                            @if(count($collectables) > 0)
+                                <div class="document-info">
+                                    <div class="h5 mb-0">Required information</div>
+                                    @foreach($collectables as $collectable)
+                                        <div class="mt-3">
+                                            <label class="form-label">{{ $collectable }}</label>
+                                            <input type="text" class="form-control" name="{{ $collectable }}" required>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="document-info">
+                                <p class="small text-muted">
+                                    By signing this document electronically, you acknowledge and agree that your electronic signature is
+                                    legally binding and has the same legal effect as a handwritten signature. This document is signed in
+                                    accordance with the Electronic Signatures in Global and National Commerce Act (ESIGN) and the Uniform Electronic Transactions Act (UETA).
+                                </p>
+                                <button class="document-sign-button" type="submit"><i class="bi bi-check-lg"></i> Sign Document</button>
+                            </div>
+                        </form>
                     @endif
                 </div>
             </div>
