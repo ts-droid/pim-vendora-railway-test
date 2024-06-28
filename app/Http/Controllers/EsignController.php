@@ -326,7 +326,7 @@ class EsignController extends Controller
 
         ConfigController::setConfigs(['esign_collectables' => json_encode($dbCollectables)]);
 
-        return ApiResponseController::success();
+        return ApiResponseController::success($collectables);
     }
 
     public function getVariables()
