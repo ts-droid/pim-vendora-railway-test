@@ -290,6 +290,20 @@ class EsignController extends Controller
         return ApiResponseController::success($recipient->toArray());
     }
 
+    public function setMainRecipient(SignDocument $document, SignDocumentRecipient $recipient)
+    {
+        if ($document->status !== 'draft') {
+            return ApiResponseController::error('Document can not be modified.');
+        }
+
+        SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->update(['is_main' => 0]);
+
+        $recipient->update(['is_main' => 1]);
+
+        return ApiResponseController::success();
+    }
+
     public function deleteRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
         if ($document->status !== 'draft') {

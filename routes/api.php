@@ -285,6 +285,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/documents/{document}/send', [EsignController::class, 'sendDocument']);
         Route::any('/documents/{document}/delete', [EsignController::class, 'deleteDocument']);
         Route::post('/documents/{document}/recipients', [EsignController::class, 'addRecipient']);
+        Route::post('/documents/{document}/recipients/{recipient}/set-main', [EsignController::class, 'setMainRecipient']);
         Route::any('/documents/{document}/recipients/{recipient}/delete', [EsignController::class, 'deleteRecipient']);
     });
 });
