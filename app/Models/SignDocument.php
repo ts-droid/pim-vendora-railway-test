@@ -34,6 +34,11 @@ class SignDocument extends Model
         return $this->hasMany(SignDocumentRecipient::class);
     }
 
+    public function mainRecipient()
+    {
+        return $this->recipients->where('is_main', 1)->first();
+    }
+
     public function getAccessHash()
     {
         return md5($this->id . $this->created_at . '6VYADDntAadd%aH4mM');

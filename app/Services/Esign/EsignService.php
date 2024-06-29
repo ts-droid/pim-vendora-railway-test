@@ -37,16 +37,19 @@ class EsignService
             return false;
         }
 
-        // Send a sign link to each recipient
-        foreach ($document->recipients as $recipient) {
-            try {
-                Mail::to($recipient->email)->queue(new \App\Mail\DocumentSign($document, $recipient));
+        // Send a sign link to the main recipient
+        $mainRecipient = $document->mainRecipient();
+        if (!$mainRecipient) {
+            return false;
+        }
 
-                $recipient->update(['sent_at' => now()]);
-            }
-            catch (\Exception $e) {
-                log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . ', Recipient ID: ' . $recipient->id . '). (Error: ' . $e->getMessage() . ')');
-            }
+        try {
+            Mail::to($mainRecipient->email)->queue(new \App\Mail\DocumentSign($document, $mainRecipient));
+
+            $mainRecipient->update(['sent_at' => now()]);
+        }
+        catch (\Exception $e) {
+            log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . ', Recipient ID: ' . $mainRecipient->id . '). (Error: ' . $e->getMessage() . ')');
         }
 
         $document->update([
