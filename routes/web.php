@@ -68,7 +68,7 @@ Route::prefix('/purchase-order')->group(function() {
 Route::prefix('/e-sign')->group(function() {
     Route::get('/document/{document}/preview/{accessHash}', [EsignPublicController::class, 'preview'])->name('esign.preview');
     Route::get('/document/{document}/{secret}', [EsignRecipientController::class, 'document'])->name('esign.document');
-    Route::get('/document/{document}/{secret}/sign', [EsignRecipientController::class, 'signDocument'])->name('esign.document.sign');
+    Route::post('/document/{document}/{secret}/sign', [EsignRecipientController::class, 'signDocument'])->name('esign.document.sign');
     Route::get('/document/{document}/{secret}/download', [EsignRecipientController::class, 'downloadDocument'])->name('esign.document.download');
 });
 

@@ -48,4 +48,16 @@ class SignDocument extends Model
     {
         return base64_encode($this->getDocumentContent());
     }
+
+    public function getActiveCollectables()
+    {
+        $documentText = $this->document;
+
+        $collectables = $this->collectables ? json_decode($this->collectables, true) : [];
+        $collectables = array_filter($collectables, function ($collectable) use ($documentText) {
+            return str_contains($documentText, $collectable);
+        });
+
+        return $collectables;
+    }
 }

@@ -21,15 +21,12 @@ class EsignRecipientController extends Controller
             abort(404);
         }
 
-        $collectables = $document->collectables ? json_decode($document->collectables, true) : [];
-        $collectables = array_filter($collectables, function ($collectable) use ($document) {
-            return str_contains($document->document, $collectable);
-        });
+        $collectables = $document->getActiveCollectables();
 
         return view('esign.recipient.document', compact('document', 'recipient', 'collectables'));
     }
 
-    public function signDocument(SignDocument $document, string $secret)
+    public function signDocument(Request $request, SignDocument $document, string $secret)
     {
         $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
             ->where('access_key', $secret)
@@ -42,6 +39,21 @@ class EsignRecipientController extends Controller
         if ($recipient->signed_at) {
             abort(401);
         }
+
+        // Collect all collectables data
+        $collectables = $document->getActiveCollectables();
+        $collectablesData = [];
+
+        foreach ($collectables as $collectable) {
+            $value = $request->input('collectable_' . $collectable);
+
+            if (!$value) {
+                return redirect()->back()->with('error', 'Please fill in all required fields.');
+            }
+
+            $collectablesData[$collectable] = $value;
+        }
+
 
         $recipient->update([
             'signed_at' => now(),

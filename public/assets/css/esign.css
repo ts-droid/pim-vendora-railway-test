@@ -21,6 +21,7 @@ body {
     cursor: pointer;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
+    border: none !important;
 }
 .document-sign-button:hover {
     background-color: #29B472;

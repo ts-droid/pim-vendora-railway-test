@@ -28,12 +28,12 @@
                             @csrf
 
                             @if(count($collectables) > 0)
-                                <div class="document-info">
+                                <div class="document-info mb-3">
                                     <div class="h5 mb-0">Required information</div>
                                     @foreach($collectables as $collectable)
                                         <div class="mt-3">
-                                            <label class="form-label">{{ $collectable }}</label>
-                                            <input type="text" class="form-control" name="{{ $collectable }}" required>
+                                            <label class="form-label mb-1">{{ $collectable }}</label>
+                                            <input type="text" class="form-control" name="collectable_{{ $collectable }}" required>
                                         </div>
                                     @endforeach
                                 </div>
