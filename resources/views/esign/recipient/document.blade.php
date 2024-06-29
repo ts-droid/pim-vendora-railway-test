@@ -27,7 +27,7 @@
                         <form method="POST" action="{{ route('esign.document.sign', ['document' => $document->id, 'secret' => $recipient->access_key]) }}">
                             @csrf
 
-                            @if(count($collectables) > 0)
+                            @if($recipient->is_main && count($collectables) > 0)
                                 <div class="document-info mb-3">
                                     <div class="h5 mb-0">Required information</div>
                                     @foreach($collectables as $collectable)
