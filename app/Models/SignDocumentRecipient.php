@@ -11,6 +11,7 @@ class SignDocumentRecipient extends Model
 
     protected $fillable = [
         'sign_document_id',
+        'is_main',
         'name',
         'email',
         'ip',

@@ -273,11 +273,18 @@ class EsignController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
+        // Check if the document has any main recipients, if not, set this as main
+        $hasMainRecipient = SignDocumentRecipient::where('sign_document_id', $document->id)
+            ->where('is_main', 1)
+            ->exists();
+
+        // Create recipient
         $recipient = SignDocumentRecipient::create([
             'sign_document_id' => $document->id,
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'access_key' => Str::random(32),
+            'is_main' => $hasMainRecipient ? 0 : 1,
         ]);
 
         return ApiResponseController::success($recipient->toArray());
@@ -289,7 +296,20 @@ class EsignController extends Controller
             return ApiResponseController::error('Document can not be modified.');
         }
 
+        $isMain = $recipient->is_main;
+
         $recipient->delete();
+
+        // If the deleted recipient was main, set the first recipient as main
+        if ($isMain) {
+            $newMainRecipient = SignDocumentRecipient::where('sign_document_id', $document->id)
+                ->orderBy('id', 'ASC')
+                ->first();
+
+            if ($newMainRecipient) {
+                $newMainRecipient->update(['is_main' => 1]);
+            }
+        }
 
         return ApiResponseController::success();
     }
