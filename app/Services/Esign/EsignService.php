@@ -4,6 +4,7 @@ namespace App\Services\Esign;
 
 use App\Http\Controllers\DoSpacesController;
 use App\Models\SignDocument;
+use App\Models\SignDocumentRecipient;
 use App\Services\PdfMerger;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
@@ -27,13 +28,20 @@ class EsignService
 
     public function sendDocument(SignDocument $document)
     {
+        if ($document->sent_at) {
+            // Send to secondary recipients
+            return $this->sendDocumentSecondary($document);
+        }
+        else {
+            // Send to main recipient
+            return $this->sendDocumentMain($document);
+        }
+    }
+
+    private function sendDocumentMain(SignDocument $document)
+    {
         // Make sure the document is not already sent
         if ($document->sent_at) {
-            return false;
-        }
-
-        // Make sure the document has at least 1 recipient
-        if ($document->recipients->count() == 0) {
             return false;
         }
 
@@ -43,19 +51,60 @@ class EsignService
             return false;
         }
 
-        try {
-            Mail::to($mainRecipient->email)->queue(new \App\Mail\DocumentSign($document, $mainRecipient));
-
-            $mainRecipient->update(['sent_at' => now()]);
-        }
-        catch (\Exception $e) {
-            log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . ', Recipient ID: ' . $mainRecipient->id . '). (Error: ' . $e->getMessage() . ')');
+        $sendSuccess = $this->sendDocumentToRecipient($document, $mainRecipient);
+        if (!$sendSuccess) {
+            return false;
         }
 
         $document->update([
             'sent_at' => now(),
             'status' => 'sent',
         ]);
+
+        return true;
+    }
+
+    private function sendDocumentSecondary(SignDocument $document)
+    {
+        // Make sure the document has more than one recipient
+        if ($document->recipients->count() < 2) {
+            return false;
+        }
+
+        // Make sure the document is already sent to the main recipient
+        if (!$document->sent_at) {
+            return false;
+        }
+
+        // Make sure the main recipient has signed the document
+        $mainRecipient = $document->mainRecipient();
+        if (!($mainRecipient->signed_at ?? null)) {
+            return false;
+        }
+
+        // Send a sign link to all secondary recipients
+        foreach ($document->recipients as $recipient) {
+            if ($recipient->is_main) {
+                continue;
+            }
+
+            $this->sendDocumentToRecipient($document, $recipient);
+        }
+
+        return true;
+    }
+
+    private function sendDocumentToRecipient(SignDocument $document, SignDocumentRecipient $recipient)
+    {
+        try {
+            Mail::to($recipient->email)->queue(new \App\Mail\DocumentSign($document, $recipient));
+
+            $recipient->update(['sent_at' => now()]);
+        }
+        catch (\Exception $e) {
+            log_data('Failed to send signing email to recipient (Document ID: ' . $document->id . ', Recipient ID: ' . $recipient->id . '). (Error: ' . $e->getMessage() . ')');
+            return false;
+        }
 
         return true;
     }
