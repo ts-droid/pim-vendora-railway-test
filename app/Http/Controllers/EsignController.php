@@ -230,6 +230,7 @@ class EsignController extends Controller
         else {
             $document->update($request->only([
                 'tab_id',
+                'customer_id',
                 'template_id',
                 'template_sections',
                 'system',
