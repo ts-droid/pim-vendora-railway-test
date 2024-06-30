@@ -12,6 +12,7 @@ class SignDocument extends Model
 
     protected $fillable = [
         'tab_id',
+        'customer_id',
         'type',
         'status',
         'template_id',

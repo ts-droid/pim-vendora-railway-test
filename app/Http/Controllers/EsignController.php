@@ -152,6 +152,7 @@ class EsignController extends Controller
     {
         $data = $request->only([
             'tab_id',
+            'customer_id',
             'template_id',
             'template_sections',
             'system',
@@ -223,6 +224,7 @@ class EsignController extends Controller
             // Limit what data can be updated
             $document->update($request->only([
                 'tab_id',
+                'customer_id',
             ]));
         }
         else {
