@@ -20,6 +20,6 @@
         </style>
     </head>
     <body>
-        <div style="font-family: Arial, Helvetica, sans-serif;font-size: 10px;">{!! $document->document !!}</div>
+        <div style="font-family: Arial, Helvetica, sans-serif;font-size: 10px;">{!! $document->getFormattedDocument() !!}</div>
     </body>
 </html>

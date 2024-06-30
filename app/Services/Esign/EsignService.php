@@ -16,12 +16,15 @@ class EsignService
     public function generateFile(SignDocument $document)
     {
         if ($document->filename) {
-            return $document;
+            // Generate new file and replace the old one
+            $this->generateDocument($document, $document->filename);
         }
+        else {
+            // Generate new file
+            $filename = $this->generateDocument($document);
 
-        $filename = $this->generateDocument($document);
-
-        $document->update(['filename' => $filename]);
+            $document->update(['filename' => $filename]);
+        }
 
         return $document;
     }
@@ -123,7 +126,7 @@ class EsignService
         DoSpacesController::update($document->filename, $mergedPdfContent);
     }
 
-    private function generateDocument(SignDocument $document): string
+    private function generateDocument(SignDocument $document, string $filename = ''): string
     {
         // Generate the base document
         $pdf = Pdf::loadView('esign.document', compact('document'));
@@ -149,8 +152,13 @@ class EsignService
             $fpdi->useTemplate($generatedPageID);
         }
 
+        // Remove the old file
+        if ($filename) {
+            DoSpacesController::delete($filename);
+        }
+
         // Save the final document
-        $filename = 'esign/' . time() . '_' . $document->id . '.pdf';
+        $filename = $filename ?: ('esign/' . time() . '_' . $document->id . '.pdf');
 
         DoSpacesController::store($filename, $fpdi->Output('S'));
 

@@ -68,12 +68,14 @@ class EsignRecipientController extends Controller
 
         if ($recipient->is_main) {
             if ($document->recipients->count() > 1) {
+                $signService = new EsignService();
+
                 if (count($collectablesData) > 0) {
-                    // TODO: Regenerate the document with the new data
+                    // Regenerate the document with the new collected data
+                    $signService->generateFile($document);
                 }
 
                 // Send document to all secondary recipients
-                $signService = new EsignService();
                 $signService->sendDocument($document);
             }
             else {

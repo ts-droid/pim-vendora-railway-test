@@ -65,4 +65,29 @@ class SignDocument extends Model
 
         return $collectables;
     }
+
+    public function getFormattedDocument()
+    {
+        $document = $this->document;
+
+        if (!$this->collectables) {
+            return $document;
+        }
+
+        $collectableKeys = json_decode($this->collectables, true);
+        $collectableData = $this->collectables_data ? json_decode($this->collectables_data, true) : [];
+
+        if (!$collectableKeys) {
+            return $document;
+        }
+
+        foreach ($collectableKeys as $key) {
+            $value = $collectableData[$key] ?? '';
+            $value = $value ?: '<span style="background-color: yellow;">' . $key . '</span>';
+
+            $document = str_replace('$' . $key . '$', $value, $document);
+        }
+
+        return $document;
+    }
 }
