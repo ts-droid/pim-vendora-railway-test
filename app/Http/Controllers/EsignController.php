@@ -126,7 +126,7 @@ class EsignController extends Controller
     public function getDocuments(Request $request)
     {
         $documentsQuery = SignDocument::orderBy('id', 'DESC')
-            ->with('recipients');
+            ->with('customer', 'recipients');
 
         if ($request->has('tab_id')) {
             $documentsQuery->where('tab_id', $request->input('tab_id'));
@@ -200,7 +200,7 @@ class EsignController extends Controller
 
     public function getDocument(SignDocument $document)
     {
-        $document->load('recipients');
+        $document->load('customer', 'recipients');
 
         return ApiResponseController::success($document->toArray());
     }

@@ -30,6 +30,11 @@ class SignDocument extends Model
         'collectables_data',
     ];
 
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function recipients()
     {
         return $this->hasMany(SignDocumentRecipient::class);
