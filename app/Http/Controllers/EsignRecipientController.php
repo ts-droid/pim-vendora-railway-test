@@ -22,8 +22,9 @@ class EsignRecipientController extends Controller
         }
 
         $collectables = $document->getActiveCollectables();
+        $collectableTitle = ConfigController::getConfig('esign_collectable_title');
 
-        return view('esign.recipient.document', compact('document', 'recipient', 'collectables'));
+        return view('esign.recipient.document', compact('document', 'recipient', 'collectables', 'collectableTitle'));
     }
 
     public function signDocument(Request $request, SignDocument $document, string $secret)

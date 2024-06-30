@@ -29,7 +29,7 @@
 
                             @if($recipient->is_main && count($collectables) > 0)
                                 <div class="document-info mb-3">
-                                    <div class="h5 mb-0">Required information</div>
+                                    <div class="h5 mb-0">{{ $collectableTitle }}</div>
                                     @foreach($collectables as $collectable)
                                         <div class="mt-3">
                                             <label class="form-label mb-1">{{ $collectable }}</label>
