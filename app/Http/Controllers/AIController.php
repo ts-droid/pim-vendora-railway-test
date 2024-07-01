@@ -53,6 +53,7 @@ class AIController extends Controller
 
                             if (str_starts_with($line, 'data: ')) {
                                 $jsonData = substr($line, 6); // Remove 'data: ' prefix
+                                log_data($jsonData);
 
                                 echo $jsonData;
                                 break;
