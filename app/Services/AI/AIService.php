@@ -16,7 +16,7 @@ class AIService
         if (str_starts_with($model, 'claude')) {
             $this->aiService = new ClaudeService($model);
         }
-        else if (str_starts_with($model, 'pplx')) {
+        else if (str_starts_with($model, 'pplx') || str_starts_with($model, 'llama')) {
             $this->aiService = new PerplexityService($model);
         }
         else {
