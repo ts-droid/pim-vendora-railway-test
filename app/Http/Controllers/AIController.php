@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AIController extends Controller
 {
+    private $buffer = '';
+
     public function stream(Request $request): StreamedResponse
     {
         set_time_limit(0);
@@ -51,23 +53,8 @@ class AIController extends Controller
                         break;
 
                     case 'claude':
-                        $lines = explode("\n", $data);
-                        foreach ($lines as $line) {
-                            $line = trim($line);
-                            if ($line === '') continue;
-
-                            if (str_starts_with($line, 'data: ')) {
-                                $jsonData = trim(substr($line, 6)); // Remove 'data: ' prefix and trim
-                                echo $jsonData . "\n";
-                                if (ob_get_level() > 0) {
-                                    ob_end_flush();
-                                }
-                                flush();
-                                if (function_exists('fastcgi_finish_request')) {
-                                    fastcgi_finish_request();
-                                }
-                            }
-                        }
+                        $this->buffer .= $data;
+                        $this->processBuffer();
                         break;
                 }
 
@@ -88,5 +75,50 @@ class AIController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
+    }
+
+    private function processBuffer()
+    {
+        $lines = explode("\n", $this->buffer);
+        $this->buffer = '';
+        $jsonBuffer = '';
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) continue;
+
+            if (str_starts_with($line, 'data: ')) {
+                $jsonData = substr($line, 6); // Remove 'data: ' prefix
+                $jsonBuffer .= $jsonData;
+
+                // Check if we have a complete JSON object
+                $decoded = json_decode($jsonBuffer, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $this->outputChunk($jsonBuffer . "\n");
+                    $jsonBuffer = '';
+                }
+            } elseif ($line === 'data: [DONE]') {
+                $this->outputChunk("[DONE]\n");
+                break;
+            } else {
+                // If it's not a data line, add it back to the buffer
+                $this->buffer .= $line . "\n";
+            }
+        }
+
+        // Add any remaining incomplete JSON data back to the buffer
+        $this->buffer .= $jsonBuffer;
+    }
+
+    private function outputChunk($data)
+    {
+        echo $data;
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        flush();
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
     }
 }
