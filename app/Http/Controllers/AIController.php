@@ -44,6 +44,8 @@ class AIController extends Controller
                     case 'openai':
                     case 'perplexity':
                         echo $data;
+                        $this->flushOutput();
+                        return strlen($data);
                         break;
 
                     case 'claude':
@@ -53,24 +55,16 @@ class AIController extends Controller
 
                             if (str_starts_with($line, 'data: ')) {
                                 $jsonData = substr($line, 6); // Remove 'data: ' prefix
-                                log_data($jsonData);
-
-                                echo $jsonData;
-                                break;
+                                echo $jsonData . "\n";
+                                $this->flushOutput();
                             }
                         }
+                        return strlen($data);
                         break;
 
                     default:
                         return 0;
                 }
-
-                if (ob_get_length() !== false) {
-                    ob_flush();
-                    flush();
-                }
-
-                return strlen($data);
             });
 
             curl_exec($ch);
@@ -87,5 +81,13 @@ class AIController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
+    }
+
+    private function flushOutput()
+    {
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+        flush();
     }
 }
