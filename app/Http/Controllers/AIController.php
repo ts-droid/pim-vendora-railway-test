@@ -64,7 +64,6 @@ class AIController extends Controller
                                     ob_flush();
                                     flush();
                                 }
-                                return strlen($jsonData);
                             }
                         }
                         break;
@@ -72,6 +71,8 @@ class AIController extends Controller
                     default:
                         return 0;
                 }
+
+                return strlen($data);
             });
 
             curl_exec($ch);
