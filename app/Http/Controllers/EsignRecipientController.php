@@ -71,15 +71,15 @@ class EsignRecipientController extends Controller
             'user_agent' => request()->userAgent(),
         ]);
 
+        $signService = new EsignService();
+
         if ($recipient->is_main) {
+            // Regenerate the document with the new collected data
+            if (count($collectablesData) > 0) {
+                $signService->generateFile($document);
+            }
+
             if ($document->recipients->count() > 1) {
-                $signService = new EsignService();
-
-                if (count($collectablesData) > 0) {
-                    // Regenerate the document with the new collected data
-                    $signService->generateFile($document);
-                }
-
                 // Send document to all secondary recipients
                 $signService->sendDocument($document);
             }
