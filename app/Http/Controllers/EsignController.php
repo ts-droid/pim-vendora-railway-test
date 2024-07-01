@@ -336,7 +336,7 @@ class EsignController extends Controller
         $collectablesJSON = ConfigController::getConfig('esign_collectables') ?: '[]';
         $collectables = json_decode($collectablesJSON, true);
 
-        $labelsJSON = ConfigController::getConfig('esign_collectables') ?: '[]';
+        $labelsJSON = ConfigController::getConfig('esign_collectables_labels') ?: '[]';
         $labels = json_decode($labelsJSON, true);
 
         return ApiResponseController::success([
