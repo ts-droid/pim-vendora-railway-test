@@ -58,13 +58,10 @@ class AIController extends Controller
 
                             if (str_starts_with($line, 'data: ')) {
                                 $jsonData = trim(substr($line, 6)); // Remove 'data: ' prefix and trim
-                                echo $jsonData . "\n";
-                                if (ob_get_level() > 0) {
-                                    ob_end_flush();
-                                }
-                                flush();
-                                if (function_exists('fastcgi_finish_request')) {
-                                    fastcgi_finish_request();
+                                echo $jsonData;
+                                if (ob_get_length() !== false) {
+                                    ob_flush();
+                                    flush();
                                 }
                             }
                         }
