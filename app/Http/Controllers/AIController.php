@@ -12,13 +12,13 @@ class AIController extends Controller
     {
         set_time_limit(0);
 
-        while(ob_get_level() > 0) {
+        while (ob_get_level() > 0) {
             ob_end_clean();
         }
 
-        $model = (string) $request->input('model', '');
-        $system = (string) $request->input('system', '');
-        $message = (string) $request->input('message', '');
+        $model = (string)$request->input('model', '');
+        $system = (string)$request->input('system', '');
+        $message = (string)$request->input('message', '');
 
         $aiService = new AIService($model);
         $streamData = $aiService->streamChatCompletion($system, $message);
@@ -29,7 +29,7 @@ class AIController extends Controller
         }
         $streamData['headers'] = $headers;
 
-        $response = new StreamedResponse(function() use ($streamData) {
+        $response = new StreamedResponse(function () use ($streamData) {
             $type = $streamData['type'];
 
             $ch = curl_init($streamData['url']);
@@ -39,13 +39,11 @@ class AIController extends Controller
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($streamData['body']));
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) use ($type) {
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) use ($type) {
                 switch ($type) {
                     case 'openai':
                     case 'perplexity':
-                        echo $data;
-                        $this->flushOutput();
-                        return strlen($data);
+                        $this->outputChunk($data);
                         break;
 
                     case 'claude':
@@ -55,16 +53,13 @@ class AIController extends Controller
 
                             if (str_starts_with($line, 'data: ')) {
                                 $jsonData = substr($line, 6); // Remove 'data: ' prefix
-                                echo $jsonData . "\n";
-                                $this->flushOutput();
+                                $this->outputChunk($jsonData . "\n");
                             }
                         }
-                        return strlen($data);
                         break;
-
-                    default:
-                        return 0;
                 }
+
+                return strlen($data);
             });
 
             curl_exec($ch);
@@ -83,11 +78,12 @@ class AIController extends Controller
         return $response;
     }
 
-    private function flushOutput()
+    private function outputChunk($data)
     {
-        if (ob_get_level() > 0) {
-            ob_end_flush();
+        echo $data;
+        if (ob_get_length() !== false) {
+            ob_flush();
+            flush();
         }
-        flush();
     }
 }
