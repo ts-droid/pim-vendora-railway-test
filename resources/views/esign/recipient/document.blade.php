@@ -32,7 +32,7 @@
                                     <div class="h5 mb-0">{{ $collectableTitle }}</div>
                                     @foreach($collectables as $collectable)
                                         <div class="mt-3">
-                                            <label class="form-label mb-1">{{ $collectable }}</label>
+                                            <label class="form-label mb-1">{{ (($collectableLabels[$collectable] ?? '') ?: $collectable) }}</label>
                                             <input type="text" class="form-control" name="collectable_{{ $collectable }}" required>
                                         </div>
                                     @endforeach

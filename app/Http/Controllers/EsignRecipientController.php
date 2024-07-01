@@ -21,10 +21,14 @@ class EsignRecipientController extends Controller
             abort(404);
         }
 
-        $collectables = $document->getActiveCollectables();
         $collectableTitle = ConfigController::getConfig('esign_collectable_title');
 
-        return view('esign.recipient.document', compact('document', 'recipient', 'collectables', 'collectableTitle'));
+        $collectables = $document->getActiveCollectables();
+
+        $collectableLabels = ConfigController::getConfig('esign_collectables_labels') ?: '[]';
+        $collectableLabels = json_decode($collectableLabels, true);
+
+        return view('esign.recipient.document', compact('document', 'recipient', 'collectables', 'collectableLabels', 'collectableTitle'));
     }
 
     public function signDocument(Request $request, SignDocument $document, string $secret)
