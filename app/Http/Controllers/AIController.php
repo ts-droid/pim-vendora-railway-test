@@ -30,6 +30,8 @@ class AIController extends Controller
         $streamData['headers'] = $headers;
 
         $response = new StreamedResponse(function() use ($streamData) {
+            $type = $streamData['type'];
+
             $ch = curl_init($streamData['url']);
 
             curl_setopt($ch, CURLOPT_HTTPHEADER, $streamData['headers']);
@@ -37,15 +39,39 @@ class AIController extends Controller
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($streamData['body']));
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
-                log_data('Raw response: ' . $data);
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) use ($type) {
+                switch ($type) {
+                    case 'openai':
+                    case 'perplexity':
+                        echo $data;
+                        if (ob_get_length() !== false) {
+                            ob_flush();
+                            flush();
+                        }
+                        return strlen($data);
+                        break;
 
-                echo $data;
-                if (ob_get_length() !== false) {
-                    ob_flush();
-                    flush();
+                    case 'claude':
+                        $lines = explode("\n", $data);
+                        foreach ($lines as $line) {
+                            if (trim($line) === '') continue;
+
+                            if (strpos($line, 'data: ') === 0) {
+                                $jsonData = substr($line, 6); // Remove 'data: ' prefix
+
+                                echo $jsonData;
+                                if (ob_get_length() !== false) {
+                                    ob_flush();
+                                    flush();
+                                }
+                                return strlen($jsonData);
+                            }
+                        }
+                        break;
+
+                    default:
+                        return 0;
                 }
-                return strlen($data);
             });
 
             curl_exec($ch);

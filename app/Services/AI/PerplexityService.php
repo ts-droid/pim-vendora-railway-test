@@ -46,6 +46,7 @@ class PerplexityService implements AIInterface
         $requestBody['stream'] = true;
 
         return [
+            'type' => 'perplexity',
             'headers' => $this->getHeaders(),
             'url' => $this->apiURL . '/chat/completions',
             'body' => $requestBody,

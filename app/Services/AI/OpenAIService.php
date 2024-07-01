@@ -46,6 +46,7 @@ class OpenAIService implements AIInterface
         $requestBody['stream'] = true;
 
         return [
+            'type' => 'openai',
             'headers' => $this->getHeaders(),
             'url' => $this->apiURL . '/chat/completions',
             'body' => $requestBody,

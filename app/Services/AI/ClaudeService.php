@@ -36,6 +36,7 @@ class ClaudeService implements AIInterface
         $requestBody['stream'] = true;
 
         return [
+            'type' => 'claude',
             'headers' => $this->getHeaders(),
             'url' => $this->apiURL . '/v1/messages',
             'body' => $requestBody,
