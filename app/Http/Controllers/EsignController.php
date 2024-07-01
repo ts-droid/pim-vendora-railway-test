@@ -333,10 +333,16 @@ class EsignController extends Controller
 
     public function getCollectables()
     {
-        $json = ConfigController::getConfig('esign_collectables') ?: '[]';
-        $array = json_decode($json, true);
+        $collectablesJSON = ConfigController::getConfig('esign_collectables') ?: '[]';
+        $collectables = json_decode($collectablesJSON, true);
 
-        return ApiResponseController::success($array);
+        $labelsJSON = ConfigController::getConfig('esign_collectables') ?: '[]';
+        $labels = json_decode($labelsJSON, true);
+
+        return ApiResponseController::success([
+            'collectables' => $collectables,
+            'labels' => $labels
+        ]);
     }
 
     public function setCollectables(Request $request)
