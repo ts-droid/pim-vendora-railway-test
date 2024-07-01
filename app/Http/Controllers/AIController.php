@@ -35,6 +35,7 @@ class AIController extends Controller
             curl_setopt($ch, CURLOPT_HTTPHEADER, $streamData['headers']);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+            curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($streamData['body']));
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
                 echo $data;
