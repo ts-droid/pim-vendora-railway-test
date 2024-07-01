@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIController;
 use App\Http\Controllers\ApiArticleCategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ArticlePriceListController;
@@ -109,12 +110,16 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{salesPerson}/budget', [SalesPersonController::class, 'saveBudget'])->name('salesPersons.saveBudget');
     });
 
+    Route::prefix('/ai')->group(function() {
+        Route::post('/stream', [AIController::class, 'stream']);
+    });
+
     Route::prefix('/marketing-content')->group(function() {
         Route::prefix('/article')->group(function() {
             Route::get('/', [MarketingContentController::class, 'articleGet'])->name('marketingContent.article.get');
             Route::post('/', [MarketingContentController::class, 'articleStore'])->name('marketingContent.article.store');
             Route::post('/{articleMarketingContent}', [MarketingContentController::class, 'articleUpdate'])->name('marketingContent.article.update');
-            Route::POST('/{articleMarketingContent}/stream', [MarketingContentController::class, 'articleStream'])->name('marketingContent.article.stream');
+            Route::post('/{articleMarketingContent}/stream', [MarketingContentController::class, 'articleStream'])->name('marketingContent.article.stream');
             Route::post('/{articleMarketingContent}/delete', [MarketingContentController::class, 'articleDelete'])->name('marketingContent.article.delete');
         });
 

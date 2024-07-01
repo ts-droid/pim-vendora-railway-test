@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Services\AI\AIService;
 use Illuminate\Http\Request;
 
 class MetaDataController extends Controller
@@ -10,11 +11,11 @@ class MetaDataController extends Controller
     const BASE_LOCALE = 'en';
     const BASE_LOCALE_TITLE = 'Engelska';
 
-    private OpenAIController $openAIController;
+    private AIService $AIService;
 
     function __construct()
     {
-        $this->openAIController = new OpenAIController();
+        $this->AIService = new AIService();
     }
 
     public function processArticles()
@@ -50,7 +51,7 @@ class MetaDataController extends Controller
         Skriv meta-titeln på ' . self::BASE_LOCALE_TITLE . '.';
 
         // Send prompt to OpenAI
-        $response = $this->openAIController->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
+        $response = $this->AIService->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
 
         // Save the title to the product
         $languages = (new LanguageController())->getAllLanguages();
@@ -79,7 +80,7 @@ class MetaDataController extends Controller
         Skriv meta-beskrivningen på ' . self::BASE_LOCALE_TITLE . '.';
 
         // Send prompt to OpenAI
-        $response = $this->openAIController->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
+        $response = $this->AIService->chatCompletionWithTranslations($system, $message, self::BASE_LOCALE);
 
         // Save the description to the product
         $languages = (new LanguageController())->getAllLanguages();

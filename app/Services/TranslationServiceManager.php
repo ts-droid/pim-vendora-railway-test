@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\OpenAIController;
 use App\Models\Article;
 use App\Models\Translation;
 use App\Models\TranslationService;
+use App\Services\AI\AIService;
 use Illuminate\Support\Facades\DB;
 
 class TranslationServiceManager
@@ -88,8 +88,8 @@ class TranslationServiceManager
     {
         switch ($service->name) {
             case 'openai':
-                $openaiController = new OpenAIController();
-                $translatedText = $openaiController->translate($text, self::BASE_LOCALE, $languageCode);
+                $AIService = new AIService();
+                $translatedText = $AIService->translate($text, self::BASE_LOCALE, $languageCode);
                 break;
 
             default:

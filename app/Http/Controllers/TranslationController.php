@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AI\AIService;
 use App\Services\TranslationServiceManager;
 use DeepL\Translator;
 use Exception;
@@ -168,12 +169,12 @@ class TranslationController extends Controller
         }
 
         // Translate all the strings
-        $openAIController = new OpenAIController();
+        $AIService = new AIService();
 
         $translations = [];
 
         foreach ($strings as $string) {
-            $translations[] = $openAIController->translate($string, $sourceLang, $targetLang);
+            $translations[] = $AIService->translate($string, $sourceLang, $targetLang);
         }
 
         // Replace placeholders with excludes

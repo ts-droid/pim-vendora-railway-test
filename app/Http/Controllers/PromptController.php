@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prompt;
+use App\Services\AI\AIService;
 use Illuminate\Http\Request;
 
 class PromptController extends Controller
@@ -20,8 +21,8 @@ class PromptController extends Controller
             $system .= PHP_EOL . PHP_EOL . $customInstructions;
         }
 
-        $openAIController = new OpenAIController($model);
-        $response = $openAIController->chatCompletion($system, $prompt->message);
+        $AIService = new AIService($model);
+        $response = $AIService->chatCompletion($system, $prompt->message);
 
         return $response;
     }

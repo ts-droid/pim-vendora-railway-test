@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Controllers\OpenAIController;
 use App\Models\PurchaseOrder;
+use App\Services\AI\AIService;
 
 class PurchaseOrderMotivator
 {
@@ -65,9 +65,8 @@ class PurchaseOrderMotivator
         Can you write a very short motivation/description for the suggested quantity to order? Maximum 100 characters.
         This will be shown to the purchase order manager. It should be very short and concise.';
 
-
-        $openAiController = new OpenAIController();
-        $motivation = $openAiController->chatCompletion($system, $message);
+        $AIService = new AIService();
+        $motivation = $AIService->chatCompletion($system, $message);
 
         return $motivation;
     }
