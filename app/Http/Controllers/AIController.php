@@ -32,8 +32,10 @@ class AIController extends Controller
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($streamData['body']));
             curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $data) {
                 echo $data;
-                ob_flush();
-                flush();
+                if (ob_get_length() !== false) {
+                    ob_flush();
+                    flush();
+                }
                 return strlen($data);
             });
 
