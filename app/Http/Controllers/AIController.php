@@ -44,11 +44,6 @@ class AIController extends Controller
                     case 'openai':
                     case 'perplexity':
                         echo $data;
-                        if (ob_get_length() !== false) {
-                            ob_flush();
-                            flush();
-                        }
-                        return strlen($data);
                         break;
 
                     case 'claude':
@@ -56,20 +51,22 @@ class AIController extends Controller
                         foreach ($lines as $line) {
                             if (trim($line) === '') continue;
 
-                            if (strpos($line, 'data: ') === 0) {
+                            if (str_starts_with($line, 'data: ')) {
                                 $jsonData = substr($line, 6); // Remove 'data: ' prefix
 
                                 echo $jsonData;
-                                if (ob_get_length() !== false) {
-                                    ob_flush();
-                                    flush();
-                                }
+                                break;
                             }
                         }
                         break;
 
                     default:
                         return 0;
+                }
+
+                if (ob_get_length() !== false) {
+                    ob_flush();
+                    flush();
                 }
 
                 return strlen($data);
