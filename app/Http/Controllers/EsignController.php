@@ -344,18 +344,29 @@ class EsignController extends Controller
         $collectables = $request->input('collectables') ?: '[]';
         $collectables = json_decode($collectables, true);
 
+        $labels = $request->input('labels') ?: '[]';
+        $labels = json_decode($labels, true);
+
         $dbCollectables = ConfigController::getConfig('esign_collectables') ?: '[]';
         $dbCollectables = json_decode($dbCollectables, true);
+
+        $dbLabels = ConfigController::getConfig('esign_collectables_labels') ?: '[]';
+        $dbLabels = json_decode($dbLabels, true);
 
         foreach ($collectables as $key => $value) {
             if ($value == '1') {
                 // Mark as collectable
                 $dbCollectables[] = $key;
+                $dbLabels[$key] = $labels[$key];
             }
             else if ($value == '0') {
                 // Mark as not collectable
                 if (in_array($key, $dbCollectables)) {
                     $dbCollectables = array_diff($dbCollectables, [$key]);
+
+                    if (isset($dbLabels[$key])) {
+                        unset($dbLabels[$key]);
+                    }
                 }
             }
         }
@@ -363,9 +374,16 @@ class EsignController extends Controller
         $dbCollectables = array_unique($dbCollectables);
         $dbCollectables = array_values($dbCollectables);
 
-        ConfigController::setConfigs(['esign_collectables' => json_encode($dbCollectables)]);
+        ConfigController::setConfigs([
+            'esign_collectables' => json_encode($dbCollectables),
+            'esign_collectables_labels' => json_encode($dbLabels),
+        ]);
 
-        return ApiResponseController::success($collectables);
+
+        return ApiResponseController::success([
+            'collectables' => $dbCollectables,
+            'labels' => $dbLabels
+        ]);
     }
 
     public function getVariables()
