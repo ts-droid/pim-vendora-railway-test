@@ -43,7 +43,11 @@ class AIController extends Controller
                 switch ($type) {
                     case 'openai':
                     case 'perplexity':
-                        $this->outputChunk($data);
+                        echo $data;
+                        if (ob_get_length() !== false) {
+                            ob_flush();
+                            flush();
+                        }
                         break;
 
                     case 'claude':
@@ -54,13 +58,19 @@ class AIController extends Controller
 
                             if (str_starts_with($line, 'data: ')) {
                                 $jsonData = trim(substr($line, 6)); // Remove 'data: ' prefix and trim
-                                echo $jsonData . "\n";
-                                if (ob_get_level() > 0) {
-                                    ob_end_flush();
-                                }
-                                flush();
-                                if (function_exists('fastcgi_finish_request')) {
-                                    fastcgi_finish_request();
+                                $decoded = json_decode($jsonData, true);
+
+                                if (json_last_error() === JSON_ERROR_NONE) {
+                                    $text = $decoded['delta']['text'] ?? '';
+
+                                    echo $text;
+                                    if (ob_get_level() > 0) {
+                                        ob_end_flush();
+                                    }
+                                    flush();
+                                    if (function_exists('fastcgi_finish_request')) {
+                                        fastcgi_finish_request();
+                                    }
                                 }
                             }
                         }
@@ -84,14 +94,5 @@ class AIController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
-    }
-
-    private function outputChunk($data)
-    {
-        echo $data;
-        if (ob_get_length() !== false) {
-            ob_flush();
-            flush();
-        }
     }
 }
