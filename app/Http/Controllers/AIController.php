@@ -49,11 +49,19 @@ class AIController extends Controller
                     case 'claude':
                         $lines = explode("\n", $data);
                         foreach ($lines as $line) {
-                            if (trim($line) === '') continue;
+                            $line = trim($line);
+                            if ($line === '') continue;
 
                             if (str_starts_with($line, 'data: ')) {
-                                $jsonData = substr($line, 6); // Remove 'data: ' prefix
-                                $this->outputChunk($jsonData . "\n");
+                                $jsonData = trim(substr($line, 6)); // Remove 'data: ' prefix and trim
+                                echo $jsonData . "\n";
+                                if (ob_get_level() > 0) {
+                                    ob_end_flush();
+                                }
+                                flush();
+                                if (function_exists('fastcgi_finish_request')) {
+                                    fastcgi_finish_request();
+                                }
                             }
                         }
                         break;
