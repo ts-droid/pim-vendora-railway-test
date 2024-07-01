@@ -23,6 +23,12 @@ class AIController extends Controller
         $aiService = new AIService($model);
         $streamData = $aiService->streamChatCompletion($system, $message);
 
+        $headers = [];
+        foreach ($streamData['headers'] as $key => $value) {
+            $headers[] = $key . ': ' . $value;
+        }
+        $streamData['headers'] = $headers;
+
         $response = new StreamedResponse(function() use ($streamData) {
             $ch = curl_init($streamData['url']);
 
