@@ -386,7 +386,11 @@ class PurchaseOrderController extends Controller
 
         // Send the email
         $mailer = new PurchaseOrderEmailer();
-        $mailer->send($purchaseOrder);
+        list($success, $message) = $mailer->send($purchaseOrder);
+
+        if (!$success) {
+            log_data('Failed to send email for purchase order ' . $purchaseOrder->id . ': ' . $message);
+        }
 
         // Should we also generate a new order for this supplier?
         if ($request->get('generate_new_order')) {
