@@ -10,6 +10,7 @@ class TranslationService extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'default_model',
     ];
 }

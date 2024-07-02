@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TranslationService;
 use App\Services\AI\AIService;
 use App\Services\TranslationServiceManager;
 use DeepL\Translator;
@@ -50,12 +51,11 @@ class TranslationController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $isOpenAI = (bool) ($request->openai ?? 0);
-
         $strings = $request->strings;
         $sourceLang = $request->source_lang;
         $targetLang = $request->target_lang;
         $isHTML = (bool) ($request->is_html ?? 0);
+        $engine = $request->engine ?? null;
 
         $excludes = [];
         if ($request->has('excludes')) {
@@ -66,12 +66,16 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
-        if ($isOpenAI) {
-            $translations = $this->translateOpenAI($strings, $sourceLang, $targetLang, $excludes);
-        }
-        else {
+        if (!$engine || $engine == 'deepl') {
             $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
         }
+        else {
+            $translationService = TranslationService::where('name', $engine)->first();
+            $defaultModel = (string) ($translationService->default_model ?? '');
+
+            $translations = $this->translateAI($strings, $sourceLang, $targetLang, $excludes, $defaultModel);
+        }
+
 
         // Replace language URLs
         $languageController = new LanguageController();
@@ -151,7 +155,7 @@ class TranslationController extends Controller
         return $translations;
     }
 
-    public function translateOpenAI(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
+    public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
     {
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
@@ -169,7 +173,7 @@ class TranslationController extends Controller
         }
 
         // Translate all the strings
-        $AIService = new AIService();
+        $AIService = new AIService($model);
 
         $translations = [];
 
