@@ -88,7 +88,12 @@ class TranslationServiceManager
     {
         switch ($service->name) {
             case 'openai':
-                $AIService = new AIService();
+                $AIService = new AIService('gpt-4o');
+                $translatedText = $AIService->translate($text, self::BASE_LOCALE, $languageCode);
+                break;
+
+            case 'claude':
+                $AIService = new AIService('claude-3-5-sonnet-20240620');
                 $translatedText = $AIService->translate($text, self::BASE_LOCALE, $languageCode);
                 break;
 
