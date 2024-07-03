@@ -13,6 +13,7 @@ class PurchaseOrderEmailer
         $recipients = array_map('trim', $recipients);
 
         $recipients[] = 'ts@vendora.se';
+        $recipients[] = 'anton@vendora.se';
 
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {
