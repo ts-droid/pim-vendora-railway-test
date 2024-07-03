@@ -18,14 +18,6 @@ class ImageBackgroundAnalyzer
             return false;
         }
 
-        // Check if the image is true color
-        if (imageistruecolor($image)) {
-            // Convert true color image to palette-based image
-            imagetruecolortopalette($image, false, 256);
-        }
-
-        $colorCount = imagecolorstotal($image);
-
         $width = imagesx($image);
         $height = imagesy($image);
         $totalPixels = $width * $height;
@@ -39,19 +31,16 @@ class ImageBackgroundAnalyzer
                 // Get the color index for the pixel
                 $rgba = imagecolorat($image, $x, $y);
 
-                // If the pixel is transparent, count it as white
+                // Extract alpha value
                 $alpha = ($rgba & 0x7F000000) >> 24;
                 if ($alpha == 127) {
-                    $rgba = 0xFFFFFFFF;
+                    // Transparent pixel, count it as white
+                    $hexCode = "#FFFFFF";
+                } else {
+                    // Convert the color index to a hex code
+                    $colors = imagecolorsforindex($image, $rgba);
+                    $hexCode = sprintf("#%02x%02x%02x", $colors['red'], $colors['green'], $colors['blue']);
                 }
-
-                if ($rgba < 0 || $rgba >= $colorCount) {
-                    continue;
-                }
-
-                // Convert the color index to a hex code
-                $colors = imagecolorsforindex($image, $rgba);
-                $hexCode = sprintf("#%02x%02x%02x", $colors['red'], $colors['green'], $colors['blue']);
 
                 // Increment the count for this hex code
                 if (!isset($colorCounts[$hexCode])) {
