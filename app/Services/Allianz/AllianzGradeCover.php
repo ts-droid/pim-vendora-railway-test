@@ -6,6 +6,14 @@ use App\Models\Customer;
 
 class AllianzGradeCover extends AllianzApiService
 {
+    public function getCustomerGrade(Customer $customer): int
+    {
+        return \App\Models\AllianzGradeCover::select('grade')
+            ->where('customer_id', '=', $customer->id)
+            ->orderBy('created_at', 'DESC')
+            ->first()->grade ?? 0;
+    }
+
     public function getCustomerGradeData(Customer $customer): array
     {
         $grades = \App\Models\AllianzGradeCover::where('customer_id', '=', $customer->id)

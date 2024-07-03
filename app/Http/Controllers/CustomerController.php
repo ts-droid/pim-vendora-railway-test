@@ -73,7 +73,7 @@ class CustomerController extends Controller
             $allianzGradeCover = new AllianzGradeCover();
 
             foreach ($customers as &$customer) {
-                $customer->grade_data = $allianzGradeCover->getCustomerGradeData($customer);
+                $customer->grade = $allianzGradeCover->getCustomerGrade($customer);
             }
         }
 
