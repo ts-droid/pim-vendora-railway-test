@@ -11,7 +11,7 @@ class AllianzGradeCover extends AllianzApiService
         return \App\Models\AllianzGradeCover::select('grade')
             ->where('customer_id', '=', $customer->id)
             ->orderBy('created_at', 'DESC')
-            ->first()->grade ?? 0;
+            ->first()->grade ?? '';
     }
 
     public function getCustomerGradeData(Customer $customer): array
