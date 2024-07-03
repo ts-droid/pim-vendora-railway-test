@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Services\Allianz\AllianzGradeCover;
 use App\Services\CustomerCreditService;
 use Illuminate\Http\Request;
 
@@ -19,9 +20,12 @@ class PaymentReportController extends Controller
             ->get();
 
         $customerCreditService = new CustomerCreditService();
+        $allianzGradeCover = new AllianzGradeCover();
 
         if ($customers) {
             foreach ($customers as &$customer) {
+                $customer->grade = $allianzGradeCover->getCustomerGrade($customer);
+
                 list($customer->credit_due, $customer->due_invoices) = $customerCreditService->getAmountDue($customer->customer_number);
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
