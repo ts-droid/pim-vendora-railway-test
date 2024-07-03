@@ -18,6 +18,14 @@ class ImageBackgroundAnalyzer
             return false;
         }
 
+        // Check if the image is true color
+        if (imageistruecolor($image)) {
+            // Convert true color image to palette-based image
+            imagetruecolortopalette($image, false, 256);
+        }
+
+        $colorCount = imagecolorstotal($image);
+
         $width = imagesx($image);
         $height = imagesy($image);
         $totalPixels = $width * $height;
@@ -30,7 +38,6 @@ class ImageBackgroundAnalyzer
             for ($y = 0;$y < $height;$y++) {
                 // Get the color index for the pixel
                 $rgba = imagecolorat($image, $x, $y);
-                $colorCount = imagecolorstotal($image);
 
                 // If the pixel is transparent, count it as white
                 $alpha = ($rgba & 0x7F000000) >> 24;
