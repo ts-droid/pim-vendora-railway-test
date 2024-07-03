@@ -69,6 +69,14 @@ class CustomerController extends Controller
             $customers = $query->get();
         }
 
+        if ($request->input('with_grade')) {
+            $allianzGradeCover = new AllianzGradeCover();
+
+            foreach ($customers as &$customer) {
+                $customer->grade_data = $allianzGradeCover->getCustomerGradeData($customer);
+            }
+        }
+
         return ApiResponseController::success($customers->toArray());
     }
 
