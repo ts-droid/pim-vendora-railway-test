@@ -6,7 +6,7 @@ use App\Models\Customer;
 
 class AllianzGradeCover extends AllianzApiService
 {
-    public function getCustomerGrade(Customer $customer): int
+    public function getCustomerGrade(Customer $customer): mixed
     {
         return \App\Models\AllianzGradeCover::select('grade')
             ->where('customer_id', '=', $customer->id)
