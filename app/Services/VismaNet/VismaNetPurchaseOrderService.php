@@ -59,7 +59,8 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         if (!$orderNumber) {
             $logID = log_data(json_encode($response));
-            return ['success' => false, 'message' => 'Failed to create purchase order. (LOG ID: ' . $logID . ')'];
+            $vismaError = ($response['response']['message'] ?? 'Unknown error');
+            return ['success' => false, 'message' => 'Failed to create purchase order. (LOG ID: ' . $logID . ') (Visma error: ' . $vismaError . ')'];
         }
 
         // Update the purchase order with the Visma.net order ID
@@ -88,6 +89,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         return [
             'success' => true,
+            'message' => 'Purchase order created successfully.',
         ];
     }
 

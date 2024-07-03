@@ -38,7 +38,7 @@ class PurchaseOrderPublisher
             return $createOrderResponse;
         }
 
-        return ['success' => true];
+        return ['success' => true, 'message' => 'Purchase order sent.'];
     }
 
     /**

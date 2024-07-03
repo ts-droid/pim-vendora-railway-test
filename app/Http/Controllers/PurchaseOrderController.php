@@ -389,7 +389,7 @@ class PurchaseOrderController extends Controller
         list($success, $message) = $mailer->send($purchaseOrder);
 
         if (!$success) {
-            log_data('Failed to send email for purchase order ' . $purchaseOrder->id . ': ' . $message);
+            log_data('Failed to queue emails for purchase order ' . $purchaseOrder->id . ': ' . $message);
         }
 
         // Should we also generate a new order for this supplier?
