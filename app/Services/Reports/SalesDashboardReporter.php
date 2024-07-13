@@ -108,6 +108,17 @@ class SalesDashboardReporter
             )
         ];
 
+        $lastYearToDateSummary = [
+            'current' => $this->getSalesData(
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-m-d 23:59:59', strtotime('-1 year')),
+            ),
+            'last' => $this->getSalesData(
+                date('Y-01-01 00:00:00', strtotime('-2 year')),
+                date('Y-m-d 23:59:59', strtotime('-2 year')),
+            ),
+        ];
+
         $yearSummary = [
             'current' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
@@ -138,6 +149,15 @@ class SalesDashboardReporter
         $yearToDateProfitChange = round($yearToDateSummary['current']['profit'] - $yearToDateSummary['last']['profit']);
 
 
+        $lastYearToDateTurnoverChange = 'inf';
+        if ($lastYearToDateSummary['last']['turnover'] != 0) {
+            $lastYearToDateTurnoverChange = round((($lastYearToDateSummary['current']['turnover'] / $lastYearToDateSummary['last']['turnover']) - 1) * 100, 1);
+        }
+
+        $lastYearToDateMarginChange = round($lastYearToDateSummary['current']['margin'] - $lastYearToDateSummary['last']['margin'], 1);
+        $lastYearToDateProfitChange = round($lastYearToDateSummary['current']['profit'] - $lastYearToDateSummary['last']['profit']);
+
+
         $yearTurnoverChange = 'inf';
         if ($yearSummary['last']['turnover'] != 0) {
             $yearTurnoverChange = round((($yearSummary['current']['turnover'] / $yearSummary['last']['turnover']) - 1) * 100, 1);
@@ -159,6 +179,11 @@ class SalesDashboardReporter
                     'amount_shipping' => $yearToDateSummary['current']['turnover_shipping'],
                     'change' => $yearToDateTurnoverChange,
                 ],
+                'last_year_to_date' => [
+                    'amount' => $lastYearToDateSummary['current']['turnover'],
+                    'amount_shipping' => $lastYearToDateSummary['current']['turnover_shipping'],
+                    'change' => $lastYearToDateTurnoverChange,
+                ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
                     'amount_shipping' => $yearSummary['current']['turnover_shipping'],
@@ -177,6 +202,11 @@ class SalesDashboardReporter
                     'amount_shipping' => $yearToDateSummary['current']['margin_shipping'],
                     'change' => $yearToDateMarginChange,
                 ],
+                'last_year_to_date' => [
+                    'amount' => $lastYearToDateSummary['current']['margin'],
+                    'amount_shipping' => $lastYearToDateSummary['current']['margin_shipping'],
+                    'change' => $lastYearToDateMarginChange,
+                ],
                 'year' => [
                     'amount' => $yearSummary['current']['margin'],
                     'amount_shipping' => $yearSummary['current']['margin_shipping'],
@@ -194,6 +224,11 @@ class SalesDashboardReporter
                     'amount' => $yearToDateSummary['current']['profit'],
                     'amount_shipping' => $yearToDateSummary['current']['profit_shipping'],
                     'change' => $yearToDateProfitChange,
+                ],
+                'last_year_to_date' => [
+                    'amount' => $lastYearToDateSummary['current']['profit'],
+                    'amount_shipping' => $lastYearToDateSummary['current']['profit_shipping'],
+                    'change' => $lastYearToDateProfitChange,
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
