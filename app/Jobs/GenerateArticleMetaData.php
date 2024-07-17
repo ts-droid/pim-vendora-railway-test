@@ -46,13 +46,13 @@ class GenerateArticleMetaData implements ShouldQueue
         $translationController = new TranslationController();
 
         // Fetch prompts based on system_code
-        $metaTitlePrompt = $promptController->getBySystemCode('article_meta_title');
+        //$metaTitlePrompt = $promptController->getBySystemCode('article_meta_title');
         $metaDescriptionPrompt = $promptController->getBySystemCode('article_meta_description');
 
         $articleUpdate = [];
 
         // Generate and translate meta title
-        if ($metaTitlePrompt) {
+        /*if ($metaTitlePrompt) {
             $metaTitle = $promptController->execute($metaTitlePrompt->id, [
                 'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},
                 'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
@@ -70,7 +70,7 @@ class GenerateArticleMetaData implements ShouldQueue
                 list($translation) = $translationController->translate([$metaTitle], self::DEFAULT_LANGUAGE, $language->language_code);
                 $articleUpdate['meta_title_' . $language->language_code] = $translation;
             }
-        }
+        }*/
 
         // Generate and translate meta description
         if ($metaDescriptionPrompt) {
