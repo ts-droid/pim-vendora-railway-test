@@ -202,7 +202,12 @@ class EsignController extends Controller
     {
         $document->load('customer', 'recipients');
 
-        return ApiResponseController::success($document->toArray());
+        $allowEdit = $document->allowEdit();
+
+        $documentArray = $document->toArray();
+        $documentArray['allow_edit'] = $allowEdit;
+
+        return ApiResponseController::success($documentArray);
     }
 
     public function deleteDocument(Request $request, SignDocument $document)
@@ -220,7 +225,7 @@ class EsignController extends Controller
 
     public function updateDocument(Request $request, SignDocument $document)
     {
-        if ($document->status !== 'draft') {
+        if (!$document->allowEdit()) {
             // Limit what data can be updated
             $document->update($request->only([
                 'tab_id',
@@ -247,11 +252,13 @@ class EsignController extends Controller
 
     public function sendDocument(SignDocument $document)
     {
+        if (!$document->allowEdit()) {
+            return ApiResponseController::error('Document can not be modified.');
+        }
+
         $signService = new EsignService();
-
         $document = $signService->generateFile($document);
-
-        $success = $signService->sendDocument($document);
+        $success = $signService->sendDocument($document, true);
 
         if (!$success) {
             return ApiResponseController::error('Failed to send document.');
@@ -262,7 +269,7 @@ class EsignController extends Controller
 
     public function addRecipient(Request $request, SignDocument $document)
     {
-        if ($document->status !== 'draft') {
+        if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
 
@@ -295,7 +302,7 @@ class EsignController extends Controller
 
     public function setMainRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
-        if ($document->status !== 'draft') {
+        if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
 
@@ -309,7 +316,7 @@ class EsignController extends Controller
 
     public function deleteRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
-        if ($document->status !== 'draft') {
+        if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
 

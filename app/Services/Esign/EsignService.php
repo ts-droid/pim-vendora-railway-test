@@ -29,9 +29,9 @@ class EsignService
         return $document;
     }
 
-    public function sendDocument(SignDocument $document)
+    public function sendDocument(SignDocument $document, bool $forceMain = false)
     {
-        if ($document->sent_at) {
+        if ($document->sent_at && !$forceMain) {
             // Send to secondary recipients
             return $this->sendDocumentSecondary($document);
         }

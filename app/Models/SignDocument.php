@@ -96,4 +96,17 @@ class SignDocument extends Model
 
         return $document;
     }
+
+    public function allowEdit()
+    {
+        $recipients = $this->recipients ?? [];
+
+        foreach ($recipients as $recipient) {
+            if ($recipient->signed_at) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
