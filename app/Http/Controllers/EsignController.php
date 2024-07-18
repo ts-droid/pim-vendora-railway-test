@@ -251,6 +251,20 @@ class EsignController extends Controller
         return ApiResponseController::success($document->toArray());
     }
 
+    public function previewDocument(SignDocument $document)
+    {
+        $signService = new EsignService();
+        $content = $signService->getDocumentFileContent($document);
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="document.pdf"');
+        header('Cache-Control: private, max-age=0, must-revalidate');
+        header('Pragma: public');
+
+        echo $content;
+        exit;
+    }
+
     public function sendDocument(SignDocument $document)
     {
         if (!$document->allowEdit()) {
