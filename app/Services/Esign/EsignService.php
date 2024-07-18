@@ -44,10 +44,6 @@ class EsignService
     private function sendDocumentMain(SignDocument $document)
     {
         // Make sure the document is not already sent
-        if ($document->sent_at) {
-            return false;
-        }
-
         // Send a sign link to the main recipient
         $mainRecipient = $document->mainRecipient();
         if (!$mainRecipient) {
