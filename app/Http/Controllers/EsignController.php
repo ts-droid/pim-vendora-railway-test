@@ -140,6 +140,7 @@ class EsignController extends Controller
             foreach ($documents as &$document) {
                 $array = $document->toArray();
                 $array['access_hash'] = $document->getAccessHash();
+                $array['allow_edit'] = $document->allowEdit();
 
                 $documentsArray[] = $array;
             }
