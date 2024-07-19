@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PurchaseOrder;
+use App\Utilities\PurchaseOrderHelper;
 use Illuminate\Support\Facades\Mail;
 
 class PurchaseOrderEmailer
@@ -12,8 +13,7 @@ class PurchaseOrderEmailer
         $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
         $recipients = array_map('trim', $recipients);
 
-        $recipients[] = 'ts@vendora.se';
-        $recipients[] = 'anton@vendora.se';
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {

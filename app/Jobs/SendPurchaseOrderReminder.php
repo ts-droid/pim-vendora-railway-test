@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Http\Controllers\ApiResponseController;
 use App\Models\PurchaseOrder;
+use App\Utilities\PurchaseOrderHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,7 +40,7 @@ class SendPurchaseOrderReminder implements ShouldQueue
             $recipients = [$this->emailRecipient];
         }
 
-        $recipients[] = 'ts@vendora.se';
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {

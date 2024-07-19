@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\PurchaseOrderCancellation;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Utilities\PurchaseOrderHelper;
 use Illuminate\Support\Facades\Mail;
 
 class PurchaseOrderCancelService
@@ -21,7 +22,7 @@ class PurchaseOrderCancelService
         $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
         $recipients = array_map('trim', $recipients);
 
-        $recipients[] = 'ts@vendora.se';
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         $recipients = array_filter($recipients, function($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
