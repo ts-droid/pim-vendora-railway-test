@@ -72,11 +72,6 @@ class PurchaseOrderGenerator
 
         foreach ($suppliers as $supplier) {
             $orderCreated = $this->generateSupplierPurchaseOrder($supplier, $isEmpty);
-
-            // TODO: Remove this when we going to production
-            if ($orderCreated) {
-                return;
-            }
         }
     }
 
