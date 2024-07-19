@@ -26,7 +26,7 @@ class ArticleQuantityCalculator
         if ($incomingByDateQuantities === null) {
             $incomingByDateQuantities = DB::table('purchase_order_lines')
                 ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-                ->whereIn('purchase_orders.status', ['Open', 'Hold'])
+                ->whereIn('purchase_orders.status', ['Open', 'Hold', 'Draft'])
                 ->where('purchase_order_lines.is_completed', '=' ,0)
                 ->where('purchase_order_lines.is_canceled', '=' ,0)
                 ->select('purchase_order_lines.article_number', 'purchase_orders.order_number', 'purchase_orders.date', DB::raw('SUM(quantity - quantity_received) as quantity'))
@@ -73,7 +73,7 @@ class ArticleQuantityCalculator
             // Fetch the results from the database
             $incomingQuantities = DB::table('purchase_order_lines')
                 ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-                ->whereIn('purchase_orders.status', ['Open', 'Hold'])
+                ->whereIn('purchase_orders.status', ['Open', 'Hold', 'Draft'])
                 ->where('purchase_order_lines.is_completed', '=' ,0)
                 ->where('purchase_order_lines.is_canceled', '=' ,0)
                 ->select('purchase_order_lines.article_number', DB::raw('SUM(quantity - quantity_received) as total_quantity'))
