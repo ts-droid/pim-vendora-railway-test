@@ -347,7 +347,7 @@ class PurchaseOrderController extends Controller
         }
 
         $reminderService = new PurchaseOrderReminderService();
-        $reminderService->remind($purchaseOrderLineIDs, $emails);
+        $reminderService->remindETARequest($purchaseOrderLineIDs, $emails);
 
         return ApiResponseController::success([]);
     }

@@ -9,14 +9,37 @@ use App\Models\PurchaseOrderLine;
 
 class PurchaseOrderReminderService
 {
-    /**
-     * Send reminders to the suppliers for uncompleted purchase order lines
-     *
-     * @param array $purchaseOrderLineIDs
-     * @param array $emailRecipients
-     * @return void
-     */
-    public function remind(array $purchaseOrderLineIDs, array $emailRecipients = array()): void
+    public function remindETA(): void
+    {
+        // Load all open order lines
+        $orderLines = PurchaseOrderLine::select('purchase_order_lines.*', 'suppliers.email_reminder as email')
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
+            ->where('purchase_orders.status', '=', 'Open')
+            ->where('purchase_order_lines.quantity', '>', 'purchase_order_lines.quantity_received')
+            ->where('purchase_order_lines.is_completed', '=', 0)
+            ->where(function ($query) {
+                $query->where('purchase_order_lines.promised_date', '<', date('Y-m-d'))
+                    ->orWhereNull('purchase_order_lines.promised_date');
+            })
+            ->where('purchase_orders.should_delete', '=', 0)
+            ->get();
+
+        if (!$orderLines) {
+            return;
+        }
+
+        // Extract email recipients
+        $emailRecipients = [];
+
+        foreach ($orderLines as $orderLine) {
+            $emailRecipients[$orderLine->purchase_order_id] = $orderLine->email;
+        }
+
+        $this->remindETALines($orderLines, $emailRecipients);
+    }
+
+    public function remindETARequest(array $purchaseOrderLineIDs, array $emailRecipients = []): void
     {
         $orderLines = PurchaseOrderLine::whereIn('id', $purchaseOrderLineIDs)->get();
 
@@ -24,6 +47,11 @@ class PurchaseOrderReminderService
             return;
         }
 
+        $this->remindETALines($orderLines, $emailRecipients);
+    }
+
+    public function remindETALines($orderLines, array $emailRecipients = []): void
+    {
         $orderLinesByOrder = [];
 
         foreach ($orderLines as $orderLine) {
@@ -43,17 +71,14 @@ class PurchaseOrderReminderService
 
         foreach ($orderLinesByOrder as $orderID => $orderLines) {
             $purchaseOrder = PurchaseOrder::find($orderID);
-
             if (!$purchaseOrder) {
                 continue;
             }
 
-            $emailRecipient = $emailRecipients[$orderID] ?? null;
-
-            // Dispatch the reminder to the queue
-            dispatch(new SendPurchaseOrderReminder($purchaseOrder, $orderLines, $emailRecipient));
+            dispatch(new SendPurchaseOrderReminder($purchaseOrder, $orderLines, $emailRecipients[$orderID] ?? ''));
         }
     }
+
 
     /**
      * Send a reminder for all draft purchase orders that have not been reminded
