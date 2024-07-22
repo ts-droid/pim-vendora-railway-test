@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\ConfigController;
 use App\Models\Article;
+use App\Models\CreditNote;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\SalesOrder;
@@ -14,7 +15,9 @@ class CustomerCreditService
 {
     public function getOpenCreditInvoiceAmount(string $customerNumber): float
     {
-        return 0;
+        return (float) CreditNote::where('customer_number', $customerNumber)
+            ->where('status', 'Open')
+            ->sum('amount');
     }
 
     public function getAmountDue(string $customerNumber): array

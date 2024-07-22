@@ -26,6 +26,8 @@ class PaymentReportController extends Controller
             foreach ($customers as &$customer) {
                 $customer->grade = $allianzGradeCover->getCustomerGrade($customer);
 
+                $customer->open_credit_invoice_amount = $customerCreditService->getOpenCreditInvoiceAmount($customer->customer_number);
+
                 list($customer->credit_due, $customer->due_invoices) = $customerCreditService->getAmountDue($customer->customer_number);
 
                 $customer->average_payment = json_decode($customer->average_payment_days, true);
