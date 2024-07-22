@@ -58,6 +58,10 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchCustomerInvoices();
                 break;
 
+            case 'credit-notes':
+                $vismaNetController->fetchCustomerCreditNotes();
+                break;
+
             case 'purchase-orders':
                 $vismaNetController->fetchPurchaseOrders();
                 break;
@@ -108,6 +112,7 @@ class FetchVismaNet extends Command
                 Artisan::call('visma:fetch', ['type' => 'articles']);
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
                 Artisan::call('visma:fetch', ['type' => 'invoices']);
+                Artisan::call('visma:fetch', ['type' => 'credit-notes']);
                 break;
 
             case 'all':

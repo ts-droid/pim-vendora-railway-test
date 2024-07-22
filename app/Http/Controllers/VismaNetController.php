@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\FetchCustomerInvoicePage;
 use App\Models\Article;
+use App\Models\CreditNote;
 use App\Models\CurrencyRate;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
@@ -12,6 +13,7 @@ use App\Models\PurchaseOrder;
 use App\Models\SalesPerson;
 use App\Models\Supplier;
 use App\Services\ApiLogger;
+use App\Services\CreditNoteService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Exception;
 use Illuminate\Http\Request;
@@ -371,6 +373,77 @@ class VismaNetController extends Controller
 
         if (count($invoices) === self::PAGE_SIZE) {
             FetchCustomerInvoicePage::dispatch($pageNumber + 1);
+        }
+    }
+
+    public function fetchCustomerCreditNotes(string $updatedAfter = ''): void
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+        $fetchedData = false;
+
+        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_credit_note_fetch');
+
+        $params = [];
+        if ($updatedAfter) {
+            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTimeCondition'] = '>';
+        }
+
+        $creditNotes = $this->getPagedResult('/v1/customerCreditNote', $params);
+
+        if ($creditNotes) {
+            $creditNoteService = new CreditNoteService();
+
+            $fetchedData = count($creditNotes) > 0;
+
+            foreach ($creditNotes as $creditNote) {
+                if (!is_array($creditNote)) {
+                    continue;
+                }
+
+                if ($creditNote['hold'] ?? false) {
+                    continue;
+                }
+
+                $creditNoteData = [
+                    'credit_number' => (string) ($invoice['referenceNumber'] ?? ''),
+                    'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
+                    'status' => (string) ($invoice['status'] ?? ''),
+                    'customer_number' => (string) ($invoice['customer']['number'] ?? ''),
+                    'currency' => (string) ($invoice['currencyId'] ?? ''),
+                    'amount' => (float) ($invoice['amount'] ?? 0),
+                    'lines' => [],
+                ];
+
+                foreach (($creditNote['lines'] ?? []) as $line) {
+                    $creditNoteData['lines'][] = [
+                        'line_key' => (string) ($invoiceLine['lineNumber'] ?? ''),
+                        'article_number' => (string) ($invoiceLine['inventoryNumber'] ?? ''),
+                        'description' => (string) ($invoiceLine['description'] ?? ''),
+                        'order_number' => (string) ($invoiceLine['soOrderNbr'] ?? ''),
+                        'shipment_number' => (string) ($invoiceLine['soShipmentNbr'] ?? ''),
+                        'quantity' => (int) ($invoiceLine['quantity'] ?? 0),
+                        'unit_price' => (float) ($invoiceLine['unitPrice'] ?? 0),
+                        'amount' => (float) ($invoiceLine['amount'] ?? 0),
+                        'cost' => (float) ($invoiceLine['cost'] ?? 0),
+                    ];
+                }
+
+                $existingCreditNote = CreditNote::where('credit_number', $creditNoteData['credit_number'])->first();
+
+                if ($existingCreditNote) {
+                    // Update existing credit note
+                    $creditNoteService->updateCreditNote($existingCreditNote, $creditNoteData);
+                }
+                else {
+                    // Create new credit note
+                    $creditNoteService->storeCreditNote($creditNoteData);
+                }
+            }
+        }
+
+        if ($fetchedData) {
+            ConfigController::setConfigs(['vismanet_last_customer_credit_note_fetch' => $fetchTime]);
         }
     }
 

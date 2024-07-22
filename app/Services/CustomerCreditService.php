@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerCreditService
 {
+    public function getOpenCreditInvoiceAmount(string $customerNumber): float
+    {
+        return 0;
+    }
+
     public function getAmountDue(string $customerNumber): array
     {
         $dueInvoices = CustomerInvoice::where('status', 'Open')
