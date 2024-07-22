@@ -406,26 +406,26 @@ class VismaNetController extends Controller
                 }
 
                 $creditNoteData = [
-                    'credit_number' => (string) ($invoice['referenceNumber'] ?? ''),
-                    'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
-                    'status' => (string) ($invoice['status'] ?? ''),
-                    'customer_number' => (string) ($invoice['customer']['number'] ?? ''),
-                    'currency' => (string) ($invoice['currencyId'] ?? ''),
-                    'amount' => (float) ($invoice['amount'] ?? 0),
+                    'credit_number' => (string) ($creditNote['referenceNumber'] ?? ''),
+                    'date' => date('Y-m-d', strtotime($creditNote['documentDate'] ?? '')),
+                    'status' => (string) ($creditNote['status'] ?? ''),
+                    'customer_number' => (string) ($creditNote['customer']['number'] ?? ''),
+                    'currency' => (string) ($creditNote['currencyId'] ?? ''),
+                    'amount' => (float) ($creditNote['amount'] ?? 0),
                     'lines' => [],
                 ];
 
                 foreach (($creditNote['lines'] ?? []) as $line) {
                     $creditNoteData['lines'][] = [
-                        'line_key' => (string) ($invoiceLine['lineNumber'] ?? ''),
-                        'article_number' => (string) ($invoiceLine['inventoryNumber'] ?? ''),
-                        'description' => (string) ($invoiceLine['description'] ?? ''),
-                        'order_number' => (string) ($invoiceLine['soOrderNbr'] ?? ''),
-                        'shipment_number' => (string) ($invoiceLine['soShipmentNbr'] ?? ''),
-                        'quantity' => (int) ($invoiceLine['quantity'] ?? 0),
-                        'unit_price' => (float) ($invoiceLine['unitPrice'] ?? 0),
-                        'amount' => (float) ($invoiceLine['amount'] ?? 0),
-                        'cost' => (float) ($invoiceLine['cost'] ?? 0),
+                        'line_key' => (string) ($line['lineNumber'] ?? ''),
+                        'article_number' => (string) ($line['inventoryNumber'] ?? ''),
+                        'description' => (string) ($line['description'] ?? ''),
+                        'order_number' => (string) ($line['soOrderNbr'] ?? ''),
+                        'shipment_number' => (string) ($line['soShipmentNbr'] ?? ''),
+                        'quantity' => (int) ($line['quantity'] ?? 0),
+                        'unit_price' => (float) ($line['unitPrice'] ?? 0),
+                        'amount' => (float) ($line['amount'] ?? 0),
+                        'cost' => (float) ($line['cost'] ?? 0),
                     ];
                 }
 
