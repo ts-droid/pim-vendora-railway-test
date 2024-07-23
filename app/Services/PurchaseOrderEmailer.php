@@ -25,9 +25,14 @@ class PurchaseOrderEmailer
             return [false, 'No valid recipient email addresses found.'];
         }
 
-        // Disptach the email
+        // Dispatch the email
         try {
-            Mail::to($recipients)->queue(new \App\Mail\PurchaseOrder($purchaseOrder, $isReminder));
+            if ($isReminder) {
+                Mail::to($recipients)->queue(new \App\Mail\PurchaseOrderConfirmReminder($purchaseOrder));
+            }
+            else {
+                Mail::to($recipients)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
+            }
         }
         catch (\Exception $e) {
             return [false, $e->getMessage()];

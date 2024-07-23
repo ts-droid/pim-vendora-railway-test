@@ -11,23 +11,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PurchaseOrder extends Mailable
+class PurchaseOrderConfirmReminder extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public string $emailSubject;
-
-    public string $emailBody;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
-        public \App\Models\PurchaseOrder $purchaseOrder
+        public \App\Models\PurchaseOrder $purchaseOrder,
     )
     {
-        $this->emailSubject = ConfigController::getConfig('purchase_system_new_order_email_subject');
-        $this->emailBody = ConfigController::getConfig('purchase_system_new_order_email_body');
+        $this->emailSubject = ConfigController::getConfig('purchase_system_confirm_reminder_email_subject');
+        $this->emailBody = ConfigController::getConfig('purchase_system_confirm_reminder_email_body');
 
         // Replace variables
         $this->emailSubject = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailSubject);
@@ -72,7 +68,7 @@ class PurchaseOrder extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.purchaseOrder',
+            view: 'emails.purchaseOrderConfirmReminder',
         );
     }
 

@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
         if (App::environment('production')) {
 
             $schedule->command('visma:check')->everyTwoMinutes()->withoutOverlapping();
-            $schedule->command('purchase-orders:send-reminders')->hourly();
+            $schedule->command('purchase-orders:send-reminders')->daily();
 
             // TODO: Can me moved to long loved processes
             $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();

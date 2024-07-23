@@ -27,7 +27,7 @@ class SendPurchaseReminders extends Command
     public function handle()
     {
         $reminderService = new PurchaseOrderReminderService();
-        //$reminderService->remindETA();
+        $reminderService->remindETA();
         $reminderService->remindDrafts();
     }
 }
