@@ -67,10 +67,14 @@ class ArticleCategoryController extends Controller
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
-            $value = $data['title_' . $locale->language_code] ?? null;
+            $title = $data['title_' . $locale->language_code] ?? null;
+            if ($title) {
+                $updateData['title_' . $locale->language_code] = $title;
+            }
 
-            if ($value) {
-                $updateData['title_' . $locale->language_code] = $value;
+            $metaDescription = $data['meta_description_' . $locale->language_code] ?? null;
+            if ($metaDescription) {
+                $updateData['meta_description_' . $locale->language_code] = $metaDescription;
             }
         }
 
