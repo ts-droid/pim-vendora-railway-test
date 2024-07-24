@@ -2,6 +2,25 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('makeFilenameFriendly')) {
+    function makeFilenameFriendly($string): string
+    {
+        // Convert the string to lowercase
+        $string = strtolower($string);
+
+        // Replace spaces with underscores
+        $string = str_replace(' ', '_', $string);
+
+        // Remove any character that is not alphanumeric, a dash, or an underscore
+        $string = preg_replace('/[^a-z0-9_-]/', '', $string);
+
+        // Trim any leading or trailing underscores
+        $string = trim($string, '_');
+
+        return $string;
+    }
+}
+
 if (!function_exists('translation_service')) {
     function translation_service()
     {
