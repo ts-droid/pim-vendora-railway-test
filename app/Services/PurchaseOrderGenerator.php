@@ -522,7 +522,7 @@ class PurchaseOrderGenerator
      */
     private function getSupplierLastOrder(Supplier $supplier): ?string
     {
-        $lastPurchaseOrder = PurchaseOrder::where('supplier_id', $supplier->id)
+        $lastPurchaseOrder = PurchaseOrder::where('supplier_id', $supplier->external_id)
             ->orderBy('date', 'desc')
             ->first();
 
