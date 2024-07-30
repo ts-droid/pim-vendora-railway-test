@@ -419,6 +419,82 @@ class ArticleController extends Controller
 
         $allowedUpdated = array_intersect_key($updates, array_flip($fillables));
 
+        // Cast data types
+        $castTypes = [
+            'string' => [
+                'status',
+                'article_number',
+                'description',
+                'origin_country',
+                'ean',
+                'wright_article_number',
+                'supplier_number',
+                'article_type',
+                'brand',
+                'eu_import_marking',
+                'gtin_inner_box',
+                'gtin_master_box',
+                'gtin_pallet',
+                'google_product_category',
+                'unspsc_categories',
+                'recommended_replacement_article',
+            ],
+            'int' => [
+                'pallet_height',
+                'weight',
+                'inner_box_weight',
+                'master_box_weight',
+                'pallet_weight',
+                'inner_box',
+                'master_box',
+                'pallet_size',
+                'package_weight_paper',
+                'package_weight_plastic',
+                'package_weight_metal',
+                'package_weight_glass',
+                'is_webshop',
+            ],
+            'float' => [
+                'standard_reseller_margin',
+                'minimum_margin',
+                'height',
+                'width',
+                'depth',
+                'inner_box_height',
+                'inner_box_width',
+                'inner_box_depth',
+                'master_box_height',
+                'master_box_width',
+                'master_box_depth',
+            ],
+        ];
+
+        foreach ($castTypes as $type => $fields) {
+            foreach ($fields as $field) {
+                if (!isset($allowedUpdated[$field])) {
+                    continue;
+                }
+
+                $value = $allowedUpdated[$field];
+
+                switch ($type) {
+                    case 'string':
+                        $value = (string) $value;
+                        break;
+
+                    case 'int':
+                        $value = (int) $value;
+                        break;
+
+                    case 'float':
+                        $value = (float) $value;
+                        break;
+                }
+
+                $allowedUpdated[$field] =  $value;
+            }
+        }
+
         $article->update($allowedUpdated);
 
         // Log the stock
