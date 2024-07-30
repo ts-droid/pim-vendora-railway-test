@@ -26,7 +26,6 @@ return new class extends Migration
             $table->string('gtin_inner_box')->default('');
             $table->string('gtin_master_box')->default('');
             $table->string('gtin_pallet')->default('');
-            $table->integer('is_webshop')->default(1);
             $table->text('shop_short_description_sv')->nullable()->default(null);
             $table->text('shop_short_description_fi')->nullable()->default(null);
             $table->text('shop_short_description_no')->nullable()->default(null);
@@ -58,7 +57,6 @@ return new class extends Migration
             $table->dropColumn('gtin_inner_box');
             $table->dropColumn('gtin_master_box');
             $table->dropColumn('gtin_pallet');
-            $table->dropColumn('is_webshop');
             $table->dropColumn('shop_short_description_sv');
             $table->dropColumn('shop_short_description_fi');
             $table->dropColumn('shop_short_description_en');
