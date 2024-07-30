@@ -44,6 +44,12 @@ class Article extends Model
             $article->shop_title_no = $article->getAttribute('shop_title_no');
             $article->shop_title_da = $article->getAttribute('shop_title_da');
 
+            $article->shop_short_description_sv = $article->getAttribute('shop_short_description_sv');
+            $article->shop_short_description_fi = $article->getAttribute('shop_short_description_fi');
+            $article->shop_short_description_en = $article->getAttribute('shop_short_description_en');
+            $article->shop_short_description_no = $article->getAttribute('shop_short_description_no');
+            $article->shop_short_description_da = $article->getAttribute('shop_short_description_da');
+
             $article->shop_description_sv = $article->getAttribute('shop_description_sv');
             $article->shop_description_fi = $article->getAttribute('shop_description_fi');
             $article->shop_description_en = $article->getAttribute('shop_description_en');
