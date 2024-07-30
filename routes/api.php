@@ -143,6 +143,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
         Route::get('/basic', [ArticleController::class, 'getBasic'])->name('articles.getBasic');
         Route::get('/simple', [ArticleController::class, 'getSimple'])->name('articles.getSimple');
+        Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');
         Route::post('/update-many', [ArticleController::class, 'updateMany'])->name('articles.updateMany');
         Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
         Route::get('/{article}/retailers', [ArticleController::class, 'getRetailers'])->name('articles.getRetailers');

@@ -16,6 +16,20 @@ use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
 {
+    public function getBrands()
+    {
+        $brands = DB::table('articles')
+            ->pluck('brand')
+            ->toArray();
+
+        $brands = array_unique($brands);
+        $brands = array_filter($brands);
+
+        sort($brands);
+
+        return ApiResponseController::success($brands);
+    }
+
     public function getSimple(Request $request)
     {
         $query = DB::table('articles')
