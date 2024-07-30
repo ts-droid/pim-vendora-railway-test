@@ -471,7 +471,7 @@ class ArticleController extends Controller
 
         foreach ($castTypes as $type => $fields) {
             foreach ($fields as $field) {
-                if (!isset($allowedUpdated[$field])) {
+                if (!array_key_exists($field, $allowedUpdated)) {
                     continue;
                 }
 
