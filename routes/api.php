@@ -151,6 +151,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/images', [ArticleController::class, 'getAllImages'])->name('articles.getAllImages');
 
+        Route::get('/{article}/files', [ArticleController::class, 'getFiles'])->name('articles.getFiles');
+        Route::post('/{article}/files', [ArticleController::class, 'uploadFile'])->name('articles.uploadFile');
+        Route::post('/{article}/files/{articleFile}/delete', [ArticleController::class, 'deleteFile'])->name('articles.deleteFile');
+
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
         Route::post('/{article}/images', [ArticleController::class, 'uploadImage'])->name('articles.uploadImage');
         Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');

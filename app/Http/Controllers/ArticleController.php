@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
@@ -268,6 +269,49 @@ class ArticleController extends Controller
         $images = ArticleImage::whereIn('article_id', $articleIDs)->get();
 
         return ApiResponseController::success($images->toArray());
+    }
+
+    public function getFiles(Request $request, Article $article)
+    {
+        $files = ArticleFile::where('article_id', $article->id)
+            ->orderBy('filename', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($files->toArray());
+    }
+
+    public function uploadFile(Request $request, Article $article)
+    {
+        if (!$request->hasFile('file')) {
+            return ApiResponseController::error('No file uploaded');
+        }
+
+        $file = $request->file('file');
+
+        $fileContent = @file_get_contents($file->getRealPath());
+        if (!$fileContent) {
+            return ApiResponseController::error('Error reading file content');
+        }
+
+        $remoteFilename = DoSpacesController::store($file->getClientOriginalName(), $fileContent, true);
+
+        $articleFile = ArticleFile::create([
+            'article_id' => $article->id,
+            'filename' => $remoteFilename,
+            'path_url' => DoSpacesController::getURL($remoteFilename),
+            'size' => DoSpacesController::getSize($remoteFilename)
+        ]);
+
+        return ApiResponseController::success($articleFile->toArray());
+    }
+
+    public function deleteFile(Request $request, Article $article, ArticleFile $articleFile)
+    {
+        DoSpacesController::delete($articleFile->filename);
+
+        $articleFile->delete();
+
+        return ApiResponseController::success();
     }
 
     public function getImages(Request $request, Article $article)
