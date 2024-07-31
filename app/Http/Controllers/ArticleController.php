@@ -203,7 +203,7 @@ class ArticleController extends Controller
                 $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
                 $article['highest_cost'] = $orderLines->max('unit_cost') ?: 0;
                 $article['lowest_cost'] = $orderLines->min('unit_cost') ?: 0;
-                $article['lead_time'] = $filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0;
+                $article['lead_time'] = round($filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0);
                 $article['eta_shipment'] = $etaShipment;
             }
         }
@@ -215,7 +215,7 @@ class ArticleController extends Controller
             foreach ($articles as &$article) {
                 $currencyConverter->convertArray(
                     $article,
-                    ['cost_price_avg', 'external_cost'],
+                    ['cost_price_avg', 'external_cost', 'last_cost', 'average_cost', 'highest_cost', 'lowest_cost'],
                     'SEK',
                     $currency,
                     date('Y-m-d')
