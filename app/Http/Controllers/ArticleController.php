@@ -200,7 +200,7 @@ class ArticleController extends Controller
                     }
                 }
 
-                $article['current_cost'] = (int) SupplierArticlePrice::where('article_number', $article['article_number'])
+                $article['current_cost'] = (float) SupplierArticlePrice::where('article_number', $article['article_number'])
                     ->pluck('price')
                     ->first();
 
