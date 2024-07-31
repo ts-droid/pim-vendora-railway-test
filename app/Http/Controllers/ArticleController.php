@@ -581,6 +581,32 @@ class ArticleController extends Controller
             }
         }
 
+        if (($allowedUpdated['unspsc_categories'] ?? '') === 'new') {
+            $unspscID = 0;
+
+            $commodity = (string) $request->unspsc_id;
+            $commodityTitle = (string) $request->unspsc_title;
+
+            if ($commodity && $commodityTitle) {
+                $unspscCategory = DB::table('unspsc_categories')
+                    ->where('commodity', $commodity)
+                    ->first();
+
+                if (!$unspscCategory) {
+                    $unspscID = DB::table('unspsc_categories')
+                        ->insertGetId([
+                            'commodity' => $commodity,
+                            'commodity_title' => $commodityTitle,
+                        ]);
+                }
+                else {
+                    $unspscID = $unspscCategory->id;
+                }
+            }
+
+            $allowedUpdated['unspsc_categories'] = (string) $unspscID;
+        }
+
         $article->update($allowedUpdated);
 
         // Log the stock
