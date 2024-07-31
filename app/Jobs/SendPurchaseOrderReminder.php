@@ -40,8 +40,6 @@ class SendPurchaseOrderReminder implements ShouldQueue
             $recipients = [$this->emailRecipient];
         }
 
-        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
-
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -50,6 +48,8 @@ class SendPurchaseOrderReminder implements ShouldQueue
         if (count($recipients) === 0) {
             return;
         }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         try {
             Mail::to($recipients)->send(new \App\Mail\PurchaseOrderReminder($this->purchaseOrder, $this->orderLines));

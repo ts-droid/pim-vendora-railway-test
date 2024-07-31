@@ -13,8 +13,6 @@ class PurchaseOrderEmailer
         $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
         $recipients = array_map('trim', $recipients);
 
-        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
-
         // Validate the emails
         $recipients = array_filter($recipients, function($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -24,6 +22,8 @@ class PurchaseOrderEmailer
         if (count($recipients) === 0) {
             return [false, 'No valid recipient email addresses found.'];
         }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         // Dispatch the email
         try {
