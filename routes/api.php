@@ -154,6 +154,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/images', [ArticleController::class, 'getImages'])->name('articles.getImages');
         Route::post('/{article}/images/{articleImage}', [ArticleController::class, 'updateImage'])->name('articles.updateImage');
         Route::post('/{article}/images/{articleImage}/solid', [ArticleController::class, 'updateImageSolid'])->name('articles.updateImageSolid');
+        Route::post('/{article}/images/{articleImage}/delete', [ArticleController::class, 'deleteImage'])->name('articles.deleteImage');
     });
 
     Route::prefix('/article-categories')->group(function() {

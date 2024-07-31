@@ -303,6 +303,13 @@ class ArticleController extends Controller
         return ApiResponseController::success($articleImage->toArray());
     }
 
+    public function deleteImage(Request $request, Article $article, ArticleImage $articleImage)
+    {
+        $this->deleteArticleImage($articleImage);
+
+        return ApiResponseController::success();
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
