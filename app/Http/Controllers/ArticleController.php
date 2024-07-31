@@ -8,6 +8,7 @@ use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
+use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
@@ -198,6 +199,10 @@ class ArticleController extends Controller
                         $etaShipment = $rowEta;
                     }
                 }
+
+                $article['current_cost'] = (int) SupplierArticlePrice::where('article_number', $article['article_number'])
+                    ->pluck('price')
+                    ->first();
 
                 $article['last_cost'] = $orderLines->first()->unit_cost ?? 0;
                 $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
