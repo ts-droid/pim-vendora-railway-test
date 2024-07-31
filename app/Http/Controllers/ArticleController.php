@@ -279,6 +279,41 @@ class ArticleController extends Controller
         return ApiResponseController::success($images->toArray());
     }
 
+    public function uploadImage(Request $request, Article $article)
+    {
+        if (!$request->hasFile('image')) {
+            return ApiResponseController::error('No image uploaded');
+        }
+
+        $image = $request->file('image');
+
+        $imageContent = @file_get_contents($image->getRealPath());
+        if (!$imageContent) {
+            return ApiResponseController::error('Error reading image content');
+        }
+
+        $newListOrder = (int) ArticleImage::where('article_id', $article->id)
+            ->max('list_order') + 1;
+
+        $remoteFilename = DoSpacesController::store($image->getClientOriginalName(), $imageContent, true);
+
+        $imageSize = DoSpacesController::getSize($remoteFilename);
+
+        $solidBackground = ImageBackgroundAnalyzer::hasSolidBackgroundAdvanced($imageContent);
+
+        $articleImage = ArticleImage::create([
+            'article_id' => $article->id,
+            'filename' => $remoteFilename,
+            'path_url' => DoSpacesController::getURL($remoteFilename),
+            'size' => $imageSize,
+            'solid_background' => $solidBackground,
+            'list_order' => $newListOrder,
+            'hash' => md5($imageContent),
+        ]);
+
+        return ApiResponseController::success($articleImage->toArray());
+    }
+
     public function updateImage(Request $request, Article $article, ArticleImage $articleImage)
     {
         $languages = (new LanguageController())->getAllLanguages();
