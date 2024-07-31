@@ -8,6 +8,7 @@ use App\Models\ArticleImage;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
+use App\Models\UnspscCategory;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Utilities\ImageBackgroundAnalyzer;
@@ -29,6 +30,13 @@ class ArticleController extends Controller
         sort($brands);
 
         return ApiResponseController::success($brands);
+    }
+
+    public function unspscCategories()
+    {
+        $categories = UnspscCategory::orderBy('commodity_title', 'ASC')->get();
+
+        return ApiResponseController::success($categories->toArray());
     }
 
     public function getSimple(Request $request)
