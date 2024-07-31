@@ -531,11 +531,14 @@ class ArticleController extends Controller
                 'gtin_pallet',
                 'google_product_category',
                 'unspsc_categories',
-                'recommended_replacement_article'
+                'recommended_replacement_article',
+                'hs_code',
+                'un_code',
             ],
             'int' => [
                 'pallet_height',
                 'weight',
+                'product_weight',
                 'inner_box_weight',
                 'master_box_weight',
                 'pallet_weight',
@@ -546,7 +549,10 @@ class ArticleController extends Controller
                 'package_weight_plastic',
                 'package_weight_metal',
                 'package_weight_glass',
-                'is_webshop'
+                'is_webshop',
+                'serial_number_management',
+                'is_backorder',
+                'minimum_order_quantity'
             ],
             'float' => [
                 'standard_reseller_margin',
@@ -554,6 +560,9 @@ class ArticleController extends Controller
                 'height',
                 'width',
                 'depth',
+                'product_height',
+                'product_width',
+                'product_depth',
                 'inner_box_height',
                 'inner_box_width',
                 'inner_box_depth',
