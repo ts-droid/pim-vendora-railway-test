@@ -165,6 +165,7 @@ class ArticleController extends Controller
                     ->select(
                         'purchase_order_lines.unit_cost',
                         'purchase_order_lines.promised_date',
+                        'purchase_order_lines.is_completed',
                         'purchase_orders.date'
                     )
                     ->where('purchase_order_lines.article_number', '=', $article['article_number'])
