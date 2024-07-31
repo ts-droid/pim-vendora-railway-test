@@ -154,6 +154,59 @@ class ArticleController extends Controller
             }
         }
 
+        if ($request->input('supplier_stats')) {
+            foreach ($articles as &$article) {
+                if (!isset($article['article_number'])) {
+                    continue;
+                }
+
+                $orderLines = DB::table('purchase_order_lines')
+                    ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+                    ->select(
+                        'purchase_order_lines.unit_cost',
+                        'purchase_order_lines.promised_date',
+                        'purchase_orders.date'
+                    )
+                    ->where('purchase_order_lines.article_number', '=', $article['article_number'])
+                    ->where('purchase_orders.is_draft', '=', 0)
+                    ->orderBy('purchase_orders.date', 'DESC')
+                    ->get();
+
+                $filteredOrderLines = $orderLines->filter(function ($item) {
+                    return $item->date !== $item->promised_date;
+                });
+
+                $totalDays = $filteredOrderLines->reduce(function ($carry, $item) {
+                    $date1 = \Carbon\Carbon::parse($item->date);
+                    $date2 = \Carbon\Carbon::parse($item->promised_date);
+                    $difference = $date1->diffInDays($date2);
+                    return $carry + $difference;
+                }, 0);
+
+                $etaShipment = 0;
+                foreach ($orderLines as $orderLine) {
+                    if ($orderLine->is_completed || $orderLine->promised_date <= date('Y-m-d')) {
+                        continue;
+                    }
+
+                    $date1 = \Carbon\Carbon::parse(date('Y-m-d'));
+                    $date2 = \Carbon\Carbon::parse($orderLine->promised_date);
+                    $rowEta = $date1->diffInDays($date2);
+
+                    if (!$etaShipment || $rowEta < $etaShipment) {
+                        $etaShipment = $rowEta;
+                    }
+                }
+
+                $article['last_cost'] = $orderLines->first()->unit_cost ?? 0;
+                $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
+                $article['highest_cost'] = $orderLines->max('unit_cost') ?: 0;
+                $article['lowest_cost'] = $orderLines->min('unit_cost') ?: 0;
+                $article['lead_time'] = $filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0;
+                $article['eta_shipment'] = $etaShipment;
+            }
+        }
+
         // Convert results to requested currency
         if ($currency && $articles) {
             $currencyConverter = new CurrencyConvertController();
@@ -224,59 +277,6 @@ class ArticleController extends Controller
                 if ($article['category_ids'] && is_array($article['category_ids'])) {
                     $article['categories'] = $articleCategoryController->getCategoryTree($article['category_ids']);
                 }
-            }
-        }
-
-        if ($request->input('supplier_stats')) {
-            foreach ($articles as &$article) {
-                if (!isset($article['article_number'])) {
-                    continue;
-                }
-
-                $orderLines = DB::table('purchase_order_lines')
-                    ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-                    ->select(
-                        'purchase_order_lines.unit_cost',
-                        'purchase_order_lines.promised_date',
-                        'purchase_orders.date'
-                    )
-                    ->where('purchase_order_lines.article_number', '=', $article['article_number'])
-                    ->where('purchase_orders.is_draft', '=', 0)
-                    ->orderBy('purchase_orders.date', 'DESC')
-                    ->get();
-
-                $filteredOrderLines = $orderLines->filter(function ($item) {
-                    return $item->date !== $item->promised_date;
-                });
-
-                $totalDays = $filteredOrderLines->reduce(function ($carry, $item) {
-                    $date1 = \Carbon\Carbon::parse($item->date);
-                    $date2 = \Carbon\Carbon::parse($item->promised_date);
-                    $difference = $date1->diffInDays($date2);
-                    return $carry + $difference;
-                }, 0);
-
-                $etaShipment = 0;
-                foreach ($orderLines as $orderLine) {
-                    if ($orderLine->is_completed || $orderLine->promised_date <= date('Y-m-d')) {
-                        continue;
-                    }
-
-                    $date1 = \Carbon\Carbon::parse(date('Y-m-d'));
-                    $date2 = \Carbon\Carbon::parse($orderLine->promised_date);
-                    $rowEta = $date1->diffInDays($date2);
-
-                    if (!$etaShipment || $rowEta < $etaShipment) {
-                        $etaShipment = $rowEta;
-                    }
-                }
-
-                $article['last_cost'] = $orderLines->first()->unit_cost ?? 0;
-                $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
-                $article['highest_cost'] = $orderLines->max('unit_cost') ?: 0;
-                $article['lowest_cost'] = $orderLines->min('unit_cost') ?: 0;
-                $article['lead_time'] = $filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0;
-                $article['eta_shipment'] = $etaShipment;
             }
         }
 
