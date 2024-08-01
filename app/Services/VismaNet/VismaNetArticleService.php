@@ -89,10 +89,12 @@ class VismaNetArticleService extends VismaNetApiService
 
             if ($currentSupplierNumber != $article->supplier_number) {
                 $data['supplierDetails'] = [
-                    'operation' => 'Insert',
-                    'active' => ['value' => true],
-                    'default' => ['value' => true],
-                    'supplierID' => ['value' => $article->supplier_number],
+                    [
+                        'operation' => 'Insert',
+                        'active' => ['value' => true],
+                        'default' => ['value' => true],
+                        'supplierID' => ['value' => $article->supplier_number],
+                    ]
                 ];
             }
         }
