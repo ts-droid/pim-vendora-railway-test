@@ -71,7 +71,7 @@ class VismaNetArticleService extends VismaNetApiService
                 ],
                 [
                     'attributeId' => ['value' => 'VARUMÄRKE'],
-                    'attributeValue' => ['value' => (int) $article->brand],
+                    'attributeValue' => ['value' => $article->brand],
                 ],
                 [
                     'attributeId' => ['value' => 'WEBBSHOP'],
