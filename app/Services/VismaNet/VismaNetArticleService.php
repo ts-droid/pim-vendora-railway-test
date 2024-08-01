@@ -81,6 +81,21 @@ class VismaNetArticleService extends VismaNetApiService
             ]
         ];
 
+        // Update supplier
+        if ($article->supplier_number) {
+            $remoteArticle = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+            $currentSupplierNumber = $remoteArticle['supplierDetails'][0]['supplierId'] ?? '';
+
+            if ($currentSupplierNumber != $article->supplier_number) {
+                $data['supplierDetails'] = [
+                    'operation' => ($currentSupplierNumber ? 'Update' : 'Insert'),
+                    'active' => ['value' => true],
+                    'default' => ['value' => true],
+                    'supplierID' => ['value' => $article->supplier_number],
+                ];
+            }
+        }
+
         $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
 
         // Update cross references
