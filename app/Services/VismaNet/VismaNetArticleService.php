@@ -92,7 +92,7 @@ class VismaNetArticleService extends VismaNetApiService
                     [
                         'operation' => 'Insert',
                         'active' => ['value' => true],
-                        'default' => ['value' => true],
+                        'default' => ['value' => false],
                         'supplierID' => ['value' => $article->supplier_number],
                     ]
                 ];
