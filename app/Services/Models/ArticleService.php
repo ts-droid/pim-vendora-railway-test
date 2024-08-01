@@ -64,7 +64,7 @@ class ArticleService
         ];
 
         // Add categories
-        $articleCategoryIDs = json_decode($article->category_ids, true) ?: [];
+        $articleCategoryIDs = $article->category_ids ?: [];
 
         if ($articleCategoryIDs) {
             $articleCategoryController = new ArticleCategoryController();
