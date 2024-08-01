@@ -7,7 +7,7 @@ use App\Models\Article;
 class VismaNetArticleService extends VismaNetApiService
 {
 
-    public function updateArticle(Article $article)
+    public function updateArticle(Article $article): array
     {
         $data = [
             'status' => ['value' => $article->status],
@@ -80,7 +80,7 @@ class VismaNetArticleService extends VismaNetApiService
             ]
         ];
 
-        $response = $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
+        return $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
     }
 
 }
