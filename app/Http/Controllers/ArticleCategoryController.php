@@ -13,6 +13,40 @@ class ArticleCategoryController extends Controller
         return ArticleCategory::pluck('id')->toArray();
     }
 
+    public function getCategoryPaths()
+    {
+        $categories = \App\Models\ArticleCategory::all()->toArray();
+
+        // Build a map of categories
+        $categoryMap = [];
+        foreach ($categories as $category) {
+            $categoryMap[$category['id']] = $category;
+        }
+
+        function buildCategoryPath(&$category, $categoryMap) {
+            if ($category['parent_id'] == 0) {
+                // If it's a root category, the path is just its title
+                return $category['title_en'];
+            } else {
+                // Recursively build the path
+                $parentCategory = $categoryMap[$category['parent_id']];
+                $parentPath = buildCategoryPath($parentCategory, $categoryMap);
+                return $parentPath . ' - ' . $category['title_en'];
+            }
+        }
+
+        // Add the "path" value to each category
+        $categoryPaths = [];
+        foreach ($categories as $category) {
+            $categoryPaths[] = [
+                'id' => $category['id'],
+                'path' => buildCategoryPath($category, $categoryMap),
+            ];
+        }
+
+        return $categoryPaths;
+    }
+
     public function getCategoryTree(array $categoryIDs, int $parentID = 0)
     {
         $categories = ArticleCategory::whereIn('id', $categoryIDs)

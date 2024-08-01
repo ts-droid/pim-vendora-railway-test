@@ -231,6 +231,46 @@ class WgrController extends Controller
         $this->makeRequest('Article.set', $params);
     }
 
+    public function getCategories(): array
+    {
+        $response = $this->makeRequest('Category.get');
+
+        $categories = [];
+        $categoryMap = [];
+
+        foreach ($response[0]['result'] as $category) {
+            $categoryArray = [
+                'id' => $category['id'],
+                'parent_id' => $category['parentId'],
+                'title' => $category['title_en'],
+                'path' => ''
+            ];
+
+            $categories[] = $categoryArray;
+
+            $categoryMap[$categoryArray['id']] = $categoryArray;
+        }
+
+        function buildCategoryPath(&$category, $categoryMap)
+        {
+            if ($category['parent_id'] == 0) {
+                // If it's a root category, the path is just its title
+                return $category['title'];
+            } else {
+                // Recursively build the path
+                $parentCategory = $categoryMap[$category['parent_id']];
+                $parentPath = buildCategoryPath($parentCategory, $categoryMap);
+                return $parentPath . ' - ' . $category['title'];
+            }
+        }
+
+        foreach ($categories as &$category) {
+            $category['path'] = buildCategoryPath($category, $categoryMap);
+        }
+
+        return $categories;
+    }
+
     /**
      * Makes a request to the WGR API and returns the result
      *
