@@ -251,21 +251,8 @@ class WgrController extends Controller
             $categoryMap[$categoryArray['id']] = $categoryArray;
         }
 
-        function buildCategoryPath(&$category, $categoryMap)
-        {
-            if ($category['parent_id'] == 0) {
-                // If it's a root category, the path is just its title
-                return $category['title'];
-            } else {
-                // Recursively build the path
-                $parentCategory = $categoryMap[$category['parent_id']];
-                $parentPath = buildCategoryPath($parentCategory, $categoryMap);
-                return $parentPath . ' - ' . $category['title'];
-            }
-        }
-
         foreach ($categories as &$category) {
-            $category['path'] = buildCategoryPath($category, $categoryMap);
+            $category['path'] = $this->buildCategoryPath($category, $categoryMap);
         }
 
         return $categories;
@@ -314,5 +301,18 @@ class WgrController extends Controller
         $responseData = json_decode($responseBody, true);
 
         return is_array($responseData) ? $responseData : [];
+    }
+
+    private function buildCategoryPath(&$category, $categoryMap)
+    {
+        if ($category['parent_id'] == 0) {
+            // If it's a root category, the path is just its title
+            return $category['title'];
+        } else {
+            // Recursively build the path
+            $parentCategory = $categoryMap[$category['parent_id']];
+            $parentPath = $this->buildCategoryPath($parentCategory, $categoryMap);
+            return $parentPath . ' - ' . $category['title'];
+        }
     }
 }
