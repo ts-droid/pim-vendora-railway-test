@@ -83,7 +83,8 @@ class VismaNetArticleService extends VismaNetApiService
 
         // Update supplier
         if ($article->supplier_number) {
-            $remoteArticle = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+            $response = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+            $remoteArticle = $response['response'] ?? [];
             $currentSupplierNumber = $remoteArticle['supplierDetails'][0]['supplierId'] ?? '';
 
             if ($currentSupplierNumber != $article->supplier_number) {
@@ -112,12 +113,13 @@ class VismaNetArticleService extends VismaNetApiService
     {
         // Load existing cross references
         if (!isset($this->crossReferences[$articleNumber])) {
-            $this->crossReferences[$articleNumber] = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
+            $response = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
+            $this->crossReferences[$articleNumber] = $response['response'] ?? '';
         }
 
         // Try to update existing value
         foreach ($this->crossReferences[$articleNumber] as $crossReference) {
-            if ($crossReference['alternateType'] == 'Barcode') {
+            if ($crossReference['alternateType'] == $alternateType) {
                 $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
                     'alternateID' => ['value' => $value],
                 ]);
