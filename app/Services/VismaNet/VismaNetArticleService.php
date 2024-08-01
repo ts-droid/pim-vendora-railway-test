@@ -94,7 +94,7 @@ class VismaNetArticleService extends VismaNetApiService
                         'active' => ['value' => true],
                         'default' => ['value' => true],
                         'supplierID' => ['value' => $article->supplier_number],
-                        'purchaseUnit' => ['value' => 'STYCK']
+                        'purchaseUnit' => ['value' => $remoteArticle['baseUnit']],
                     ]
                 ];
             }
