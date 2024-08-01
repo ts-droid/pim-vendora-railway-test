@@ -38,7 +38,7 @@ class ArticleService
     private function pushToWGR(Article $article, array $changes): void
     {
         $data = [
-            'isHidden' => (bool) $article->is_webshop,
+            'isHidden' => !$article->is_webshop,
             'isBackOrder' => (bool) $article->is_backorder,
             'reviewLinksJSON' => (string) $article->review_links ?: '[]',
             'width' => (int) $article->width,
