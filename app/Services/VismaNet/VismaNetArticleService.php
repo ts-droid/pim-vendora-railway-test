@@ -6,8 +6,9 @@ use App\Models\Article;
 
 class VismaNetArticleService extends VismaNetApiService
 {
+    private array $crossReferences = [];
 
-    public function updateArticle(Article $article): array
+    public function updateArticle(Article $article): void
     {
         $data = [
             'status' => ['value' => $article->status],
@@ -80,7 +81,39 @@ class VismaNetArticleService extends VismaNetApiService
             ]
         ];
 
-        return $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
+        $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
+
+        // Update cross references
+        if ($article->ean) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
+        }
+        if ($article->wright_article_number) {
+            $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
+        }
     }
 
+
+    private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value): void
+    {
+        // Load existing cross references
+        if (!isset($this->crossReferences[$articleNumber])) {
+            $this->crossReferences[$articleNumber] = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
+        }
+
+        // Try to update existing value
+        foreach ($this->crossReferences[$articleNumber] as $crossReference) {
+            if ($crossReference['alternateType'] == 'Barcode') {
+                $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
+                    'alternateID' => ['value' => $value],
+                ]);
+                return;
+            }
+        }
+
+        // Create cross reference if not updated
+        $this->callAPI('POST', '/v1/inventory/' . $articleNumber . '/crossReferences', [
+            'alternateType' => ['value' => $alternateType],
+            'alternateID' => ['value' => $value],
+        ]);
+    }
 }
