@@ -495,7 +495,7 @@ class ArticleController extends Controller
             }
         }
 
-        return ApiResponseController::success($article);
+        return ApiResponseController::success($article->toArray());
     }
 
     public function store(Request $request)
