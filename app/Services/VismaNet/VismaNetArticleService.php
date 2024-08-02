@@ -133,7 +133,7 @@ class VismaNetArticleService extends VismaNetApiService
         ];
 
         if ($isNewArticle) {
-            $data['inventoryNumber'] = $article->article_number;
+            $data['inventoryNumber'] = ['value' => $article->article_number];
         }
 
         // Set supplier
