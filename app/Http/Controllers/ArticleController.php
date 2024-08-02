@@ -862,7 +862,7 @@ class ArticleController extends Controller
             }
         }
 
-        if ($data['unspsc_categories'] === 'new') {
+        if (($data['unspsc_categories'] ?? '') === 'new') {
             $unspscID = 0;
 
             $commodity = (string) $request->unspsc_id;
