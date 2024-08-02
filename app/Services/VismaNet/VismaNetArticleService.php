@@ -64,7 +64,6 @@ class VismaNetArticleService extends VismaNetApiService
         $data = [
             'status' => ['value' => $article->status],
             'type' => ['value' => $article->article_type],
-            'itemClass' => ['value' => $article->article_type],
             'description' => ['value' => $article->description],
             'intrastat' => [
                 'cN8' => ['value' => $article->hs_code],
@@ -139,6 +138,7 @@ class VismaNetArticleService extends VismaNetApiService
 
         if ($isNewArticle) {
             $data['inventoryNumber'] = ['value' => $article->article_number];
+            $data['itemClass'] = ['value' => $article->article_type];
         }
 
         // Set supplier
