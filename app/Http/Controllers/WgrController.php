@@ -220,6 +220,17 @@ class WgrController extends Controller
     }
 
     /**
+     * Creates an article in the WGR API
+     * Docs: https://www.reseller.vendora.se/api/docs/#article-create
+     *
+     * @return void
+     */
+    public function createArticle(array $data)
+    {
+        $this->makeRequest('Article.create', $data);
+    }
+
+    /**
      * Updates an article in the WGR API
      * Docs: https://www.reseller.vendora.se/api/docs/#article-set
      *
