@@ -12,14 +12,22 @@ use App\Services\VismaNet\VismaNetArticleService;
 
 class ArticleService
 {
-    public function handleCreation(Article $article): void
+    public function handleStore(Article $article): void
     {
-        // TODO: Implement logic for handling article creation
+        if (!str_contains($article->article_number, 'test')) {
+            return;
+        }
+
+        // Create in Visma.net
+        $vismaNetArticleService = new VismaNetArticleService();
+        $vismaNetArticleService->createArticle($article);
+
+        // TODO: Create in WGR
     }
 
     public function handleUpdate(Article $article, array $changes): void
     {
-        if ($article->article_number !== '1001-1') {
+        if ($article->article_number != '1001-1') {
             return;
         }
 
@@ -27,12 +35,12 @@ class ArticleService
             return;
         }
 
-        // Push update to WGR
-        $this->pushToWGR($article, $changes);
-
         // Push update to Visma.net
         $vismaNetArticleService = new VismaNetArticleService();
         $vismaNetArticleService->updateArticle($article);
+
+        // Push update to WGR
+        $this->pushToWGR($article, $changes);
     }
 
     private function pushToWGR(Article $article, array $changes): void
@@ -107,7 +115,6 @@ class ArticleService
 
         $wgrController = new WgrController();
         $wgrController->updateArticle($article->article_number, $data);
-
 
         // TODO: Handle images
 

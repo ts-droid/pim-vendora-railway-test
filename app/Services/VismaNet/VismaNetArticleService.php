@@ -8,7 +8,58 @@ class VismaNetArticleService extends VismaNetApiService
 {
     private array $crossReferences = [];
 
+    public function createArticle(Article $article): void
+    {
+        $this->callAPI('POST', '/v1/inventory', $this->getPostData($article, true));
+
+        // Set cross references
+        if ($article->ean) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
+        }
+        if ($article->wright_article_number) {
+            $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
+        }
+    }
+
     public function updateArticle(Article $article): void
+    {
+        $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $this->getPostData($article));
+
+        // Update cross references
+        if ($article->ean) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
+        }
+        if ($article->wright_article_number) {
+            $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
+        }
+    }
+
+    private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value): void
+    {
+        // Load existing cross references
+        if (!isset($this->crossReferences[$articleNumber])) {
+            $response = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
+            $this->crossReferences[$articleNumber] = $response['response'] ?? '';
+        }
+
+        // Try to update existing value
+        foreach ($this->crossReferences[$articleNumber] as $crossReference) {
+            if ($crossReference['alternateType'] == $alternateType) {
+                $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
+                    'alternateID' => ['value' => $value],
+                ]);
+                return;
+            }
+        }
+
+        // Create cross reference if not updated
+        $this->callAPI('POST', '/v1/inventory/' . $articleNumber . '/crossReferences', [
+            'alternateType' => ['value' => $alternateType],
+            'alternateID' => ['value' => $value],
+        ]);
+    }
+
+    private function getPostData(Article $article, bool $isNewArticle = false): array
     {
         $data = [
             'status' => ['value' => $article->status],
@@ -81,59 +132,33 @@ class VismaNetArticleService extends VismaNetApiService
             ]
         ];
 
-        // Update supplier
+        if ($isNewArticle) {
+            $data['inventoryNumber'] = $article->article_number;
+        }
+
+        // Set supplier
         if ($article->supplier_number) {
-            $response = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
-            $remoteArticle = $response['response'] ?? [];
-            $currentSupplierNumber = $remoteArticle['supplierDetails'][0]['supplierId'] ?? '';
+
+            $currentSupplierNumber = '';
+            if (!$isNewArticle) {
+                $response = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+                $remoteArticle = $response['response'] ?? [];
+                $currentSupplierNumber = $remoteArticle['supplierDetails'][0]['supplierId'] ?? '';
+            }
 
             if ($currentSupplierNumber != $article->supplier_number) {
                 $data['supplierDetails'] = [
                     [
-                        'operation' => 'Update',
+                        'operation' => ($isNewArticle ? 'Insert' : 'Update'),
                         'active' => ['value' => true],
                         'default' => ['value' => true],
                         'supplierID' => ['value' => $article->supplier_number],
-                        'purchaseUnit' => ['value' => $remoteArticle['baseUnit']],
+                        'purchaseUnit' => ['value' => 'STYCK'],
                     ]
                 ];
             }
         }
 
-        $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $data);
-
-        // Update cross references
-        if ($article->ean) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
-        }
-        if ($article->wright_article_number) {
-            $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
-        }
-    }
-
-
-    private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value): void
-    {
-        // Load existing cross references
-        if (!isset($this->crossReferences[$articleNumber])) {
-            $response = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
-            $this->crossReferences[$articleNumber] = $response['response'] ?? '';
-        }
-
-        // Try to update existing value
-        foreach ($this->crossReferences[$articleNumber] as $crossReference) {
-            if ($crossReference['alternateType'] == $alternateType) {
-                $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
-                    'alternateID' => ['value' => $value],
-                ]);
-                return;
-            }
-        }
-
-        // Create cross reference if not updated
-        $this->callAPI('POST', '/v1/inventory/' . $articleNumber . '/crossReferences', [
-            'alternateType' => ['value' => $alternateType],
-            'alternateID' => ['value' => $value],
-        ]);
+        return $data;
     }
 }

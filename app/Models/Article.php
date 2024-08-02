@@ -103,6 +103,10 @@ class Article extends Model
 
             event(new \App\Events\ArticleUpdated($article, $changes));
         });
+
+        static::created(function ($article) {
+            event(new \App\Events\ArticleStored($article));
+        });
     }
 
     public function supplier()
