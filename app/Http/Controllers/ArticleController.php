@@ -10,6 +10,7 @@ use App\Models\CustomerInvoice;
 use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
+use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Utilities\ImageBackgroundAnalyzer;
@@ -456,6 +457,47 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function storeV2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'article_number' => 'required|string',
+            'description' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $fillables = get_model_attributes(Article::class);
+
+        $postData = $request->all();
+
+        $storeData = array_intersect_key($postData, array_flip($fillables));
+        $storeData = $this->formatPostData($request, $storeData);
+
+        $article = Article::create($storeData);
+        if (!($article['id'] ?? 0)) {
+            return ApiResponseController::error('Failed to create article.');
+        }
+
+        if (isset($postData['current_cost'])) {
+            $supplier = $article->supplier;
+            if ($supplier->id ?? 0) {
+
+                $supplierPriceService = new SupplierArticlePriceService();
+                $supplierPriceService->createSupplierArticlePrice([
+                    'article_number' => (string) $article['article_number'],
+                    'price' => (float) $postData['current_cost'],
+                    'currency' => (string) $supplier->currency,
+                ]);
+
+            }
+        }
+
+        return ApiResponseController::success($article);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -570,120 +612,25 @@ class ArticleController extends Controller
 
         $updates = $request->all();
 
-        $allowedUpdated = array_intersect_key($updates, array_flip($fillables));
+        $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
+        $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
 
-        // Cast data types
-        $castTypes = [
-            'string' => [
-                'status',
-                'article_number',
-                'description',
-                'origin_country',
-                'ean',
-                'wright_article_number',
-                'supplier_number',
-                'article_type',
-                'brand',
-                'eu_import_marking',
-                'gtin_inner_box',
-                'gtin_master_box',
-                'gtin_pallet',
-                'google_product_category',
-                'unspsc_categories',
-                'recommended_replacement_article',
-                'hs_code',
-                'un_code',
-            ],
-            'int' => [
-                'pallet_height',
-                'weight',
-                'product_weight',
-                'inner_box_weight',
-                'master_box_weight',
-                'pallet_weight',
-                'inner_box',
-                'master_box',
-                'pallet_size',
-                'package_weight_paper',
-                'package_weight_plastic',
-                'package_weight_metal',
-                'package_weight_glass',
-                'is_webshop',
-                'serial_number_management',
-                'is_backorder',
-                'minimum_order_quantity'
-            ],
-            'float' => [
-                'standard_reseller_margin',
-                'minimum_margin',
-                'height',
-                'width',
-                'depth',
-                'product_height',
-                'product_width',
-                'product_depth',
-                'inner_box_height',
-                'inner_box_width',
-                'inner_box_depth',
-                'master_box_height',
-                'master_box_width',
-                'master_box_depth'
-            ],
-        ];
+        $article->update($allowedUpdates);
 
-        foreach ($castTypes as $type => $fields) {
-            foreach ($fields as $field) {
-                if (!array_key_exists($field, $allowedUpdated)) {
-                    continue;
-                }
+        // Update supplier price
+        if (isset($updates['current_cost'])) {
+            $supplier = $article->supplier;
+            if ($supplier->id ?? 0) {
 
-                $value = $allowedUpdated[$field];
+                $supplierPriceService = new SupplierArticlePriceService();
+                $supplierPriceService->createSupplierArticlePrice([
+                    'article_number' => (string) $article['article_number'],
+                    'price' => (float) $updates['current_cost'],
+                    'currency' => (string) $supplier->currency,
+                ]);
 
-                switch ($type) {
-                    case 'string':
-                        $value = (string) $value;
-                        break;
-
-                    case 'int':
-                        $value = (int) $value;
-                        break;
-
-                    case 'float':
-                        $value = (float) $value;
-                        break;
-                }
-
-                $allowedUpdated[$field] =  $value;
             }
         }
-
-        if (($allowedUpdated['unspsc_categories'] ?? '') === 'new') {
-            $unspscID = 0;
-
-            $commodity = (string) $request->unspsc_id;
-            $commodityTitle = (string) $request->unspsc_title;
-
-            if ($commodity && $commodityTitle) {
-                $unspscCategory = DB::table('unspsc_categories')
-                    ->where('commodity', $commodity)
-                    ->first();
-
-                if (!$unspscCategory) {
-                    $unspscID = DB::table('unspsc_categories')
-                        ->insertGetId([
-                            'commodity' => $commodity,
-                            'commodity_title' => $commodityTitle,
-                        ]);
-                }
-                else {
-                    $unspscID = $unspscCategory->id;
-                }
-            }
-
-            $allowedUpdated['unspsc_categories'] = (string) $unspscID;
-        }
-
-        $article->update($allowedUpdated);
 
         // Log the stock
         $stockLogController = new StockLogController();
@@ -828,4 +775,119 @@ class ArticleController extends Controller
 
         return ApiResponseController::success($retailers);
 	}
+
+    private function formatPostData(Request $request, array $data)
+    {
+        $castTypes = [
+            'string' => [
+                'status',
+                'article_number',
+                'description',
+                'origin_country',
+                'ean',
+                'wright_article_number',
+                'supplier_number',
+                'article_type',
+                'brand',
+                'eu_import_marking',
+                'gtin_inner_box',
+                'gtin_master_box',
+                'gtin_pallet',
+                'google_product_category',
+                'unspsc_categories',
+                'recommended_replacement_article',
+                'hs_code',
+                'un_code',
+            ],
+            'int' => [
+                'pallet_height',
+                'weight',
+                'product_weight',
+                'inner_box_weight',
+                'master_box_weight',
+                'pallet_weight',
+                'inner_box',
+                'master_box',
+                'pallet_size',
+                'package_weight_paper',
+                'package_weight_plastic',
+                'package_weight_metal',
+                'package_weight_glass',
+                'is_webshop',
+                'serial_number_management',
+                'is_backorder',
+                'minimum_order_quantity'
+            ],
+            'float' => [
+                'standard_reseller_margin',
+                'minimum_margin',
+                'height',
+                'width',
+                'depth',
+                'product_height',
+                'product_width',
+                'product_depth',
+                'inner_box_height',
+                'inner_box_width',
+                'inner_box_depth',
+                'master_box_height',
+                'master_box_width',
+                'master_box_depth'
+            ],
+        ];
+
+        foreach ($castTypes as $type => $fields) {
+            foreach ($fields as $field) {
+                if (!array_key_exists($field, $data)) {
+                    continue;
+                }
+
+                $value = $data[$field];
+
+                switch ($type) {
+                    case 'string':
+                        $value = (string) $value;
+                        break;
+
+                    case 'int':
+                        $value = (int) $value;
+                        break;
+
+                    case 'float':
+                        $value = (float) $value;
+                        break;
+                }
+
+                $data[$field] =  $value;
+            }
+        }
+
+        if ($data['unspsc_categories'] === 'new') {
+            $unspscID = 0;
+
+            $commodity = (string) $request->unspsc_id;
+            $commodityTitle = (string) $request->unspsc_title;
+
+            if ($commodity && $commodityTitle) {
+                $unspscCategory = DB::table('unspsc_categories')
+                    ->where('commodity', $commodity)
+                    ->first();
+
+                if (!$unspscCategory) {
+                    $unspscID = DB::table('unspsc_categories')
+                        ->insertGetId([
+                            'commodity' => $commodity,
+                            'commodity_title' => $commodityTitle,
+                        ]);
+                }
+                else {
+                    $unspscID = $unspscCategory->id;
+                }
+            }
+
+            $data['unspsc_categories'] = (string) $unspscID;
+        }
+
+        return $data;
+    }
 }
