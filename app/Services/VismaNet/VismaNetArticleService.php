@@ -64,6 +64,7 @@ class VismaNetArticleService extends VismaNetApiService
         $data = [
             'status' => ['value' => $article->status],
             'type' => ['value' => $article->article_type],
+            'itemClass' => ['value' => $article->article_type],
             'description' => ['value' => $article->description],
             'intrastat' => [
                 'cN8' => ['value' => $article->hs_code],
