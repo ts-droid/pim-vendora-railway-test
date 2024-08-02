@@ -27,7 +27,7 @@ class ArticleService
 
     public function handleUpdate(Article $article, array $changes): void
     {
-        if ($article->article_number != '1001-1') {
+        if (!str_contains($article->article_number, 'test')) {
             return;
         }
 
