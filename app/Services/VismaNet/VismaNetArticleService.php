@@ -123,6 +123,10 @@ class VismaNetArticleService extends VismaNetApiService
                     'attributeValue' => ['value' => (int) $article->inner_box_weight],
                 ],
                 [
+                    'attributeId' => ['value' => 'VIKTMAST'],
+                    'attributeValue' => ['value' => (int) $article->master_box_weight],
+                ],
+                [
                     'attributeId' => ['value' => 'VARUMÄRKE'],
                     'attributeValue' => ['value' => $article->brand],
                 ],
