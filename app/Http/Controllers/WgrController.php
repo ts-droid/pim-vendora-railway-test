@@ -219,15 +219,24 @@ class WgrController extends Controller
         return $categoryIDs;
     }
 
+    public function createArticleImage(int $productID, string $filename, string $base64)
+    {
+        $this->makeRequest('ProductImage.create', [
+            'productId' => $productID,
+            'filename' => $filename,
+            'base64' => $base64
+        ]);
+    }
+
     /**
      * Creates an article in the WGR API
      * Docs: https://www.reseller.vendora.se/api/docs/#article-create
      *
-     * @return void
+     * @return array
      */
-    public function createArticle(array $data)
+    public function createArticle(array $data): array
     {
-        $this->makeRequest('Article.create', $data);
+        return $this->makeRequest('Article.create', $data);
     }
 
     /**

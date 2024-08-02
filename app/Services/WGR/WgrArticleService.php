@@ -8,6 +8,7 @@ use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\WgrController;
 use App\Models\Article;
+use App\Models\ArticleImage;
 
 class WgrArticleService
 {
@@ -17,9 +18,30 @@ class WgrArticleService
         $postData['articleNumber'] = $article->article_number;
 
         $wgrController = new WgrController();
-        $wgrController->createArticle($postData);
+        $response = $wgrController->createArticle($postData);
 
-        // TODO: Create images
+        $productID = (int) ($response['result']['id'] ?? 0);
+        if (!$productID) {
+            return;
+        }
+
+        // Create images
+        $images = ArticleImage::where('article_id', $article->id)->get();
+        if ($images) {
+            foreach ($images as $image) {
+
+                $imageContent = file_get_contents($image->path_url);
+                if ($imageContent === false) {
+                    continue;
+                }
+
+                $wgrController->createArticleImage(
+                    $productID,
+                    $image->filename,
+                    base64_encode($imageContent)
+                );
+            }
+        }
     }
 
     public function updateArticle(Article $article): void
