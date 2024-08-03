@@ -80,7 +80,7 @@ class ImageComparisonUtility
                 $rgb1 = imagecolorat($image1, $x, $y);
                 $rgb2 = imagecolorat($image2, $x, $y);
 
-                if (colorSimilarity($rgb1, $rgb2) >= 0.8) {
+                if (self::colorSimilarity($rgb1, $rgb2) >= 0.8) {
                     $similarPixels++;
                 }
             }
