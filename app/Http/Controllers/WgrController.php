@@ -237,11 +237,11 @@ class WgrController extends Controller
 
     public function getArticleImages(string $articleNumber)
     {
-        $imageResponse = $this->makeRequest('ProductImage.get', [
+        $imagesResponse = $this->makeRequest('ProductImage.get', [
             'articleNumber' => $articleNumber
         ]);
 
-        return ($imagesReponse[0]['result'] ?? []);
+        return ($imagesResponse[0]['result'] ?? []);
     }
 
     /**
