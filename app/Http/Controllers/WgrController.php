@@ -221,7 +221,7 @@ class WgrController extends Controller
 
     public function createArticleImage(int $productID, string $filename, string $base64)
     {
-        $this->makeRequest('ProductImage.create', [
+        return $this->makeRequest('ProductImage.create', [
             'productId' => $productID,
             'filename' => $filename,
             'base64' => $base64
