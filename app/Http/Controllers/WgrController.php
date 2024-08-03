@@ -243,12 +243,12 @@ class WgrController extends Controller
      * Updates an article in the WGR API
      * Docs: https://www.reseller.vendora.se/api/docs/#article-set
      *
-     * @return void
+     * @return array
      */
     public function updateArticle(string $articleNumber, array $data = [])
     {
         $params = array_merge(['articleNumber' => $articleNumber], $data);
-        $this->makeRequest('Article.set', $params);
+        return $this->makeRequest('Article.set', $params);
     }
 
     public function getCategories(): array
