@@ -6,7 +6,7 @@ use Exception;
 
 class ImageComparisonUtility
 {
-    public static function isBase64ImageSimilar($base64Image1, $base64Image2, $threshold = 98): bool
+    public static function isBase64ImageSimilar($base64Image1, $base64Image2, $threshold = 100): bool
     {
         $similarity = self::compareBase64Images($base64Image1, $base64Image2);
         return $similarity >= $threshold;
