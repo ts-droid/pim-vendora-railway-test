@@ -20,8 +20,8 @@ class ArticleService
         }
 
         // Create in Visma.net
-        $vismaNetArticleService = new VismaNetArticleService();
-        $vismaNetArticleService->createArticle($article);
+        // $vismaNetArticleService = new VismaNetArticleService();
+        // $vismaNetArticleService->createArticle($article);
 
         // Create in WGR
         $wgrArticleService = new WgrArticleService();
@@ -39,8 +39,8 @@ class ArticleService
         }
 
         // Push update to Visma.net
-        $vismaNetArticleService = new VismaNetArticleService();
-        $vismaNetArticleService->updateArticle($article);
+        // $vismaNetArticleService = new VismaNetArticleService();
+        // $vismaNetArticleService->updateArticle($article);
 
         // Push update to WGR
         $wgrArticleService = new WgrArticleService();
