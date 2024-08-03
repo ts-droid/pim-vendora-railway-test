@@ -20,7 +20,7 @@ class WgrArticleService
         $wgrController = new WgrController();
         $response = $wgrController->createArticle($postData);
 
-        $productID = (int) ($response['result']['productId'] ?? 0);
+        $productID = (int) ($response[0]['result']['productId'] ?? 0);
         if (!$productID) {
             return;
         }
@@ -49,7 +49,7 @@ class WgrArticleService
         $wgrController = new WgrController();
         $response = $wgrController->updateArticle($article->article_number, $this->getPostData($article));
 
-        $productID = (int) ($response['result']['productId'] ?? 0);
+        $productID = (int) ($response[0]['result']['productId'] ?? 0);
         if (!$productID) {
             return;
         }
