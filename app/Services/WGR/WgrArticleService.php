@@ -54,20 +54,16 @@ class WgrArticleService
         // Remove deleted images
         if ($remoteImages) {
             foreach ($remoteImages as $remoteImage) {
-                $imageExists = false;
-
                 foreach ($images as $image) {
                     $isSimilar = ImageComparisonUtility::isBase64ImageSimilar($image->getBase64(), $remoteImage['base64']);
                     if ($isSimilar) {
-                        $imageExists = true;
                         $checkedImageIDs[] = $image->id;
-                        break;
+                        continue 2;
                     }
                 }
 
-                if (!$imageExists) {
-                    $wgrController->deleteArticleImage($remoteImage['imageId']);
-                }
+                // The image was not found in the local images, so it must have been deleted
+                $wgrController->deleteArticleImage($remoteImage['imageId']);
             }
         }
 
