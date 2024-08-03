@@ -9,6 +9,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\WgrController;
 use App\Models\Article;
 use App\Models\ArticleImage;
+use App\Utilities\ImageComparisonUtility;
 
 class WgrArticleService
 {
@@ -29,17 +30,7 @@ class WgrArticleService
         $images = ArticleImage::where('article_id', $article->id)->get();
         if ($images) {
             foreach ($images as $image) {
-
-                $imageContent = file_get_contents($image->path_url);
-                if ($imageContent === false) {
-                    continue;
-                }
-
-                $wgrController->createArticleImage(
-                    $productID,
-                    $image->filename,
-                    base64_encode($imageContent)
-                );
+                $this->uploadImage($image, $productID);
             }
         }
     }
@@ -54,23 +45,50 @@ class WgrArticleService
             return;
         }
 
-        // Create images
+        // Handle image updates
         $images = ArticleImage::where('article_id', $article->id)->get();
-        if ($images) {
-            foreach ($images as $image) {
+        $remoteImages = $wgrController->getArticleImages($article->article_number);
 
-                $imageContent = file_get_contents($image->path_url);
-                if ($imageContent === false) {
-                    continue;
+        $checkedImageIDs = [];
+
+        // Remove deleted images
+        if ($remoteImages) {
+            foreach ($remoteImages as $remoteImage) {
+                $imageExists = false;
+
+                foreach ($images as $image) {
+                    $isSimilar = ImageComparisonUtility::isBase64ImageSimilar($image->getBase64(), $remoteImage['base64']);
+                    if ($isSimilar) {
+                        $imageExists = true;
+                        $checkedImageIDs[] = $image->id;
+                        break;
+                    }
                 }
 
-                $wgrController->createArticleImage(
-                    $productID,
-                    $image->filename,
-                    base64_encode($imageContent)
-                );
+                if (!$imageExists) {
+                    $wgrController->deleteArticleImage($remoteImage['imageId']);
+                }
             }
         }
+
+        // Upload new images
+        foreach ($images as $image) {
+            if (in_array($image->id, $checkedImageIDs)) {
+                continue;
+            }
+
+            $this->uploadImage($image, $productID);
+        }
+    }
+
+    private function uploadImage(ArticleImage $image, int $productID): void
+    {
+        $wgrController = new WgrController();
+        $wgrController->createArticleImage(
+            $productID,
+            $image->filename,
+            $image->getBase64()
+        );
     }
 
     private function getPostData(Article $article): array

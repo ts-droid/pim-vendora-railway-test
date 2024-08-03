@@ -228,6 +228,22 @@ class WgrController extends Controller
         ]);
     }
 
+    public function deleteArticleImage(int $imageID)
+    {
+        return $this->makeRequest('ProductImage.delete', [
+            'imageId' => $imageID
+        ]);
+    }
+
+    public function getArticleImages(string $articleNumber)
+    {
+        $imageResponse = $this->makeRequest('ProductImage.get', [
+            'articleNumber' => $articleNumber
+        ]);
+
+        return ($imagesReponse[0]['result'] ?? []);
+    }
+
     /**
      * Creates an article in the WGR API
      * Docs: https://www.reseller.vendora.se/api/docs/#article-create
