@@ -20,7 +20,7 @@ class WgrArticleService
         $wgrController = new WgrController();
         $response = $wgrController->createArticle($postData);
 
-        $productID = (int) ($response['result']['id'] ?? 0);
+        $productID = (int) ($response['result']['productId'] ?? 0);
         if (!$productID) {
             return;
         }
@@ -47,9 +47,30 @@ class WgrArticleService
     public function updateArticle(Article $article): void
     {
         $wgrController = new WgrController();
-        $wgrController->updateArticle($article->article_number, $this->getPostData($article));
+        $response = $wgrController->updateArticle($article->article_number, $this->getPostData($article));
 
-        // TODO: Handle images
+        $productID = (int) ($response['result']['productId'] ?? 0);
+        if (!$productID) {
+            return;
+        }
+
+        // Create images
+        $images = ArticleImage::where('article_id', $article->id)->get();
+        if ($images) {
+            foreach ($images as $image) {
+
+                $imageContent = file_get_contents($image->path_url);
+                if ($imageContent === false) {
+                    continue;
+                }
+
+                $wgrController->createArticleImage(
+                    $productID,
+                    $image->filename,
+                    base64_encode($imageContent)
+                );
+            }
+        }
     }
 
     private function getPostData(Article $article): array
