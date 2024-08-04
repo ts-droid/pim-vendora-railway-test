@@ -384,8 +384,7 @@ class ArticleController extends Controller
 
     public function getImages(Request $request, Article $article)
     {
-        $images = DB::table('article_images')
-            ->where('article_id', $article->id)
+        $images = ArticleImage::where('article_id', $article->id)
             ->orderBy('list_order', 'ASC')
             ->get();
 
