@@ -37,18 +37,24 @@ class ArticleCategoryController extends Controller
 
     public function getCategoryTree(array $categoryIDs, int $parentID = 0)
     {
-        $categories = ArticleCategory::whereIn('id', $categoryIDs)
-            ->where('parent_id', $parentID)
-            ->get();
+        $allCategories = ArticleCategory::whereIn('id', $categoryIDs)
+            ->orderBy('parent_id')
+            ->get()
+            ->groupBy('parent_id');
 
-        if (!$categories) {
+        return $this->buildCategoryTree($allCategories, $parentID);
+    }
+
+    private function buildCategoryTree($allCategories, $parentID)
+    {
+        if (!isset($allCategories[$parentID])) {
             return [];
         }
 
-        $categories = $categories->toArray();
+        $categories = $allCategories[$parentID]->toArray();
 
         foreach ($categories as &$category) {
-            $category['children'] = $this->getCategoryTree($categoryIDs, $category['id']);
+            $category['children'] = $this->buildCategoryTree($allCategories, $category['id']);
         }
 
         return $categories;
