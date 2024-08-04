@@ -4,8 +4,10 @@ namespace App\Listeners;
 
 use App\Events\ArticleStored;
 use App\Services\Models\ArticleService;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 
-class HandleArticleStore
+class HandleArticleStore implements ShouldQueue
 {
     public ArticleService $articleService;
 

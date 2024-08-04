@@ -18,11 +18,4 @@ class ArticleStored
     {
         $this->article = $article;
     }
-
-    public function broadcastOn(): array
-    {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
-    }
 }
