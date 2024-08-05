@@ -888,6 +888,14 @@ class ArticleController extends Controller
             $data['unspsc_categories'] = (string) $unspscID;
         }
 
+        $languages = (new LanguageController())->getAllLanguages();
+        foreach ($languages as $locale) {
+            $data['shop_title_' . $locale] = (string) ($data['shop_title_' . $locale] ?? '');
+            $data['shop_description_' . $locale] = (string) ($data['shop_description_' . $locale] ?? '');
+            $data['meta_title_' . $locale] = (string) ($data['meta_title_' . $locale] ?? '');
+            $data['meta_description_' . $locale] = (string) ($data['meta_description_' . $locale] ?? '');
+        }
+
         return $data;
     }
 }
