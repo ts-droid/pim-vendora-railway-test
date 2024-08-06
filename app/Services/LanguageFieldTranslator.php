@@ -144,9 +144,11 @@ class LanguageFieldTranslator
 
                 list($translation) = $translationController->translate([$defaultValue], self::DEFAULT_LANGUAGE, $language->language_code, $isHTML);
 
-                $item->update([
-                    $field => $translation
-                ]);
+                if ($translation) {
+                    $item->update([
+                        $field => $translation
+                    ]);
+                }
 
                 $this->batchCount++;
                 if ($this->isBatchFulfilled()) {
