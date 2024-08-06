@@ -613,7 +613,11 @@ class ArticleController extends Controller
         $updates = $request->all();
 
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
-        $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
+
+        $skipFormatting = !($request->skip_formatting ?? false);
+        if (!$skipFormatting) {
+            $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
+        }
 
         $article->update($allowedUpdates);
 
