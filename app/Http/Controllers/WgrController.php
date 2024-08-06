@@ -174,6 +174,12 @@ class WgrController extends Controller
                 }
             }
 
+            // Validate some data before updating the article
+            if (!$articleData['shop_title_sv'] || !$articleData['shop_description_sv']
+                || !$articleData['shop_title_en'] || !$articleData['shop_description_en']) {
+                continue;
+            }
+
             // Update the article
             $articleController->update(new Request($articleData), $article);
 
