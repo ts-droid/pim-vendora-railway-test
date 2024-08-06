@@ -606,6 +606,39 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function updateV2(Request $request, Article $article)
+    {
+        $fillables = get_model_attributes(Article::class);
+
+        $updates = $request->all();
+
+        $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
+        $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
+
+        $article->update($allowedUpdates);
+
+        // Update supplier price
+        if (isset($updates['current_cost'])) {
+            $supplier = $article->supplier;
+            if ($supplier->id ?? 0) {
+
+                $supplierPriceService = new SupplierArticlePriceService();
+                $supplierPriceService->createSupplierArticlePrice([
+                    'article_number' => (string) $article['article_number'],
+                    'price' => (float) $updates['current_cost'],
+                    'currency' => (string) $supplier->currency,
+                ]);
+
+            }
+        }
+
+        // Log the stock
+        $stockLogController = new StockLogController();
+        $stockLogController->logStock($article->article_number, $article->stock);
+
+        return ApiResponseController::success([$article->toArray()]);
+    }
+
     public function update(Request $request, Article $article)
     {
         $fillables = get_model_attributes(Article::class);
@@ -613,7 +646,6 @@ class ArticleController extends Controller
         $updates = $request->all();
 
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
-        //$allowedUpdates = $this->formatPostData($request, $allowedUpdates);
 
         $article->update($allowedUpdates);
 

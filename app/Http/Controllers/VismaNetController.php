@@ -751,7 +751,6 @@ class VismaNetController extends Controller
                 }
                 else {
                     // Update existing article
-                    $articleData['skip_formatting'] = 1;
                     $existingArticle = Article::find($existingArticles[0]['id']);
                     $articleController->update(new Request($articleData), $existingArticle);
                 }
