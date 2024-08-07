@@ -51,7 +51,7 @@ class FetchVismaNet extends Command
                 break;
 
             case 'articles':
-                //$vismaNetController->fetchArticles('', true);
+                $vismaNetController->fetchArticles('', true);
                 break;
 
             case 'invoices':
