@@ -18,6 +18,10 @@ class WgrArticleService
         $postData = $this->getPostData($article);
         $postData['articleNumber'] = $article->article_number;
 
+        if (count($postData['categoryId']) === 0) {
+            return;
+        }
+
         $wgrController = new WgrController();
         $response = $wgrController->createArticle($postData);
 
@@ -38,6 +42,15 @@ class WgrArticleService
     public function updateArticle(Article $article): void
     {
         $wgrController = new WgrController();
+
+        // Make sure the article exists in WGR
+        $wgrArticle = $wgrController->getArticle($article->article_number);
+        if (!($wgrArticle['id'] ?? null)) {
+            $this->createArticle($article);
+            return;
+        }
+
+        // Update the article
         $response = $wgrController->updateArticle($article->article_number, $this->getPostData($article));
 
         $productID = (int) ($response[0]['result']['productId'] ?? 0);

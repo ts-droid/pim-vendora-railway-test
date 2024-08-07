@@ -273,6 +273,14 @@ class WgrController extends Controller
         return $this->makeRequest('Article.set', $params);
     }
 
+    public function getArticle(string $articleNumber)
+    {
+        $response = $this->makeRequest('Article.get', ['articleNumber' => $articleNumber]);
+        $articles = $response[0]['result'] ?? [];
+
+        return $articles[0] ?? null;
+    }
+
     public function getCategories(): array
     {
         $response = $this->makeRequest('Category.get');
