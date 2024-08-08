@@ -469,6 +469,12 @@ class ArticleController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
+        // Make sure article number is not used
+        $articleNumber = $request->article_number;
+        if (Article::where('article_number', $articleNumber)->exists()) {
+            return ApiResponseController::error('Article number already exists.');
+        }
+
         $fillables = get_model_attributes(Article::class);
 
         $postData = $request->all();
