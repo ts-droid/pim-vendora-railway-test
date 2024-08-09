@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Customer;
 use App\Services\ArticlePriceService;
+use App\Services\ArticleReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,9 +38,45 @@ class WgrController extends Controller
             $skipImages
         );
 
+        $this->fetchReviews();
+
         $this->fetchPriceLists();
 
         StatusIndicatorController::ping('WGR sync', 86400);
+    }
+
+    public function fetchReviews($updatedAfter = null)
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [];
+
+        if ($updatedAfter === null) {
+            $updatedAfter = ConfigController::getConfig('wgr_last_review_fetch');
+        }
+
+        if ($updatedAfter) {
+            $params['fromDate'] = $updatedAfter;
+        }
+
+        $response = $this->makeRequest('Reviews.get', $params);
+        $reviews = $response[0]['result'] ?? [];
+
+        $reviewService = new ArticleReviewService();
+
+        foreach ($reviews as $review) {
+            $reviewService->store([
+                'article_number' => $review['articleNumber'],
+                'name' => $review['name'],
+                'content' => $review['txt'],
+                'ip' => $review['ip'],
+                'stars' => (int) $review['stars'],
+                'default_language' => $review['languageCode'],
+                'published_at' => $review['reviewDate'],
+            ]);
+        }
+
+        ConfigController::setConfigs(['wgr_last_review_fetch' => $fetchTime]);
     }
 
     /**
