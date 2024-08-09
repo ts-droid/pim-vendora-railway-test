@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
+use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\Supplier;
@@ -230,6 +231,15 @@ class ArticleController extends Controller
         }
 
         return ApiResponseController::success($articles);
+    }
+
+    public function getReviews(Request $request, Article $article)
+    {
+        $reviews = ArticleReview::where('article_number', $article->article_number)
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($reviews->toArray());
     }
 
     public function getCategories(Request $request, Article $article)
