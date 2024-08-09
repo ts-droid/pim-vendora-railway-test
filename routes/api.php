@@ -4,6 +4,7 @@ use App\Http\Controllers\AIController;
 use App\Http\Controllers\ApiArticleCategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ArticlePriceListController;
+use App\Http\Controllers\ArticleReviewController;
 use App\Http\Controllers\ArticleTagController;
 use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
@@ -143,6 +144,12 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/supplier-prices')->group(function() {
         Route::post('/', [SupplierPriceController::class, 'store'])->name('supplierPrice.store');
+    });
+
+    Route::prefix('/article-reviews')->group(function() {
+        Route::post('/', [ArticleReviewController::class, 'store'])->name('articleReview.store');
+        Route::post('/{articleReview}', [ArticleReviewController::class, 'update'])->name('articleReview.update');
+        Route::post('/{articleReview}/delete', [ArticleReviewController::class, 'delete'])->name('articleReview.delete');
     });
 
     Route::prefix('/articles')->group(function() {

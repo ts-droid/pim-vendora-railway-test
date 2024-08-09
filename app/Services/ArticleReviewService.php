@@ -26,13 +26,13 @@ class ArticleReviewService
 
         // Create the review
         return ArticleReview::create([
-            'article_number' => $articleNumber,
-            'name' => $name,
-            'content' => $content,
-            'ip' => $ip,
+            'article_number' => (string) $articleNumber,
+            'name' => (string) $name,
+            'content' => (string) $content,
+            'ip' => (string) $ip,
             'stars' => (int) $data['stars'],
-            'default_language' => $data['default_language'],
-            'published_at' => $data['published_at'],
+            'default_language' => (string) $data['default_language'],
+            'published_at' => (string) $data['published_at'],
         ]);
     }
 
