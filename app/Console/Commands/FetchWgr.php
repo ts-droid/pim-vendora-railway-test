@@ -38,6 +38,9 @@ class FetchWgr extends Command
         if ($data == 'all') {
             $wgrController->fetchAll($forceAll, $skipImages);
         }
+        else if ($data == 'reviews') {
+            $wgrController->fetchReviews();
+        }
         else if ($data == 'prices') {
             $wgrController->fetchPriceLists();
         }
