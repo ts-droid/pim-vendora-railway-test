@@ -89,9 +89,13 @@ class ArticleReviewService
     {
         $articleReview->delete();
 
-        // TODO: Delete review in external services
+        // Delete review in external services
         if ($articleReview->wgr_id) {
+            $wgrController = new WgrController();
 
+            $wgrController->makeRequest('Reviews.delete', [
+                'id' => $articleReview->wgr_id
+            ]);
         }
     }
 }
