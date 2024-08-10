@@ -236,7 +236,7 @@ class ArticleController extends Controller
     public function getReviews(Request $request, Article $article)
     {
         $reviews = ArticleReview::where('article_number', $article->article_number)
-            ->orderBy('created_at', 'ASC')
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         return ApiResponseController::success($reviews->toArray());
