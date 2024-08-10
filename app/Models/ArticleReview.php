@@ -17,5 +17,6 @@ class ArticleReview extends Model
         'stars',
         'default_language',
         'published_at',
+        'wgr_id',
     ];
 }

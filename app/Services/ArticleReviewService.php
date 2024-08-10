@@ -13,6 +13,7 @@ class ArticleReviewService
         $name = $data['name'];
         $content = $data['content'];
         $ip = $data['ip'];
+        $wgrID = (int) ($data['wgr_id'] ?? 0);
 
         // Check if the review already exists
         $reviewExists = ArticleReview::where('article_number', $articleNumber)
@@ -34,22 +35,29 @@ class ArticleReviewService
             'stars' => (int) $data['stars'],
             'default_language' => (string) $data['default_language'],
             'published_at' => (string) $data['published_at'],
+            'wgr_id' => $wgrID,
         ]);
 
         // Create review in external services
-        $wgrController = new WgrController();
+        if (!$wgrID) {
+            $wgrController = new WgrController();
 
-        $wgrArticle = $wgrController->getArticle($articleNumber);
+            $wgrArticle = $wgrController->getArticle($articleNumber);
 
-        $wgrController->makeRequest('Reviews.create', [
-            'name' => $articleReview->name,
-            'txt' => $articleReview->content,
-            'reviewDate' => $articleReview->published_at,
-            'ip' => $articleReview->ip,
-            'productID' => (int) ($wgrArticle['productId'] ?? 0),
-            'stars' => $articleReview->stars,
-            'languageCode' => $articleReview->default_language,
-        ]);
+            $response = $wgrController->makeRequest('Reviews.create', [
+                'name' => $articleReview->name,
+                'txt' => $articleReview->content,
+                'reviewDate' => $articleReview->published_at,
+                'ip' => $articleReview->ip,
+                'productID' => (int) ($wgrArticle['productId'] ?? 0),
+                'stars' => $articleReview->stars,
+                'languageCode' => $articleReview->default_language,
+            ]);
+
+            $articleReview->update([
+                'wgr_id' => ($response[0]['result']['id'] ?? 0)
+            ]);
+        }
 
         return $articleReview;
     }
@@ -58,8 +66,23 @@ class ArticleReviewService
     {
         $articleReview->update($data);
 
-        // TODO: Update review in external services
+        // Update review in external services
+        if ($articleReview->wgr_id) {
+            $wgrController = new WgrController();
 
+            $wgrArticle = $wgrController->getArticle($articleReview->article_number);
+
+            $wgrController->makeRequest('Reviews.set', [
+                'id' => $articleReview->wgr_id,
+                'name' => $articleReview->name,
+                'txt' => $articleReview->content,
+                'reviewDate' => $articleReview->published_at,
+                'ip' => $articleReview->ip,
+                'productID' => (int) ($wgrArticle['productId'] ?? 0),
+                'stars' => $articleReview->stars,
+                'languageCode' => $articleReview->default_language,
+            ]);
+        }
     }
 
     public function delete(ArticleReview $articleReview): void
@@ -67,6 +90,8 @@ class ArticleReviewService
         $articleReview->delete();
 
         // TODO: Delete review in external services
+        if ($articleReview->wgr_id) {
 
+        }
     }
 }

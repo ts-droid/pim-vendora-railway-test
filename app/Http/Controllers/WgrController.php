@@ -73,6 +73,7 @@ class WgrController extends Controller
                 'stars' => (int) $review['stars'],
                 'default_language' => $review['languageCode'],
                 'published_at' => $review['reviewDate'],
+                'wgr_id' => $review['id']
             ]);
         }
 
