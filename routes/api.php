@@ -160,6 +160,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');
         Route::get('/unspsc-categories', [ArticleController::class, 'unspscCategories'])->name('articles.unspscCategories');
         Route::post('/update-many', [ArticleController::class, 'updateMany'])->name('articles.updateMany');
+        Route::get('/{article}', [ArticleController::class, 'getArticle'])->name('articles.getArticle');
         Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
         Route::get('/{article}/retailers', [ArticleController::class, 'getRetailers'])->name('articles.getRetailers');
         Route::get('/{article}/categories', [ArticleController::class, 'getCategories'])->name('articles.getCategories');

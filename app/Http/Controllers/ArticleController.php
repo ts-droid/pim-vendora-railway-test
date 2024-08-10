@@ -655,6 +655,11 @@ class ArticleController extends Controller
         return ApiResponseController::success([$article->toArray()]);
     }
 
+    public function getArticle(Request $request, Article $article)
+    {
+        return ApiResponseController::success($article->toArray());
+    }
+
     public function update(Request $request, Article $article)
     {
         $fillables = get_model_attributes(Article::class);
