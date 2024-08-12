@@ -869,6 +869,7 @@ class ArticleController extends Controller
                 'is_webshop',
                 'serial_number_management',
                 'is_backorder',
+                'is_dropship',
                 'minimum_order_quantity'
             ],
             'float' => [
