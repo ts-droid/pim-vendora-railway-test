@@ -15,10 +15,6 @@ class ArticleService
 {
     public function handleStore(Article $article): void
     {
-        if (!str_contains($article->article_number, 'test')) {
-            return;
-        }
-
         // Create in Visma.net
         $vismaNetArticleService = new VismaNetArticleService();
         $vismaNetArticleService->createArticle($article);
@@ -30,10 +26,6 @@ class ArticleService
 
     public function handleUpdate(Article $article, array $changes): void
     {
-        if (!str_contains($article->article_number, 'test')) {
-            return;
-        }
-
         if (!$changes) {
             return;
         }
