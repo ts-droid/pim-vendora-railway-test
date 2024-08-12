@@ -943,10 +943,24 @@ class ArticleController extends Controller
 
         $languages = (new LanguageController())->getAllLanguages();
         foreach ($languages as $locale) {
-            $data['shop_title_' . $locale->language_code] = (string) ($data['shop_title_' . $locale->language_code] ?? '');
-            $data['shop_description_' . $locale->language_code] = (string) ($data['shop_description_' . $locale->language_code] ?? '');
-            $data['meta_title_' . $locale->language_code] = (string) ($data['meta_title_' . $locale->language_code] ?? '');
-            $data['meta_description_' . $locale->language_code] = (string) ($data['meta_description_' . $locale->language_code] ?? '');
+            if (array_key_exists('shop_title_' . $locale->language_code, $data)) {
+                $data['shop_title_' . $locale->language_code] = (string) $data['shop_title_' . $locale->language_code];
+            }
+            if (array_key_exists('shop_description_' . $locale->language_code, $data)) {
+                $data['shop_description_' . $locale->language_code] = (string) $data['shop_description_' . $locale->language_code];
+            }
+            if (array_key_exists('meta_title_' . $locale->language_code, $data)) {
+                $data['meta_title_' . $locale->language_code] = (string) $data['meta_title_' . $locale->language_code];
+            }
+            if (array_key_exists('meta_description_' . $locale->language_code, $data)) {
+                $data['meta_description_' . $locale->language_code] = (string) $data['meta_description_' . $locale->language_code];
+            }
+        }
+
+        foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
+            if (array_key_exists('rek_price_' . $currency, $data)) {
+                $data['rek_price_' . $currency] = (float) $data['rek_price_' . $currency];
+            }
         }
 
         return $data;
