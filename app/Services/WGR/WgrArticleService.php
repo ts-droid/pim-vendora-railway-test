@@ -15,6 +15,10 @@ class WgrArticleService
 {
     public function createArticle(Article $article): void
     {
+        if (!in_array($article->status, ['Active', 'NoPurchases'])) {
+            return;
+        }
+
         $postData = $this->getPostData($article);
         $postData['articleNumber'] = $article->article_number;
 
@@ -41,6 +45,10 @@ class WgrArticleService
 
     public function updateArticle(Article $article): void
     {
+        if (!in_array($article->status, ['Active', 'NoPurchases'])) {
+            return;
+        }
+
         $wgrController = new WgrController();
 
         // Make sure the article exists in WGR
