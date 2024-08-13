@@ -202,7 +202,7 @@ class WgrArticleService
             }
         }
 
-        $postData['isHidden'] = $isHidden ? 1 : 0;
+        $postData['isHidden'] = $isHidden;
 
         return $postData;
     }
