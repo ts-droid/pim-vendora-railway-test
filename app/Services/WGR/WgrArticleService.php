@@ -108,7 +108,7 @@ class WgrArticleService
         );
     }
 
-    private function getPostData(Article $article): array
+    public function getPostData(Article $article): array
     {
         $postData = [
             'isBackOrder' => (bool) $article->is_backorder,
