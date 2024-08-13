@@ -851,6 +851,7 @@ class ArticleController extends Controller
                 'recommended_replacement_article',
                 'hs_code',
                 'un_code',
+                'minimum_order_quantity',
             ],
             'int' => [
                 'pallet_height',
@@ -870,7 +871,6 @@ class ArticleController extends Controller
                 'serial_number_management',
                 'is_backorder',
                 'is_dropship',
-                'minimum_order_quantity'
             ],
             'float' => [
                 'standard_reseller_margin',
