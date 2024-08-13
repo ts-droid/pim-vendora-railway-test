@@ -111,7 +111,6 @@ class WgrArticleService
     private function getPostData(Article $article): array
     {
         $postData = [
-            'isHidden' => !$article->is_webshop,
             'isBackOrder' => (bool) $article->is_backorder,
             'reviewLinksJSON' => (string) $article->review_links ?: '[]',
             'width' => (int) $article->width,
@@ -136,6 +135,12 @@ class WgrArticleService
             'googleProductCategory' => (string) $article->google_product_category,
             'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
         ];
+
+        $isHidden = false;
+
+        if (!$article->is_webshop) {
+            $isHidden = true;
+        }
 
         if ($article->is_dropship) {
             if ($article->minimum_order_quantity == 'master') {
@@ -181,12 +186,23 @@ class WgrArticleService
         foreach ($languages as $language) {
             $postData['title_' . $language->language_code] = (string) $article->{'shop_title_' . $language->language_code};
             $postData['description_' . $language->language_code] = (string) $article->{'shop_description_' . $language->language_code};
+
+            if (!$postData['title_' . $language->language_code]
+                || !$postData['description_' . $language->language_code]) {
+                $isHidden = true;
+            }
         }
 
         // Add currency fields
         foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
             $postData['price_' . $currency] = (float) $article->{'rek_price_' . $currency};
+
+            if (!$postData['price_' . $currency]) {
+                $isHidden = true;
+            }
         }
+
+        $postData['isHidden'] = $isHidden ? 1 : 0;
 
         return $postData;
     }
