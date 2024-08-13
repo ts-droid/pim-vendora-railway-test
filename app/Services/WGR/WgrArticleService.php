@@ -134,7 +134,17 @@ class WgrArticleService
             'eol' => $article->status !== ArticleStatus::Active->value,
             'categoryId' => [],
             'googleProductCategory' => (string) $article->google_product_category,
+            'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
         ];
+
+        if ($article->is_dropship) {
+            if ($article->minimum_order_quantity == 'master') {
+                $postData['defaultBox'] = 1;
+            }
+            elseif ($article->minimum_order_quantity == 'inner') {
+                $postData['defaultBox'] = 2;
+            }
+        }
 
         // Add categories
         $articleCategoryIDs = $article->category_ids ?: [];
