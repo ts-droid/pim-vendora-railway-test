@@ -26,7 +26,7 @@ class ArticleReviewController extends Controller
         $articleReviewService = new ArticleReviewService();
         $articleReview = $articleReviewService->store([
             'article_number' => $request->input('article_number'),
-            'name' => $request->input('name'),
+            'name' => $request->input('name', ''),
             'content' => $request->input('content', ''),
             'ip' => $request->input('ip', ''),
             'stars' => $request->input('stars'),
