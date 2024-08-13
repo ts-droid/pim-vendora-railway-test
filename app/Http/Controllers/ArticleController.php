@@ -126,6 +126,31 @@ class ArticleController extends Controller
             }
         }
 
+        if ($request->input('only_uncompleted')) {
+            $languageCodes = [];
+            foreach ((new LanguageController())->getAllLanguages() as $language) {
+                $languageCodes[] = $language->language_code;
+            }
+
+            $currencies = CurrencyController::SUPPORTED_CURRENCIES;
+
+            $query->where(function($query) use($languageCodes, $currencies) {
+                $query->where('is_webshop', '=', 0);
+
+                foreach ($languageCodes as $language) {
+                    $query->orWhere('shop_title_' . $language, '=', '');
+                    $query->orWhere('shop_description_' . $language, '=', '');
+                }
+
+                foreach ($currencies as $currency) {
+                    $query->orWhere('rek_price_' . $currency, '=', 0);
+                }
+
+            });
+
+            $query->whereIn('status', ['Active', 'NoPurchases']);
+        }
+
         // Execute query
         $articles = $query->get()->toArray();
 
