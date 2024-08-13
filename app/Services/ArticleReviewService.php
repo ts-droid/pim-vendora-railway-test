@@ -10,7 +10,7 @@ class ArticleReviewService
     public function store(array $data): ?ArticleReview
     {
         $articleNumber = $data['article_number'];
-        $name = $data['name'];
+        $name = $data['name'] ?? '';
         $content = $data['content'];
         $ip = $data['ip'];
         $wgrID = (int) ($data['wgr_id'] ?? 0);

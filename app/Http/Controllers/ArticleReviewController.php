@@ -13,7 +13,6 @@ class ArticleReviewController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'article_number' => 'required',
-            'name' => 'required',
             'content' => 'required',
             'stars' => 'required',
             'default_language' => 'required',
@@ -28,7 +27,7 @@ class ArticleReviewController extends Controller
         $articleReview = $articleReviewService->store([
             'article_number' => $request->input('article_number'),
             'name' => $request->input('name'),
-            'content' => $request->input('content'),
+            'content' => $request->input('content', ''),
             'ip' => $request->input('ip', ''),
             'stars' => $request->input('stars'),
             'default_language' => $request->input('default_language'),
