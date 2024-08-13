@@ -596,6 +596,8 @@ class VismaNetController extends Controller
      */
     public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
+        return;
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 

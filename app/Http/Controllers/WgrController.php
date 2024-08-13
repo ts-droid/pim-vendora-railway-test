@@ -139,6 +139,8 @@ class WgrController extends Controller
      */
     public function fetchProductData(mixed $updatedAfter = null, bool $skipImages = false): void
     {
+        return;
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [
