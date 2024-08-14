@@ -53,6 +53,8 @@ class WgrController extends Controller
         $products = $products[0]['result'] ?? [];
 
         foreach ($products as $product) {
+            sleep(1);
+
             $response = $this->makeRequest('ProductFile.get', ['productID' => $product['id']]);
             $files = $response[0]['result'] ?? [];
 
