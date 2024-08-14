@@ -81,8 +81,6 @@ class WgrController extends Controller
                     'size' => DoSpacesController::getSize($remoteFilename),
                     'wgr_id' => $file['id']
                 ]);
-
-                return;
             }
         }
     }
