@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleFile;
 use App\Models\Customer;
 use App\Services\ArticlePriceService;
 use App\Services\ArticleReviewService;
@@ -43,6 +44,47 @@ class WgrController extends Controller
         $this->fetchPriceLists();
 
         StatusIndicatorController::ping('WGR sync', 86400);
+    }
+
+    public function fetchFiles()
+    {
+        // Fetch all products
+        $products = $this->makeRequest('Article.get');
+        $products = $products[0]['result'] ?? [];
+
+        foreach ($products as $product) {
+            $response = $this->makeRequest('ProductFile.get', ['productID' => $product['id']]);
+            $files = $response[0]['result'] ?? [];
+
+            foreach ($files as $file) {
+                $fileExists = ArticleFile::where('wgr_id', $file['id'])->exists();
+                if ($fileExists) {
+                    continue;
+                }
+
+                $article = Article::where('article_number', $file['articleNumber'])->first();
+                if (!$article) {
+                    continue;
+                }
+
+                $fileContent = @file_get_contents('https://www.reseller.vendora.se/produktfiler/' . $file['filename']);
+                if (!$fileContent) {
+                    continue;
+                }
+
+                $remoteFilename = DoSpacesController::store($file['filename'], $fileContent, true);
+
+                $articleFile = ArticleFile::create([
+                    'article_id' => $article->id,
+                    'filename' => $remoteFilename,
+                    'path_url' => DoSpacesController::getURL($remoteFilename),
+                    'size' => DoSpacesController::getSize($remoteFilename),
+                    'wgr_id' => $file['id']
+                ]);
+
+                return;
+            }
+        }
     }
 
     public function fetchReviews($updatedAfter = null)
