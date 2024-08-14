@@ -428,7 +428,13 @@ class ArticleController extends Controller
     {
         DoSpacesController::delete($articleFile->filename);
 
-        // TODO: Delete file in WGR
+        // Delete file in WGR
+        if ($articleFile->wgr_id) {
+            $wgrController = new WgrController();
+            $wgrController->makeRequest('ProductFile.delete', [
+                'id' => $articleFile->wgr_id,
+            ]);
+        }
 
         $articleFile->delete();
 
