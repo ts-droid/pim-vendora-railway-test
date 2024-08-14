@@ -410,11 +410,19 @@ class ArticleController extends Controller
 
         $wgrArticle = $wgrController->getArticle($article->article_number);
         if ($wgrArticle) {
-            $response = $wgrController->makeRequest('ProductFile.create', [
+            $fileData = [
                 'productID' => $wgrArticle['productId'],
                 'base64' => base64_encode($fileContent),
                 'filename' => $remoteFilename,
-            ]);
+            ];
+
+            foreach (LanguageController::SUPPORTED_EXTERNAL_LANGUAGES['wgr'] as $languageCode) {
+                $fileData['title_' . $languageCode] = basename($file->getClientOriginalName());
+            }
+
+            $response = $wgrController->makeRequest('ProductFile.create', $fileData);
+
+            log_data(json_encode($response));
 
             $articleFile->update([
                 'wgr_id' => ($response[0]['result']['id'] ?? 0)
