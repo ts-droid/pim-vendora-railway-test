@@ -405,12 +405,30 @@ class ArticleController extends Controller
             'size' => DoSpacesController::getSize($remoteFilename)
         ]);
 
+        // Send the file to WGR
+        $wgrController = new WgrController();
+
+        $wgrArticle = $wgrController->getArticle($article->article_number);
+        if ($wgrArticle) {
+            $response = $wgrController->makeRequest('ProductFile.create', [
+                'productID' => $wgrArticle['productId'],
+                'base64' => base64_encode($fileContent),
+                'filename' => $remoteFilename,
+            ]);
+
+            $articleFile->update([
+                'wgr_id' => ($response[0]['result']['id'] ?? 0)
+            ]);
+        }
+
         return ApiResponseController::success($articleFile->toArray());
     }
 
     public function deleteFile(Request $request, Article $article, ArticleFile $articleFile)
     {
         DoSpacesController::delete($articleFile->filename);
+
+        // TODO: Delete file in WGR
 
         $articleFile->delete();
 
