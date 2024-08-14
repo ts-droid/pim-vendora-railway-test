@@ -907,6 +907,7 @@ class ArticleController extends Controller
                 'hs_code',
                 'un_code',
                 'minimum_order_quantity',
+                'alternatives',
             ],
             'int' => [
                 'pallet_height',
