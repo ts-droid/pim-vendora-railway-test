@@ -422,10 +422,8 @@ class ArticleController extends Controller
 
             $response = $wgrController->makeRequest('ProductFile.create', $fileData);
 
-            log_data(json_encode($response));
-
             $articleFile->update([
-                'wgr_id' => ($response[0]['result']['id'] ?? 0)
+                'wgr_id' => (int) ($response[0]['result'] ?? 0)
             ]);
         }
 
