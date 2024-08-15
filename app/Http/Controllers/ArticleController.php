@@ -117,7 +117,21 @@ class ArticleController extends Controller
             foreach ($filters as $filter) {
                 $count = count($filter);
 
-                if ($count === 3) {
+                if (is_array($filter[0])) {
+                    $query->where(function($query) use ($filter) {
+                        foreach ($filter as $subFilter) {
+                            $subCount = count($subFilter);
+
+                            if ($subCount === 3) {
+                                $query->orWhere($subFilter[0], $subFilter[1], $subFilter[2]);
+                            }
+                            else if ($subCount === 2) {
+                                $query->orWhereIn($subFilter[0], $subFilter[1]);
+                            }
+                        }
+                    });
+                }
+                else if ($count === 3) {
                     $query->where($filter[0], $filter[1], $filter[2]);
                 }
                 elseif ($count === 2) {
