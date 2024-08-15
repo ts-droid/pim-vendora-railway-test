@@ -547,9 +547,19 @@ class ArticleController extends Controller
         $storeData = array_intersect_key($postData, array_flip($fillables));
         $storeData = $this->formatPostData($request, $storeData);
 
+        $alternatives = null;
+        if (isset($storeData['alternatives'])) {
+            $alternatives = $storeData['alternatives'];
+            unset($storeData['alternatives']);
+        }
+
         $article = Article::create($storeData);
         if (!($article['id'] ?? 0)) {
             return ApiResponseController::error('Failed to create article.');
+        }
+
+        if ($alternatives !== null) {
+            $this->updateAlternatives($article, $alternatives);
         }
 
         if (isset($postData['current_cost'])) {
@@ -686,7 +696,17 @@ class ArticleController extends Controller
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
         $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
 
+        $alternatives = null;
+        if (isset($allowedUpdates['alternatives'])) {
+            $alternatives = $allowedUpdates['alternatives'];
+            unset($allowedUpdates['alternatives']);
+        }
+
         $article->update($allowedUpdates);
+
+        if ($alternatives !== null) {
+            $this->updateAlternatives($article, $alternatives);
+        }
 
         // Update supplier price
         if (isset($updates['current_cost'])) {
@@ -1021,5 +1041,43 @@ class ArticleController extends Controller
         }
 
         return $data;
+    }
+
+    private function updateAlternatives(Article $article, string $alternatives)
+    {
+        $alternatives = $this->alternativesToArray($alternatives);
+
+        // Add this article as alternative to the other articles
+        foreach ($alternatives as $articleNumber) {
+            $subArticle = Article::where('article_number', $articleNumber)->first();
+            if (!$subArticle) {
+                // Remove from the list
+                $alternatives = array_diff($alternatives, [$articleNumber]);
+                continue;
+            }
+
+            $articleAlternatives = $this->alternativesToArray($subArticle->alternatives);
+            $articleAlternatives[] = $article->article_number;
+
+            $subArticle->update([
+                'alternatives' => implode("\n", $articleAlternatives),
+            ]);
+        }
+
+        $article->update([
+            'alternatives' => implode("\n", $alternatives),
+        ]);
+    }
+
+    private function alternativesToArray($alternatives)
+    {
+        // Split new lines into array
+        $alternatives = preg_split("/\r\n|\n|\r/", $alternatives);
+
+        // Trim and filter
+        $alternatives = array_map('trim', $alternatives);
+        $alternatives = array_filter($alternatives);
+
+        return $alternatives;
     }
 }
