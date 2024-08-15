@@ -109,11 +109,12 @@ class SalesVolumeCalculator
             }
 
             // Reset sales volume for all articles
-            Article::query()->update([$column => 0]);
+            DB::table('articles')->update([$column => 0]);
 
             // Update the sales volume for each article
             foreach ($articleSummary as $articleNumber => $salesVolume) {
-                Article::where('article_number', (string) $articleNumber)->update([$column => $salesVolume]);
+                DB::table('articles')->where('article_number', (string) $articleNumber)
+                    ->update([$column => $salesVolume]);
             }
         }
     }
