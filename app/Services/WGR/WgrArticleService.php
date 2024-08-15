@@ -184,8 +184,8 @@ class WgrArticleService
         // Add language fields
         $languages = (new LanguageController())->getAllLanguages();
         foreach ($languages as $language) {
-            $postData['title_' . $language->language_code] = (string) $article->{'shop_title_' . $language->language_code};
-            $postData['description_' . $language->language_code] = (string) $article->{'shop_description_' . $language->language_code};
+            $postData['title_' . $language->language_code] = trim((string) $article->{'shop_title_' . $language->language_code});
+            $postData['description_' . $language->language_code] = trim((string) $article->{'shop_description_' . $language->language_code});
 
             if (!$postData['title_' . $language->language_code]
                 || !$postData['description_' . $language->language_code]) {
