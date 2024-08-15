@@ -1045,9 +1045,10 @@ class ArticleController extends Controller
 
     private function updateAlternatives(Article $article, string $alternatives)
     {
+        $oldAlternatives = $this->alternativesToArray($article->alternatives);
         $alternatives = $this->alternativesToArray($alternatives);
 
-        // Add this article as alternative to the other articles
+        // Connect this article as alternative to the other articles
         foreach ($alternatives as $articleNumber) {
             $subArticle = Article::where('article_number', $articleNumber)->first();
             if (!$subArticle) {
@@ -1058,6 +1059,24 @@ class ArticleController extends Controller
 
             $articleAlternatives = $this->alternativesToArray($subArticle->alternatives);
             $articleAlternatives[] = $article->article_number;
+
+            $articleAlternatives = array_unique($articleAlternatives);
+
+            $subArticle->update([
+                'alternatives' => implode("\n", $articleAlternatives),
+            ]);
+        }
+
+        // Disconnect removed alternatives between each other
+        $removedAlternatives = array_diff($oldAlternatives, $alternatives);
+        foreach ($removedAlternatives as $articleNumber) {
+            $subArticle = Article::where('article_number', $articleNumber)->first();
+            if (!$subArticle) {
+                continue;
+            }
+
+            $articleAlternatives = $this->alternativesToArray($subArticle->alternatives);
+            $articleAlternatives = array_diff($articleAlternatives, [$article->article_number]);
 
             $subArticle->update([
                 'alternatives' => implode("\n", $articleAlternatives),
