@@ -657,7 +657,7 @@ class VismaNetController extends Controller
 
                 // Log stock change
                 $stockLogController = new StockLogController();
-                $stockLogController->logStock($article->article_number, $updateData['stock']);
+                $stockLogController->logStock($existingArticle->article_number, $updateData['stock']);
             }
         }
 
