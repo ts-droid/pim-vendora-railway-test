@@ -596,15 +596,10 @@ class VismaNetController extends Controller
      */
     public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
-        return;
-
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
-        $params = [
-            'expandSupplierDetails' => true,
-            'addCostPriceStatistics' => true,
-        ];
+        $params = [];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_article_fetch');
 
@@ -619,8 +614,6 @@ class VismaNetController extends Controller
 
         $articles = $this->getPagedResult('/v1/inventory', $params);
 
-        $languages = (new LanguageController())->getAllLanguages();
-
         if ($articles) {
             $articleController = new ArticleController();
 
@@ -630,107 +623,12 @@ class VismaNetController extends Controller
                 $articleData = [
                     'external_id' => (string) ($article['inventoryId'] ?? ''),
                     'article_number' => (string) ($article['inventoryNumber'] ?? ''),
-                    'status' => (string) ($article['status'] ?? ''),
-                    'description' => (string) ($article['description'] ?? ''),
-                    'supplier_number' => (string) ($article['supplierDetails'][0]['supplierId'] ?? ''),
                     'cost_price_avg' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
-                    'hs_code' => (string) ($article['intrastat']['cN8'] ?? ''),
-                    'origin_country' => (string) ($article['intrastat']['countryOfOrigin'] ?? ''),
-                    'weight' => (float) ($article['packaging']['baseItemWeight'] ?? 0),
                     'stock' => 0,
                     'stock_warehouse' => 0,
                     'stock_on_hand' => 0,
                     'stock_available_for_shipment' => 0,
                 ];
-
-                // Fetch stock
-                $warehouseDetails = $article['warehouseDetails'] ?? [];
-                foreach ($warehouseDetails as $warehouse) {
-                    $articleData['stock'] += (int) ($warehouse['available'] ?? 0);
-                    $articleData['stock_warehouse'] += (int) ($warehouse['warehouse'] ?? 0);
-                    $articleData['stock_on_hand'] += (int) ($warehouse['quantityOnHand'] ?? 0);
-                    $articleData['stock_available_for_shipment'] += (int) ($warehouse['availableForShipment'] ?? 0);
-                }
-
-                // Fetch cross-references
-                $crossReferences = $article['crossReferences'] ?? [];
-                foreach ($crossReferences as $crossReference) {
-                    switch ($crossReference['alternateType'] ?? '') {
-                        case 'VPN':
-                            $articleData['wright_article_number'] = (string) ($crossReference['alternateID'] ?? '');
-                            break;
-
-                        case 'Barcode':
-                            $articleData['ean'] = (string) ($crossReference['alternateID'] ?? '');
-                            break;
-                    }
-                }
-
-                // Fetch attributes
-                $attributes = $article['attributes'] ?? [];
-                foreach ($attributes as $attribute) {
-                    switch ($attribute['id'] ?? '') {
-                        case 'AFPI':
-                            $articleData['inner_box'] = (int) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'ANTINKART':
-                            $articleData['master_box'] = (int) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLFRPB':
-                            $articleData['width'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLFRPH':
-                            $articleData['height'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLFRPD':
-                            $articleData['depth'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'MASTKARTB':
-                            $articleData['master_box_width'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'MASTKARTH':
-                            $articleData['master_box_height'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'MASTKARTD':
-                            $articleData['master_box_depth'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLINKB':
-                            $articleData['inner_box_width'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLINKH':
-                            $articleData['inner_box_height'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'STRLINKD':
-                            $articleData['inner_box_depth'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'VIKTMAST':
-                            $articleData['master_box_weight'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'VIKTIK':
-                            $articleData['inner_box_weight'] = (float) ($attribute['value'] ?? 0);
-                            break;
-
-                        case 'VARUMÄRKE':
-                            $articleData['brand'] = (string) ($attribute['value'] ?? '');
-                            break;
-
-                        case 'WEBBSHOP':
-                            $articleData['is_webshop'] = (int) ($attribute['value'] ?? 0);
-                            break;
-                    }
-                }
 
                 // Require article number to fetch
                 if (!$articleData['article_number']) {
@@ -743,19 +641,12 @@ class VismaNetController extends Controller
                 $existingArticles = ApiResponseController::getDataFromResponse($response);
 
                 if (!$existingArticles) {
-                    // Create new article
-
-                    foreach ($languages as $language) {
-                        $articleData['shop_title_' .  $language->language_code] = $articleData['description'];
-                    }
-
-                    $articleController->store(new Request($articleData));
+                    continue;
                 }
-                else {
-                    // Update existing article
-                    $existingArticle = Article::find($existingArticles[0]['id']);
-                    $articleController->update(new Request($articleData), $existingArticle);
-                }
+
+                // Update existing article
+                $existingArticle = Article::find($existingArticles[0]['id']);
+                $articleController->update(new Request($articleData), $existingArticle);
             }
         }
 
