@@ -17,6 +17,7 @@ use App\Services\CreditNoteService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class VismaNetController extends Controller
@@ -615,12 +616,10 @@ class VismaNetController extends Controller
         $articles = $this->getPagedResult('/v1/inventory', $params);
 
         if ($articles) {
-            $articleController = new ArticleController();
-
             foreach ($articles as $article) {
                 $fetchedData = true;
 
-                $articleData = [
+                $updateData = [
                     'external_id' => (string) ($article['inventoryId'] ?? ''),
                     'article_number' => (string) ($article['inventoryNumber'] ?? ''),
                     'cost_price_avg' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
@@ -631,22 +630,34 @@ class VismaNetController extends Controller
                 ];
 
                 // Require article number to fetch
-                if (!$articleData['article_number']) {
+                if (!$updateData['article_number']) {
                     continue;
                 }
 
-                $response = $articleController->get(new Request([
-                    'article_number' => $articleData['article_number']
-                ]));
-                $existingArticles = ApiResponseController::getDataFromResponse($response);
-
-                if (!$existingArticles) {
+                $existingArticle = Article::where('article_number', $updateData['article_number'])->first();
+                if (!$existingArticle) {
                     continue;
                 }
 
                 // Update existing article
-                $existingArticle = Article::find($existingArticles[0]['id']);
-                $articleController->update(new Request($articleData), $existingArticle);
+                $hasUpdate = false;
+                foreach ($updateData as $key => $value) {
+                    if ($value != $existingArticle->{$key}) {
+                        $hasUpdate = true;
+                        break;
+                    }
+                }
+
+                if (!$hasUpdate) {
+                    continue;
+                }
+
+                DB::table('articles')->where('id', $existingArticle->id)
+                    ->update($updateData);
+
+                // Log stock change
+                $stockLogController = new StockLogController();
+                $stockLogController->logStock($article->article_number, $updateData['stock']);
             }
         }
 
