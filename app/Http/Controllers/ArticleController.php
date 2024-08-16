@@ -109,6 +109,10 @@ class ArticleController extends Controller
         $columns = $request->input('columns', ['*']);
         $currency = $request->input('currency');
 
+        if (!in_array('*', $columns) && !in_array('created_at', $columns)) {
+            $columns[] = 'created_at';
+        }
+
         // Build query
         $query = DB::table('articles')
             ->select($columns);
@@ -166,7 +170,7 @@ class ArticleController extends Controller
         }
 
         // Execute query
-        $articles = $query->get()->toArray();
+        $articles = $query->orderBy('created_at', 'DESC')->get()->toArray();
 
         // Convert article objects into an array
         $articles = array_map(function ($article) {
