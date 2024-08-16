@@ -629,6 +629,15 @@ class VismaNetController extends Controller
                     'stock_available_for_shipment' => 0,
                 ];
 
+                // Fetch stock
+                $warehouseDetails = $article['warehouseDetails'] ?? [];
+                foreach ($warehouseDetails as $warehouse) {
+                    $updateData['stock'] += (int) ($warehouse['available'] ?? 0);
+                    $updateData['stock_warehouse'] += (int) ($warehouse['warehouse'] ?? 0);
+                    $updateData['stock_on_hand'] += (int) ($warehouse['quantityOnHand'] ?? 0);
+                    $updateData['stock_available_for_shipment'] += (int) ($warehouse['availableForShipment'] ?? 0);
+                }
+
                 // Require article number to fetch
                 if (!$updateData['article_number']) {
                     continue;
