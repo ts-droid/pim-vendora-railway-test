@@ -9,7 +9,7 @@ class StockPlaceController extends Controller
 {
     public function getAll(Request $request)
     {
-        $stockPlaces = StockPlace::with('compartments')->all();
+        $stockPlaces = StockPlace::with('compartments')->get();
 
         return ApiResponseController::success($stockPlaces->toArray());
     }
