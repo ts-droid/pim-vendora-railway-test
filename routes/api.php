@@ -31,6 +31,7 @@ use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
+use App\Http\Controllers\StockPlaceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPriceController;
 use App\Http\Controllers\TranslationController;
@@ -58,6 +59,10 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
 });
 
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
+
+    Route::prefix('/wms')->group(function() {
+        Route::get('/stock-places', [StockPlaceController::class, 'getAll']);
+    });
 
     Route::prefix('/commands')->group(function() {
         Route::post('/artisan', [ArtisanCommandController::class, 'run'])->name('commands.artisan');
