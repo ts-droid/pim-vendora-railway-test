@@ -15,9 +15,6 @@ class StockPlaceService
             'map_position_y' => (int) $data['map_position_y'],
             'map_size_x' => (int) $data['map_size_x'],
             'map_size_y' => (int) $data['map_size_y'],
-            'width' => (float) ($data['width'] ?? 0),
-            'height' => (float) ($data['height'] ?? 0),
-            'depth' => (float) ($data['depth'] ?? 0),
         ]);
     }
 
