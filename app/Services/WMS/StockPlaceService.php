@@ -59,7 +59,7 @@ class StockPlaceService
         }
 
         // Make sure identifier is unique
-        if (StockPlaceCompartment::where('identifier', $data['identifier'])->exists()) {
+        if (StockPlaceCompartment::where('identifier', $data['identifier'])->where('stock_place_id', $stockPlace->id)->exists()) {
             return array('success' => false, 'message' => 'Identifier is not unique');
         }
 
