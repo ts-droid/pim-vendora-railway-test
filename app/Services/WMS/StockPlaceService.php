@@ -77,7 +77,7 @@ class StockPlaceService
     public function updateStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment, array $data): StockPlaceCompartment
     {
         if (isset($data['identifier'])) {
-            if (StockPlaceCompartment::where('identifier', $data['identifier'])->exists()) {
+            if (StockPlaceCompartment::where('identifier', $data['identifier'])->where('stock_place_id', $stockPlaceCompartment->stock_place_id)->exists()) {
                 unset($data['identifier']);
             }
         }
