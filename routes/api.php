@@ -61,7 +61,14 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/wms')->group(function() {
-        Route::get('/stock-places', [StockPlaceController::class, 'getAll']);
+        Route::get('/stock-places', [StockPlaceController::class, 'getStockPlaces']);
+        Route::post('/stock-places', [StockPlaceController::class, 'storeStockPlace']);
+        Route::get('/stock-places/{stockPlace}', [StockPlaceController::class, 'getStockPlace']);
+        Route::post('/stock-places/{stockPlace}', [StockPlaceController::class, 'updateStockPlace']);
+        Route::post('/stock-places/{stockPlace}/delete', [StockPlaceController::class, 'deleteStockPlace']);
+        Route::post('/stock-places/{stockPlace}/compartments', [StockPlaceController::class, 'storeStockPlaceCompartment']);
+        Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}', [StockPlaceController::class, 'updateStockPlaceCompartment']);
+        Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}/delete', [StockPlaceController::class, 'deleteStockPlaceCompartment']);
     });
 
     Route::prefix('/commands')->group(function() {

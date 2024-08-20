@@ -16,9 +16,6 @@ class StockPlace extends Model
         'map_position_y',
         'map_size_x',
         'map_size_y',
-        'width',
-        'height',
-        'depth',
     ];
 
     public function compartments()
