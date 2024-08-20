@@ -64,6 +64,7 @@ class StockPlaceService
         }
 
         $stockPlaceCompartment = StockPlaceCompartment::create([
+            'stock_place_id' => $stockPlace->id,
             'identifier' => (string) $data['identifier'],
             'width' => (float) $data['width'],
             'height' => (float) $data['height'],
