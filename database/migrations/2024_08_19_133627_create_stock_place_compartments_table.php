@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('stock_place_compartments', function (Blueprint $table) {
             $table->id();
-            $table->string('identifier')->unique();
+            $table->string('identifier');
             $table->unsignedInteger('stock_place_id');
             $table->float('width');
             $table->float('height');
