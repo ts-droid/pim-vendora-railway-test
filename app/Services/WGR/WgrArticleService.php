@@ -79,6 +79,9 @@ class WgrArticleService
                     $isSimilar = ImageComparisonUtility::isBase64ImageSimilar($image->getBase64(), $remoteImage['base64']);
                     if ($isSimilar) {
                         $checkedImageIDs[] = $image->id;
+
+                        $image->update(['wgr_id' => $remoteImage['id']]);
+
                         continue 2;
                     }
                 }
@@ -94,18 +97,34 @@ class WgrArticleService
                 continue;
             }
 
-            $this->uploadImage($image, $productID);
+            $remoteImage = $this->uploadImage($image, $productID);
+
+            $image->update(['wgr_id' => $remoteImage['id']]);
+        }
+
+        // Set list order for images
+        $listOrders = ArticleImage::where('article_id', $article->id)
+            ->orderBy('list_order', 'ASC')
+            ->pluck('wgr_id')
+            ->toArray();
+
+        for ($i = 0;$i < count($listOrders);$i++) {
+            $wgrController->makeRequest('productImage.listorder', [
+                'imageIds' => $listOrders
+            ]);
         }
     }
 
-    private function uploadImage(ArticleImage $image, int $productID): void
+    private function uploadImage(ArticleImage $image, int $productID): array
     {
         $wgrController = new WgrController();
-        $wgrController->createArticleImage(
+        $response = $wgrController->createArticleImage(
             $productID,
             $image->filename,
             $image->getBase64()
         );
+
+        return ($imagesResponse[0]['result'] ?? []);
     }
 
     public function getPostData(Article $article): array
