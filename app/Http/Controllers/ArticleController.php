@@ -361,6 +361,20 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles);
     }
 
+    public function setImageListOrder(Request $request)
+    {
+        $imageIDs = $request->input('image_ids', []);
+        if (is_string($imageIDs)) {
+            $imageIDs = explode(',', $imageIDs);
+        }
+
+        for ($i = 0;$i < count($imageIDs);$i++) {
+            Article::where('id', $imageIDs[$i])->update(['list_order' => $i]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function getAllImages(Request $request)
     {
         $supplierID = (int) $request->get('supplier_id', 0);

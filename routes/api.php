@@ -179,6 +179,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/reviews', [ArticleController::class, 'getReviews'])->name('articles.getReviews');
 
         Route::get('/images', [ArticleController::class, 'getAllImages'])->name('articles.getAllImages');
+        Route::get('/images/setListOrder', [ArticleController::class, 'setImageListOrder'])->name('articles.setImageListOrder');
 
         Route::get('/{article}/files', [ArticleController::class, 'getFiles'])->name('articles.getFiles');
         Route::post('/{article}/files', [ArticleController::class, 'uploadFile'])->name('articles.uploadFile');
