@@ -72,6 +72,8 @@ class WgrArticleService
 
         $checkedImageIDs = [];
 
+        log_data(json_encode($remoteImages));
+
         // Remove deleted images
         if ($remoteImages) {
             foreach ($remoteImages as $remoteImage) {
