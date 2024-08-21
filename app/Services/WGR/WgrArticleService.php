@@ -110,7 +110,7 @@ class WgrArticleService
 
         for ($i = 0;$i < count($listOrders);$i++) {
             $wgrController->makeRequest('productImage.listorder', [
-                'imageIds' => $listOrders
+                'imageIds' => implode(',', $listOrders)
             ]);
         }
     }
