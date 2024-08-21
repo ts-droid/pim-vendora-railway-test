@@ -369,7 +369,7 @@ class ArticleController extends Controller
         }
 
         for ($i = 0;$i < count($imageIDs);$i++) {
-            Article::where('id', $imageIDs[$i])->update(['list_order' => $i]);
+            ArticleImage::where('id', $imageIDs[$i])->update(['list_order' => $i]);
         }
 
         return ApiResponseController::success();
