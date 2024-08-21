@@ -108,11 +108,9 @@ class WgrArticleService
             ->pluck('wgr_id')
             ->toArray();
 
-        for ($i = 0;$i < count($listOrders);$i++) {
-            $wgrController->makeRequest('productImage.listorder', [
-                'imageIds' => implode(',', $listOrders)
-            ]);
-        }
+        $wgrController->makeRequest('productImage.listorder', [
+            'imageIds' => implode(',', $listOrders)
+        ]);
     }
 
     private function uploadImage(ArticleImage $image, int $productID): array
