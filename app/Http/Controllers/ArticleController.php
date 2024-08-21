@@ -368,8 +368,25 @@ class ArticleController extends Controller
             $imageIDs = explode(',', $imageIDs);
         }
 
+        $changed = false;
+        $article = null;
+
         for ($i = 0;$i < count($imageIDs);$i++) {
+            $oldListOrder = ArticleImage::where('id', $imageIDs[$i])->pluck('list_order')->first();
+
             ArticleImage::where('id', $imageIDs[$i])->update(['list_order' => $i]);
+
+            if ($oldListOrder != $i) {
+                $changed = true;
+
+                if (!$article) {
+                    $article = Article::find(ArticleImage::where('id', $imageIDs[$i])->value('article_id'));
+                }
+            }
+        }
+
+        if ($changed && $article) {
+            event(new \App\Events\ArticleUpdated($article, ['image_list_order' => true]));
         }
 
         return ApiResponseController::success();
