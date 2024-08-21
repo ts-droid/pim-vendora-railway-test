@@ -72,8 +72,6 @@ class WgrArticleService
 
         $checkedImageIDs = [];
 
-        log_data(json_encode($remoteImages));
-
         // Remove deleted images
         if ($remoteImages) {
             foreach ($remoteImages as $remoteImage) {
@@ -82,7 +80,7 @@ class WgrArticleService
                     if ($isSimilar) {
                         $checkedImageIDs[] = $image->id;
 
-                        $image->update(['wgr_id' => $remoteImage['id']]);
+                        $image->update(['wgr_id' => $remoteImage['imageId']]);
 
                         continue 2;
                     }
