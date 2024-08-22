@@ -108,6 +108,7 @@ class ArticleController extends Controller
         $filters = $request->input('filter');
         $columns = $request->input('columns', ['*']);
         $currency = $request->input('currency');
+        $articleNumber = $request->input('article_number');
 
         if (!in_array('*', $columns) && !in_array('created_at', $columns)) {
             $columns[] = 'created_at';
@@ -167,6 +168,10 @@ class ArticleController extends Controller
             });
 
             $query->whereIn('status', ['Active', 'NoPurchases']);
+        }
+
+        if ($articleNumber) {
+            $query->orWhere('article_number', $articleNumber);
         }
 
         // Execute query
