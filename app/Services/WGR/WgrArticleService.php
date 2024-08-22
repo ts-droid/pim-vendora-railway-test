@@ -130,6 +130,7 @@ class WgrArticleService
         $postData = [
             'isBackOrder' => (bool) $article->is_backorder,
             'reviewLinksJSON' => (string) $article->review_links ?: '[]',
+            'brand' => (string) $article->brand,
             'width' => (int) $article->width,
             'height' => (int) $article->height,
             'depth' => (int) $article->depth,
