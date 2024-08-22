@@ -47,6 +47,10 @@ class StockPlaceService
     {
         // TODO: Make sure no stock item is in this place
 
+        // Delete stock compartments
+        $stockPlace->compartments()->delete();
+
+        // Delete stock place
         $stockPlace->delete();
 
         return array('success' => true);
