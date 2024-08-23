@@ -5,10 +5,12 @@ namespace App\Services\WGR;
 use App\Enums\ArticleStatus;
 use App\Http\Controllers\ArticleCategoryController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\CurrencyConvertController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\WgrController;
 use App\Models\Article;
 use App\Models\ArticleImage;
+use App\Services\SupplierArticlePriceService;
 use App\Utilities\ImageComparisonUtility;
 
 class WgrArticleService
@@ -214,6 +216,17 @@ class WgrArticleService
         // Add currency fields
         foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
             $postData['price_' . $currency] = (float) $article->{'rek_price_' . $currency};
+            $postData['lifestylestorePrice_' . $currency] = (float) $article->{'rek_price_' . $currency};
+
+            // Calculate reseller price
+            $supplierPriceService = new SupplierArticlePriceService();
+            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
+
+            // Convert to current currency
+            $retailPrice = $article->{'rek_price_' . $currency} * 0.8;
+            $retailPrice = $retailPrice * (1 - ($article->standard_reseller_margin / 100));
+
+            $postData['retailPrice_' . $currency] = round($retailPrice, 2);
 
             if (!$postData['price_' . $currency]) {
                 $isHidden = true;
