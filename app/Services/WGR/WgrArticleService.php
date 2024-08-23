@@ -219,10 +219,6 @@ class WgrArticleService
             $postData['lifestylestorePrice_' . $currency] = (float) $article->{'rek_price_' . $currency};
 
             // Calculate reseller price
-            $supplierPriceService = new SupplierArticlePriceService();
-            $supplierPrice = $supplierPriceService->getSupplierArticlePrice($article->article_number);
-
-            // Convert to current currency
             $retailPrice = $article->{'rek_price_' . $currency} * 0.8;
             $retailPrice = $retailPrice * (1 - ($article->standard_reseller_margin / 100));
 
