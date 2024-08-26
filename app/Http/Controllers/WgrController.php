@@ -39,6 +39,8 @@ class WgrController extends Controller
             $skipImages
         );
 
+        $this->fetchCategories();
+
         $this->fetchReviews();
 
         $this->fetchPriceLists();
@@ -168,6 +170,24 @@ class WgrController extends Controller
                 );
             }
         }
+    }
+
+    public function fetchCategories()
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [
+            'updatedFrom' => ConfigController::getConfig('wgr_last_category_fetch'),
+        ];
+
+        $products = $this->makeRequest('Article.get', $params);
+        $products = $products[0]['result'] ?? [];
+
+        foreach ($products as $productData) {
+            $this->importCategories($productData['categories']);
+        }
+
+        ConfigController::setConfigs(['wgr_last_category_fetch' => $fetchTime]);
     }
 
     /**
