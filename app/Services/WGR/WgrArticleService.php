@@ -221,9 +221,11 @@ class WgrArticleService
             // Calculate reseller price
             $retailPrice = $article->{'rek_price_' . $currency} * 0.8;
             $retailPrice = $retailPrice * (1 - ($article->standard_reseller_margin / 100));
-            $retailPrice = $retailPrice * 1.25; // Add 25% VAT for price to be correct in WGR
+            $retailPrice = round($retailPrice, 2);
 
-            $postData['retailPrice_' . $currency] = round($retailPrice, 2);
+            // Must store including VAT to be correct in WGR
+            $retailPrice = $retailPrice / 0.8;
+            $postData['retailPrice_' . $currency] = $retailPrice;
 
             if (!$postData['price_' . $currency]) {
                 $isHidden = true;
