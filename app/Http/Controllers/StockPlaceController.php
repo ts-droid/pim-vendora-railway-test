@@ -13,14 +13,23 @@ class StockPlaceController extends Controller
     {
         $stockPlaces = StockPlace::with('compartments')->get();
 
-        return ApiResponseController::success($stockPlaces->toArray());
+        $stockPlacesArray = [];
+        foreach ($stockPlaces as $stockPlace) {
+            $stockPlaceArray = $stockPlace->toArray();
+            $stockPlaceArray['is_walk_through'] = $stockPlace->is_walk_through();
+        }
+
+        return ApiResponseController::success($stockPlacesArray);
     }
 
     public function getStockPlace(Request $request, StockPlace $stockPlace)
     {
         $stockPlace->load('compartments');
 
-        return ApiResponseController::success($stockPlace->toArray());
+        $stockPlaceArray = $stockPlace->toArray();
+        $stockPlaceArray['is_walk_through'] = $stockPlace->is_walk_through();
+
+        return ApiResponseController::success($stockPlaceArray);
     }
 
     public function storeStockPlace(Request $request)

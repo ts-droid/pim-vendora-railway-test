@@ -24,4 +24,15 @@ class StockPlace extends Model
     {
         return $this->hasMany(StockPlaceCompartment::class);
     }
+
+    public function is_walk_through()
+    {
+        if (!$this->compartments->count()) {
+            return false;
+        }
+
+        $lastCompartment = $this->compartments->last();
+
+        return (bool) $lastCompartment->is_walk_through;
+    }
 }
