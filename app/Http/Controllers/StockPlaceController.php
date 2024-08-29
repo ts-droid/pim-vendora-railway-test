@@ -17,6 +17,8 @@ class StockPlaceController extends Controller
         foreach ($stockPlaces as $stockPlace) {
             $stockPlaceArray = $stockPlace->toArray();
             $stockPlaceArray['is_walk_through'] = $stockPlace->is_walk_through();
+
+            $stockPlacesArray[] = $stockPlaceArray;
         }
 
         return ApiResponseController::success($stockPlacesArray);
