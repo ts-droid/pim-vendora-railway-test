@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\ApiArticleCategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ArticlePriceListController;
@@ -55,6 +56,15 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/articles')->group(function() {
         Route::post('/', [ArticleController::class, 'storeV2'])->name('articles.store.v2');
         Route::post('/{article}', [ArticleController::class, 'updateV2'])->name('articles.update.v2');
+    });
+});
+
+Route::prefix('/app')->group(function() {
+    Route::prefix('/v1')->middleware(['api.key'])->group(function() {
+        Route::prefix('/todo')->group(function() {
+            Route::get('/get-queue-count', [TodoController::class, 'getQueueCount']);
+            Route::post('/reserve-next', [TodoController::class, 'reserveNext']);
+        });
     });
 });
 
