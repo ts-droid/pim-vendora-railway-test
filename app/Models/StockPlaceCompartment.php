@@ -15,6 +15,9 @@ class StockPlaceCompartment extends Model
         'width',
         'height',
         'depth',
+        'is_truck',
+        'is_movable',
+        'is_walk_through',
     ];
 
     public function stockPlace()

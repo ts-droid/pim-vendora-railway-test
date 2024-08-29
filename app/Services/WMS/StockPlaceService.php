@@ -75,6 +75,9 @@ class StockPlaceService
             'width' => (float) $data['width'],
             'height' => (float) $data['height'],
             'depth' => (float) $data['depth'],
+            'is_truck' => (int) ($data['is_truck'] ?? 0),
+            'is_movable' => (int) ($data['is_movable'] ?? 0),
+            'is_walk_through' => (int) ($data['is_walk_through'] ?? 0),
         ]);
 
         return array('success' => true, 'stockPlaceCompartment' => $stockPlaceCompartment);
