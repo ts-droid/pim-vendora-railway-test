@@ -12,6 +12,8 @@ class ApiLogger
 
     public static function log(int $type, string $url, array $params, string $method, array $response): void
     {
+        return;
+
         DB::table('api_logs')->insert([
             'type' => $type,
             'url' => $url,
