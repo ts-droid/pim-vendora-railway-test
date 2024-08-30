@@ -219,13 +219,15 @@ class WgrArticleService
             $postData['lifestylestorePrice_' . $currency] = (float) $article->{'rek_price_' . $currency};
 
             // Calculate reseller price
-            $retailPrice = $article->{'rek_price_' . $currency} * 0.8;
-            $retailPrice = $retailPrice * (1 - ($article->standard_reseller_margin / 100));
-            $retailPrice = round($retailPrice, 2);
+            if ($article->standard_reseller_margin) {
+                $retailPrice = $article->{'rek_price_' . $currency} * 0.8;
+                $retailPrice = $retailPrice * (1 - ($article->standard_reseller_margin / 100));
+                $retailPrice = round($retailPrice, 2);
 
-            // Must store including VAT to be correct in WGR
-            $retailPrice = $retailPrice / 0.8;
-            $postData['retailPrice_' . $currency] = $retailPrice;
+                // Must store including VAT to be correct in WGR
+                $retailPrice = $retailPrice / 0.8;
+                $postData['retailPrice_' . $currency] = $retailPrice;
+            }
 
             if (!$postData['price_' . $currency]) {
                 $isHidden = true;
