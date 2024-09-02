@@ -70,5 +70,6 @@ class Kernel extends HttpKernel
         'api.key' => EnsureApiKeyIsValid::class,
         'gzip' => \App\Http\Middleware\GzipMiddleware::class,
         'supplierPortal' => \App\Http\Middleware\SupplierPortalMiddleware::class,
+        'authToken' => \App\Http\Middleware\EnsureAuthToken::class,
     ];
 }
