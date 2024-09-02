@@ -59,16 +59,14 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
     });
 });
 
-Route::prefix('/app')->group(function() {
-    Route::prefix('/v1')->middleware(['api.key'])->group(function() {
-        Route::prefix('/todo')->group(function() {
-            Route::get('/get-queue-count', [TodoController::class, 'getQueueCount']);
-            Route::post('/reserve-next', [TodoController::class, 'reserveNext']);
-        });
-    });
-});
-
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
+
+    Route::prefix('/todo')->group(function() {
+        Route::get('/queues', [TodoController::class, 'getQueues']);
+        Route::get('/queues/{queue}', [TodoController::class, 'getQueue']);
+        Route::get('/queues/{queue}/count', [TodoController::class, 'getQueueCount']);
+        Route::post('/queues/{queue}/reserve', [TodoController::class, 'reserveQueue']);
+    });
 
     Route::prefix('/wms')->group(function() {
         Route::get('/stock-places', [StockPlaceController::class, 'getStockPlaces']);

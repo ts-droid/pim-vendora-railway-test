@@ -11,10 +11,44 @@ use Illuminate\Support\Facades\Validator;
 
 class TodoController extends Controller
 {
-    public function reserveNext(Request $request)
+    public function getQueues()
+    {
+        $queues = array_map(fn($case) => $case->value, TodoQueue::cases());
+
+        return ApiResponseController::success($queues);
+    }
+
+    public function getQueue(Request $request, string $queue)
+    {
+        $queue = $this->getQueueEnum($queue);
+        if ($queue === null) {
+            return ApiResponseController::error('Invalid queue');
+        }
+
+        $todoService = new TodoService();
+        $todoItems = $todoService->getQueueItems($queue);
+
+        return ApiResponseController::success($todoItems->toArray());
+    }
+
+    public function getQueueCount(Request $request, string $queue)
+    {
+        $queue = $this->getQueueEnum($queue);
+        if ($queue === null) {
+            return ApiResponseController::error('Invalid queue');
+        }
+
+        $todoService = new TodoService();
+
+        return ApiResponseController::success([
+            'count' => $todoService->getQueueCount($queue)
+        ]);
+    }
+
+    public function reserveQueue(Request $request, string $queue)
     {
         $validator = Validator::make($request->all(), [
-            'queue' => 'required|string',
+            'user_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -22,7 +56,7 @@ class TodoController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $queue = $this->getQueueEnum($request->queue);
+        $queue = $this->getQueueEnum($queue);
         if ($queue === null) {
             return ApiResponseController::error('Invalid queue');
         }
@@ -34,30 +68,12 @@ class TodoController extends Controller
             return ApiResponseController::error('No items in queue');
         }
 
+        $reserved = $todoService->reserveItem($todoItem, intval($request->user_id));
+        if (!$reserved) {
+            return ApiResponseController::error('Failed to reserve item.');
+        }
+
         return ApiResponseController::success($todoItem->toArray());
-    }
-
-    public function getQueueCount(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'queue' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return ApiResponseController::error($errors[0]);
-        }
-
-        $queue = $this->getQueueEnum($request->queue);
-        if ($queue === null) {
-            return ApiResponseController::error('Invalid queue');
-        }
-
-        $todoService = new TodoService();
-
-        return ApiResponseController::success([
-            'count' => $todoService->getQueueCount($queue)
-        ]);
     }
 
     private function getQueueEnum(string $string)

@@ -5,6 +5,7 @@ namespace App\Services\Todo;
 use App\Enums\TodoQueue;
 use App\Enums\TodoType;
 use App\Models\TodoItem;
+use App\Models\User;
 
 class TodoService
 {
@@ -29,6 +30,24 @@ class TodoService
             ->where('reserved_by', 0)
             ->orderBy('list_order', 'ASC')
             ->get();
+    }
+
+    public function reserveItem(TodoItem $todoItem, int $reservedBy): bool
+    {
+        // Check if the user has already reserved another item
+        $existingReservedItem = TodoItem::where('reserved_by', $reservedBy)
+            ->where('completed_at', null)
+            ->exists();
+
+        if ($existingReservedItem) {
+            return false;
+        }
+
+        // Reserve the item
+        return $todoItem->update([
+            'reserved_by' => $reservedBy,
+            'reserved_at' => date('Y-m-d H:i:s')
+        ]);
     }
 
     protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy): TodoItem
