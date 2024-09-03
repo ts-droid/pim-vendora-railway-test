@@ -118,10 +118,10 @@ class WgrArticleService
     private function uploadImage(ArticleImage $image, int $productID): array
     {
         $wgrController = new WgrController();
-        $response = $wgrController->createArticleImage(
+        $response = $wgrController->createArticleImageFromURL(
             $productID,
             $image->filename,
-            $image->getBase64()
+            $image->path_url
         );
 
         return ($imagesResponse[0]['result'] ?? []);
