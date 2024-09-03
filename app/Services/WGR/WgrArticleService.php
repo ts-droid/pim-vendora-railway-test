@@ -99,9 +99,9 @@ class WgrArticleService
                 continue;
             }
 
-            $remoteImage = $this->uploadImage($image, $productID);
+            $remoteImageID = $this->uploadImage($image, $productID);
 
-            $image->update(['wgr_id' => $remoteImage['id']]);
+            $image->update(['wgr_id' => $remoteImageID]);
         }
 
         // Set list order for images
@@ -115,7 +115,7 @@ class WgrArticleService
         ]);
     }
 
-    private function uploadImage(ArticleImage $image, int $productID): array
+    private function uploadImage(ArticleImage $image, int $productID): int
     {
         $wgrController = new WgrController();
         $response = $wgrController->createArticleImageFromURL(
@@ -124,7 +124,7 @@ class WgrArticleService
             $image->path_url
         );
 
-        return ($imagesResponse[0]['result'] ?? []);
+        return (int) ($imagesResponse[0]['result'] ?? 0);
     }
 
     public function getPostData(Article $article): array
