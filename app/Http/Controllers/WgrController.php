@@ -334,6 +334,15 @@ class WgrController extends Controller
         ]);
     }
 
+    public function createArticleImageFromURL(int $productID, string $filename, string $url)
+    {
+        return $this->makeRequest('ProductImage.createurl', [
+            'productId' => $productID,
+            'filename' => $filename,
+            'url' => $url
+        ]);
+    }
+
     public function deleteArticleImage(int $imageID)
     {
         return $this->makeRequest('ProductImage.delete', [
