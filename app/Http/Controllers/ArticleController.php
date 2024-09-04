@@ -459,27 +459,7 @@ class ArticleController extends Controller
             'size' => DoSpacesController::getSize($remoteFilename)
         ]);
 
-        // Send the file to WGR
-        $wgrController = new WgrController();
-
-        $wgrArticle = $wgrController->getArticle($article->article_number);
-        if ($wgrArticle) {
-            $fileData = [
-                'productID' => $wgrArticle['productId'],
-                'base64' => base64_encode($fileContent),
-                'filename' => $remoteFilename,
-            ];
-
-            foreach (LanguageController::SUPPORTED_EXTERNAL_LANGUAGES['wgr'] as $languageCode) {
-                $fileData['title_' . $languageCode] = basename($file->getClientOriginalName());
-            }
-
-            $response = $wgrController->makeRequest('ProductFile.create', $fileData);
-
-            $articleFile->update([
-                'wgr_id' => (int) ($response[0]['result'] ?? 0)
-            ]);
-        }
+        event(new \App\Events\ArticleUpdated($article, ['files' => true]));
 
         return ApiResponseController::success($articleFile->toArray());
     }
@@ -487,16 +467,9 @@ class ArticleController extends Controller
     public function deleteFile(Request $request, Article $article, ArticleFile $articleFile)
     {
         DoSpacesController::delete($articleFile->filename);
-
-        // Delete file in WGR
-        if ($articleFile->wgr_id) {
-            $wgrController = new WgrController();
-            $wgrController->makeRequest('ProductFile.delete', [
-                'id' => $articleFile->wgr_id,
-            ]);
-        }
-
         $articleFile->delete();
+
+        event(new \App\Events\ArticleUpdated($article, ['files' => true]));
 
         return ApiResponseController::success();
     }

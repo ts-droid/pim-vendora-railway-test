@@ -350,6 +350,12 @@ class WgrController extends Controller
         ]);
     }
 
+    public function getArticleFiles(int $productID)
+    {
+        $response = $this->makeRequest('ProductFile.get', ['productID' => $productID]);
+        return $response[0]['result'] ?? [];
+    }
+
     public function getArticleImages(string $articleNumber)
     {
         $imagesResponse = $this->makeRequest('ProductImage.get', [

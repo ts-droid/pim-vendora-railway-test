@@ -9,6 +9,7 @@ use App\Http\Controllers\CurrencyConvertController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\WgrController;
 use App\Models\Article;
+use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Services\SupplierArticlePriceService;
 use App\Utilities\ImageComparisonUtility;
@@ -40,7 +41,19 @@ class WgrArticleService
         $images = ArticleImage::where('article_id', $article->id)->get();
         if ($images) {
             foreach ($images as $image) {
-                $this->uploadImage($image, $productID);
+                $remoteImageID = $this->uploadImage($image, $productID);
+
+                $image->update(['wgr_id' => $remoteImageID]);
+            }
+        }
+
+        // Create files
+        $files = ArticleFile::where('article_id', $article->id)->get();
+        if ($files) {
+            foreach ($files as $file) {
+                $remoteFileID = $this->uploadFile($file, $productID);
+
+                $file->update(['wgr_id' => $remoteFileID]);
             }
         }
     }
@@ -67,6 +80,42 @@ class WgrArticleService
         if (!$productID) {
             return;
         }
+
+
+        // Handle file updates
+        $files = ArticleFile::where('article_id', $article->id)->get();
+        $remoteFiles = $wgrController->getArticleFiles($productID);
+
+        $checkedFileIDs = [];
+
+        // Remove deleted files
+        if ($remoteFiles) {
+            foreach ($remoteFiles as $remoteFile) {
+                foreach ($files as $file) {
+                    if ($file->id == $remoteFile['id']) {
+                        $checkedFileIDs[] = $file->id;
+                        continue 2;
+                    }
+                }
+
+                // Remove file from WGR
+                $wgrController->makeRequest('ProductFile.delete', [
+                    'id' => $remoteFile['id']
+                ]);
+            }
+        }
+
+        // Upload new files
+        foreach ($files as $file) {
+            if (in_array($file->id, $checkedFileIDs)) {
+                continue;
+            }
+
+            $remoteFileID = $this->uploadFile($file, $productID);
+
+            $file->update(['wgr_id' => $remoteFileID]);
+        }
+
 
         // Handle image updates
         $images = ArticleImage::where('article_id', $article->id)->get();
@@ -113,6 +162,24 @@ class WgrArticleService
         $wgrController->makeRequest('productImage.listorder', [
             'imageIds' => implode(',', $listOrders)
         ]);
+    }
+
+    private function uploadFile(ArticleFile $file, int $productID): int
+    {
+        $fileData = [
+            'productID' => $productID,
+            'url' => $file->path_url,
+            'filename' => $file->filename
+        ];
+
+        foreach (LanguageController::SUPPORTED_EXTERNAL_LANGUAGES['wgr'] as $languageCode) {
+            $fileData['title_' . $languageCode] = basename($file->filename);
+        }
+
+        $wgrController = new WgrController();
+        $response = $wgrController->makeRequest('ProductFile.createurl', $fileData);
+
+        return (int) ($imagesResponse[0]['result'] ?? 0);
     }
 
     private function uploadImage(ArticleImage $image, int $productID): int
