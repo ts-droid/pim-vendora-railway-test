@@ -156,6 +156,10 @@ class WgrArticleService
             'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
         ];
 
+        if ($article->publish_at) {
+            $postData['publication_date'] = $article->publish_at;
+        }
+
         $isHidden = false;
 
         if (!$article->is_webshop) {
