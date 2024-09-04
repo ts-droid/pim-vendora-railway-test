@@ -37,7 +37,6 @@ class Kernel extends ConsoleKernel
             $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
             $schedule->command('customers:calculate-sales')->dailyAt('08:00');
 
-            $schedule->command('mark-suppliers')->daily();
             $schedule->command('bestsellers:calculate')->daily();
             $schedule->command('articles:process-eol')->daily();
             $schedule->command('calculate-customer-revenue')->daily();
