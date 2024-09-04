@@ -221,6 +221,7 @@ class WgrArticleService
             'categoryId' => [],
             'googleProductCategory' => (string) $article->google_product_category,
             'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
+            'VATRate' => 25
         ];
 
         if ($article->publish_at) {
