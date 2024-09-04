@@ -157,7 +157,7 @@ class WgrArticleService
         ];
 
         if ($article->publish_at) {
-            $postData['publication_date'] = $article->publish_at;
+            $postData['timeCreated'] = date('Y-m-d H:i:s', strtotime($article->publish_at));
         }
 
         $isHidden = false;
