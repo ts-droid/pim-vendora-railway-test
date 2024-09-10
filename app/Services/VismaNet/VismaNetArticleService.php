@@ -59,7 +59,7 @@ class VismaNetArticleService extends VismaNetApiService
         ]);
     }
 
-    private function getPostData(Article $article, bool $isNewArticle = false): array
+    public function getPostData(Article $article, bool $isNewArticle = false): array
     {
         $data = [
             'status' => ['value' => $article->status],
