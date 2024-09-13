@@ -12,18 +12,11 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function createArticle(Article $article): void
     {
+        if ($article->brand) {
+            $this->createBrand($article->brand);
+        }
+
         $postData = $this->getPostData($article, true);
-
-        $brand = '';
-        foreach ($postData['attributeLines'] as $attributeLine) {
-            if ($attributeLine['attributeId']['value'] == 'VARUMÄRKE') {
-                $brand = $attributeLine['attributeValue']['value'];
-            }
-        }
-
-        if ($brand) {
-            $this->createBrand($brand);
-        }
 
         $this->callAPI('POST', '/v1/inventory', $postData);
 
