@@ -10,7 +10,20 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function createArticle(Article $article): void
     {
-        $this->callAPI('POST', '/v1/inventory', $this->getPostData($article, true));
+        $postData = $this->getPostData($article, true);
+
+        $brand = '';
+        foreach ($postData['attributeLines'] as $attributeLine) {
+            if ($attributeLine['attributeId']['value'] == 'VARUMÄRKE') {
+                $brand = $attributeLine['attributeValue']['value'];
+            }
+        }
+
+        if ($brand) {
+            $this->createBrand('');
+        }
+
+        $this->callAPI('POST', '/v1/inventory', $postData);
 
         // Set cross references
         if ($article->ean) {
@@ -165,5 +178,34 @@ class VismaNetArticleService extends VismaNetApiService
         }
 
         return $data;
+    }
+
+    public function createBrand(string $brand): void
+    {
+        $attributes = $this->callAPI('GET', '/v1/attribute');
+        $attributes = $attributes['response'] ?? [];
+
+        foreach ($attributes as $attribute) {
+            if ($attribute['attributeID'] == 'VARUMÄRKE') {
+
+                foreach($attribute['details'] as $detail) {
+                    if ($detail['valueId'] == $brand) {
+                        return;
+                    }
+                }
+
+                $this->callAPI('PUT', '/v1/attribute/' . $attribute['attributeID'], [
+                    'details' => [
+                        [
+                            'operation' => 'Insert',
+                            'valueId' => ['value' => $brand],
+                            'description' => ['value' => $brand],
+                        ]
+                    ]
+                ]);
+
+                return;
+            }
+        }
     }
 }
