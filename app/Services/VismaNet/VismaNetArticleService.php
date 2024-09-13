@@ -20,7 +20,7 @@ class VismaNetArticleService extends VismaNetApiService
         }
 
         if ($brand) {
-            $this->createBrand('');
+            $this->createBrand($brand);
         }
 
         $this->callAPI('POST', '/v1/inventory', $postData);
@@ -178,6 +178,28 @@ class VismaNetArticleService extends VismaNetApiService
         }
 
         return $data;
+    }
+
+    public function getAttributeValueID(string $attributeID, string $valueDescription): string
+    {
+        $attributes = $this->callAPI('GET', '/v1/attribute');
+        $attributes = $attributes['response'] ?? [];
+
+        foreach ($attributes as $attribute) {
+            if ($attribute['attributeID'] != $attributeID) {
+                continue;
+            }
+
+            foreach ($attribute['details'] as $detail) {
+                if ($detail['description'] != $valueDescription) {
+                    continue;
+                }
+
+                return $detail['valueId'];
+            }
+        }
+
+        return '';
     }
 
     public function createBrand(string $brand): void
