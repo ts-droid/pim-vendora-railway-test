@@ -207,11 +207,14 @@ class VismaNetArticleService extends VismaNetApiService
     {
         $attributes = $this->getAttributes();
 
+        $attributeID = preg_replace('/\s+/', '', $brand);;
+        $attributeDescription = $brand;
+
         foreach ($attributes as $attribute) {
             if ($attribute['attributeID'] == 'VARUMÄRKE') {
 
                 foreach($attribute['details'] as $detail) {
-                    if ($detail['valueId'] == $brand) {
+                    if ($detail['valueId'] == $attributeID) {
                         return;
                     }
                 }
@@ -220,8 +223,8 @@ class VismaNetArticleService extends VismaNetApiService
                     'details' => [
                         [
                             'operation' => 'Insert',
-                            'valueId' => ['value' => $brand],
-                            'description' => ['value' => $brand],
+                            'valueId' => ['value' => $attributeID],
+                            'description' => ['value' => $attributeDescription],
                         ]
                     ]
                 ]);
