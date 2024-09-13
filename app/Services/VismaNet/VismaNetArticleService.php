@@ -8,6 +8,8 @@ class VismaNetArticleService extends VismaNetApiService
 {
     private array $crossReferences = [];
 
+    private array $attributes = [];
+
     public function createArticle(Article $article): void
     {
         $postData = $this->getPostData($article, true);
@@ -140,7 +142,7 @@ class VismaNetArticleService extends VismaNetApiService
                 ],
                 [
                     'attributeId' => ['value' => 'VARUMÄRKE'],
-                    'attributeValue' => ['value' => $article->brand],
+                    'attributeValue' => ['value' => $this->getAttributeValueID('VARUMÄRKE', $article->brand)]
                 ],
                 [
                     'attributeId' => ['value' => 'WEBBSHOP'],
@@ -182,8 +184,7 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function getAttributeValueID(string $attributeID, string $valueDescription): string
     {
-        $attributes = $this->callAPI('GET', '/v1/attribute');
-        $attributes = $attributes['response'] ?? [];
+        $attributes = $this->getAttributes();
 
         foreach ($attributes as $attribute) {
             if ($attribute['attributeID'] != $attributeID) {
@@ -204,8 +205,7 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function createBrand(string $brand): void
     {
-        $attributes = $this->callAPI('GET', '/v1/attribute');
-        $attributes = $attributes['response'] ?? [];
+        $attributes = $this->getAttributes();
 
         foreach ($attributes as $attribute) {
             if ($attribute['attributeID'] == 'VARUMÄRKE') {
@@ -226,8 +226,22 @@ class VismaNetArticleService extends VismaNetApiService
                     ]
                 ]);
 
+                $this->attributes = [];
+
                 return;
             }
         }
+    }
+
+    private function getAttributes()
+    {
+        if (count($this->attributes)) {
+            return $this->attributes;
+        }
+
+        $attributes = $this->callAPI('GET', '/v1/attribute');
+        $this->attributes = $attributes['response'] ?? [];
+
+        return $this->attributes;
     }
 }
