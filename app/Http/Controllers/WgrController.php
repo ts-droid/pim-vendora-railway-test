@@ -34,10 +34,12 @@ class WgrController extends Controller
      */
     public function fetchAll(bool $forceAll = false, bool $skipImages = false): void
     {
-        $this->fetchProductData(
+        /*$this->fetchProductData(
             ($forceAll ? '' : null),
             $skipImages
-        );
+        );*/
+
+        $this->fetchBasicProductData();
 
         $this->fetchCategories();
 
@@ -190,6 +192,29 @@ class WgrController extends Controller
         ConfigController::setConfigs(['wgr_last_category_fetch' => $fetchTime]);
     }
 
+    public function fetchBasicProductData(mixed $updatedAfter = null): void
+    {
+        $products = $this->makeRequest('Article.get');
+        $products = $products[0]['result'] ?? [];
+
+        foreach ($products as $productData) {
+            $articleNumber = $productData['articleNumber'] ?? '';
+
+            $article = Article::where('article_number', $articleNumber)->first();
+            if (!$article) {
+                continue;
+            }
+
+            $articleData = [
+                'webshop_created_at' => $productData['timeCreated'] ?? '',
+            ];
+
+            DB::table('articles')
+                ->where('article_number', $articleNumber)
+                ->update($articleData);
+        }
+    }
+
     /**
      * Fetches product data from the WGR API
      *
@@ -199,8 +224,6 @@ class WgrController extends Controller
      */
     public function fetchProductData(mixed $updatedAfter = null, bool $skipImages = false): void
     {
-        return;
-
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [
