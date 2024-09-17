@@ -474,6 +474,31 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getSubData(Request $request, Article $article)
+    {
+        $images = ArticleImage::select(
+                'id', 'article_id', 'filename', 'path_url', 'size', 'solid_background',
+                'list_order', 'hash', 'created_at', 'updated_at'
+            )
+            ->where('article_id', $article->id)
+            ->orderBy('list_order', 'ASC')
+            ->get();
+
+        $files = ArticleFile::where('article_id', $article->id)
+            ->orderBy('filename', 'ASC')
+            ->get();
+
+        $reviews = ArticleReview::where('article_number', $article->article_number)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return ApiResponseController::success([
+            'images' => $images->toArray(),
+            'files' => $files->toArray(),
+            'reviews' => $reviews->toArray(),
+        ]);
+    }
+
     public function getImagesBasic(Request $request, Article $article)
     {
         $images = ArticleImage::select(
