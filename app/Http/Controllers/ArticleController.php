@@ -1019,6 +1019,10 @@ class ArticleController extends Controller
             }
         }
 
+        if ($data['created_at'] ?? '') {
+            $data['created_at'] = date('Y-m-d H:i:s', strtotime($data['created_at']));
+        }
+
         if (($data['unspsc_categories'] ?? '') === 'new') {
             $unspscID = 0;
 
