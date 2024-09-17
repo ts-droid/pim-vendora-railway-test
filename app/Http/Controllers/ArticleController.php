@@ -474,6 +474,19 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getImagesBasic(Request $request, Article $article)
+    {
+        $images = ArticleImage::select(
+                'id', 'article_id', 'filename', 'path_url', 'size', 'solid_background',
+                'list_order', 'hash', 'created_at', 'updated_at'
+            )
+            ->where('article_id', $article->id)
+            ->orderBy('list_order', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($images->toArray());
+    }
+
     public function getImages(Request $request, Article $article)
     {
         $images = ArticleImage::where('article_id', $article->id)
