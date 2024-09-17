@@ -35,6 +35,39 @@ class ArticleController extends Controller
         return ApiResponseController::success($brands);
     }
 
+    public function getEditData()
+    {
+        // Suppliers
+        $suppliers = Supplier::all();
+
+        // Brands
+        $brands = DB::table('articles')
+            ->pluck('brand')
+            ->toArray();
+
+        $brands = array_unique($brands);
+        $brands = array_filter($brands);
+
+        sort($brands);
+
+        // UNSPSC cateogies
+        $unspsc = UnspscCategory::orderBy('commodity_title', 'ASC')->get();
+
+        // Categories
+        $categoryController = new ArticleCategoryController();
+        $categories = $categoryController->getCategoryTree(
+            $categoryController->getAllCategoryIDs()
+        );
+
+
+        return ApiResponseController::success([
+            'suppliers' => $suppliers->toArray(),
+            'brands' => $brands,
+            'unspsc' => $unspsc->toArray(),
+            'categories' => $categories,
+        ]);
+    }
+
     public function unspscCategories()
     {
         $categories = UnspscCategory::orderBy('commodity_title', 'ASC')->get();

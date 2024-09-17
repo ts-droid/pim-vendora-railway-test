@@ -172,6 +172,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/simple', [ArticleController::class, 'getSimple'])->name('articles.getSimple');
         Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');
         Route::get('/unspsc-categories', [ArticleController::class, 'unspscCategories'])->name('articles.unspscCategories');
+
+        Route::get('/edit-data', [ArticleController::class, 'getEditData'])->name('articles.getEditData');
+
         Route::post('/update-many', [ArticleController::class, 'updateMany'])->name('articles.updateMany');
         Route::get('/{article}', [ArticleController::class, 'getArticle'])->name('articles.getArticle');
         Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
