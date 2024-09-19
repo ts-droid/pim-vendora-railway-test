@@ -25,6 +25,17 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function() {
+
+    $article = \App\Models\Article::where('article_number', 'ST-CMAK')->first();
+
+
+
+    $todoWmsService = new \App\Services\Todo\TodoWmsService();
+    $todoWmsService->createCollectArticleWeight($article->id, 0);
+
+});
+
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();

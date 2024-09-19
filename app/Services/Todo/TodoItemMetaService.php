@@ -28,9 +28,19 @@ class TodoItemMetaService
             ->limit(1)
             ->first();
 
+        $form = [
+            [
+                'key' => 'weight',
+                'type' => 'number',
+                'label' => 'Weight (g)',
+                'placeholder' => 'Enter weight',
+            ]
+        ];
+
         return [
             'article' => $article ? $article->toArray() : null,
             'image' => $image ? $image->path_url : null,
+            'form' => $form,
         ];
     }
 }
