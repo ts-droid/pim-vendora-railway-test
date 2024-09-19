@@ -92,7 +92,7 @@ class WgrArticleService
         if ($remoteFiles) {
             foreach ($remoteFiles as $remoteFile) {
                 foreach ($files as $file) {
-                    if ($file->id == $remoteFile['id']) {
+                    if ($file->wgr_id == $remoteFile['id']) {
                         $checkedFileIDs[] = $file->id;
                         continue 2;
                     }
@@ -123,16 +123,12 @@ class WgrArticleService
 
         $checkedImageIDs = [];
 
-        // Remove deleted images
+        // Remove delete images
         if ($remoteImages) {
             foreach ($remoteImages as $remoteImage) {
                 foreach ($images as $image) {
-                    $isSimilar = ImageComparisonUtility::isBase64ImageSimilar($image->getBase64(), $remoteImage['base64']);
-                    if ($isSimilar) {
+                    if ($image->wgr_id == $remoteImage['imageId']) {
                         $checkedImageIDs[] = $image->id;
-
-                        $image->update(['wgr_id' => $remoteImage['imageId']]);
-
                         continue 2;
                     }
                 }
