@@ -58,6 +58,27 @@ class TodoController extends Controller
         return ApiResponseController::success($todoItem);
     }
 
+    public function submitItem(Request $request, string $queue, int $item)
+    {
+        $todoItem = TodoItem::where('id', $item)->first();
+        if (!$todoItem) {
+            return ApiResponseController::error('Item not found');
+        }
+
+        if ($todoItem->completed_at) {
+            return ApiResponseController::error('Item already completed');
+        }
+
+        $todoService = new TodoService();
+        $success = $todoService->submitItem($todoItem, $request->all());
+
+        if (!$success) {
+            return ApiResponseController::error('Failed to collect item.');
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function reserveItem(Request $request, string $queue, int $item)
     {
         $validator = Validator::make($request->all(), [

@@ -4,6 +4,7 @@ namespace App\Services\Todo;
 
 use App\Enums\TodoQueue;
 use App\Enums\TodoType;
+use App\Models\Article;
 use App\Models\TodoItem;
 use Illuminate\Support\Facades\DB;
 
@@ -24,5 +25,19 @@ class TodoWmsService extends TodoService
             ['article_id' => $articleID],
             $createdBy
         );
+    }
+
+    public function submitCollectArticleWeight(TodoItem $todoItem, array $data): bool
+    {
+        $articleID = $todoItem->data['article_id'] ?? 0;
+        $weight = (int) ($data['weight'] ?? 0);
+
+        if (!$weight) {
+            return false;
+        }
+
+        //Article::where('id', $articleID)->update(['weight' => $weight]);
+
+        return true;
     }
 }

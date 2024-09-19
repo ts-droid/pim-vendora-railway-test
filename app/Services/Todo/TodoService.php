@@ -20,6 +20,7 @@ class TodoService
     {
         return TodoItem::where('queue', $queue)
             ->whereNull('reserved_at')
+            ->whereNull('completed_at')
             ->orderBy('list_order', 'ASC')
             ->first();
     }
@@ -28,6 +29,7 @@ class TodoService
     {
         return TodoItem::where('queue', $queue)
             ->whereNull('reserved_at')
+            ->whereNull('completed_at')
             ->orderBy('list_order', 'ASC')
             ->get();
     }
@@ -79,5 +81,23 @@ class TodoService
             'data' => $data,
             'created_by' => $createdBy,
         ]);
+    }
+
+    public function submitItem(TodoItem $todoItem, array $data)
+    {
+        $submitted = false;
+
+        switch ($todoItem->type) {
+            case TodoType::CollectArticleWeight:
+                $service = new TodoWmsService();
+                $submitted = $service->submitCollectArticleWeight($todoItem, $data);
+                break;
+        }
+
+        if ($submitted) {
+            $todoItem->update(['completed_at' => date('Y-m-d H:i:s')]);
+        }
+
+        return $submitted;
     }
 }
