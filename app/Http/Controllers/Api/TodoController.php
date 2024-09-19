@@ -97,10 +97,10 @@ class TodoController extends Controller
 
         $todoService = new TodoService();
 
-        $reserved = $todoService->reserveItem($todoItem, intval($request->user_id));
+        /*$reserved = $todoService->reserveItem($todoItem, intval($request->user_id));
         if (!$reserved) {
             return ApiResponseController::error('Failed to reserve item.');
-        }
+        }*/
 
         return ApiResponseController::success($todoService->getItem($item));
     }
