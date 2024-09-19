@@ -34,6 +34,12 @@ class TodoItemMetaService
                 'type' => 'number',
                 'label' => 'Weight (g)',
                 'placeholder' => 'Enter weight',
+            ],
+            [
+                'key' => 'height',
+                'type' => 'number',
+                'label' => 'Height (cm)',
+                'placeholder' => 'Enter height',
             ]
         ];
 
