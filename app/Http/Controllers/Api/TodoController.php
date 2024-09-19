@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\TodoQueue;
 use App\Http\Controllers\ApiResponseController;
 use App\Http\Controllers\Controller;
+use App\Models\TodoItem;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -45,7 +46,19 @@ class TodoController extends Controller
         ]);
     }
 
-    public function reserveQueue(Request $request, string $queue)
+    public function getItem(Request $request, string $queue, int $item)
+    {
+        $todoService = new TodoService();
+        $todoItem = $todoService->getItem($item);
+
+        if (!$todoItem) {
+            return ApiResponseController::error('Item not found');
+        }
+
+        return ApiResponseController::success($todoItem);
+    }
+
+    public function reserveItem(Request $request, string $queue, int $item)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required'
@@ -56,24 +69,19 @@ class TodoController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $queue = $this->getQueueEnum($queue);
-        if ($queue === null) {
-            return ApiResponseController::error('Invalid queue');
+        $todoItem = TodoItem::where('id', $item)->first();
+        if (!$todoItem) {
+            return ApiResponseController::error('Item not found');
         }
 
         $todoService = new TodoService();
-        $todoItem = $todoService->getNextQueueItem($queue);
-
-        if (!$todoItem) {
-            return ApiResponseController::error('No items in queue');
-        }
 
         $reserved = $todoService->reserveItem($todoItem, intval($request->user_id));
         if (!$reserved) {
             return ApiResponseController::error('Failed to reserve item.');
         }
 
-        return ApiResponseController::success($todoItem->toArray());
+        return ApiResponseController::success($todoService->getItem($item));
     }
 
     private function getQueueEnum(string $string)

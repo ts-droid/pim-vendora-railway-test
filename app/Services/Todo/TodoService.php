@@ -12,14 +12,14 @@ class TodoService
     public function getQueueCount(TodoQueue $queue): int
     {
         return (int) TodoItem::where('queue', $queue)
-            ->where('reserved_by', 0)
+            ->whereNull('reserved_at')
             ->count();
     }
 
     public function getNextQueueItem(TodoQueue $queue)
     {
         return TodoItem::where('queue', $queue)
-            ->where('reserved_by', 0)
+            ->whereNull('reserved_at')
             ->orderBy('list_order', 'ASC')
             ->first();
     }
@@ -27,19 +27,35 @@ class TodoService
     public function getQueueItems(TodoQueue $queue)
     {
         return TodoItem::where('queue', $queue)
-            ->where('reserved_by', 0)
+            ->whereNull('reserved_at')
             ->orderBy('list_order', 'ASC')
             ->get();
     }
 
+    public function getItem(int $itemID): ?array
+    {
+        $item = TodoItem::where('id', $itemID)->first();
+        if (!$item) {
+            return null;
+        }
+
+        $todoItemMetaService = new TodoItemMetaService();
+        $metaData = $todoItemMetaService->getMeta($item->type, $item->data);
+
+        return [
+            'item' => $item->toArray(),
+            'meta_data' => $metaData,
+        ];
+    }
+
     public function reserveItem(TodoItem $todoItem, int $reservedBy): bool
     {
-        // Check if the user has already reserved another item
-        $existingReservedItem = TodoItem::where('reserved_by', $reservedBy)
-            ->where('completed_at', null)
+        // Check if this item is already reserved
+        $isReserved = TodoItem::where('id', $todoItem->id)
+            ->whereNotNull('reserved_at')
             ->exists();
 
-        if ($existingReservedItem) {
+        if ($isReserved) {
             return false;
         }
 
