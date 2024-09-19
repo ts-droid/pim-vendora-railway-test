@@ -187,7 +187,7 @@ class WgrArticleService
             $image->path_url
         );
 
-        return (int) ($imagesResponse[0]['result'] ?? 0);
+        return (int) ($response[0]['result'] ?? 0);
     }
 
     public function getPostData(Article $article): array
