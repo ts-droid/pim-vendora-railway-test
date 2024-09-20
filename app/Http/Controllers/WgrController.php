@@ -416,15 +416,8 @@ class WgrController extends Controller
     {
         $response = $this->makeRequest('Article.get', ['articleNumber' => $articleNumber]);
         $articles = $response[0]['result'] ?? [];
-        $article = $articles[0] ?? null;
 
-        if ($article) {
-            DB::table('articles')
-                ->where('article_number', $articleNumber)
-                ->update(['wgr_id' => $article['productId']]);
-        }
-
-        return $article;
+        return $articles[0] ?? null;
     }
 
     public function getCategories(): array
