@@ -70,10 +70,10 @@ class TodoController extends Controller
         }
 
         $todoService = new TodoService();
-        $success = $todoService->submitItem($todoItem, $request->all());
+        $submitResponse = $todoService->submitItem($todoItem, $request->all());
 
-        if (!$success) {
-            return ApiResponseController::error('Failed to collect item.');
+        if (!$submitResponse['success']) {
+            return ApiResponseController::error($submitResponse['error']);
         }
 
         return ApiResponseController::success();
@@ -97,9 +97,9 @@ class TodoController extends Controller
 
         $todoService = new TodoService();
 
-        $reserved = $todoService->reserveItem($todoItem, intval($request->user_id));
-        if (!$reserved) {
-            return ApiResponseController::error('Failed to reserve item.');
+        $response = $todoService->reserveItem($todoItem, intval($request->user_id));
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error']);
         }
 
         return ApiResponseController::success($todoService->getItem($item));

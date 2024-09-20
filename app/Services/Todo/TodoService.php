@@ -50,7 +50,7 @@ class TodoService
         ];
     }
 
-    public function reserveItem(TodoItem $todoItem, int $reservedBy): bool
+    public function reserveItem(TodoItem $todoItem, int $reservedBy): array
     {
         // Check if this item is already reserved
         $isReserved = TodoItem::where('id', $todoItem->id)
@@ -58,14 +58,29 @@ class TodoService
             ->exists();
 
         if ($isReserved) {
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Item already reserved',
+            ];
         }
 
         // Reserve the item
-        return $todoItem->update([
+        $reserved = $todoItem->update([
             'reserved_by' => $reservedBy,
             'reserved_at' => date('Y-m-d H:i:s')
         ]);
+
+        if (!$reserved) {
+            return [
+                'success' => false,
+                'error' => 'Failed to reserve item',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'error' => '',
+        ];
     }
 
     protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy): TodoItem
@@ -83,21 +98,24 @@ class TodoService
         ]);
     }
 
-    public function submitItem(TodoItem $todoItem, array $data)
+    public function submitItem(TodoItem $todoItem, array $data): array
     {
-        $submitted = false;
+        $response = [
+            'success' => false,
+            'error' => 'Unknown error',
+        ];
 
         switch ($todoItem->type) {
             case TodoType::CollectArticleWeight:
                 $service = new TodoWmsService();
-                $submitted = $service->submitCollectArticleWeight($todoItem, $data);
+                $response = $service->submitCollectArticleWeight($todoItem, $data);
                 break;
         }
 
-        if ($submitted) {
+        if ($response['success']) {
             $todoItem->update(['completed_at' => date('Y-m-d H:i:s')]);
         }
 
-        return $submitted;
+        return $response;
     }
 }

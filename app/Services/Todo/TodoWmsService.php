@@ -27,17 +27,23 @@ class TodoWmsService extends TodoService
         );
     }
 
-    public function submitCollectArticleWeight(TodoItem $todoItem, array $data): bool
+    public function submitCollectArticleWeight(TodoItem $todoItem, array $data): array
     {
         $articleID = $todoItem->data['article_id'] ?? 0;
         $weight = (int) ($data['weight'] ?? 0);
 
         if (!$weight) {
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Weight is required',
+            ];
         }
 
         //Article::where('id', $articleID)->update(['weight' => $weight]);
 
-        return true;
+        return [
+            'success' => true,
+            'error' => '',
+        ];
     }
 }
