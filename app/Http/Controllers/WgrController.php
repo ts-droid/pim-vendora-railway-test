@@ -207,6 +207,7 @@ class WgrController extends Controller
 
             $articleData = [
                 'webshop_created_at' => $productData['timeCreated'] ?? '',
+                'wgr_id' => $productData['productId'],
             ];
 
             DB::table('articles')
@@ -415,8 +416,15 @@ class WgrController extends Controller
     {
         $response = $this->makeRequest('Article.get', ['articleNumber' => $articleNumber]);
         $articles = $response[0]['result'] ?? [];
+        $article = $articles[0] ?? null;
 
-        return $articles[0] ?? null;
+        if ($article) {
+            DB::table('articles')
+                ->where('article_number', $articleNumber)
+                ->update(['wgr_id' => $article['productId']]);
+        }
+
+        return $article;
     }
 
     public function getCategories(): array
