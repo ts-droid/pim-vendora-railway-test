@@ -34,6 +34,7 @@ class TodoItemMetaService
                 'type' => 'number',
                 'label' => 'Weight (g)',
                 'placeholder' => 'Enter weight',
+                'value' => $article ? $article->weight : 0,
             ]
         ];
 
