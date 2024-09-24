@@ -25,13 +25,18 @@ class TodoService
             ->first();
     }
 
-    public function getQueueItems(TodoQueue $queue)
+    public function getQueueItems(TodoQueue $queue, int $limit = 0)
     {
-        $todoItems = TodoItem::where('queue', $queue)
+        $query = TodoItem::where('queue', $queue)
             ->whereNull('reserved_at')
             ->whereNull('completed_at')
-            ->orderBy('list_order', 'ASC')
-            ->get();
+            ->orderBy('list_order', 'ASC');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $todoItems = $query->get();
 
         if ($todoItems) {
             $todoItemMetaService = new TodoItemMetaService();

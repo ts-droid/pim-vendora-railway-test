@@ -27,7 +27,7 @@ class TodoController extends Controller
         }
 
         $todoService = new TodoService();
-        $todoItems = $todoService->getQueueItems($queue);
+        $todoItems = $todoService->getQueueItems($queue, 50);
 
         return ApiResponseController::success($todoItems->toArray());
     }
