@@ -105,6 +105,27 @@ class TodoController extends Controller
         return ApiResponseController::success($todoService->getItem($item));
     }
 
+    public function unreserveItem(Request $request, string $queue, int $item)
+    {
+        $todoItem = TodoItem::where('id', $item)->first();
+        if (!$todoItem) {
+            return ApiResponseController::error('Item not found');
+        }
+
+        if ($todoItem->completed_at) {
+            return ApiResponseController::error('Item already completed');
+        }
+
+        $todoService = new TodoService();
+
+        $response = $todoService->unreserveItem($todoItem);
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error']);
+        }
+
+        return ApiResponseController::success([]);
+    }
+
     private function getQueueEnum(string $string)
     {
         try {

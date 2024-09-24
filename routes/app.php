@@ -15,6 +15,7 @@ Route::prefix('/app')->group(function() {
             Route::get('/queues/{queue}/count', [TodoController::class, 'getQueueCount']);
             Route::get('/queues/{queue}/{item}', [TodoController::class, 'getItem']);
             Route::post('/queues/{queue}/{item}/reserve', [TodoController::class, 'reserveItem']);
+            Route::post('/queues/{queue}/{item}/unreserve', [TodoController::class, 'unreserveItem']);
             Route::post('/queues/{queue}/{item}/submit', [TodoController::class, 'submitItem']);
         });
 

@@ -83,6 +83,19 @@ class TodoService
         ];
     }
 
+    public function unreserveItem(TodoItem $todoItem)
+    {
+        $todoItem->update([
+            'reserved_by' => 0,
+            'reserved_at' => null
+        ]);
+
+        return [
+            'success' => true,
+            'error' => '',
+        ];
+    }
+
     protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy): TodoItem
     {
         $currentListOrder = (int) TodoItem::where('queue', $queue)->max('list_order');
