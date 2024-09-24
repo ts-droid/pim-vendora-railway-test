@@ -39,7 +39,7 @@ class TodoWmsService extends TodoService
             ];
         }
 
-        //Article::where('id', $articleID)->update(['weight' => $weight]);
+        Article::where('id', $articleID)->update(['weight' => $weight]);
 
         return [
             'success' => true,
