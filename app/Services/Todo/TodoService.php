@@ -27,11 +27,21 @@ class TodoService
 
     public function getQueueItems(TodoQueue $queue)
     {
-        return TodoItem::where('queue', $queue)
+        $todoItems = TodoItem::where('queue', $queue)
             ->whereNull('reserved_at')
             ->whereNull('completed_at')
             ->orderBy('list_order', 'ASC')
             ->get();
+
+        if ($todoItems) {
+            $todoItemMetaService = new TodoItemMetaService();
+
+            foreach ($todoItems as &$todoItem) {
+                $todoItem->meta_data = $todoItemMetaService->getMeta($todoItem->type, $todoItem->data);
+            }
+        }
+
+        return $todoItems;
     }
 
     public function getItem(int $itemID): ?array

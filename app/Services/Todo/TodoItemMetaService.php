@@ -5,6 +5,7 @@ namespace App\Services\Todo;
 use App\Enums\TodoType;
 use App\Models\Article;
 use App\Models\ArticleImage;
+use Illuminate\Support\Facades\DB;
 
 class TodoItemMetaService
 {
@@ -20,7 +21,10 @@ class TodoItemMetaService
 
     private function getCollectArticleWeightMeta(array $data): array
     {
-        $article = Article::where('id', ($data['article_id'] ?? 0))->first();
+        $article = DB::table('articles')
+            ->select('id', 'weight')
+            ->where('id', ($data['article_id'] ?? 0))
+            ->first();
 
         $image = ArticleImage::select('path_url')
             ->where('article_id', $article->id)
@@ -39,7 +43,6 @@ class TodoItemMetaService
         ];
 
         return [
-            'article' => $article ? $article->toArray() : null,
             'image' => $image ? $image->path_url : null,
             'form' => $form,
         ];
