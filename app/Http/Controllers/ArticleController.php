@@ -595,7 +595,7 @@ class ArticleController extends Controller
 
                 DB::table('articles')
                     ->where('id', '=', $article->id)
-                    ->update(['package_image_front' => $remoteFilenameBack]);
+                    ->update(['package_image_back' => $remoteFilenameBack]);
             }
         }
 
