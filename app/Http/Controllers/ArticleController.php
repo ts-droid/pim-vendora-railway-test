@@ -577,7 +577,7 @@ class ArticleController extends Controller
 
                 DB::table('articles')
                     ->where('id', '=', $article->id)
-                    ->update(['package_image_front' => $remoteFilenameFront]);
+                    ->update(['package_image_front' => DoSpacesController::getURL($remoteFilenameFront)]);
             }
         }
 
@@ -595,7 +595,7 @@ class ArticleController extends Controller
 
                 DB::table('articles')
                     ->where('id', '=', $article->id)
-                    ->update(['package_image_back' => $remoteFilenameBack]);
+                    ->update(['package_image_back' => DoSpacesController::getURL($remoteFilenameBack)]);
             }
         }
 
