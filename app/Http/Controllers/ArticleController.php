@@ -554,6 +554,54 @@ class ArticleController extends Controller
         return ApiResponseController::success($images->toArray());
     }
 
+    public function uploadPackageImages(Request $request, Article $article)
+    {
+        $frontImage = $request->file('front');
+        $backImage = $request->file('back');
+
+        if (!$frontImage && !$backImage) {
+            return ApiResponseController::error('No image uploaded');
+        }
+
+        if ($frontImage) {
+            $frontImageContent = @file_get_contents($frontImage->getRealPath());
+
+            if ($frontImageContent) {
+                // Delete the old file
+                if ($article->package_image_front) {
+                    DoSpacesController::delete($article->package_image_front);
+                }
+
+                // Upload and store new file
+                $remoteFilenameFront = DoSpacesController::store($frontImage->getClientOriginalName(), $frontImageContent, true);
+
+                DB::table('articles')
+                    ->where('id', '=', $article->id)
+                    ->update(['package_image_front' => $remoteFilenameFront]);
+            }
+        }
+
+        if ($backImage) {
+            $backImageContent = @file_get_contents($backImage->getRealPath());
+
+            if ($backImageContent) {
+                // Delete the old file
+                if ($article->package_image_back) {
+                    DoSpacesController::delete($article->package_image_back);
+                }
+
+                // Upload and store new file
+                $remoteFilenameBack = DoSpacesController::store($backImage->getClientOriginalName(), $backImageContent, true);
+
+                DB::table('articles')
+                    ->where('id', '=', $article->id)
+                    ->update(['package_image_front' => $remoteFilenameBack]);
+            }
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function uploadImage(Request $request, Article $article)
     {
         if (!$request->hasFile('image')) {
