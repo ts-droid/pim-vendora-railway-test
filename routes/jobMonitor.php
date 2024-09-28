@@ -8,4 +8,5 @@ Route::prefix('/job-monitor')->group(function() {
     Route::get('/queue', [JobMonitorController::class, 'queue'])->name('jobMonitor.queue');
     Route::get('/failed-jobs', [JobMonitorController::class, 'failedJobs'])->name('jobMonitor.failedJobs');
     Route::post('/failed-jobs/retry', [JobMonitorController::class, 'retryJobs'])->name('jobMonitor.retryJobs');
+    Route::post('/failed-jobs/delete', [JobMonitorController::class, 'deleteJobs'])->name('jobMonitor.deleteJobs');
 });
