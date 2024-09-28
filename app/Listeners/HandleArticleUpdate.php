@@ -9,6 +9,10 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class HandleArticleUpdate implements ShouldQueue
 {
+    use interactsWithQueue;
+
+    public string $queue = 'article-sync';
+
     private ArticleService $articleService;
 
     public function __construct(ArticleService $articleService)
