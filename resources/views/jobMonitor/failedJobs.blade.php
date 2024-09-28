@@ -8,6 +8,7 @@
                     <div class="me-4">Failed Jobs</div>
                     <div>
                         <button class="btn btn-sm btn-dark js-retry-jobs">Retry jobs</button>
+                        <button class="btn btn-sm btn-dark js-delete-jobs">Delete jobs</button>
                     </div>
                     <form method="GET" class="ms-auto">
                         <select class="form-select form-select-sm" name="displayName" onchange="this.form.submit();">
@@ -107,6 +108,29 @@
                 }
 
                 $.post('{{ route('jobMonitor.retryJobs') }}', {
+                    _token: '{{ csrf_token() }}',
+                    jobIDs: jobIds.join(',')
+                }, function() {
+                    location.reload();
+                });
+            });
+
+            $('.js-delete-jobs').on('click', function() {
+                let jobIds = [];
+                $('.job-checkbox:checked').each(function() {
+                    jobIds.push($(this).val());
+                });
+
+                if (jobIds.length === 0) {
+                    alert('No jobs selected');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to delete the selected jobs?')) {
+                    return;
+                }
+
+                $.post('{{ route('jobMonitor.deleteJobs') }}', {
                     _token: '{{ csrf_token() }}',
                     jobIDs: jobIds.join(',')
                 }, function() {

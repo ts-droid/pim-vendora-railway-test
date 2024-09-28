@@ -45,6 +45,7 @@ class JobMonitorController extends Controller
 
         $failedJobs = DB::table('failed_jobs')
             ->where('connection', 'database')
+            ->orderBy('failed_at', 'DESC')
             ->get();
         $displayNames = [];
 
@@ -76,6 +77,20 @@ class JobMonitorController extends Controller
 
         foreach ($jobIDs as $jobID) {
             $this->requeueJob($jobID);
+        }
+
+        return response()->json();
+    }
+
+    public function deleteJobs(Request $request)
+    {
+        $jobIDs = $request->get('jobIDs', '');
+        $jobIDs = explode(',', $jobIDs);
+        $jobIDs = array_map('intval', $jobIDs);
+        $jobIDs = array_filter($jobIDs);
+
+        foreach ($jobIDs as $jobID) {
+            DB::table('failed_jobs')->where('id', $jobID)->delete();
         }
 
         return response()->json();
