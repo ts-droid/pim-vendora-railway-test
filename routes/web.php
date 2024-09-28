@@ -87,3 +87,5 @@ Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
 
 require __DIR__ . '/supplierPortal.php';
 
+require __DIR__ . '/jobMonitor.php';
+
