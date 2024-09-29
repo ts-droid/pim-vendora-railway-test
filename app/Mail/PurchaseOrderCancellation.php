@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\PurchaseOrder;
 
 class PurchaseOrderCancellation extends Mailable
 {
@@ -23,7 +24,7 @@ class PurchaseOrderCancellation extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public \App\Models\PurchaseOrder $purchaseOrder
+        public PurchaseOrder $purchaseOrder
     )
     {
         $this->emailSubject = ConfigController::getConfig('purchase_system_cancel_order_email_subject');
