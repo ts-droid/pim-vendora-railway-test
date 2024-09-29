@@ -33,9 +33,17 @@ class SendPurchaseOrderReminder implements ShouldQueue
      */
     public function handle(): void
     {
-        $recipients = ($this->purchaseOrder->supplier->email_reminder ?: $this->purchaseOrder->email) ?: $this->purchaseOrder->supplier->email;
         if ($this->emailRecipient) {
-            $recipients = $this->emailRecipient;
+            $recipients = $this->emailRecipient; // Use the provided email recipient
+        }
+        elseif ($this->purchaseOrder->supplier->email_reminder ?? null) {
+            $recipients = $this->purchaseOrder->supplier->email_reminder; // Use the supplier's reminder email
+        }
+        elseif ($this->purchaseOrder->email) {
+            $recipients = $this->purchaseOrder->email; // Use the purchase order's email
+        }
+        else {
+            $recipients = $this->purchaseOrder->supplier->email ?? ''; // Use the supplier's email
         }
 
         $recipients = preg_split("/[\s,;]+/", $recipients);
