@@ -25,6 +25,8 @@ class ImageBackgroundAnalyzer
         $colorCounts = [];
         $colorsCountCorner = [];
 
+        $isTrueColor = imageistruecolor($image);
+
         // Iterate over each pixel in the image
         for ($x = 0;$x < $width;$x++) {
             for ($y = 0;$y < $height;$y++) {
@@ -37,9 +39,21 @@ class ImageBackgroundAnalyzer
                     // Transparent pixel, count it as white
                     $hexCode = "#FFFFFF";
                 } else {
-                    // Convert the color index to a hex code
-                    $colors = imagecolorsforindex($image, $rgba);
-                    $hexCode = sprintf("#%02x%02x%02x", $colors['red'], $colors['green'], $colors['blue']);
+                    if ($isTrueColor) {
+                        // For true color images, extract RGB components directly
+                        $red = ($rgba >> 16) & 0xFF;
+                        $green = ($rgba >> 8) & 0xFF;
+                        $blue = $rgba & 0xFF;
+                    }
+                    else {
+                        // For pallet-based images, use imagecolorsforindex
+                        $colors = imagecolorsforindex($image, $rgba);
+                        $red = $colors['red'];
+                        $green = $colors['green'];
+                        $blue = $colors['blue'];
+                    }
+
+                    $hexCode = sprintf("#%02x%02x%02x", $red, $green, $blue);
                 }
 
                 // Increment the count for this hex code
