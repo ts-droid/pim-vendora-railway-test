@@ -15,6 +15,9 @@ class PurchaseOrderConfirmReminder extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $emailSubject;
+    public string $emailBody;
+
     /**
      * Create a new message instance.
      */
