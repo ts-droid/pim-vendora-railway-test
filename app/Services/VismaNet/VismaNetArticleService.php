@@ -47,12 +47,14 @@ class VismaNetArticleService extends VismaNetApiService
         // Load existing cross references
         if (!isset($this->crossReferences[$articleNumber])) {
             $response = $this->callAPI('GET', '/v1/inventory/' . $articleNumber . '/crossReferences');
-            $this->crossReferences[$articleNumber] = $response['response'] ?? '';
+            $this->crossReferences[$articleNumber] = $response['response'] ?? [];
         }
 
         // Try to update existing value
         foreach ($this->crossReferences[$articleNumber] as $crossReference) {
-            if ($crossReference['alternateType'] == $alternateType) {
+            $crossReferenceType = $crossReference['alternateType'] ?? '';
+
+            if ($crossReferenceType == $alternateType) {
                 $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
                     'alternateID' => ['value' => $value],
                 ]);
