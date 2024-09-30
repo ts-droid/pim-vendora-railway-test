@@ -349,15 +349,6 @@ class WgrController extends Controller
         return $categoryIDs;
     }
 
-    public function createArticleImage(int $productID, string $filename, string $base64)
-    {
-        return $this->makeRequest('ProductImage.create', [
-            'productId' => $productID,
-            'filename' => $filename,
-            'base64' => $base64
-        ]);
-    }
-
     public function createArticleImageFromURL(int $productID, string $filename, string $url)
     {
         return $this->makeRequest('ProductImage.createurl', [
