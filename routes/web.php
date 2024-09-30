@@ -25,6 +25,18 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/reset-queue', function() {
+    if (\Illuminate\Support\Facades\App::isProduction()) {
+        abort(401);
+    }
+
+    Illuminate\Support\Facades\DB::table('todo_items')->update([
+        'reserved_by' => 0,
+        'reserved_at' => null,
+        'completed_at' => null,
+    ]);
+});
+
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
         $vismaController = new \App\Http\Controllers\VismaNetController();
