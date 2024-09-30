@@ -15,20 +15,4 @@ class ArticleImage extends Model
         'updated_at',
         'created_at',
     ];
-
-    public function getBase64()
-    {
-        if ($this->base64) {
-            return $this->base64;
-        }
-
-        $imageContent = file_get_contents($this->path_url);
-        $base64 = base64_encode($imageContent);
-
-        DB::table('article_images')
-            ->where('id', $this->id)
-            ->update(['base64' => $base64]);
-
-        return $base64;
-    }
 }

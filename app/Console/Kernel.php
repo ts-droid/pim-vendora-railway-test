@@ -46,9 +46,9 @@ class Kernel extends ConsoleKernel
             $schedule->command('allianz:fetch-grades')->daily();
         }
 
-        // Run only in staging
-        if (App::environment('staging')) {
-            $schedule->command('database:sync')->days([1, 4]); // 1 for Monday and 4 for Thursday
+        // Run only in development environment
+        if (App::environment('development')) {
+            $schedule->command('database:sync')->days([4]); // 4 for Thursday
         }
 
         // Run in all environments
