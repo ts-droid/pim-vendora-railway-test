@@ -53,7 +53,7 @@ class DispatchArticleUpdate
 
         if ($isNew) {
             // Always dispatch a new article
-            UpdateArticleJob::dispatch($articleID, true);
+            UpdateArticleJob::dispatch($articleID, true)->onQueue('article-sync');
         }
         else {
             // Check if changes only contain ignored fields
@@ -66,7 +66,7 @@ class DispatchArticleUpdate
             }
 
             if ($hasChanges || $force) {
-                UpdateArticleJob::dispatch($articleID, false);
+                UpdateArticleJob::dispatch($articleID, false)->onQueue('article-sync');
             }
         }
     }
