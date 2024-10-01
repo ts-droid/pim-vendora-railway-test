@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\WgrController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -27,6 +28,11 @@ class FetchWgr extends Command
      */
     public function handle()
     {
+        if (!is_wgr_active()) {
+            $this->info('WGR integration is not active');
+            return;
+        }
+
         $type = $this->argument('type');
         $skipImages = (int) $this->argument('skipImages');
         $data = $this->argument('data');

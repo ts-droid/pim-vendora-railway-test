@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('is_wgr_active')) {
+    function is_wgr_active(): bool
+    {
+        return (bool) \App\Http\Controllers\ConfigController::getConfig('wgr_is_active');
+    }
+}
+
 if (!function_exists('makeFilenameFriendly')) {
     function makeFilenameFriendly($string): string
     {

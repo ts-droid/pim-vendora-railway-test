@@ -2,11 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\ArticleStored;
-use App\Events\ArticleUpdated;
 use App\Events\InventoryReceiptUpdated;
-use App\Listeners\HandleArticleStore;
-use App\Listeners\HandleArticleUpdate;
 use App\Listeners\UpdateArticleExternalCost;
 use App\Models\Article;
 use Illuminate\Auth\Events\Registered;
@@ -28,12 +24,6 @@ class EventServiceProvider extends ServiceProvider
         InventoryReceiptUpdated::class => [
             UpdateArticleExternalCost::class,
         ],
-        ArticleUpdated::class => [
-            HandleArticleUpdate::class
-        ],
-        ArticleStored::class => [
-            HandleArticleStore::class
-        ]
     ];
 
     /**
