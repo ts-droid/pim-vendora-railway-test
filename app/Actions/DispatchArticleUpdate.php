@@ -53,6 +53,7 @@ class DispatchArticleUpdate
 
         if ($isNew) {
             // Always dispatch a new article
+            $this->setArticleSyncing($articleID);
             UpdateArticleJob::dispatch($articleID, true)->onQueue('article-sync');
         }
         else {
@@ -66,8 +67,14 @@ class DispatchArticleUpdate
             }
 
             if ($hasChanges || $force) {
+                $this->setArticleSyncing($articleID);
                 UpdateArticleJob::dispatch($articleID, false)->onQueue('article-sync');
             }
         }
+    }
+
+    private function setArticleSyncing(int $articleID): void
+    {
+        DB::table('articles')->where('id', $articleID)->update(['is_syncing' => 1]);
     }
 }
