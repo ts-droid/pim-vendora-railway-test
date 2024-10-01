@@ -10,9 +10,7 @@ class ArticleSyncControl
             $next($job);
         }
         else {
-            $job->delete();
-
-            $job->dispatch($job)->delay(now()->addSeconds(3600));
+            $job->release(3600);
         }
     }
 }
