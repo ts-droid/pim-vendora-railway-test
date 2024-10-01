@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DispatchArticleUpdate;
 use App\Models\Article;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
@@ -424,7 +425,7 @@ class ArticleController extends Controller
         }
 
         if ($changed && $article) {
-            event(new \App\Events\ArticleUpdated($article, ['image_list_order' => true]));
+            (new DispatchArticleUpdate)->execute($article->id, false, [], true);
         }
 
         return ApiResponseController::success();
@@ -492,7 +493,7 @@ class ArticleController extends Controller
             'size' => DoSpacesController::getSize($remoteFilename)
         ]);
 
-        event(new \App\Events\ArticleUpdated($article, ['files' => true]));
+        (new DispatchArticleUpdate)->execute($article->id, false, [], true);
 
         return ApiResponseController::success($articleFile->toArray());
     }
@@ -502,7 +503,7 @@ class ArticleController extends Controller
         DoSpacesController::delete($articleFile->filename);
         $articleFile->delete();
 
-        event(new \App\Events\ArticleUpdated($article, ['files' => true]));
+        (new DispatchArticleUpdate)->execute($article->id, false, [], true);
 
         return ApiResponseController::success();
     }

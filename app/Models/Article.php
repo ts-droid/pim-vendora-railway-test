@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\DispatchArticleUpdate;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
@@ -100,11 +101,11 @@ class Article extends Model
         static::updated(function ($article) {
             $changes = $article->getChanges();
 
-            event(new \App\Events\ArticleUpdated($article, $changes));
+            (new DispatchArticleUpdate)->execute($article->id, false, $changes);
         });
 
         static::created(function ($article) {
-            event(new \App\Events\ArticleStored($article));
+            (new DispatchArticleUpdate)->execute($article->id, true, []);
         });
     }
 

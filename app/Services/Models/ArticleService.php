@@ -24,12 +24,8 @@ class ArticleService
         $wgrArticleService->createArticle($article);
     }
 
-    public function handleUpdate(Article $article, array $changes): void
+    public function handleUpdate(Article $article): void
     {
-        if (!$changes) {
-            return;
-        }
-
         // Push update to Visma.net
         $vismaNetArticleService = new VismaNetArticleService();
         $vismaNetArticleService->updateArticle($article);
