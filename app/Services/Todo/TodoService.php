@@ -136,7 +136,7 @@ class TodoService
         switch ($todoItem->type) {
             case TodoType::CollectArticle:
                 $service = new TodoItemService();
-                $response = $service->submitCollectArticleWeight($todoItem, $data);
+                $response = $service->submitCollectArticle($todoItem, $data);
                 break;
         }
 

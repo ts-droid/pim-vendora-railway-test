@@ -64,7 +64,7 @@ class TodoItemService extends TodoService
         );
     }
 
-    public function submitCollectArticleWeight(TodoItem $todoItem, array $data): array
+    public function submitCollectArticle(TodoItem $todoItem, array $data): array
     {
         $articleID = $todoItem->data['article_id'] ?? 0;
         $updateData = [];
