@@ -269,6 +269,10 @@ class WgrArticleService
         $postData['embedVideo2'] = $videos[1] ?? '';
         $postData['embedVideo3'] = $videos[2] ?? '';
 
+        $postData['embedVideoReseller'] = $videos[0] ?? '';
+        $postData['embedVideoReseller2'] = $videos[1] ?? '';
+        $postData['embedVideoReseller3'] = $videos[2] ?? '';
+
         // Add language fields
         $languages = (new LanguageController())->getAllLanguages();
         foreach ($languages as $language) {
