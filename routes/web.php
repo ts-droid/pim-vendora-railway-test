@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
+use App\Http\Controllers\MonitorDashboardController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
@@ -84,6 +85,8 @@ Route::prefix('/e-sign')->group(function() {
 });
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
+
+Route::get('/monitors', [MonitorDashboardController::class, 'index']);
 
 require __DIR__ . '/supplierPortal.php';
 

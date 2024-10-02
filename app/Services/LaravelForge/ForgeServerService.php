@@ -12,4 +12,11 @@ class ForgeServerService extends ForgeApiService
 
         return $response['servers'] ?? [];
     }
+
+    public function getMonitors($serverID)
+    {
+        $response = $this->callAPI('GET', '/servers/' . $serverID . '/monitors');
+
+        return $response['monitors'] ?? [];
+    }
 }
