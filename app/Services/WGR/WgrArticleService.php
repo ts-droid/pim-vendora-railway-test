@@ -60,10 +60,6 @@ class WgrArticleService
 
     public function updateArticle(Article $article): void
     {
-        if (!in_array($article->status, ['Active', 'NoPurchases'])) {
-            return;
-        }
-
         $wgrController = new WgrController();
 
         // Make sure the article exists in WGR
@@ -226,7 +222,8 @@ class WgrArticleService
 
         $isHidden = false;
 
-        if (!$article->is_webshop) {
+        if (!$article->is_webshop
+            || !in_array($article->status, ['Active', 'NoPurchases'])) {
             $isHidden = true;
         }
 
