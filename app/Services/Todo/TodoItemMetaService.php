@@ -12,17 +12,17 @@ class TodoItemMetaService
     public function getMeta(TodoType $type, array $data): array
     {
         switch ($type) {
-            case TodoType::CollectArticleWeight:
-                return $this->getCollectArticleWeightMeta($data);
+            case TodoType::CollectArticle:
+                return $this->getCollectArticleMeta($data);
         }
 
         return [];
     }
 
-    private function getCollectArticleWeightMeta(array $data): array
+    private function getCollectArticleMeta(array $data): array
     {
         $article = DB::table('articles')
-            ->select('id', 'weight')
+            ->select('*')
             ->where('id', ($data['article_id'] ?? 0))
             ->first();
 
@@ -32,19 +32,18 @@ class TodoItemMetaService
             ->limit(1)
             ->first();
 
-        $form = [
-            [
-                'key' => 'weight',
-                'type' => 'number',
-                'label' => 'Weight (g)',
-                'placeholder' => 'Enter weight',
-                'value' => $article ? ($article->weight ?: null) : null,
-            ]
-        ];
 
         return [
+            'article_number' => $article->article_number,
+            'ean' => $article->ean,
+            'description' => $article->description,
+            'width' => $article->width,
+            'height' => $article->height,
+            'depth' => $article->depth,
+            'weight' => $article->weight,
+            'inner_box' => $article->inner_box,
+            'master_box' => $article->master_box,
             'image' => $image ? $image->path_url : null,
-            'form' => $form,
         ];
     }
 }

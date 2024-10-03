@@ -26,15 +26,16 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test', function() {
+Route::get('/reset-queue', function() {
+    if (\Illuminate\Support\Facades\App::isProduction()) {
+        abort(401);
+    }
 
-    $article = \App\Models\Article::where('article_number', 'ST-CMAK')->first();
-
-
-
-    $todoWmsService = new \App\Services\Todo\TodoWmsService();
-    $todoWmsService->createCollectArticleWeight($article->id, 0);
-
+    Illuminate\Support\Facades\DB::table('todo_items')->update([
+        'reserved_by' => 0,
+        'reserved_at' => null,
+        'completed_at' => null,
+    ]);
 });
 
 Route::prefix('/visma')->group(function() {

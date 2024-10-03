@@ -134,9 +134,9 @@ class TodoService
         ];
 
         switch ($todoItem->type) {
-            case TodoType::CollectArticleWeight:
-                $service = new TodoWmsService();
-                $response = $service->submitCollectArticleWeight($todoItem, $data);
+            case TodoType::CollectArticle:
+                $service = new TodoItemService();
+                $response = $service->submitCollectArticle($todoItem, $data);
                 break;
         }
 
