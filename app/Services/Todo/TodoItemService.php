@@ -2,10 +2,12 @@
 
 namespace App\Services\Todo;
 
+use App\Actions\UploadArticlePackageImage;
 use App\Enums\TodoQueue;
 use App\Enums\TodoType;
 use App\Models\Article;
 use App\Models\TodoItem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TodoItemService extends TodoService
@@ -64,8 +66,13 @@ class TodoItemService extends TodoService
         );
     }
 
-    public function submitCollectArticle(TodoItem $todoItem, array $data): array
+    public function submitCollectArticle(TodoItem $todoItem, Request|array $data): array
     {
+        $dataArray = $data instanceof Request ? $data->all() : $data;
+
+        $packageImageFront = $data->hasFile('package_image_front') ? $data->file('package_image_front') : null;
+        $packageImageBack = $data->hasFile('package_image_back') ? $data->file('package_image_back') : null;
+
         $articleID = $todoItem->data['article_id'] ?? 0;
         $updateData = [];
 
@@ -79,12 +86,11 @@ class TodoItemService extends TodoService
             'weight',
             'inner_box',
             'master_box',
-            // TODO: Add support for package images
         ];
 
         foreach ($fields as $field) {
-            if (isset($data[$field])) {
-                $updateData[$field] = $data[$field];
+            if (isset($dataArray[$field])) {
+                $updateData[$field] = $dataArray[$field];
             }
         }
 
@@ -114,6 +120,17 @@ class TodoItemService extends TodoService
                 $requiredFields = ['inner_box', 'master_box'];
                 break;
 
+            case 'images':
+                $requiredFields = [];
+
+                if (!$packageImageFront || !$packageImageBack) {
+                    return [
+                        'success' => false,
+                        'error' => 'Package images are required',
+                    ];
+                }
+                break;
+
             default:
                 $requiredFields = [];
                 break;
@@ -128,7 +145,33 @@ class TodoItemService extends TodoService
             }
         }
 
+        // Save article data
         Article::where('id', $articleID)->update($updateData);
+
+        // Upload new package images
+        if ($packageImageFront) {
+            $frontImageContent = @file_get_contents($packageImageFront->getRealPath());
+            if ($frontImageContent) {
+                (new UploadArticlePackageImage)->execute(
+                    $articleID,
+                    $packageImageFront->getClientOriginalName(),
+                    $frontImageContent,
+                    UploadArticlePackageImage::IMAGE_TYPE_FRONT
+                );
+            }
+        }
+
+        if ($packageImageBack) {
+            $backImageContent = @file_get_contents($packageImageBack->getRealPath());
+            if ($backImageContent) {
+                (new UploadArticlePackageImage)->execute(
+                    $articleID,
+                    $packageImageBack->getClientOriginalName(),
+                    $backImageContent,
+                    UploadArticlePackageImage::IMAGE_TYPE_BACK
+                );
+            }
+        }
 
         return [
             'success' => true,

@@ -6,6 +6,7 @@ use App\Enums\TodoQueue;
 use App\Enums\TodoType;
 use App\Models\TodoItem;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class TodoService
 {
@@ -126,7 +127,7 @@ class TodoService
         ]);
     }
 
-    public function submitItem(TodoItem $todoItem, array $data): array
+    public function submitItem(TodoItem $todoItem, Request|array $data): array
     {
         $response = [
             'success' => false,

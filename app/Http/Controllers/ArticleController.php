@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\DispatchArticleUpdate;
+use App\Actions\UploadArticlePackageImage;
 use App\Models\Article;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
@@ -566,43 +567,25 @@ class ArticleController extends Controller
 
         if ($frontImage) {
             $frontImageContent = @file_get_contents($frontImage->getRealPath());
-
             if ($frontImageContent) {
-                // Delete the old file
-                if ($article->package_image_front) {
-                    DoSpacesController::delete($article->package_image_front);
-                }
-
-                // Upload and store new file
-                $remoteFilenameFront = DoSpacesController::store($frontImage->getClientOriginalName(), $frontImageContent, true);
-
-                DB::table('articles')
-                    ->where('id', '=', $article->id)
-                    ->update([
-                        'package_image_front' => $remoteFilenameFront,
-                        'package_image_front_url' => DoSpacesController::getURL($remoteFilenameFront)
-                    ]);
+                (new UploadArticlePackageImage)->execute(
+                    $article->id,
+                    $frontImage->getClientOriginalName(),
+                    $frontImageContent,
+                    UploadArticlePackageImage::IMAGE_TYPE_FRONT
+                );
             }
         }
 
         if ($backImage) {
             $backImageContent = @file_get_contents($backImage->getRealPath());
-
             if ($backImageContent) {
-                // Delete the old file
-                if ($article->package_image_back) {
-                    DoSpacesController::delete($article->package_image_back);
-                }
-
-                // Upload and store new file
-                $remoteFilenameBack = DoSpacesController::store($backImage->getClientOriginalName(), $backImageContent, true);
-
-                DB::table('articles')
-                    ->where('id', '=', $article->id)
-                    ->update([
-                        'package_image_back' => $remoteFilenameBack,
-                        'package_image_back_url' => DoSpacesController::getURL($remoteFilenameBack)
-                    ]);
+                (new UploadArticlePackageImage)->execute(
+                    $article->id,
+                    $backImage->getClientOriginalName(),
+                    $backImageContent,
+                    UploadArticlePackageImage::IMAGE_TYPE_BACK
+                );
             }
         }
 

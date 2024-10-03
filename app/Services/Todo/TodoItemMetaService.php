@@ -44,6 +44,10 @@ class TodoItemMetaService
             'inner_box' => $article->inner_box,
             'master_box' => $article->master_box,
             'image' => $image ? $image->path_url : null,
+            'package_image_front' => $article->package_image_front,
+            'package_image_front_url' => $article->package_image_front_url,
+            'package_image_back' => $article->package_image_back,
+            'package_image_back_url' => $article->package_image_back_url,
         ];
     }
 }

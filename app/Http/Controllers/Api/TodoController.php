@@ -70,7 +70,7 @@ class TodoController extends Controller
         }
 
         $todoService = new TodoService();
-        $submitResponse = $todoService->submitItem($todoItem, $request->all());
+        $submitResponse = $todoService->submitItem($todoItem, $request);
 
         if (!$submitResponse['success']) {
             return ApiResponseController::error($submitResponse['error']);
