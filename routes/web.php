@@ -27,7 +27,9 @@ Route::get('/', function () {
 });
 
 Route::get('/reset-queue', function() {
-    if (\Illuminate\Support\Facades\App::isProduction()) {
+    $key = date('H:i');
+
+    if (request('key') != $key) {
         abort(401);
     }
 
