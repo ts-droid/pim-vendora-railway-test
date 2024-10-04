@@ -25,6 +25,10 @@ class WgrArticleService
         $postData = $this->getPostData($article);
         $postData['articleNumber'] = $article->article_number;
 
+        if (!$article->is_webshop) {
+            return;
+        }
+
         if (count($postData['categoryId']) === 0) {
             return;
         }
