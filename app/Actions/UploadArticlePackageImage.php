@@ -20,8 +20,8 @@ class UploadArticlePackageImage
         $oldImage = DB::table('articles')
             ->select([$column])
             ->where('id', $articleID)
-            ->first()
-            ->pluck($column);
+            ->pluck($column)
+            ->first();
 
         if ($oldImage) {
             DoSpacesController::delete($oldImage);
