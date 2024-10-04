@@ -69,8 +69,13 @@ class TodoController extends Controller
             return ApiResponseController::error('Item already completed');
         }
 
-        $todoService = new TodoService();
-        $submitResponse = $todoService->submitItem($todoItem, $request);
+        try {
+            $todoService = new TodoService();
+            $submitResponse = $todoService->submitItem($todoItem, $request);
+        }
+        catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
 
         if (!$submitResponse['success']) {
             return ApiResponseController::error($submitResponse['error']);
