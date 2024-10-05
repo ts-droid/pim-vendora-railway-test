@@ -7,11 +7,13 @@
     "require": {
         "php": "^8.1",
         "ext-curl": "*",
+        "ext-imagick": "*",
         "ext-pdo": "*",
         "barryvdh/laravel-dompdf": "^2.1",
         "deeplcom/deepl-php": "^1.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
+        "laravel/pulse": "*",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.21",
@@ -19,8 +21,7 @@
         "sentry/sentry-laravel": "^4.1",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "laravel/pulse": "*",
-        "ext-imagick": "*"
+        "thiagoalessio/tesseract_ocr": "^2.13"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",

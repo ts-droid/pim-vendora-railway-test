@@ -53,7 +53,7 @@ class OpenAIService implements AIInterface
         ];
     }
 
-    private function callAPI(string $method, string $endpoint, array $data = []): array
+    public function callAPI(string $method, string $endpoint, array $data = []): array
     {
         $url = $this->apiURL . $endpoint;
 
