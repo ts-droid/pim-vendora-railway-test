@@ -19,7 +19,8 @@
         "sentry/sentry-laravel": "^4.1",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "laravel/pulse": "*"
+        "laravel/pulse": "*",
+        "ext-imagick": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",

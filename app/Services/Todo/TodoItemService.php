@@ -7,6 +7,7 @@ use App\Enums\TodoQueue;
 use App\Enums\TodoType;
 use App\Models\Article;
 use App\Models\TodoItem;
+use App\Services\ImageQualityChecker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -141,6 +142,26 @@ class TodoItemService extends TodoService
                 return [
                     'success' => false,
                     'error' => $requiredField . ' is required',
+                ];
+            }
+        }
+
+        // Check image qualities
+        $imageQualityChecker = new ImageQualityChecker();
+
+        if ($packageImageFront) {
+            if (!$imageQualityChecker->isGoodQuality($packageImageFront->getRealPath())) {
+                return [
+                    'success' => false,
+                    'error' => 'Front package image is of low quality',
+                ];
+            }
+        }
+        if ($packageImageBack) {
+            if (!$imageQualityChecker->isGoodQuality($packageImageBack->getRealPath())) {
+                return [
+                    'success' => false,
+                    'error' => 'Back package image is of low quality',
                 ];
             }
         }
