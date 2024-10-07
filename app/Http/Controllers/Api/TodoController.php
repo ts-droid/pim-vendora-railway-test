@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Enums\TodoQueue;
 use App\Http\Controllers\ApiResponseController;
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\TodoItem;
+use App\Services\Todo\TodoItemService;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -44,6 +46,31 @@ class TodoController extends Controller
         return ApiResponseController::success([
             'count' => $todoService->getQueueCount($queue)
         ]);
+    }
+
+    public function createItemCollectArticle(Request $request)
+    {
+        $ean = $request->input('ean');
+        $variant = $request->input('variant', 'custom');
+
+        if (!$ean) {
+            return ApiResponseController::error('EAN is required');
+        }
+
+        $article = Article::where('ean', $ean)->first();
+        if (!$article) {
+            return ApiResponseController::error('Article not found');
+        }
+
+        $todoItemService = new TodoItemService();
+        $todoItem = $todoItemService->createCollectArticle($article->id, $variant, 0);
+
+        $response = $todoItemService->reserveItem($todoItem, 0);
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error']);
+        }
+
+        return ApiResponseController::success($todoItemService->getItem($todoItem->id));
     }
 
     public function getItem(Request $request, string $queue, int $item)

@@ -17,6 +17,8 @@ Route::prefix('/app')->group(function() {
             Route::post('/queues/{queue}/{item}/reserve', [TodoController::class, 'reserveItem']);
             Route::post('/queues/{queue}/{item}/unreserve', [TodoController::class, 'unreserveItem']);
             Route::post('/queues/{queue}/{item}/submit', [TodoController::class, 'submitItem']);
+
+            Route::post('/create-collect-article', [TodoController::class, 'createItemCollectArticle']);
         });
 
     });
