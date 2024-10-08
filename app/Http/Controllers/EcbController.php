@@ -11,10 +11,10 @@ class EcbController extends Controller
     public function convertCurrency(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'number' => 'required|float',
-            'fromCurrency' => 'required|string',
-            'toCurrency' => 'required|string',
-            'date' => 'date_format:Y-m-d',
+            'number' => 'required',
+            'fromCurrency' => 'required',
+            'toCurrency' => 'required',
+            'date' => 'required',
         ]);
 
         if ($validator->fails()) {
