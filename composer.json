@@ -21,7 +21,8 @@
         "sentry/sentry-laravel": "^4.1",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "thiagoalessio/tesseract_ocr": "^2.13"
+        "thiagoalessio/tesseract_ocr": "^2.13",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",

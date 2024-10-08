@@ -11,6 +11,7 @@ use App\Http\Controllers\ArtisanCommandController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
+use App\Http\Controllers\EcbController;
 use App\Http\Controllers\EsignController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\InventoryTurnoverController;
@@ -60,6 +61,8 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
 });
 
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
+
+    Route::get('/ecb/convert-currency', [EcbController::class, 'convertCurrency']);
 
     Route::prefix('/wms')->group(function() {
         Route::get('/stock-places', [StockPlaceController::class, 'getStockPlaces']);
