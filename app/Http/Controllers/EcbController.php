@@ -34,6 +34,8 @@ class EcbController extends Controller
             return ApiResponseController::error($e->getMessage());
         }
 
-        return $convertedNumber;
+        return ApiResponseController::success([
+            'number' => $convertedNumber
+        ]);
     }
 }
