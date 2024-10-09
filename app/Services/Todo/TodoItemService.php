@@ -146,26 +146,6 @@ class TodoItemService extends TodoService
             }
         }
 
-        // Check image qualities
-        $imageQualityChecker = new ImageQualityChecker();
-
-        if ($packageImageFront) {
-            if (!$imageQualityChecker->isGoodQuality($packageImageFront->getRealPath())) {
-                return [
-                    'success' => false,
-                    'error' => 'Front package image is of low quality',
-                ];
-            }
-        }
-        if ($packageImageBack) {
-            if (!$imageQualityChecker->isGoodQuality($packageImageBack->getRealPath())) {
-                return [
-                    'success' => false,
-                    'error' => 'Back package image is of low quality',
-                ];
-            }
-        }
-
         // Save article data
         Article::where('id', $articleID)->update($updateData);
 
