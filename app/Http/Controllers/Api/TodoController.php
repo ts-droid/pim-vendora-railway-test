@@ -50,14 +50,17 @@ class TodoController extends Controller
 
     public function createItemCollectArticle(Request $request)
     {
-        $ean = $request->input('ean');
+        $input = $request->input('input') ?: $request->input('ean');
         $variant = $request->input('variant', 'custom');
 
-        if (!$ean) {
-            return ApiResponseController::error('EAN is required');
+        if (!$input) {
+            return ApiResponseController::error('Input is required');
         }
 
-        $article = Article::where('ean', $ean)->first();
+        $article = Article::where('ean', $input)
+            ->orWhere('article_number', $input)
+            ->first();
+
         if (!$article) {
             return ApiResponseController::error('Article not found');
         }
