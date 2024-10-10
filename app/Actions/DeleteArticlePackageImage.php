@@ -46,8 +46,8 @@ class DeleteArticlePackageImage
 
             Article::where('id', '=', $articleID)
                 ->update([
-                    $column => null,
-                    $urlColumn => null
+                    $column => '',
+                    $urlColumn => ''
                 ]);
         }
     }
