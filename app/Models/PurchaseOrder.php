@@ -18,6 +18,7 @@ class PurchaseOrder extends Model
         'order_number',
         'status',
         'date',
+        'currency_rate',
         'promised_date',
         'supplier_id',
         'supplier_number',
