@@ -101,10 +101,15 @@ class TodoService
 
     public function unreserveItem(TodoItem $todoItem)
     {
-        $todoItem->update([
-            'reserved_by' => 0,
-            'reserved_at' => null
-        ]);
+        if ($todoItem->source === 'tmp') {
+            $todoItem->delete();
+        }
+        else {
+            $todoItem->update([
+                'reserved_by' => 0,
+                'reserved_at' => null
+            ]);
+        }
 
         return [
             'success' => true,
