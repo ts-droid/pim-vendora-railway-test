@@ -285,9 +285,16 @@ class ArticleController extends Controller
                     }
                 }
 
-                $article['current_cost'] = (float) SupplierArticlePrice::where('article_number', $article['article_number'])
-                    ->pluck('price')
-                    ->first();
+                $article['current_cost'] = 0;
+                $article['current_cost_SEK'] = 0;
+
+                $supplierPrice = SupplierArticlePrice::where('article_number', $article['article_number'])->first();
+                if ($supplierPrice) {
+                    $article['current_cost'] = (float) $supplierPrice->price;
+
+                    $currencyConverter = new CurrencyConvertController();
+                    $article['current_cost_SEK'] = $currencyConverter->convert($article['current_cost'], $supplierPrice->currency, 'SEK');
+                }
 
                 $article['last_cost'] = $orderLines->first()->unit_cost ?? 0;
                 $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
