@@ -112,6 +112,22 @@ class TodoService
         ];
     }
 
+    public function unreserveOldItems(int $thresholdMinutes = 30)
+    {
+        $todoItems = TodoItem::whereNull('completed_at')
+            ->where('reserved_at', '<', date('Y-m-d H:i:s', strtotime('-' . $thresholdMinutes . ' minutes')))
+            ->orderBy('reserved_at', 'DESC')
+            ->get();
+
+        if (!$todoItems) {
+            return;
+        }
+
+        foreach ($todoItems as $todoItem) {
+            $this->unreserveItem($todoItem);
+        }
+    }
+
     protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy): TodoItem
     {
         $currentListOrder = (int) TodoItem::where('queue', $queue)->max('list_order');
