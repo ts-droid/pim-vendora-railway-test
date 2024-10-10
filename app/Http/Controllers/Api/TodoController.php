@@ -66,7 +66,7 @@ class TodoController extends Controller
         }
 
         $todoItemService = new TodoItemService();
-        $todoItem = $todoItemService->createCollectArticle($article->id, $variant, 0);
+        $todoItem = $todoItemService->createCollectArticle($article->id, $variant, 0, 'tmp');
 
         $response = $todoItemService->reserveItem($todoItem, 0);
         if (!$response['success']) {

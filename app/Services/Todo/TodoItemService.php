@@ -15,7 +15,7 @@ class TodoItemService extends TodoService
 {
     private TodoQueue $queue = TodoQueue::WMS;
 
-    public function createCollectArticle(int $articleID, string $variant, int $createdBy): TodoItem
+    public function createCollectArticle(int $articleID, string $variant, int $createdBy, string $source): TodoItem
     {
         $article = DB::table('articles')->select('article_number')->where('id', $articleID)->first();
         $articleNumber = $article->article_number ?? '';
@@ -63,7 +63,8 @@ class TodoItemService extends TodoService
                 'article_id' => $articleID,
                 'variant' => $variant,
             ],
-            $createdBy
+            $createdBy,
+            $source
         );
     }
 

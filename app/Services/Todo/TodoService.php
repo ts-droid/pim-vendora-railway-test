@@ -128,7 +128,7 @@ class TodoService
         }
     }
 
-    protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy): TodoItem
+    protected function createItem(TodoQueue $queue, TodoType $type, string $title, string $description, array $data, int $createdBy, string $source): TodoItem
     {
         $currentListOrder = (int) TodoItem::where('queue', $queue)->max('list_order');
 
@@ -140,6 +140,7 @@ class TodoService
             'description' => $description,
             'data' => $data,
             'created_by' => $createdBy,
+            'source' => $source
         ]);
     }
 
@@ -162,5 +163,12 @@ class TodoService
         }
 
         return $response;
+    }
+
+    public function deleteTmpItems()
+    {
+        TodoItem::where('source', 'tmp')
+            ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-1 hour')))
+            ->delete();
     }
 }
