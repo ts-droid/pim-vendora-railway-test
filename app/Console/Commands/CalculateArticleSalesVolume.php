@@ -28,6 +28,7 @@ class CalculateArticleSalesVolume extends Command
     public function handle()
     {
         $calculator = new SalesVolumeCalculator();
+        $calculator->calculateTotalSales();
         $calculator->calculateArticles();
     }
 }
