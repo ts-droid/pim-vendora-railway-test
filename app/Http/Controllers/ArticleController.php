@@ -252,7 +252,8 @@ class ArticleController extends Controller
                         'purchase_order_lines.unit_cost',
                         'purchase_order_lines.promised_date',
                         'purchase_order_lines.is_completed',
-                        'purchase_orders.date'
+                        'purchase_orders.date',
+                        'purchase_orders.currency_rate',
                     )
                     ->where('purchase_order_lines.article_number', '=', $article['article_number'])
                     ->where('purchase_orders.is_draft', '=', 0)
@@ -296,10 +297,22 @@ class ArticleController extends Controller
                     $article['current_cost_SEK'] = $currencyConverter->convert($article['current_cost'], $supplierPrice->currency, 'SEK');
                 }
 
-                $article['last_cost'] = $orderLines->first()->unit_cost ?? 0;
-                $article['average_cost'] = round($orderLines->avg('unit_cost') ?: 0, 2);
-                $article['highest_cost'] = $orderLines->max('unit_cost') ?: 0;
-                $article['lowest_cost'] = $orderLines->min('unit_cost') ?: 0;
+                $article['last_cost'] = 0;
+                $article['average_cost'] = 0;
+                $article['highest_cost'] = 0;
+                $article['lowest_cost'] = 0;
+
+                if ($orderLines && $orderLines->count() > 0) {
+                    $mappedOrderLines = $orderLines->map(function ($line) {
+                        return $line->unit_cost * ($line->exchange_rate ?: 1);
+                    });
+
+                    $article['last_cost'] = $orderLines->first()->unit_cost * ($orderLines->first()->currency_rate ?: 1);
+                    $article['average_cost'] = round($mappedOrderLines->avg() ?: 0, 2);
+                    $article['highest_cost'] = $mappedOrderLines->max() ?: 0;
+                    $article['lowest_cost'] = $mappedOrderLines->min() ?: 0;
+                }
+
                 $article['lead_time'] = round($filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0);
                 $article['eta_shipment'] = $etaShipment;
             }
