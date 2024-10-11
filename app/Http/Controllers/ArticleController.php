@@ -304,7 +304,7 @@ class ArticleController extends Controller
 
                 if ($orderLines && $orderLines->count() > 0) {
                     $mappedOrderLines = $orderLines->map(function ($line) {
-                        return $line->unit_cost * ($line->exchange_rate ?: 1);
+                        return $line->unit_cost * ($line->currency_rate ?: 1);
                     });
 
                     $article['last_cost'] = $orderLines->first()->unit_cost * ($orderLines->first()->currency_rate ?: 1);
