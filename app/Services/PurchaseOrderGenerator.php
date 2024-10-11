@@ -238,7 +238,7 @@ class PurchaseOrderGenerator
             'foresight_days' => $this->settings['foresight_days'],
             'email' => $supplier->email,
             'is_po_system' => 1,
-            'currency_rate' => (new CurrencyConvertController)->convert(1, $supplier->currency, 'SEK'),
+            'currency_rate' => round((new CurrencyConvertController)->convert(1, $supplier->currency, 'SEK'), 2),
         ]);
 
         foreach ($orderLines as $orderLine) {
