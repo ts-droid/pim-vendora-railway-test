@@ -101,6 +101,13 @@ class TodoService
 
     public function unreserveItem(TodoItem $todoItem)
     {
+        if ($todoItem->completed_at) {
+            return [
+                'success' => false,
+                'error' => 'Item already completed',
+            ];
+        }
+
         if ($todoItem->source === 'tmp') {
             $todoItem->delete();
         }
