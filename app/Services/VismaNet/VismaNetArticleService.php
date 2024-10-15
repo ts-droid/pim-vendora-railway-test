@@ -19,7 +19,9 @@ class VismaNetArticleService extends VismaNetApiService
         $postData = $this->getPostData($article, true);
 
         $response = $this->callAPI('POST', '/v1/inventory', $postData);
-        log_data(json_encode($response));
+        if (!$response['success']) {
+            throw new \Exception('Failed to create article in Visma.net: ' . ($response['response']['response'] ?? 'Unknown error'));
+        }
 
         // Set cross references
         if ($article->ean) {
