@@ -23,6 +23,7 @@ class TodoItem extends Model
         'reserved_at',
         'completed_at',
         'source',
+        'on_hold',
     ];
 
     protected $casts = [

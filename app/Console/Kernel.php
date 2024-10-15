@@ -54,6 +54,8 @@ class Kernel extends ConsoleKernel
         // Run in all environments
         $schedule->command('todo:unreserve-old')->everyMinute();
         $schedule->command('todo:delete-tmp')->everyMinute();
+        $schedule->command('todo:hold-items')->dailyAt('05:00');
+
         $schedule->command('api-logger:clean')->hourly();
         $schedule->command('calculate-last-article-purchase-date')->everyThreeHours();
         $schedule->command('purchase-order:generate-weights')->dailyAt('03:00');

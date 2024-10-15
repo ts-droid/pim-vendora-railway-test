@@ -13,6 +13,17 @@ class UploadArticlePackageImage
 
     public function execute(int $articleID, string $filename, string $imageContent, int $imageType): void
     {
+        $ean = DB::table('articles')
+            ->select('ean')
+            ->where('id', $articleID)
+            ->pluck('ean')
+            ->first();
+
+        $ean = $ean ?: $articleID;
+
+        $filenameExtension = pathinfo($filename, PATHINFO_EXTENSION);
+        $filename = $ean . '_' . ($imageType === self::IMAGE_TYPE_FRONT ? 'front' : 'back') . '.' . $filenameExtension;
+
         $column = $imageType === self::IMAGE_TYPE_FRONT ? 'package_image_front' : 'package_image_back';
         $urlColumn = $column . '_url';
 
