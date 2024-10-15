@@ -18,7 +18,8 @@ class VismaNetArticleService extends VismaNetApiService
 
         $postData = $this->getPostData($article, true);
 
-        $this->callAPI('POST', '/v1/inventory', $postData);
+        $response = $this->callAPI('POST', '/v1/inventory', $postData);
+        log_data(json_encode($response));
 
         // Set cross references
         if ($article->ean) {
