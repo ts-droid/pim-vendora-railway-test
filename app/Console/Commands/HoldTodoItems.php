@@ -39,19 +39,20 @@ class HoldTodoItems extends Command
             $articleID = $item->data['article_id'] ?? null;
             if ($articleID) {
                 // Check if the article has stock
-                $stock = DB::table('articles')
-                    ->select('stock')
+                $article = DB::table('articles')
+                    ->select('stock', 'status')
                     ->where('article_id', $articleID)
-                    ->pluck('stock')
                     ->first();
 
-                if ($stock > 0) {
-                    // Unhold item
-                    $item->update(['on_hold' => 0]);
-                }
-                else {
-                    // Hold item
-                    $item->update(['on_hold' => 1]);
+                if ($article) {
+                    if ($article->stock <= 0 || in_array($article->status, ['NoPurchases', 'Inactive'])) {
+                        // Hold item
+                        $item->update(['on_hold' => 1]);
+                    }
+                    else {
+                        // Unhold item
+                        $item->update(['on_hold' => 0]);
+                    }
                 }
             }
 
