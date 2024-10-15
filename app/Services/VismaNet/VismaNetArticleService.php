@@ -25,7 +25,13 @@ class VismaNetArticleService extends VismaNetApiService
 
         // Set cross references
         if ($article->ean) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean, 'STYCK');
+        }
+        if ($article->ean_inner_box) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_inner_box, 'INNE10');
+        }
+        if ($article->ean_master_box) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_master_box, 'MAS100');
         }
         if ($article->wright_article_number) {
             $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
@@ -38,14 +44,20 @@ class VismaNetArticleService extends VismaNetApiService
 
         // Update cross references
         if ($article->ean) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean);
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean, 'STYCK');
+        }
+        if ($article->ean_inner_box) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_inner_box, 'INNE10');
+        }
+        if ($article->ean_master_box) {
+            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_master_box, 'MAS100');
         }
         if ($article->wright_article_number) {
             $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
         }
     }
 
-    private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value): void
+    private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value, string $unit = ''): void
     {
         // Load existing cross references
         if (!isset($this->crossReferences[$articleNumber])) {
@@ -56,8 +68,9 @@ class VismaNetArticleService extends VismaNetApiService
         // Try to update existing value
         foreach ($this->crossReferences[$articleNumber] as $crossReference) {
             $crossReferenceType = $crossReference['alternateType'] ?? '';
+            $crossReferenceUnit = $crossReference['uom'] ?? '';
 
-            if ($crossReferenceType == $alternateType) {
+            if ($crossReferenceType == $alternateType && (!$unit || $crossReferenceUnit == $unit)) {
                 $this->callAPI('PUT', '/v1/inventory/' . $articleNumber . '/crossReferences/' . $alternateType . '/' . $crossReference['alternateID'], [
                     'alternateID' => ['value' => $value],
                 ]);
