@@ -128,6 +128,7 @@ class TodoItemService extends TodoService
                 if (!$packageImageFront || !$packageImageBack) {
                     return [
                         'success' => false,
+                        'completed' => false,
                         'error' => 'Package images are required',
                     ];
                 }
@@ -142,13 +143,23 @@ class TodoItemService extends TodoService
             if (!($updateData[$requiredField] ?? null)) {
                 return [
                     'success' => false,
+                    'completed' => false,
                     'error' => $requiredField . ' is required',
                 ];
             }
         }
 
         // Save article data
-        Article::where('id', $articleID)->update($updateData);
+        $article = Article::where('id', $articleID)->first();
+        if (!$article) {
+            return [
+                'success' => false,
+                'completed' => false,
+                'error' => 'Article not found',
+            ];
+        }
+
+        $article->update($updateData);
 
         // Upload new package images
         if ($packageImageFront) {
@@ -177,6 +188,7 @@ class TodoItemService extends TodoService
 
         return [
             'success' => true,
+            'completed' => $article->isDataComplete(),
             'error' => '',
         ];
     }

@@ -170,7 +170,7 @@ class TodoService
                 break;
         }
 
-        if ($response['success']) {
+        if ($response['success'] || $response['completed']) {
             $todoItem->update(['completed_at' => date('Y-m-d H:i:s')]);
         }
 

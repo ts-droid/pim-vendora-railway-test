@@ -274,4 +274,31 @@ class Article extends Model
 
         return $this->attributes['purchase_price_currency'];
     }
+
+    public function isDataComplete()
+    {
+        if (!$this->article_number) {
+            return false;
+        }
+        if (!$this->description) {
+            return false;
+        }
+        if (!$this->ean) {
+            return false;
+        }
+        if (!$this->width || !$this->height || !$this->depth) {
+            return false;
+        }
+        if (!$this->weight) {
+            return false;
+        }
+        if (!$this->inner_box || !$this->master_box) {
+            return false;
+        }
+        if (!$this->package_image_front || !$this->package_image_back) {
+            return false;
+        }
+
+        return true;
+    }
 }
