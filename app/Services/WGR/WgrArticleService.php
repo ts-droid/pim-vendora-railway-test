@@ -33,7 +33,13 @@ class WgrArticleService
             return;
         }
 
+        // Make sure the article does not exist in WGR
         $wgrController = new WgrController();
+        $wgrArticle = $wgrController->getArticle($article->article_number);
+        if (isset($wgrArticle['id']) && $wgrArticle['id']) {
+            return;
+        }
+
         $response = $wgrController->createArticle($postData);
 
         $productID = (int) ($response[0]['result']['productId'] ?? 0);
