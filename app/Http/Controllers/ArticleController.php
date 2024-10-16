@@ -1069,6 +1069,8 @@ class ArticleController extends Controller
                 'description',
                 'origin_country',
                 'ean',
+                'ean_inner_box',
+                'ean_master_box',
                 'wright_article_number',
                 'supplier_number',
                 'article_type',
