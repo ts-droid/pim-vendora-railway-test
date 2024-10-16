@@ -87,10 +87,12 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function getPostData(Article $article, bool $isNewArticle = false): array
     {
+        $description = preg_replace('/[^a-zA-Z0-9\s\-åäöÅÄÖ]/', '', $article->description);
+
         $data = [
             'status' => ['value' => $article->status],
             'type' => ['value' => $article->article_type],
-            'description' => ['value' => $article->description],
+            'description' => ['value' => $description],
             'intrastat' => [
                 'cN8' => ['value' => $article->hs_code],
                 'countryOfOrigin' => ['value' => $article->origin_country],
