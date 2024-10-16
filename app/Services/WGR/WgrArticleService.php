@@ -18,7 +18,7 @@ class WgrArticleService
 {
     public function createArticle(Article $article): void
     {
-        if (!in_array($article->status, ['Active', 'NoPurchases'])) {
+        if (!in_array($article->status, ['Active'])) {
             return;
         }
 
