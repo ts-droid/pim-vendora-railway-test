@@ -406,7 +406,11 @@ class WgrController extends Controller
     public function getArticle(string $articleNumber)
     {
         $response = $this->makeRequest('Article.get', ['articleNumber' => $articleNumber]);
-        $articles = $response[0]['result'] ?? [];
+        $articles = $response[0]['result'] ?? null;
+
+        if ($articles === null) {
+            throw new \Exception('Could not fetch article from WGR API');
+        }
 
         return $articles[0] ?? null;
     }
