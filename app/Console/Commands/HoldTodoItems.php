@@ -31,7 +31,7 @@ class HoldTodoItems extends Command
             ->whereNull('completed_at')
             ->get();
 
-        if ($activeItems) {
+        if (!$activeItems) {
             return;
         }
 
