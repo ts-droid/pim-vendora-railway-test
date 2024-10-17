@@ -13,22 +13,15 @@ class TodoService
     public function getQueueCount(TodoQueue $queue): int
     {
         return (int) TodoItem::where('queue', $queue)
+            ->where('on_hold', 0)
             ->whereNull('reserved_at')
             ->count();
-    }
-
-    public function getNextQueueItem(TodoQueue $queue)
-    {
-        return TodoItem::where('queue', $queue)
-            ->whereNull('reserved_at')
-            ->whereNull('completed_at')
-            ->orderBy('list_order', 'ASC')
-            ->first();
     }
 
     public function getQueueItems(TodoQueue $queue, int $limit = 0, int $page = 1)
     {
         $query = TodoItem::where('queue', $queue)
+            ->where('on_hold', 0)
             ->whereNull('reserved_at')
             ->whereNull('completed_at')
             ->orderBy('list_order', 'ASC');
