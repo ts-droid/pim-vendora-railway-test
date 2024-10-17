@@ -28,8 +28,10 @@ class TodoController extends Controller
             return ApiResponseController::error('Invalid queue');
         }
 
+        $page = (int) $request->input('page', 1);
+
         $todoService = new TodoService();
-        $todoItems = $todoService->getQueueItems($queue, 50);
+        $todoItems = $todoService->getQueueItems($queue, 50, $page);
 
         return ApiResponseController::success($todoItems->toArray());
     }

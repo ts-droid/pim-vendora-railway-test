@@ -26,7 +26,7 @@ class TodoService
             ->first();
     }
 
-    public function getQueueItems(TodoQueue $queue, int $limit = 0)
+    public function getQueueItems(TodoQueue $queue, int $limit = 0, int $page = 1)
     {
         $query = TodoItem::where('queue', $queue)
             ->whereNull('reserved_at')
@@ -35,6 +35,10 @@ class TodoService
 
         if ($limit) {
             $query->limit($limit);
+        }
+
+        if ($page > 1) {
+            $query->offset(($page - 1) * $limit);
         }
 
         $todoItems = $query->get();
