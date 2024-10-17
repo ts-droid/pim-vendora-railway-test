@@ -41,7 +41,7 @@ class HoldTodoItems extends Command
                 // Check if the article has stock
                 $article = DB::table('articles')
                     ->select('stock', 'status')
-                    ->where('article_id', $articleID)
+                    ->where('id', $articleID)
                     ->first();
 
                 if ($article) {
