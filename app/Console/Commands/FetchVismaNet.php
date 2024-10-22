@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Services\CustomerCreditService;
 use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
+use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\VismaNet\VismaNetTransactionService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -93,6 +94,11 @@ class FetchVismaNet extends Command
                 $vismaNetPaymentService->fetchCustomerPayments();
                 break;
 
+            case 'shipments':
+                $vismaNetShipmentService = new VismaNetShipmentService();
+                $vismaNetShipmentService->fetchShipments();
+                break;
+
             case 'daily':
                 // Fetch all data from Visma
                 Artisan::call('visma:fetch', ['type' => 'customers']);
@@ -113,6 +119,10 @@ class FetchVismaNet extends Command
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
                 Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'credit-notes']);
+                break;
+
+            case 'quick':
+                Artisan::call('visma:fetch', ['type' => 'shipments']);
                 break;
 
             case 'all':
