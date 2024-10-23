@@ -25,7 +25,7 @@ class Shipment extends Model
 
     public function address()
     {
-        return $this->belongsTo(Address::class);
+        return $this->belongsTo(Address::class, 'delivery_address_id');
     }
 
     public function lines()
