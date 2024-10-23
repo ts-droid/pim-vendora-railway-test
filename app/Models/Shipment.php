@@ -22,4 +22,14 @@ class Shipment extends Model
         'email',
         'phone',
     ];
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function lines()
+    {
+        return $this->hasMany(ShipmentLine::class);
+    }
 }

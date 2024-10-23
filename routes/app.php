@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TodoController;
+use App\Http\Controllers\AppShipmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/app')->group(function() {
@@ -19,6 +20,11 @@ Route::prefix('/app')->group(function() {
             Route::post('/queues/{queue}/{item}/submit', [TodoController::class, 'submitItem']);
 
             Route::post('/create-collect-article', [TodoController::class, 'createItemCollectArticle']);
+        });
+
+        Route::prefix('/shipments')->group(function() {
+            Route::get('/', [AppShipmentController::class, 'list']);
+            Route::get('/{shipment}', [AppShipmentController::class, 'get']);
         });
 
     });
