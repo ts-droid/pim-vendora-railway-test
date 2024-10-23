@@ -18,4 +18,9 @@ class ShipmentLine extends Model
         'quantity',
         'shipped_quantity',
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
 }

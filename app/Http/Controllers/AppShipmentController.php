@@ -22,7 +22,7 @@ class AppShipmentController extends Controller
 
     public function get(Shipment $shipment)
     {
-        $shipment->load('address', 'lines');
+        $shipment->load('address', 'lines', 'lines.article');
 
         return ApiResponseController::success($shipment->toArray());
     }
