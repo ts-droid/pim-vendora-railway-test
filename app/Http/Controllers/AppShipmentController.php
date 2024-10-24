@@ -12,7 +12,8 @@ class AppShipmentController extends Controller
         $query = Shipment::query();
 
         if ($request->has('status')) {
-            $query->where('status', $request->status);
+            //$query->where('status', $request->status);
+            $query->orderBy('id', 'DESC')->limit(10);
         }
 
         $shipments = $query->with('address', 'lines')->get();
