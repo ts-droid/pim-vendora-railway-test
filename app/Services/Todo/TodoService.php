@@ -106,7 +106,7 @@ class TodoService
         }
 
         if ($todoItem->source === 'tmp') {
-            $todoItem->delete();
+            $this->deleteItem($todoItem);
         }
         else {
             $todoItem->update([
@@ -119,6 +119,11 @@ class TodoService
             'success' => true,
             'error' => '',
         ];
+    }
+
+    public function deleteItem(TodoItem $todoItem): void
+    {
+        $todoItem->delete();
     }
 
     public function unreserveOldItems(int $thresholdMinutes = 30)
@@ -176,8 +181,14 @@ class TodoService
 
     public function deleteTmpItems()
     {
-        TodoItem::where('source', 'tmp')
+        $todoItems = TodoItem::where('source', 'tmp')
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-1 hour')))
-            ->delete();
+            ->get();
+
+        if (!$todoItems) return;
+
+        foreach ($todoItems as $todoItem) {
+            $this->deleteItem($todoItem);
+        }
     }
 }

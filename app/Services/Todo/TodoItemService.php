@@ -186,9 +186,25 @@ class TodoItemService extends TodoService
             }
         }
 
+        $isDataComplete = $article->isDataComplete();
+        if ($isDataComplete) {
+            // Delete other uncompleted items of same type
+            $todoItems = TodoItem::whereJsonContains('data->article_id', $article->id)
+                ->where('type', '=', TodoType::CollectArticle)
+                ->whereNull('completed_at')
+                ->where('id', '!=', $todoItem->id)
+                ->get();
+
+            if ($todoItems) {
+                foreach ($todoItems as $todoItem) {
+                    $this->deleteItem($todoItem);
+                }
+            }
+        }
+
         return [
             'success' => true,
-            'completed' => $article->isDataComplete(),
+            'completed' => $isDataComplete,
             'error' => '',
         ];
     }
