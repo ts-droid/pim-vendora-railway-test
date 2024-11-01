@@ -7,7 +7,7 @@ use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
 use App\Http\Controllers\StatusCheckController;
-use App\Http\Controllers\VismaNetTestController;
+use App\Http\Controllers\VismaNetTestController;;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 

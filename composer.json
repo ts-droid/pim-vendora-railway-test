@@ -9,6 +9,7 @@
         "ext-curl": "*",
         "ext-imagick": "*",
         "ext-pdo": "*",
+        "ext-simplexml": "*",
         "barryvdh/laravel-dompdf": "^2.1",
         "deeplcom/deepl-php": "^1.5",
         "guzzlehttp/guzzle": "^7.2",
@@ -21,8 +22,8 @@
         "sentry/sentry-laravel": "^4.1",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "thiagoalessio/tesseract_ocr": "^2.13",
-        "ext-simplexml": "*"
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "thiagoalessio/tesseract_ocr": "^2.13"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",

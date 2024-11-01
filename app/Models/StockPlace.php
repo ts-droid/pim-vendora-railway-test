@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class StockPlace extends Model
 {
@@ -34,5 +35,10 @@ class StockPlace extends Model
         $lastCompartment = $this->compartments->last();
 
         return (bool) $lastCompartment->is_walk_through;
+    }
+
+    public function getQRCode()
+    {
+        return QrCode::size(250)->generate('stockplace:' . $this->id);
     }
 }
