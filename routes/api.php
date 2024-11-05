@@ -171,6 +171,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/articles')->group(function() {
         Route::get('/', [ArticleController::class, 'get'])->name('articles.get');
         Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
+        Route::get('/search', [ArticleController::class, 'search'])->name('articles.search');
         Route::get('/basic', [ArticleController::class, 'getBasic'])->name('articles.getBasic');
         Route::get('/simple', [ArticleController::class, 'getSimple'])->name('articles.getSimple');
         Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');

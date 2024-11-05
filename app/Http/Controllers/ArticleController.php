@@ -137,6 +137,39 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function search(Request $request)
+    {
+        $searchQuery = (string) $request->input('search', '');
+
+        $articles = DB::table('articles')
+            ->select(
+                'articles.id', 'articles.description', 'articles.article_number', 'articles.ean',
+                'image.path_url'
+            )
+            ->leftJoinSub(
+                DB::table('article_images')
+                    ->select('article_id', 'path_url')
+                    ->whereIn('id', function($query) {
+                        $query->selectRaw('MIN(id)')
+                            ->from('article_images')
+                            ->groupBy('article_id');
+                    }),
+                'image',
+                'articles.id',
+                '=',
+                'image.article_id'
+            )
+            ->where(function($query) use ($searchQuery) {
+                $query->where('article_number', 'LIKE', '%' . $searchQuery . '%')
+                    ->orWhere('ean', 'LIKE', '%' . $searchQuery . '%')
+                    ->orWhere('description', 'LIKE', '%' . $searchQuery . '%');
+            })
+            ->limit(10)
+            ->get();
+
+        return ApiResponseController::success($articles->toArray());
+    }
+
     public function getBasic(Request $request)
     {
         // Get input parameters
