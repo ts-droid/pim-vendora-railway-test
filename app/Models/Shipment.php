@@ -37,4 +37,17 @@ class Shipment extends Model
     {
         return $this->hasMany(ShipmentLine::class);
     }
+
+    public function isBackorder()
+    {
+        $orderNumbers = $this->order_numbers;
+
+        return (bool) Shipment::where('number', '<', $this->number)
+            ->where(function($query) use ($orderNumbers) {
+                foreach ($orderNumbers as $orderNumber) {
+                    $query->orWhere('order_numbers', 'LIKE', '%"' . $orderNumber . '"%');
+                }
+            })
+            ->exists();
+    }
 }
