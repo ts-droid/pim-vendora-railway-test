@@ -18,6 +18,10 @@ class AppShipmentController extends Controller
 
         $shipments = $query->with('address', 'lines')->get();
 
+        foreach ($shipments as &$shipment) {
+            $shipment->is_backorder = $shipment->isBackorder();
+        }
+
         return ApiResponseController::success($shipments->toArray());
     }
 
