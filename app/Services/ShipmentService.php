@@ -26,6 +26,7 @@ class ShipmentService
             'attention' => $data['attention'] ?? '',
             'email' => $data['email'] ?? '',
             'phone' => $data['phone'] ?? '',
+            'order_numbers' => $data['order_numbers'] ?? [],
         ]);
 
         if (isset($data['lines'])) {

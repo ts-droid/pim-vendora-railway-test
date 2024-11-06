@@ -21,6 +21,11 @@ class Shipment extends Model
         'attention',
         'email',
         'phone',
+        'order_numbers',
+    ];
+
+    protected $casts = [
+        'order_numbers' => 'array',
     ];
 
     public function address()

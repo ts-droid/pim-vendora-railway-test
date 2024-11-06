@@ -65,6 +65,7 @@ class VismaNetShipmentService extends VismaNetApiService
             'attention' => (string) ($shipment['deliveryContact']['attention'] ?? ''),
             'email' => (string) ($shipment['deliveryContact']['email'] ?? ''),
             'phone' => (string) ($shipment['deliveryContact']['phone1'] ?? ''),
+            'order_numbers' => [],
             'lines' => [],
         ];
 
@@ -78,8 +79,12 @@ class VismaNetShipmentService extends VismaNetApiService
                     'quantity' => (int) ($shipmentLine['orderedQty'] ?? 0),
                     'shipped_quantity' => (int) ($shipmentLine['shippedQty'] ?? 0),
                 ];
+
+                $shipmentData['order_numbers'][] = (string) ($shipmentLine['orderNbr'] ?? '');
             }
         }
+
+        $shipmentData['order_numbers'] = array_filter(array_unique($shipmentData['order_numbers']));
 
         $shipmentService = new ShipmentService();
         $shipmentService->createShipment($shipmentData);
