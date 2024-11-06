@@ -27,6 +27,15 @@ class ShipmentLine extends Model
 
     public function orderQuantity()
     {
+        $salesOrderID = (int) SalesOrder::select('id')
+            ->where('order_number', '=', $this->order_number)
+            ->pluck('id')
+            ->first();
 
+        return (int) SalesOrderLine::select('quantity')
+            ->where('sales_order_id', '=', $salesOrderID)
+            ->where('line_number', '=', $this->order_line_number)
+            ->pluck('quantity')
+            ->first();
     }
 }

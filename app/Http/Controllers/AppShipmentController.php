@@ -29,6 +29,10 @@ class AppShipmentController extends Controller
     {
         $shipment->load('address', 'lines', 'lines.article');
 
+        foreach ($shipment->lines as &$line) {
+            $line->order_quantity = $line->orderQuantity();
+        }
+
         return ApiResponseController::success($shipment->toArray());
     }
 }
