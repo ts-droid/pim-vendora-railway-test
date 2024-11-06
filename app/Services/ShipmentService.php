@@ -59,6 +59,7 @@ class ShipmentService
             'attention' => $data['attention'] ?? $shipment->attention,
             'email' => $data['email'] ?? $shipment->email,
             'phone' => $data['phone'] ?? $shipment->phone,
+            'order_numbers' => $data['order_numbers'] ?? $shipment->order_numbers,
         ]);
 
         if (isset($data['lines'])) {
