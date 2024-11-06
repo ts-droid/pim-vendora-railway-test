@@ -74,6 +74,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 $shipmentData['lines'][] = [
                     'line_number' => (int) ($shipmentLine['lineNumber'] ?? 0),
                     'order_number' => (string) ($shipmentLine['orderNbr'] ?? ''),
+                    'order_line_number' => (string) ($shipmentLine['orderLineNbr'] ?? ''),
                     'article_number' => (string) ($shipmentLine['inventoryNumber'] ?? ''),
                     'description' => (string) ($shipmentLine['description'] ?? ''),
                     'quantity' => (int) ($shipmentLine['orderedQty'] ?? 0),

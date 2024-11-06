@@ -13,6 +13,7 @@ class ShipmentLine extends Model
         'shipment_id',
         'line_number',
         'order_number',
+        'order_line_number',
         'article_number',
         'description',
         'quantity',
@@ -22,5 +23,10 @@ class ShipmentLine extends Model
     public function article()
     {
         return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
+
+    public function orderQuantity()
+    {
+
     }
 }

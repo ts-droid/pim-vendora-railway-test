@@ -35,6 +35,7 @@ class ShipmentService
                     'shipment_id' => $shipment->id,
                     'line_number' => $line['line_number'],
                     'order_number' => $line['order_number'] ?? '',
+                    'order_line_number' => $line['order_line_number'] ?? '',
                     'article_number' => $line['article_number'] ?? '',
                     'description' => $line['description'] ?? '',
                     'quantity' => $line['quantity'] ?? 0,
@@ -71,6 +72,7 @@ class ShipmentService
                 $shipmentLine = $shipmentLine ?: new ShipmentLine();
 
                 $shipmentLine->order_number = $line['order_number'] ?? $shipmentLine->order_number;
+                $shipmentLine->order_line_number = $line['order_line_number'] ?? $shipmentLine->order_line_number;
                 $shipmentLine->article_number = $line['article_number'] ?? $shipmentLine->article_number;
                 $shipmentLine->description = $line['description'] ?? $shipmentLine->description;
                 $shipmentLine->quantity = $line['quantity'] ?? $shipmentLine->quantity;
