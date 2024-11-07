@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ShipmentInternalStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,6 +14,7 @@ class Shipment extends Model
         'number',
         'type',
         'status',
+        'internal_status',
         'on_hold',
         'date',
         'customer_number',
@@ -26,6 +28,7 @@ class Shipment extends Model
 
     protected $casts = [
         'order_numbers' => 'array',
+        'internal_status' => ShipmentInternalStatus::class,
     ];
 
     public function address()

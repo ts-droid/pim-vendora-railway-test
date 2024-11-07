@@ -18,6 +18,7 @@ class ShipmentLine extends Model
         'description',
         'quantity',
         'shipped_quantity',
+        'picked_quantity',
     ];
 
     public function article()
