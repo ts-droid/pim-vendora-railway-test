@@ -90,4 +90,42 @@ class VismaNetShipmentService extends VismaNetApiService
         $shipmentService = new ShipmentService();
         $shipmentService->createShipment($shipmentData);
     }
+
+    public function completeShipment(Shipment $shipment): array
+    {
+        // Update picked quantities
+        $updateData = [
+            'shipmentDetailLines' => []
+        ];
+
+        foreach ($shipment->lines as $line) {
+            $updateData['shipmentDetailLines'][] = [
+                'operation' => 'Update',
+                'lineNumber' => ['value' => $line->line_number],
+                'shippedQty' => ['value' => $line->picked_quantity]
+            ];
+        }
+
+        $response = $this->callAPI('POST', '/v1/shipment/' . $shipment->number, $updateData);
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'message' => 'Failed to update shipment in Visma.net'
+            ];
+        }
+
+        // Confirm shipment
+        $response = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/confirmShipment');
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'message' => 'Failed to confirm shipment in Visma.net'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => '',
+        ];
+    }
 }

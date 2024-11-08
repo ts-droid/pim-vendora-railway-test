@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ShipmentInternalStatus;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
+use App\Services\VismaNet\VismaNetShipmentService;
 use Illuminate\Http\Request;
 
 class AppShipmentController extends Controller
@@ -75,5 +76,21 @@ class AppShipmentController extends Controller
         $shipment->load('address', 'lines', 'lines.article');
 
         return ApiResponseController::success($shipment->toArray());
+    }
+
+    public function complete(Shipment $shipment)
+    {
+        // Complete the shipment in Visma.net
+        $vismaNetShipmentService = new VismaNetShipmentService();
+        $response = $vismaNetShipmentService->completeShipment($shipment);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        // Update internal status
+        $shipment->update(['internal_status' => ShipmentInternalStatus::PACKED]);
+
+        return ApiResponseController::success();
     }
 }
