@@ -80,6 +80,8 @@ class AppShipmentController extends Controller
 
     public function complete(Shipment $shipment)
     {
+        return ApiResponseController::error('This feature is disabled in demo-mode.');
+
         // Complete the shipment in Visma.net
         $vismaNetShipmentService = new VismaNetShipmentService();
         $response = $vismaNetShipmentService->completeShipment($shipment);
