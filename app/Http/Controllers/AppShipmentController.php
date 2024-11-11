@@ -48,7 +48,7 @@ class AppShipmentController extends Controller
 
     public function pick(Request $request, Shipment $shipment)
     {
-        $hasOverflow = false;
+        $investigate = false;
 
         $lines = $request->input('lines');
         if ($lines && is_array($lines)) {
@@ -64,14 +64,14 @@ class AppShipmentController extends Controller
 
                 $shipmentLine->update(['picked_quantity' => $quantity]);
 
-                if ($quantity > $shipmentLine->quantity) {
-                    $hasOverflow = true;
+                if ($quantity > $shipmentLine->quantity || $quantity == 0) {
+                    $investigate = true;
                 }
             }
         }
 
         // Update shipment status
-        if ($hasOverflow) {
+        if ($investigate) {
             // Mark for investigation
             $shipment->update(['internal_status' => ShipmentInternalStatus::INVESTIGATE]);
         }
