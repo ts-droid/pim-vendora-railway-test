@@ -24,6 +24,7 @@ class Shipment extends Model
         'email',
         'phone',
         'order_numbers',
+        'ping_at',
     ];
 
     protected $casts = [

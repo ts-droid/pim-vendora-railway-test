@@ -39,6 +39,13 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipment->toArray());
     }
 
+    public function ping(Shipment $shipment)
+    {
+        $shipment->update(['ping_at' => time()]);
+
+        return ApiResponseController::success();
+    }
+
     public function pick(Request $request, Shipment $shipment)
     {
         $hasOverflow = false;
