@@ -14,7 +14,7 @@ class AppShipmentController extends Controller
     {
         $shipments = Shipment::where('status', 'Open')
             ->orderBy('id', 'DESC')->limit(10)
-            ->with('address', 'lines')->get()
+            ->with('address', 'lines')
             ->get();
 
         foreach ($shipments as &$shipment) {
