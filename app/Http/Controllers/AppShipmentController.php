@@ -35,6 +35,7 @@ class AppShipmentController extends Controller
         // Load open siblings
         $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
             ->where('status', '=', 'Open')
+            ->where('internal_status', '=', ShipmentInternalStatus::OPEN)
             ->where('id', '!=', $shipment->id)
             ->with('address', 'lines', 'lines.article')
             ->get()
