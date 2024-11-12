@@ -37,7 +37,8 @@ class AppShipmentController extends Controller
             ->where('status', '=', 'Open')
             ->where('id', '!=', $shipment->id)
             ->load('address', 'lines', 'lines.article')
-            ->get();
+            ->get()
+            ->toArray();
 
         return ApiResponseController::success($shipment->toArray());
     }
