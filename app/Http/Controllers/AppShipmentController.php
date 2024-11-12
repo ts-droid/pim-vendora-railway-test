@@ -47,6 +47,7 @@ class AppShipmentController extends Controller
     {
         if ($request->input('pingAll')) {
             Shipment::where('customer_number', '=', $shipment->customer_number)
+                ->where('status', '=', 'Open')
                 ->update(['ping_at' => time()]);
         }
         else {
