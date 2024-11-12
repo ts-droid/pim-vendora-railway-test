@@ -60,7 +60,7 @@ class VismaNetApiService
      * @param string $accessToken
      * @return array
      */
-    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = ''): array
+    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false): array
     {
         if ($this->callCount > 0) {
             sleep($this->sleepTime);
@@ -109,7 +109,7 @@ class VismaNetApiService
 
         $response = [
             'success' => $response->successful(),
-            'response' => ($response->json() ?? []),
+            'response' => $rawResponse ? ($response->body() ?? '') : ($response->json() ?? []),
             'headers' => $response->headers(),
         ];
 
