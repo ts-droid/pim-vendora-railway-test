@@ -12,14 +12,10 @@ class AppShipmentController extends Controller
 {
     public function list(Request $request)
     {
-        $query = Shipment::query();
-
-        if ($request->has('status')) {
-            //$query->where('status', $request->status);
-            $query->orderBy('id', 'DESC')->limit(10);
-        }
-
-        $shipments = $query->with('address', 'lines')->get();
+        $shipments = Shipment::where('status', 'Open')
+            ->orderBy('id', 'DESC')->limit(10)
+            ->with('address', 'lines')->get()
+            ->get();
 
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
@@ -36,12 +32,25 @@ class AppShipmentController extends Controller
             $line->order_quantity = $line->orderQuantity();
         }
 
+        // Load open siblings
+        $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
+            ->where('status', '=', 'Open')
+            ->where('id', '!=', $shipment->id)
+            ->load('address', 'lines', 'lines.article')
+            ->get();
+
         return ApiResponseController::success($shipment->toArray());
     }
 
-    public function ping(Shipment $shipment)
+    public function ping(Request $request, Shipment $shipment)
     {
-        $shipment->update(['ping_at' => time()]);
+        if ($request->input('pingAll')) {
+            Shipment::where('customer_number', '=', $shipment->customer_number)
+                ->update(['ping_at' => time()]);
+        }
+        else {
+            $shipment->update(['ping_at' => time()]);
+        }
 
         return ApiResponseController::success();
     }
