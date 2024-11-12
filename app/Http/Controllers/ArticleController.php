@@ -47,6 +47,8 @@ class ArticleController extends Controller
             ->pluck('brand')
             ->toArray();
 
+        $brands[] = 'myFirst';
+
         $brands = array_unique($brands);
         $brands = array_filter($brands);
 
