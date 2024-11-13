@@ -61,6 +61,20 @@ class AppShipmentController extends Controller
         return ApiResponseController::success();
     }
 
+    public function unping(Request $request, Shipment $shipment)
+    {
+        if ($request->input('pingAll')) {
+            Shipment::where('customer_number', '=', $shipment->customer_number)
+                ->where('status', '=', 'Open')
+                ->update(['ping_at' => 0]);
+        }
+        else {
+            $shipment->update(['ping_at' => 0]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function pick(Request $request, Shipment $shipment)
     {
         $investigate = false;

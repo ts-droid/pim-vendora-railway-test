@@ -26,6 +26,7 @@ Route::prefix('/app')->group(function() {
             Route::get('/', [AppShipmentController::class, 'list']);
             Route::get('/{shipment}', [AppShipmentController::class, 'get']);
             Route::post('/{shipment}/ping', [AppShipmentController::class, 'ping']);
+            Route::post('/{shipment}/unping', [AppShipmentController::class, 'unping']);
             Route::post('/{shipment}/pick', [AppShipmentController::class, 'pick']);
             Route::post('/{shipment}/complete', [AppShipmentController::class, 'complete']);
             Route::get('/{shipment}/print', [AppShipmentController::class, 'print']);
