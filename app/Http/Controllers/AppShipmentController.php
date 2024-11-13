@@ -33,6 +33,8 @@ class AppShipmentController extends Controller
             $line->order_quantity = $line->orderQuantity();
         }
 
+        $shipment->is_backorder = $shipment->isBackorder();
+
         // Load open siblings
         $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
             ->where('status', '=', 'Open')
