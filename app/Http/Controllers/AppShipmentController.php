@@ -102,11 +102,17 @@ class AppShipmentController extends Controller
         // Update shipment status
         if ($investigate) {
             // Mark for investigation
-            $shipment->update(['internal_status' => ShipmentInternalStatus::INVESTIGATE]);
+            $shipment->update([
+                'internal_status' => ShipmentInternalStatus::INVESTIGATE,
+                'ping_at' => 0
+            ]);
         }
         else {
             // Mark as picked
-            $shipment->update(['internal_status' => ShipmentInternalStatus::PICKED]);
+            $shipment->update([
+                'internal_status' => ShipmentInternalStatus::PICKED,
+                'ping_at' => 0
+            ]);
         }
 
         $shipment->load('address', 'lines', 'lines.article');
@@ -127,7 +133,10 @@ class AppShipmentController extends Controller
         }
 
         // Update internal status
-        $shipment->update(['internal_status' => ShipmentInternalStatus::PACKED]);
+        $shipment->update([
+            'internal_status' => ShipmentInternalStatus::PACKED,
+            'ping_at' => 0
+        ]);
 
         return ApiResponseController::success();
     }
