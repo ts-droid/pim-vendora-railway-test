@@ -84,6 +84,7 @@ class AppShipmentController extends Controller
             foreach ($lines as $line) {
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
+                $investigationComment = $line['investigation_comment'] ?? '';
 
                 $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
                     ->where('id', '=', $lineID)
@@ -91,7 +92,10 @@ class AppShipmentController extends Controller
 
                 if (!$shipmentLine) continue;
 
-                $shipmentLine->update(['picked_quantity' => $quantity]);
+                $shipmentLine->update([
+                    'picked_quantity' => $quantity,
+                    'investigation_comment' => $investigationComment
+                ]);
 
                 if ($quantity > $shipmentLine->quantity || $quantity == 0) {
                     $investigate = true;
