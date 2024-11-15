@@ -313,6 +313,10 @@ class WgrArticleService
             }
         }
 
+        if ($article->status !== ArticleStatus::Active->value && $article->stock <= 0) {
+            $isHidden = true;
+        }
+
         $postData['isHidden'] = $isHidden;
 
         return $postData;
