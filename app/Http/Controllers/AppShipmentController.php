@@ -149,7 +149,7 @@ class AppShipmentController extends Controller
     {
         $vismaNetApi = new VismaNetApiService();
 
-        $response = $vismaNetApi->callAPI('GET', '/v1/shipment/' . $shipment->number . '/printShipmentConfirmation', [], 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjRCQjQzQzg4QzgzODc1MUI3QTI2MDFEMjg0ODFGNEVDOUQwMUExRUJSUzI1NiIsIng1dCI6IlM3UThpTWc0ZFJ0NkpnSFNoSUgwN0owQm9lcyIsInR5cCI6ImF0K0pXVCJ9.eyJpc3MiOiJodHRwczovL2Nvbm5lY3QudmlzbWEuY29tIiwibmJmIjoxNzMxNDExMDA0LCJpYXQiOjE3MzE0MTEwMDQsImV4cCI6MTczMTQxNDYwNCwiYXVkIjoiaHR0cHM6Ly9pbnRlZ3JhdGlvbi52aXNtYS5uZXQvQVBJL2ludGVyYWN0aXZlIiwic2NvcGUiOlsicHJvZmlsZSIsImVtYWlsIiwib3BlbmlkIiwidGVuYW50cyIsInZpc21hbmV0X2VycF9pbnRlcmFjdGl2ZV9hcGk6dXBkYXRlIiwidmlzbWFuZXRfZXJwX2ludGVyYWN0aXZlX2FwaTpkZWxldGUiLCJ2aXNtYW5ldF9lcnBfaW50ZXJhY3RpdmVfYXBpOmNyZWF0ZSIsInZpc21hbmV0X2VycF9pbnRlcmFjdGl2ZV9hcGk6cmVhZCIsIm9mZmxpbmVfYWNjZXNzIl0sImFtciI6WyJwd2QiXSwiY2xpZW50X2lkIjoiaXN2X2FkbWludmVuZG9yYSIsInRlbmFudF9pZCI6IjUwMmE3NGI4LTcxNTgtMTFlZC05ODkxLTA2OTNkOGE3YzNkZCIsInRlbmFudF9leHRlcm5hbF9pZCI6IjQ0ODk5ODAiLCJ0ZW5hbnRfb3duZXJfY2xpZW50X2lkIjoib2RwIiwic3ViIjoiMGU1NGE3ODgtMDBmZi00MDc5LThlZmYtNGUzMmI3MmM1NTk5IiwiYXV0aF90aW1lIjoxNzIwNzg5MTI0LCJpZHAiOiJWaXNtYSBDb25uZWN0IiwibGx0IjoxNzA4NDQxOTQxLCJjcmVhdGVkX2F0IjoxNjgxMjk0MDAxLCJhY3IiOiIyIiwic2lkIjoiMTYxNjc4YjQtMjI2Mi1kNmJjLWVjNzUtNjcyZjVhODhkNDJmIn0.nLHij8vmPaLLEUdlGIuD_rGuaf2tHwl0a3GOBF23fKgr1hyOhIamDeLHp-r86Q3fHIQeg1cvxgQcwgNJo5B1biWlzLzx9GTeE3OJYSfPyJizaabOeJG7ThDmTQVipYmfPBY7uHuUik3KFYVA99xSgcapH9Ni57j5z0eWX-Bf-xOWlj2K30QmoXXCaNE3SS8Ur4pE5dyK5Iq03Zj09sMCxsLuRVL3sENtknE7LJn3cbUVKDJhVADsy65XL345xeOT-bXajhkfhj56DVXTrqHb9araYqgQYLd7hCk92gqQ1qk4eGdoEk3Wa6MyL_Ze7hWCyVzMjA0RmV2BB-G3yZbnYQ', true);
+        $response = $vismaNetApi->callAPI('GET', '/v1/shipment/' . $shipment->number . '/printShipmentConfirmation', [], '', true);
 
         $data = $response['response'];
 
@@ -157,5 +157,10 @@ class AppShipmentController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="shipment-confirmation.pdf"'
         ]);
+    }
+
+    public function clearVisma()
+    {
+        return ApiResponseController::success();
     }
 }
