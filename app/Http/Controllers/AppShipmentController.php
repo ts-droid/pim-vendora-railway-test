@@ -171,7 +171,7 @@ class AppShipmentController extends Controller
                 return ApiResponseController::error('Failed to check the shipment in Visma.net.');
             }
 
-            if ($response['response']['success']) {
+            if ($response['response']['shipmentNumber']) {
                 return ApiResponseController::error('The shipment exists in Visma.net. It must be deleted there before it can be cleared..');
             }
 
