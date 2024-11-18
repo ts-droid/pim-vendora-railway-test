@@ -1,0 +1,9 @@
+parameters:
+    paths:
+        - app/
+        - database/
+        - routes/
+    level: 5
+    ignoreErrors: []
+    scanFiles:
+        - bootstrap/app.php

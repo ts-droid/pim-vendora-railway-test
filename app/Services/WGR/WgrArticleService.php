@@ -44,6 +44,7 @@ class WgrArticleService
 
         $productID = (int) ($response[0]['result']['productId'] ?? 0);
         if (!$productID) {
+            log_data('Failed to create article in WGR (' . $article->article_number . '): ' . json_encode($response[0]))
             return;
         }
 
