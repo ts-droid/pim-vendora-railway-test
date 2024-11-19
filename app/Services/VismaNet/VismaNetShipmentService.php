@@ -93,8 +93,13 @@ class VismaNetShipmentService extends VismaNetApiService
 
     public function completeShipment(Shipment $shipment): array
     {
+        $currentTime = microtime(true);
+        $milliseconds = sprintf("%03d", ($currentTime - floor($currentTime)) * 1000);
+        $date = date('Y-m-d\TH:i:s');
+
         // Update picked quantities
         $updateData = [
+            'shipmentDate' => $date . '.' . $milliseconds . 'Z',
             'shipmentDetailLines' => []
         ];
 
@@ -106,7 +111,7 @@ class VismaNetShipmentService extends VismaNetApiService
             ];
         }
 
-        $response = $this->callAPI('POST', '/v1/shipment/' . $shipment->number, $updateData);
+        $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
         if (!$response['success']) {
             return [
                 'success' => false,
