@@ -4,6 +4,7 @@ namespace App\Services\VismaNet;
 
 use App\Http\Controllers\ConfigController;
 use App\Models\Shipment;
+use App\Models\ShipmentLine;
 use App\Services\AddressService;
 use App\Services\ShipmentService;
 
@@ -131,6 +132,26 @@ class VismaNetShipmentService extends VismaNetApiService
         return [
             'success' => true,
             'message' => '',
+        ];
+    }
+
+    public function deleteIfDeleted(Shipment $shipment)
+    {
+        $response = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);
+
+        if (isset($response['response']['shipmentNumber'])) {
+            return [
+                'success' => false,
+                'message' => 'The shipment still exists in Visma.net.'
+            ];
+        }
+
+        ShipmentLine::where('shipment_id', $shipment->id)->delete();
+        $shipment->delete();
+
+        return [
+            'success' => true,
+            'message' => 'The shipment have been deleted locally.'
         ];
     }
 }

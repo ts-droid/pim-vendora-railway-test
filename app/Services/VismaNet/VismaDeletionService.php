@@ -4,6 +4,7 @@ namespace App\Services\VismaNet;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Models\Shipment;
 
 class VismaDeletionService extends VismaNetApiService
 {
@@ -29,6 +30,21 @@ class VismaDeletionService extends VismaNetApiService
             PurchaseOrder::whereIn('id', $orderIDs)->delete();
 
             PurchaseOrderLine::whereIn('purchase_order_id', $orderIDs)->delete();
+        }
+    }
+
+    public function deleteShipments(): void
+    {
+        $shipments = Shipment::where('status', '=', 'Open')->get();
+
+        if (!$shipments) {
+            return;
+        }
+
+        $vismaNetShipmentService = new VismaNetShipmentService();
+
+        foreach ($shipments as $shipment) {
+            $vismaNetShipmentService->deleteIfDeleted($shipment);
         }
     }
 }

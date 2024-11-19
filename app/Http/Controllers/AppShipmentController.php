@@ -159,25 +159,11 @@ class AppShipmentController extends Controller
 
     public function clearVisma(Shipment $shipment)
     {
-        // Check if the shipment exists in visma.net
-        try {
-            $vismaNetAPI = new VismaNetApiService();
-            $response = $vismaNetAPI->callAPI('GET', '/v1/shipment/' . $shipment->number);
+        $vismaNetShipmentService = new VismaNetShipmentService();
+        $response = $vismaNetShipmentService->deleteIfDeleted($shipment);
 
-            if (!$response['success']) {
-                // The API call failed. Do not trust the response.
-                return ApiResponseController::error('Failed to check the shipment in Visma.net.');
-            }
-
-            if ($response['response']['shipmentNumber']) {
-                return ApiResponseController::error('The shipment exists in Visma.net. It must be deleted there before it can be cleared..');
-            }
-
-            // Remove the shipment locally
-            ShipmentLine::where('shipment_id', $shipment->id)->delete();
-            $shipment->delete();
-        } catch (\Exception $e) {
-            return ApiResponseController::error($e->getMessage());
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
         }
 
         return ApiResponseController::success();
