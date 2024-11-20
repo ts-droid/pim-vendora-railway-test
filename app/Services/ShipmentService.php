@@ -17,6 +17,7 @@ class ShipmentService
         $shipment = Shipment::create([
             'number' => $data['number'],
             'type' => $data['type'] ?? '',
+            'operation' => $data['operation'] ?? '',
             'status' => $data['status'] ?? '',
             'on_hold' => ($data['on_hold'] ?? false) ? 1 : 0,
             'date' => $data['date'] ?? '',
@@ -51,6 +52,7 @@ class ShipmentService
     {
         $shipment->update([
             'type' => $data['type'] ?? $shipment->type,
+            'operation' => $data['operation'] ?? $shipment->operation,
             'status' => $data['status'] ?? $shipment->status,
             'on_hold' => isset($data['on_hold']) ? ($data['on_hold'] ? 1 : 0) : $shipment->on_hold,
             'date' => $data['date'] ?? $shipment->date,

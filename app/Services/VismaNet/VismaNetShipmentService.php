@@ -57,6 +57,7 @@ class VismaNetShipmentService extends VismaNetApiService
         $shipmentData = [
             'number' => (string) ($shipment['shipmentNumber'] ?? ''),
             'type' => (string) ($shipment['shipmentType'] ?? ''),
+            'operation' => (string) ($shipment['operation'] ?? ''),
             'status' => (string) ($shipment['status'] ?? ''),
             'on_hold' => (bool) ($shipment['hold'] ?? false),
             'date' => date('Y-m-d', strtotime(($shipment['shipmentDate'] ?? ''))),

@@ -13,6 +13,7 @@ class Shipment extends Model
     protected $fillable = [
         'number',
         'type',
+        'operation',
         'status',
         'internal_status',
         'on_hold',
