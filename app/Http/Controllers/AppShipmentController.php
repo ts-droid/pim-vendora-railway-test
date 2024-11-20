@@ -14,6 +14,7 @@ class AppShipmentController extends Controller
     public function list(Request $request)
     {
         $shipments = Shipment::where('status', 'Open')
+            ->where('operation', 'Issue')
             ->orderBy('id', 'DESC')
             ->with('address', 'lines')
             ->get();
