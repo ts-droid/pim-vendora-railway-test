@@ -98,9 +98,19 @@ class AppShipmentController extends Controller
 
                 if (!$shipmentLine) continue;
 
+                $investigationSoundPath = null;
+                $investigationSoundUrl = null;
+                if ($sound) {
+                    $filename = 'sound_' . $lineID . '.' . $sound->getClientOriginalExtension();
+                    $investigationSoundPath = DoSpacesController::store('sounds/' . $filename, $sound->getContent(), true);
+                    $investigationSoundUrl = DoSpacesController::getURL($investigationSoundPath);
+                }
+
                 $shipmentLine->update([
                     'picked_quantity' => $quantity,
-                    'investigation_comment' => $investigationComment
+                    'investigation_comment' => $investigationComment,
+                    'investigation_sound_path' => $investigationSoundPath,
+                    'investigation_sound_url' => $investigationSoundUrl
                 ]);
 
                 if ($quantity != $shipmentLine->shipped_quantity || $quantity == 0) {

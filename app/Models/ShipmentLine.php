@@ -20,6 +20,8 @@ class ShipmentLine extends Model
         'shipped_quantity',
         'picked_quantity',
         'investigation_comment',
+        'investigation_sound_path',
+        'investigation_sound_url'
     ];
 
     public function article()
