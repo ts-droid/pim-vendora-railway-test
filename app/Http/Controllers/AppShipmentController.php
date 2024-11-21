@@ -140,7 +140,7 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipment->toArray());
     }
 
-    public function complete(Shipment $shipment)
+    public function complete(Request $request, Shipment $shipment)
     {
         // Complete the shipment in Visma.net
         $vismaNetShipmentService = new VismaNetShipmentService();
@@ -150,11 +150,16 @@ class AppShipmentController extends Controller
             return ApiResponseController::error($response['message']);
         }
 
+        $trackingNumber = (string) $request->input('tracking_number', '');
+
         // Update internal status
         $shipment->update([
+            'tracking_number' => $trackingNumber,
             'internal_status' => ShipmentInternalStatus::PACKED,
             'ping_at' => 0
         ]);
+
+        // TODO: Send tracking number to WGR???
 
         return ApiResponseController::success();
     }
