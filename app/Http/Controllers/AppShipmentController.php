@@ -86,6 +86,7 @@ class AppShipmentController extends Controller
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
                 $investigationComment = $line['investigation_comment'] ?? '';
+                $sound = $request->file('sound_' . $lineID); // TODO: Process and save sound
 
                 $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
                     ->where('id', '=', $lineID)
@@ -98,7 +99,7 @@ class AppShipmentController extends Controller
                     'investigation_comment' => $investigationComment
                 ]);
 
-                if ($quantity > $shipmentLine->quantity || $quantity == 0) {
+                if ($quantity != $shipmentLine->shipped_quantity || $quantity == 0) {
                     $investigate = true;
                 }
             }
