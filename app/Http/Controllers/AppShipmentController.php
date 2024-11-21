@@ -80,7 +80,8 @@ class AppShipmentController extends Controller
     {
         $investigate = false;
 
-        $lines = $request->input('lines');
+        $lines = json_decode($request->input('lines'), true);
+
         if ($lines && is_array($lines)) {
             foreach ($lines as $line) {
                 $lineID = $line['id'] ?? 0;
