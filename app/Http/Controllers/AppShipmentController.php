@@ -26,6 +26,21 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipments->toArray());
     }
 
+    public function listHistory()
+    {
+        $shipments = Shipment::where('operation', 'Issue')
+            ->where('internal_status', ShipmentInternalStatus::PACKED)
+            ->orderBy('id', 'DESC')
+            ->with('address', 'lines')
+            ->get();
+
+        foreach ($shipments as &$shipment) {
+            $shipment->is_backorder = $shipment->isBackorder();
+        }
+
+        return ApiResponseController::success($shipments->toArray());
+    }
+
     public function get(Shipment $shipment)
     {
         $shipment->load('address', 'lines', 'lines.article');
