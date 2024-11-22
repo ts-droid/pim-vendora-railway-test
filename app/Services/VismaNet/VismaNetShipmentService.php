@@ -3,6 +3,7 @@
 namespace App\Services\VismaNet;
 
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\DoSpacesController;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
 use App\Services\AddressService;
@@ -147,7 +148,16 @@ class VismaNetShipmentService extends VismaNetApiService
             ];
         }
 
-        ShipmentLine::where('shipment_id', $shipment->id)->delete();
+        $shipmentLines = ShipmentLine::where('shipment_id', $shipment->id)->get();
+
+        foreach ($shipmentLines as $shipmentLine) {
+            if ($shipmentLines->investigation_sound_path) {
+                DoSpacesController::delete($shipmentLines->investigation_sound_path);
+            }
+
+            $shipmentLine->delete();
+        }
+
         $shipment->delete();
 
         return [
