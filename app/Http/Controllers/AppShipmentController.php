@@ -30,6 +30,7 @@ class AppShipmentController extends Controller
     {
         $shipments = Shipment::where('operation', 'Issue')
             ->where('internal_status', ShipmentInternalStatus::PACKED)
+            ->orderBy('completed_at', 'DESC')
             ->orderBy('id', 'DESC')
             ->with('address', 'lines')
             ->get();
@@ -171,6 +172,7 @@ class AppShipmentController extends Controller
         $shipment->update([
             'tracking_number' => $trackingNumber,
             'internal_status' => ShipmentInternalStatus::PACKED,
+            'completed_at' => date('Y-m-d H:i:s'),
             'ping_at' => 0
         ]);
 
