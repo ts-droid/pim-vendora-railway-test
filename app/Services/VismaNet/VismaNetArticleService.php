@@ -40,6 +40,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function updateArticle(Article $article): void
     {
+        // Check if article exists in Visma.net
+        $checkResponse = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+        if (!$checkResponse['success']) {
+            $this->createArticle($article);
+            return;
+        }
+
         $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $this->getPostData($article));
 
         // Update cross references
