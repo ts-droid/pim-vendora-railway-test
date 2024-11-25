@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ArticleFile;
 use App\Models\Customer;
+use App\Models\SalesOrder;
 use App\Services\ArticlePriceService;
 use App\Services\ArticleReviewService;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ class WgrController extends Controller
 
         $this->fetchPriceLists();
 
+        $this->fetchOrders();
+
         StatusIndicatorController::ping('WGR sync', 86400);
     }
 
@@ -87,6 +90,32 @@ class WgrController extends Controller
                 ]);
             }
         }
+    }
+
+    public function fetchOrders($createdAfter = null)
+    {
+        $fetchTime = date('Y-m-d H:i:s');
+
+        $params = [];
+
+        if ($createdAfter === null) {
+            $createdAfter = ConfigController::getConfig('wgr_last_order_fetch');
+            $createdAfter = date('Y-m-d H:i:s', strtotime($createdAfter . ' -7 day'));
+        }
+
+        if ($createdAfter) {
+            $params['fromTime'] = $createdAfter;
+        }
+
+        $response = $this->makeRequest('Order.get', $params);
+        $orders = $response[0]['result'] ?? [];
+
+        foreach ($orders as $order) {
+            SalesOrder::where('customer_ref_no', $order['id'])
+                ->update(['internal_note' => $order['comment']]);
+        }
+
+        ConfigController::setConfigs(['wgr_last_order_fetch' => $fetchTime]);
     }
 
     public function fetchReviews($updatedAfter = null)

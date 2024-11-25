@@ -56,5 +56,8 @@ class FetchWgr extends Command
         else if ($data == 'prices') {
             $wgrController->fetchPriceLists();
         }
+        else if ($data == 'orders') {
+            $wgrController->fetchOrders();
+        }
     }
 }

@@ -24,6 +24,7 @@ class SalesOrder extends Model
         'order_total_quantity',
         'exchange_rate',
         'note',
+        'internal_note',
         'on_hold',
     ];
 
