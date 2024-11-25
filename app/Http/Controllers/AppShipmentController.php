@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ShipmentInternalStatus;
+use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
 use App\Services\VismaNet\VismaNetApiService;
@@ -176,7 +177,24 @@ class AppShipmentController extends Controller
             'ping_at' => 0
         ]);
 
-        // TODO: Send tracking number to WGR???
+        // Send tracking number to WGR
+        if ($trackingNumber && $shipment->order_numbers) {
+            $wgrController = new WgrController();
+
+            foreach ($shipment->order_numbers as $orderNumber) {
+                $wgrOrderID = SalesOrder::select('customer_ref_no')
+                    ->where('order_number', $orderNumber)
+                    ->pluck('customer_ref_no')
+                    ->first();
+
+                if ($wgrOrderID) {
+                    $wgrController->makeRequest('order.setTrackingNumber', [
+                        'id' => $wgrOrderID,
+                        'trackingNumber' => $trackingNumber
+                    ]);
+                }
+            }
+        }
 
         return ApiResponseController::success();
     }

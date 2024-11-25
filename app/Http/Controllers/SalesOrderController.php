@@ -43,6 +43,7 @@ class SalesOrderController extends Controller
         $salesOrder = SalesOrder::create([
             'order_type' => (string) $request->order_type,
             'order_number' => (string) $request->order_number,
+            'customer_ref_no' => (string) ($request->customer_ref_no ?? ''),
             'status' => (string) $request->status,
             'date' => (string) $request->date,
             'currency' => (string) $request->currency,

@@ -66,6 +66,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $orderData = [
             'order_type' => (string) $order['orderType'],
             'order_number' => (string) $order['orderNo'],
+            'customer_ref_no' => (string) $order['customerRefNo'],
             'status' => (string) $order['status'],
             'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
             'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
