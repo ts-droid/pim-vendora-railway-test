@@ -62,6 +62,12 @@ class AppShipmentController extends Controller
             ->get()
             ->toArray();
 
+        // Load customer ref numbers (WGR order ID's)
+        $shipment->customer_ref_no = SalesOrder::select('customer_ref_no')
+            ->whereIn('order_number', $shipment->order_numbers)
+            ->pluck('customer_ref_no')
+            ->filter();
+
         return ApiResponseController::success($shipment->toArray());
     }
 
