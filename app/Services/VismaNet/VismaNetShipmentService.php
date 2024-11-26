@@ -127,7 +127,7 @@ class VismaNetShipmentService extends VismaNetApiService
         if (!$response['success']) {
             return [
                 'success' => false,
-                'message' => 'Failed to confirm shipment in Visma.net'
+                'message' => 'Failed to confirm shipment in Visma.net (' . json_encode($response['response']) . ')'
             ];
         }
 
