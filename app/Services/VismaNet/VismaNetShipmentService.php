@@ -151,8 +151,8 @@ class VismaNetShipmentService extends VismaNetApiService
         $shipmentLines = ShipmentLine::where('shipment_id', $shipment->id)->get();
 
         foreach ($shipmentLines as $shipmentLine) {
-            if ($shipmentLines->investigation_sound_path) {
-                DoSpacesController::delete($shipmentLines->investigation_sound_path);
+            if ($shipmentLine->investigation_sound_path) {
+                DoSpacesController::delete($shipmentLine->investigation_sound_path);
             }
 
             $shipmentLine->delete();
