@@ -212,7 +212,7 @@ class VismaNetArticleService extends VismaNetApiService
             }
 
             foreach ($attribute['details'] as $detail) {
-                if ($detail['description'] != $valueDescription) {
+                if (mb_strtolower($detail['description']) != mb_strtolower($valueDescription)) {
                     continue;
                 }
 
