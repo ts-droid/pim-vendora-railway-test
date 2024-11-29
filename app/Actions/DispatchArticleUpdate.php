@@ -37,6 +37,7 @@ class DispatchArticleUpdate
         'reseller_url_da',
         'delivery_days',
         'wgr_id',
+        'last_sync_exception',
         'created_at',
         'updated_at,'
     ];
