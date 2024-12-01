@@ -102,7 +102,7 @@ class VismaNetShipmentService extends VismaNetApiService
 
         // Update picked quantities
         $updateData = [
-            'shipmentDate' => $date . '.' . $milliseconds . 'Z',
+            'shipmentDate' => ['value' => $date . '.' . $milliseconds . 'Z'],
             'shipmentDetailLines' => []
         ];
 
