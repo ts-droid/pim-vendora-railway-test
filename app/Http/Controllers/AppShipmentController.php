@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 
 class AppShipmentController extends Controller
 {
+    const GROUP_CUSTOMER_EXCLUDES = [
+        '10460', // LSS Kund
+        '10365', // Sample Order - Marketing
+    ];
+
     public function list(Request $request)
     {
         $shipments = Shipment::where('status', 'Open')
@@ -54,13 +59,18 @@ class AppShipmentController extends Controller
         $shipment->is_backorder = $shipment->isBackorder();
 
         // Load open siblings
-        $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
-            ->where('status', '=', 'Open')
-            ->where('internal_status', '=', ShipmentInternalStatus::OPEN)
-            ->where('id', '!=', $shipment->id)
-            ->with('address', 'lines', 'lines.article')
-            ->get()
-            ->toArray();
+        if (!in_array($shipment->customer_number, self::GROUP_CUSTOMER_EXCLUDES)) {
+            $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
+                ->where('status', '=', 'Open')
+                ->where('internal_status', '=', ShipmentInternalStatus::OPEN)
+                ->where('id', '!=', $shipment->id)
+                ->with('address', 'lines', 'lines.article')
+                ->get()
+                ->toArray();
+        }
+        else {
+            $shipment->openSiblings = [];
+        }
 
         // Load customer ref numbers (WGR order ID's)
         $shipment->customer_ref_no = SalesOrder::select('customer_ref_no')
@@ -75,6 +85,7 @@ class AppShipmentController extends Controller
     {
         if ($request->input('pingAll')) {
             Shipment::where('customer_number', '=', $shipment->customer_number)
+                ->whereNotIn('customer_number', self::GROUP_CUSTOMER_EXCLUDES)
                 ->where('status', '=', 'Open')
                 ->update(['ping_at' => time()]);
         }
