@@ -1086,13 +1086,13 @@ class VismaNetController extends Controller
         $response = $response->json() ?: [];
 
         // Log the response
-        ApiLogger::log(
+        /*ApiLogger::log(
             ApiLogger::TYPE_VISMA,
             $url,
             $params,
             $method,
             $response
-        );
+        );*/
 
         return $response;
     }
