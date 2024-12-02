@@ -206,7 +206,7 @@ class AppShipmentController extends Controller
 
                 if ($wgrOrderID) {
                     $wgrController->makeRequest('order.setTrackingNumber', [
-                        'id' => $wgrOrderID,
+                        'id' => (int) $wgrOrderID,
                         'trackingNumber' => $trackingNumber
                     ]);
                 }
