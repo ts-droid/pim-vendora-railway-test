@@ -25,7 +25,7 @@ class VismaNetController extends Controller
     const API_URL = 'https://integration.visma.net';
 
     const SLEEP_TIME = 1;
-    const PAGE_SIZE = 50;
+    const PAGE_SIZE = 500;
 
     const APP_SCOPE = [
         'openid',
