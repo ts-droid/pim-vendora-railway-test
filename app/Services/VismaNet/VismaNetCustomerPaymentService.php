@@ -21,7 +21,7 @@ class VismaNetCustomerPaymentService extends VismaNetApiService
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_payments_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = $updatedAfter;
+            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
