@@ -1033,7 +1033,7 @@ class VismaNetController extends Controller
      * @param int $tries
      * @return array|mixed
      */
-    private function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
+    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
     {
         if ($this->callCount > 0) {
             sleep(self::SLEEP_TIME);
