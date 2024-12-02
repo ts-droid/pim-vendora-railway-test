@@ -6,6 +6,7 @@ use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
 use App\Models\Customer;
 use App\Services\CustomerCreditService;
+use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
@@ -56,7 +57,8 @@ class FetchVismaNet extends Command
                 break;
 
             case 'invoices':
-                $vismaNetController->fetchCustomerInvoices();
+                $customerInvoiceService = new VismaNetCustomerInvoiceService();
+                $customerInvoiceService->fetchCustomerInvoices();
                 break;
 
             case 'credit-notes':

@@ -14,6 +14,7 @@ use App\Models\SalesPerson;
 use App\Models\Supplier;
 use App\Services\ApiLogger;
 use App\Services\CreditNoteService;
+use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Exception;
 use Illuminate\Http\Request;
@@ -81,7 +82,8 @@ class VismaNetController extends Controller
 
         $this->fetchArticles('', true); // Always fetch all articles to also fetch stock
 
-        $this->fetchCustomerInvoices();
+        $customerInvoiceService = new VismaNetCustomerInvoiceService();
+        $customerInvoiceService->fetchCustomerInvoices();
 
         $this->fetchPurchaseOrders();
 
@@ -354,30 +356,6 @@ class VismaNetController extends Controller
         }
     }
 
-    public function fetchCustomerInvoicePage($pageNumber = 1): void
-    {
-        $params = [
-            'pageSize' => self::PAGE_SIZE,
-            'pageNumber' => $pageNumber,
-            'expandApplications' => 'true',
-        ];
-
-        $invoices = $this->callAPI('GET', '/v1/customerInvoice?' . http_build_query($params));
-
-        if ($invoices) {
-            foreach ($invoices as $invoice) {
-                if (!is_array($invoice)) {
-                    continue;
-                }
-                $this->importCustomerInvoice($invoice);
-            }
-        }
-
-        if (count($invoices) === self::PAGE_SIZE) {
-            FetchCustomerInvoicePage::dispatch($pageNumber + 1);
-        }
-    }
-
     public function fetchCustomerCreditNotes(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
@@ -447,146 +425,6 @@ class VismaNetController extends Controller
         if ($fetchedData) {
             ConfigController::setConfigs(['vismanet_last_customer_credit_note_fetch' => $fetchTime]);
         }
-    }
-
-    /**
-     * Fetches customer invoices from Visma.net updated after the given date.
-     * If no date is given, the last updated date is fetched from the database.
-     *
-     * @param string $updatedAfter
-     * @return void
-     */
-    public function fetchCustomerInvoices(string $updatedAfter = ''): void
-    {
-        $fetchTime = date('Y-m-d H:i:s');
-        $fetchedData = false;
-
-        $params = [
-            'expandApplications' => true
-        ];
-
-        $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_customer_invoices_fetch');
-
-        if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = $updatedAfter;
-            $params['lastModifiedDateTimeCondition'] = '>';
-        }
-
-        $orderNumbers = [];
-
-        $invoices = $this->getPagedResult('/v1/customerinvoice', $params);
-
-        if ($invoices) {
-            $fetchedData = count($invoices) > 0;
-
-            foreach ($invoices as $invoice) {
-                if (!is_array($invoice)) {
-                    continue;
-                }
-                $orderNumbers = array_merge($orderNumbers, $this->importCustomerInvoice($invoice));
-            }
-        }
-
-        // Fetch sales orders related to the invoices
-        if ($orderNumbers && false) {
-            // Remove duplicates
-            $orderNumbers = array_unique($orderNumbers);
-
-            $salesOrderService = new VismaNetSalesOrderService();
-            foreach ($orderNumbers as $orderNumber) {
-                $salesOrderService->fetchSalesOrder($orderNumber);
-            }
-        }
-
-        if ($fetchedData) {
-            ConfigController::setConfigs(['vismanet_last_customer_invoices_fetch' => $fetchTime]);
-        }
-    }
-
-    public function importCustomerInvoice(array $invoice)
-    {
-        $orderNumbers = [];
-
-        if ($invoice['hold'] ?? false) {
-            return $orderNumbers;
-        }
-
-        $invoiceController = new CustomerInvoiceController();
-
-        $invoiceData = [
-            'invoice_number' => (string) ($invoice['referenceNumber'] ?? ''),
-            'date' => date('Y-m-d', strtotime($invoice['documentDate'] ?? '')),
-            'due_date' => date('Y-m-d', strtotime($invoice['documentDueDate'] ?? '')),
-            'status' => (string) ($invoice['status'] ?? ''),
-            'customer_number' => (string) ($invoice['customer']['number'] ?? ''),
-            'credit_terms' => (string) ($invoice['creditTerms']['description'] ?? ''),
-            'currency' => (string) ($invoice['currencyId'] ?? ''),
-            'amount' => (float) ($invoice['amount'] ?? 0),
-            'paid_at' => null,
-            'lines' => []
-        ];
-
-        // Calculate paid at date
-        $amountPaid = 0;
-        $payDate = '';
-
-        $applications = $invoice['applications'] ?? null;
-        if ($applications) {
-            foreach ($applications as $application) {
-                $docType = $application['docType'] ?? '';
-                $applicationDate = date('Y-m-d', strtotime($application['applicationDate']));
-                $applicationAmount = (float) ($application['amountPaid'] ?? 0);
-
-                if ($docType !== 'PMT') {
-                    continue;
-                }
-
-                $amountPaid += $applicationAmount;
-                $amountPaid = round($amountPaid, 2);
-
-                if (!$payDate || $payDate < $applicationDate) {
-                    $payDate = $applicationDate;
-                }
-
-                if ($amountPaid >= $invoice['amountInCurrency']) {
-                    $invoiceData['paid_at'] = $payDate;
-                    break;
-                }
-            }
-        }
-
-        // Add invoice lines
-        foreach (($invoice['invoiceLines'] ?? []) as $invoiceLine) {
-            $salesOrderNumber = (string) ($invoiceLine['soOrderNbr'] ?? '');
-            $orderNumbers[] = $salesOrderNumber;
-
-            $invoiceData['lines'][] = [
-                'line_key' => (string) ($invoiceLine['lineNumber'] ?? ''),
-                'article_number' => (string) ($invoiceLine['inventoryNumber'] ?? ''),
-                'description' => (string) ($invoiceLine['description'] ?? ''),
-                'order_number' => $salesOrderNumber,
-                'shipment_number' => (string) ($invoiceLine['soShipmentNbr'] ?? ''),
-                'line_type' => (string) ($invoiceLine['lineType'] ?? ''),
-                'quantity' => (int) ($invoiceLine['quantity'] ?? 0),
-                'unit_price' => (float) ($invoiceLine['unitPrice'] ?? 0),
-                'amount' => (float) ($invoiceLine['amount'] ?? 0),
-                'cost' => (float) ($invoiceLine['cost'] ?? 0),
-                'sales_person_id' => (string) ($invoiceLine['salesperson'] ?? ''),
-            ];
-        }
-
-        $existingInvoice = CustomerInvoice::where('invoice_number', $invoiceData['invoice_number'])->first();
-
-        if (!$existingInvoice) {
-            // Create new order
-            $invoiceController->store(new Request($invoiceData));
-        }
-        else {
-            // Update existing order
-            $invoiceController->update(new Request($invoiceData), $existingInvoice);
-        }
-
-        return $orderNumbers;
     }
 
     /**
