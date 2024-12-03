@@ -160,6 +160,8 @@ class VismaNetShipmentService extends VismaNetApiService
 
         $shipment->delete();
 
+        log_data('Deleted shipment ' . $shipment->number . ' locally. Could not find shipment in Visma.net');
+
         return [
             'success' => true,
             'message' => 'The shipment have been deleted locally.'
