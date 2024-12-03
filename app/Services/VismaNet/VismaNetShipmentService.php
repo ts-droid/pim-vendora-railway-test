@@ -148,6 +148,16 @@ class VismaNetShipmentService extends VismaNetApiService
             ];
         }
 
+        // Make sure the API says the shipment does not exist
+        $responseMessage = mb_strtolower($response['response']['message'] ?? '');
+        if (!str_contains($responseMessage, 'could not be found')) {
+            // The API request is probably faulty because the message does not contain the expected text
+            return [
+                'success' => false,
+                'message' => 'Unexpected response from Visma.net, keep the shipment.'
+            ];
+        }
+
         $shipmentLines = ShipmentLine::where('shipment_id', $shipment->id)->get();
 
         foreach ($shipmentLines as $shipmentLine) {
