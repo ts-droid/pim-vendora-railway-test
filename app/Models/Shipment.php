@@ -28,6 +28,8 @@ class Shipment extends Model
         'ping_at',
         'tracking_number',
         'completed_at',
+        'pick_signature',
+        'pack_signature',
     ];
 
     protected $casts = [

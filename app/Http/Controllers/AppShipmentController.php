@@ -112,6 +112,8 @@ class AppShipmentController extends Controller
 
     public function pick(Request $request, Shipment $shipment)
     {
+        $displayName = (string) $request->header('display-name', '');
+
         $investigate = false;
 
         $lines = $request->input('lines');
@@ -157,6 +159,7 @@ class AppShipmentController extends Controller
         if ($investigate) {
             // Mark for investigation
             $shipment->update([
+                'pick_signature' => $displayName,
                 'internal_status' => ShipmentInternalStatus::INVESTIGATE,
                 'ping_at' => 0
             ]);
@@ -164,6 +167,7 @@ class AppShipmentController extends Controller
         else {
             // Mark as picked
             $shipment->update([
+                'pick_signature' => $displayName,
                 'internal_status' => ShipmentInternalStatus::PICKED,
                 'ping_at' => 0
             ]);
@@ -176,6 +180,8 @@ class AppShipmentController extends Controller
 
     public function complete(Request $request, Shipment $shipment)
     {
+        $displayName = (string) $request->header('display-name', '');
+
         // Complete the shipment in Visma.net
         $vismaNetShipmentService = new VismaNetShipmentService();
         $response = $vismaNetShipmentService->completeShipment($shipment);
@@ -188,6 +194,7 @@ class AppShipmentController extends Controller
 
         // Update internal status
         $shipment->update([
+            'pack_signature' => $displayName,
             'tracking_number' => $trackingNumber,
             'internal_status' => ShipmentInternalStatus::PACKED,
             'completed_at' => date('Y-m-d H:i:s'),
