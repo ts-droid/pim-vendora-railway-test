@@ -59,18 +59,25 @@ class StockPlaceService
 
     public function createStockPlaceCompartment(StockPlace $stockPlace, array $data): array
     {
-        if (empty($data['identifier'])) {
-            return array('success' => false, 'message' => 'Identifier is required');
-        }
+        // Calculate new identifier
+        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->get();
+        if ($compartments->count() > 0) {
+            $maxIdentifier = 0;
+            foreach ($compartments as $compartment) {
+                if ($compartment->identifier > $maxIdentifier) {
+                    $maxIdentifier = $compartment->identifier;
+                }
+            }
 
-        // Make sure identifier is unique
-        if (StockPlaceCompartment::where('identifier', $data['identifier'])->where('stock_place_id', $stockPlace->id)->exists()) {
-            return array('success' => false, 'message' => 'Identifier is not unique');
+            $identifier = $maxIdentifier + 1;
+        }
+        else {
+            $identifier = 1;
         }
 
         $stockPlaceCompartment = StockPlaceCompartment::create([
             'stock_place_id' => $stockPlace->id,
-            'identifier' => (string) $data['identifier'],
+            'identifier' => (string) $identifier,
             'width' => (float) $data['width'],
             'height' => (float) $data['height'],
             'depth' => (float) $data['depth'],
@@ -84,12 +91,6 @@ class StockPlaceService
 
     public function updateStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment, array $data): StockPlaceCompartment
     {
-        if (isset($data['identifier'])) {
-            if (StockPlaceCompartment::where('identifier', $data['identifier'])->where('stock_place_id', $stockPlaceCompartment->stock_place_id)->exists()) {
-                unset($data['identifier']);
-            }
-        }
-
         $stockPlaceCompartment->update($data);
 
         return $stockPlaceCompartment;

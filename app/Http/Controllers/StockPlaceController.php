@@ -84,7 +84,6 @@ class StockPlaceController extends Controller
     {
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->createStockPlaceCompartment($stockPlace, $request->only(
-            'identifier',
             'width',
             'height',
             'depth',
@@ -104,7 +103,6 @@ class StockPlaceController extends Controller
     {
         $stockPlaceService = new StockPlaceService();
         $stockPlaceCompartment = $stockPlaceService->updateStockPlaceCompartment($stockPlaceCompartment, $request->only(
-            'identifier',
             'width',
             'height',
             'depth',
