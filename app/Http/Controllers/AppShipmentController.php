@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ShipmentInternalStatus;
+use App\Jobs\CompleteWgrOrder;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
@@ -212,10 +213,10 @@ class AppShipmentController extends Controller
                     ->first();
 
                 if ($wgrOrderID) {
-                    $wgrController->makeRequest('order.setTrackingNumber', [
-                        'id' => (int) $wgrOrderID,
-                        'trackingNumber' => $trackingNumber
-                    ]);
+                    CompleteWgrOrder::dispatch([
+                        'wgr_order_id' => $wgrOrderID,
+                        'tracking_number' => $trackingNumber
+                    ])->onQueue('main');
                 }
             }
         }

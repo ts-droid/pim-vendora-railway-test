@@ -7,6 +7,41 @@ use App\Models\StockPlaceCompartment;
 
 class StockItemService
 {
+    public function allocateStockItem(StockItem $stockItem, string $allocationType, string $allocationReference, string $allocationDate = ''): array
+    {
+        if ($stockItem->allocation_type) {
+            return [
+                'success' => false,
+                'message' => 'Stock item already allocated',
+            ];
+        }
+
+        $stockItem->update([
+            'allocation_type' => $allocationType,
+            'allocation_reference' => $allocationReference,
+            'allocation_date' => date('Y-m-d H:i:s', strtotime($allocationDate ?: 'now')),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Stock item allocated',
+        ];
+    }
+
+    public function deallocateStockItem(StockItem $stockItem): array
+    {
+        $stockItem->update([
+            'allocation_type' => null,
+            'allocation_reference' => null,
+            'allocation_date' => null,
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Stock item deallocated',
+        ];
+    }
+
     public function addStockItem(string $articleNumber, StockPlaceCompartment $stockPlaceCompartment, int $quantity): array
     {
         $stockItems = [];
@@ -21,13 +56,9 @@ class StockItemService
 
         return [
             'success' => true,
-            'stockItems' => $stockItems
+            'message' => 'Stock items added',
+            'stockItems' => $stockItems,
         ];
-    }
-
-    public function moveItems(array $articleNumber, StockPlaceCompartment $stockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment): array
-    {
-
     }
 
     public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment): array
@@ -35,7 +66,8 @@ class StockItemService
         $stockItem->update(['stock_place_compartment_id' => $stockPlaceCompartment->id]);
 
         return [
-            'success' => true
+            'success' => true,
+            'message' => 'Stock item moved',
         ];
     }
 
@@ -45,6 +77,7 @@ class StockItemService
 
         return [
             'success' => true,
+            'message' => 'Stock item removed',
         ];
     }
 }
