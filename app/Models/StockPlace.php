@@ -23,7 +23,7 @@ class StockPlace extends Model
 
     public function compartments()
     {
-        return $this->hasMany(StockPlaceCompartment::class);
+        return $this->hasMany(StockPlaceCompartment::class)->orderBy('id', 'DESC');
     }
 
     public function is_walk_through()
