@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('stock_places', function (Blueprint $table) {
             $table->id();
             $table->string('identifier')->unique();
-            $table->string('name');
             $table->integer('map_position_x');
             $table->integer('map_position_y');
             $table->integer('map_size_x');

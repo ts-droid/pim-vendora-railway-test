@@ -39,7 +39,6 @@ class StockPlaceController extends Controller
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->createStockPlace($request->only(
             'identifier',
-            'name',
             'map_position_x',
             'map_position_y',
             'map_size_x',
@@ -58,7 +57,6 @@ class StockPlaceController extends Controller
         $stockPlaceService = new StockPlaceService();
         $stockPlace = $stockPlaceService->updateStockPlace($stockPlace, $request->only(
             'identifier',
-            'name',
             'map_position_x',
             'map_position_y',
             'map_size_x',

@@ -20,7 +20,6 @@ class StockPlaceService
 
         $stockPlace = StockPlace::create([
             'identifier' => (string) $data['identifier'],
-            'name' => (string) $data['name'],
             'map_position_x' => (int) $data['map_position_x'],
             'map_position_y' => (int) $data['map_position_y'],
             'map_size_x' => (int) $data['map_size_x'],
