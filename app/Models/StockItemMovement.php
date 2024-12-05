@@ -15,4 +15,14 @@ class StockItemMovement extends Model
         'to_stock_place_compartment',
         'quantity',
     ];
+
+    public function fromStockPlaceCompartment()
+    {
+        return $this->belongsTo(StockPlaceCompartment::class, 'from_stock_place_compartment');
+    }
+
+    public function toStockPlaceCompartment()
+    {
+        return $this->belongsTo(StockPlaceCompartment::class, 'to_stock_place_compartment');
+    }
 }

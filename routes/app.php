@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\AppShipmentController;
+use App\Http\Controllers\AppWarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/app')->group(function() {
@@ -34,5 +35,8 @@ Route::prefix('/app')->group(function() {
             Route::post('/{shipment}/clear-visma', [AppShipmentController::class, 'clearVisma']);
         });
 
+        Route::prefix('/warehouse')->group(function() {
+            Route::get('/movements', [AppWarehouseController::class, 'getMovements']);
+        });
     });
 });
