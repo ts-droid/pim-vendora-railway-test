@@ -13,6 +13,8 @@ class StockOptimizationManager
     const MAX_FILL = 0.8;
     const REFILL_THRESHOLD = 0.4;
 
+    private $movementCache = [];
+
     public function optimize(): void
     {
         // Remove all existing StockItemMovements
@@ -74,12 +76,12 @@ class StockOptimizationManager
                                 if (!$refillCount) continue; // Not items found to refill with
 
                                 // Make a stock movement
-                                StockItemMovement::create([
-                                    'article_number' => $article->article_number,
-                                    'from_stock_place_compartment' => 0,
-                                    'to_stock_place_compartment' => $compartment->id,
-                                    'quantity' => $refillCount,
-                                ]);
+                                $this->makeStockMovement(
+                                    $article->article_number,
+                                    0,
+                                    $compartment->id,
+                                    intval($refillCount)
+                                );
 
                                 $managedStock += $refillCount;
                             }
@@ -90,8 +92,15 @@ class StockOptimizationManager
                             foreach ($stockPlace->compartments as $compartment) {
                                 if ($compartment->stockItems->count()) continue; // Compartment is not empty
 
+                                $compartmentCache = $this->movementCache[$compartment->id] ?? null;
+                                if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
+                                    // Another article is planed to moved to this compartment
+                                    continue;
+                                }
+
                                 $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                                $freeVolume = $compartmentVolume * self::MAX_FILL;
+                                $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
+                                $freeVolume = ($compartmentVolume * self::MAX_FILL) - $occupiedVolume;
 
                                 $fillCount = floor($freeVolume / $articleVolume);
                                 $fillCount = min($fillCount, ($totalStock - $managedStock));
@@ -99,12 +108,12 @@ class StockOptimizationManager
                                 if (!$fillCount) continue;
 
                                 // Make a stock movement
-                                StockItemMovement::create([
-                                    'article_number' => $article->article_number,
-                                    'from_stock_place_compartment' => 0,
-                                    'to_stock_place_compartment' => $compartment->id,
-                                    'quantity' => $fillCount,
-                                ]);
+                                $this->makeStockMovement(
+                                    $article->article_number,
+                                    0,
+                                    $compartment->id,
+                                    intval($fillCount)
+                                );
 
                                 $managedStock += $fillCount;
                             }
@@ -169,5 +178,24 @@ class StockOptimizationManager
             '#f2505f' => 'C',
             default => null,
         };
+    }
+
+    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity): void
+    {
+        StockItemMovement::create([
+            'article_number' => $articleNumber,
+            'from_stock_place_compartment' => $fromStockPlaceCompartmentID,
+            'to_stock_place_compartment' => $toStockPlaceCompartmentID,
+            'quantity' => $quantity,
+        ]);
+
+        if (!isset($this->movementCache[$toStockPlaceCompartmentID])) {
+            $this->movementCache[$toStockPlaceCompartmentID] = [
+                'article_number' => $articleNumber,
+                'quantity' => 0,
+            ];
+        }
+
+        $this->movementCache[$toStockPlaceCompartmentID]['quantity'] += $quantity;
     }
 }
