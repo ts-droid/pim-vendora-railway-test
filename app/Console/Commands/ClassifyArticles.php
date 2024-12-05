@@ -33,6 +33,7 @@ class ClassifyArticles extends Command
             $salesVolume = DB::table('customer_invoice_lines')
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->select('customer_invoice_lines.quantity')
+                ->where('customer_invoice_lines.article_number', '=', $articleNumber)
                 ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-30 days')))
                 ->sum('customer_invoice_lines.quantity');
 
