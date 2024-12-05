@@ -110,6 +110,10 @@ class StockOptimizationManager
                             }
                         }
                     }
+
+                    if ($managedStock >= $totalStock) {
+                        break;
+                    }
                 }
             }
         }
