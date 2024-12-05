@@ -22,7 +22,7 @@ class StockOptimizationManager
         $groupedArticles = $this->getGroupedArticles();
 
         for ($classIndex = 0;$classIndex < count(self::CLASSIFICATION_ORDER);$classIndex++) {
-            $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]];
+            $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]] ?? [];
 
             // Loop each article in this classification
             foreach ($articles as $article) {
@@ -35,7 +35,7 @@ class StockOptimizationManager
                 while($managedStock < $totalStock) {
                     // Start looking at the stock places with the same classification, and continue downwards
                     for ($i = $classIndex;$i < count(self::CLASSIFICATION_ORDER);$i++) {
-                        $stockPlaces = $groupedStockPlaces[self::CLASSIFICATION_ORDER[$i]];
+                        $stockPlaces = $groupedStockPlaces[self::CLASSIFICATION_ORDER[$i]] ?? [];
 
                         if (!$stockPlaces) continue;
 
