@@ -149,9 +149,13 @@ class StockPlaceService
         $stockPlace = $response['stockPlace'];
 
         // Then create the compartments
-        if ($stockPlaceTemplate->stock_place_compartments) {
-            for ($i = 1;$i <= count($stockPlaceTemplate->stock_place_compartments);$i++) {
-                $compartmentData = $stockPlaceTemplate->stock_place_compartments[$i - 1];
+        $compartments = $stockPlaceTemplate->stock_place_compartments ?: [];
+
+        if ($compartments) {
+            $compartments = array_reverse($compartments);
+
+            for ($i = 1;$i <= count($compartments);$i++) {
+                $compartmentData = $compartments[$i - 1];
 
                 $compartmentData['identifier'] = $i;
 
