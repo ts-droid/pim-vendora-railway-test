@@ -53,6 +53,13 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($response['stockPlace']->toArray());
     }
 
+    public function getStockPlaceTemplates()
+    {
+        $stockPlaceTemplates = StockPlaceTemplate::orderBy('name', 'ASC')->get();
+
+        return ApiResponseController::success($stockPlaceTemplates->toArray());
+    }
+
     public function storeStockPlaceTemplate(Request $request, StockPlaceTemplate $stockPlaceTemplate)
     {
         $identifier = $request->input('identifier');

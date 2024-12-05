@@ -67,6 +67,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/wms')->group(function() {
         Route::get('/stock-places', [StockPlaceController::class, 'getStockPlaces']);
         Route::post('/stock-places', [StockPlaceController::class, 'storeStockPlace']);
+        Route::get('/stock-places/template', [StockPlaceController::class, 'getStockPlaceTemplates']);
         Route::post('/stock-places/template/{stockPlaceTemplate}', [StockPlaceController::class, 'storeStockPlaceTemplate']);
         Route::get('/stock-places/{stockPlace}', [StockPlaceController::class, 'getStockPlace']);
         Route::post('/stock-places/{stockPlace}', [StockPlaceController::class, 'updateStockPlace']);
