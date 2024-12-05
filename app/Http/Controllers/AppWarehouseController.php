@@ -9,7 +9,12 @@ class AppWarehouseController extends Controller
 {
     public function getMovements()
     {
-        $stockItemMovements = StockItemMovement::with('fromStockPlaceCompartment', 'toStockPlaceCompartment')
+        $stockItemMovements = StockItemMovement::with(
+                'fromStockPlaceCompartment',
+                'fromStockPlaceCompartment.stockPlace',
+                'toStockPlaceCompartment',
+                'toStockPlaceCompartment.stockPlace'
+            )
             ->orderBy('id', 'ASC')
             ->get();
 
