@@ -12,5 +12,7 @@ class AppWarehouseController extends Controller
         $stockItemMovements = StockItemMovement::with('fromStockPlaceCompartment', 'toStockPlaceCompartment')
             ->orderBy('id', 'ASC')
             ->get();
+
+        return ApiResponseController::success($stockItemMovements->toArray());
     }
 }
