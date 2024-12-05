@@ -20,4 +20,11 @@ class AppWarehouseController extends Controller
 
         return ApiResponseController::success($stockItemMovements->toArray());
     }
+
+    public function confirmMovement(StockItemMovement $stockItemMovement)
+    {
+
+
+        return ApiResponseController::success();
+    }
 }

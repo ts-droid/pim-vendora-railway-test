@@ -37,6 +37,7 @@ Route::prefix('/app')->group(function() {
 
         Route::prefix('/warehouse')->group(function() {
             Route::get('/movements', [AppWarehouseController::class, 'getMovements']);
+            Route::post('/movements/{stockItemMovement}', [AppWarehouseController::class, 'confirmMovement']);
         });
     });
 });
