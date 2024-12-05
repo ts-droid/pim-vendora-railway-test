@@ -62,6 +62,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('api-logger:clean')->hourly();
         $schedule->command('calculate-last-article-purchase-date')->everyThreeHours();
         $schedule->command('articles:classify')->dailyAt('02:00');
+        //$schedule->command('wms:optimize-stock')->dailyAt('02:30');
         $schedule->command('purchase-order:generate-weights')->dailyAt('03:00');
         $schedule->command('purchase-orders:generate')->dailyAt('13:00');
     }
