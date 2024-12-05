@@ -127,4 +127,46 @@ class StockPlaceService
             'stock_place_compartments' => $stockPlace->compartments->toArray()
         ]);
     }
+
+    public function copyStockPlaceTemplate(StockPlaceTemplate $stockPlaceTemplate, string $identifier, int $positionX, int $positionY): array
+    {
+        // First create the stock place
+        $stockPlaceData = $stockPlaceTemplate->stock_place;
+
+        $stockPlaceData['identifier'] = $identifier;
+        $stockPlaceData['map_position_x'] = $positionX;
+        $stockPlaceData['map_position_y'] = $positionY;
+
+        unset($stockPlaceData['id']);
+        unset($stockPlaceData['created_at']);
+        unset($stockPlaceData['updated_at']);
+
+        $response = $this->createStockPlace($stockPlaceData);
+        if (!$response['success']) {
+            return $response;
+        }
+
+        $stockPlace = $response['stockPlace'];
+
+        // Then create the compartments
+        if ($stockPlaceTemplate->stock_place_compartments) {
+            for ($i = 1;$i <= count($stockPlaceTemplate->stock_place_compartments);$i++) {
+                $compartmentData = $stockPlaceTemplate->stock_place_compartments[$i - 1];
+
+                $compartmentData['identifier'] = $i;
+
+                unset($compartmentData['id']);
+                unset($compartmentData['stock_place_id']);
+                unset($compartmentData['created_at']);
+                unset($compartmentData['updated_at']);
+
+                $this->createStockPlaceCompartment($stockPlace, $compartmentData);
+            }
+        }
+
+        return [
+            'success' => true,
+            'stockPlace' => $stockPlace
+        ];
+    }
 }

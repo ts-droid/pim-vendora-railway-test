@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Models\StockPlaceTemplate;
 use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 
@@ -44,6 +45,37 @@ class StockPlaceController extends Controller
             'map_size_x',
             'map_size_y',
         ));
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        return ApiResponseController::success($response['stockPlace']->toArray());
+    }
+
+    public function storeStockPlaceTemplate(Request $request, StockPlaceTemplate $stockPlaceTemplate)
+    {
+        $identifier = $request->input('identifier');
+        $mapPositionX = $request->input('map_position_x');
+        $mapPositionY = $request->input('map_position_y');
+
+        if (!$identifier) {
+            return ApiResponseController::error('Identifier is required');
+        }
+        if (!$mapPositionX) {
+            return ApiResponseController::error('X position is required');
+        }
+        if (!$mapPositionY) {
+            return ApiResponseController::error('Y position is required');
+        }
+
+        $stockPlaceService = new StockPlaceService();
+        $response = $stockPlaceService->copyStockPlaceTemplate(
+            $stockPlaceTemplate,
+            $identifier,
+            $mapPositionX,
+            $mapPositionY
+        );
 
         if (!$response['success']) {
             return ApiResponseController::error($response['message']);
