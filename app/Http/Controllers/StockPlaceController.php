@@ -90,6 +90,7 @@ class StockPlaceController extends Controller
             'is_truck',
             'is_movable',
             'is_walk_through',
+            'is_manual',
         ));
 
         if (!$response['success']) {
@@ -109,6 +110,7 @@ class StockPlaceController extends Controller
             'is_truck',
             'is_movable',
             'is_walk_through',
+            'is_manual',
         ));
 
         return ApiResponseController::success($stockPlaceCompartment->toArray());
