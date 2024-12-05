@@ -38,6 +38,7 @@ class DispatchArticleUpdate
         'delivery_days',
         'wgr_id',
         'last_sync_exception',
+        'classification',
         'created_at',
         'updated_at,'
     ];
