@@ -25,4 +25,9 @@ class StockPlaceCompartment extends Model
     {
         return $this->belongsTo(StockPlace::class);
     }
+
+    public function stockItems()
+    {
+        return $this->hasMany(StockItem::class);
+    }
 }

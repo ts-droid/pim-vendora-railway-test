@@ -68,6 +68,19 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($stockPlace->toArray());
     }
 
+    public function createStockPlaceTemplate(Request $request, StockPlace $stockPlace)
+    {
+        $name = $request->input('name');
+        if (!$name) {
+            return ApiResponseController::error('Name is required');
+        }
+
+        $stockPlaceService = new StockPlaceService();
+        $stockPlaceService->createStockPlaceTemplate($stockPlace, $name);
+
+        return ApiResponseController::success();
+    }
+
     public function deleteStockPlace(Request $request, StockPlace $stockPlace)
     {
         $stockPlaceService = new StockPlaceService();

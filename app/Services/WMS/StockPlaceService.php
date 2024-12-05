@@ -4,6 +4,7 @@ namespace App\Services\WMS;
 
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Models\StockPlaceTemplate;
 
 class StockPlaceService
 {
@@ -46,15 +47,22 @@ class StockPlaceService
 
     public function deleteStockPlace(StockPlace $stockPlace): array
     {
-        // TODO: Make sure no stock item is in this place
+        if ($stockPlace->compartments) {
+            foreach ($stockPlace->compartments as $compartment) {
+                if ($compartment->stockItems()->exists()) {
+                    return array('success' => false, 'message' => 'Stock place is not empty');
+                }
+            }
 
-        // Delete stock compartments
-        $stockPlace->compartments()->delete();
+            foreach ($stockPlace->compartments as $compartment) {
+                $this->deleteStockPlaceCompartment($compartment);
+            }
+        }
 
         // Delete stock place
         $stockPlace->delete();
 
-        return array('success' => true);
+        return ['success' => true];
     }
 
     public function createStockPlaceCompartment(StockPlace $stockPlace, array $data): array
@@ -99,10 +107,24 @@ class StockPlaceService
 
     public function deleteStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment): array
     {
-        // TODO: Make sure no stock item is in this compartment
+        if ($stockPlaceCompartment->stockItems()->exists()) {
+            return [
+                'success' => false,
+                'message' => 'Stock compartment is not empty'
+            ];
+        }
 
         $stockPlaceCompartment->delete();
 
-        return array('success' => true);
+        return ['success' => true];
+    }
+
+    public function createStockPlaceTemplate(StockPlace $stockPlace, string $name): StockPlaceTemplate
+    {
+        return StockPlaceTemplate::create([
+            'name' => $name,
+            'stock_place' => $stockPlace->toArray(),
+            'stock_place_compartments' => $stockPlace->compartments->toArray()
+        ]);
     }
 }
