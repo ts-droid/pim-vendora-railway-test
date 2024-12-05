@@ -2,9 +2,9 @@
 
 namespace App\Services\WMS;
 
-use App\Models\Article;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
+use Illuminate\Support\Facades\DB;
 
 class StockOptimizationManager
 {
