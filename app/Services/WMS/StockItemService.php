@@ -61,6 +61,30 @@ class StockItemService
         ];
     }
 
+    public function moveStockItems(string $articleNumber, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, int $quantity): array
+    {
+        $stockItems = StockItem::where('article_number', $articleNumber)
+            ->where('stock_place_compartment_id', $fromStockPlaceCompartment->id)
+            ->limit($quantity)
+            ->get();
+
+        if ($stockItems->count() != $quantity) {
+            return [
+                'success' => false,
+                'message' => 'Not enough stock items to perform the move',
+            ];
+        }
+
+        foreach ($stockItems as $stockItem) {
+            $this->moveStockItem($stockItem, $toStockPlaceCompartment);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Stock items moved',
+        ];
+    }
+
     public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment): array
     {
         $stockItem->update(['stock_place_compartment_id' => $stockPlaceCompartment->id]);
