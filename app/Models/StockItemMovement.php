@@ -14,6 +14,7 @@ class StockItemMovement extends Model
         'from_stock_place_compartment',
         'to_stock_place_compartment',
         'quantity',
+        'ping_at',
     ];
 
     public function fromStockPlaceCompartment()

@@ -23,7 +23,19 @@ class AppWarehouseController extends Controller
 
     public function confirmMovement(StockItemMovement $stockItemMovement)
     {
+        return ApiResponseController::success();
+    }
 
+    public function pingMovement(StockItemMovement $stockItemMovement)
+    {
+        $stockItemMovement->update(['ping_at' => now()]);
+
+        return ApiResponseController::success();
+    }
+
+    public function unpingMovement(StockItemMovement $stockItemMovement)
+    {
+        $stockItemMovement->update(['ping_at' => 0]);
 
         return ApiResponseController::success();
     }
