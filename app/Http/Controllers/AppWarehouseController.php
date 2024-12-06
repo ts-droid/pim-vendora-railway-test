@@ -21,6 +21,20 @@ class AppWarehouseController extends Controller
         return ApiResponseController::success($stockItemMovements->toArray());
     }
 
+    public function getMovement(StockItemMovement $stockItemMovement)
+    {
+        $stockItemMovement = StockItemMovement::with(
+                'fromStockPlaceCompartment',
+                'fromStockPlaceCompartment.stockPlace',
+                'toStockPlaceCompartment',
+                'toStockPlaceCompartment.stockPlace'
+            )
+            ->where('id', $stockItemMovement->id)
+            ->first();
+
+        return ApiResponseController::success($stockItemMovement->toArray());
+    }
+
     public function confirmMovement(StockItemMovement $stockItemMovement)
     {
         return ApiResponseController::success();
