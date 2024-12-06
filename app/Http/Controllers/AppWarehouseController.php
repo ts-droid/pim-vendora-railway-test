@@ -42,7 +42,7 @@ class AppWarehouseController extends Controller
 
     public function pingMovement(StockItemMovement $stockItemMovement)
     {
-        $stockItemMovement->update(['ping_at' => now()]);
+        $stockItemMovement->update(['ping_at' => time()]);
 
         return ApiResponseController::success();
     }
