@@ -64,6 +64,8 @@ class AppWarehouseController extends Controller
             return ApiResponseController::error($response['message']);
         }
 
+        $stockItemMovement->delete();
+
         return ApiResponseController::success();
     }
 
