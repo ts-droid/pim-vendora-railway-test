@@ -180,6 +180,47 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipment->toArray());
     }
 
+    public function wgr(Shipment $shipment)
+    {
+        Log::channel('shipments')->info('Received request to re-send shipment to WGR.', ['shipmentNumber' => $shipment->number]);
+
+        if (!$shipment->completed_at) {
+            Log::channel('shipments')->info('Aborting because shipment is not completed.', ['shipmentNumber' => $shipment->number]);
+            return ApiResponseController::error('Shipment it not completed.');
+        }
+
+        if ($shipment->tracking_number) {
+            Log::channel('shipments')->info('Aborting because tracking number is missing.', ['shipmentNumber' => $shipment->number]);
+            return ApiResponseController::error('Tracking number is missing.');
+        }
+
+        if (!$shipment->order_numbers) {
+            Log::channel('shipments')->info('Aborting because no linked order numbers.', ['shipmentNumber' => $shipment->number]);
+            return ApiResponseController::error('No linked order numbers.');
+        }
+
+        foreach ($shipment->order_numbers as $orderNumber) {
+            $wgrOrderID = SalesOrder::select('customer_ref_no')
+                ->where('order_number', $orderNumber)
+                ->pluck('customer_ref_no')
+                ->first();
+
+            if (!$wgrOrderID) {
+                Log::channel('shipments')->info('Could not find WGR ID for order number (' . $orderNumber . ').', ['shipmentNumber' => $shipment->number]);
+                continue;
+            }
+
+            CompleteWgrOrder::dispatch([
+                'wgr_order_id' => $wgrOrderID,
+                'tracking_number' => $shipment->tracking_number
+            ])->onQueue('main');
+
+            Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function complete(Request $request, Shipment $shipment)
     {
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);

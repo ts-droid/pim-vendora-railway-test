@@ -31,6 +31,7 @@ Route::prefix('/app')->group(function() {
             Route::post('/{shipment}/unping', [AppShipmentController::class, 'unping']);
             Route::post('/{shipment}/pick', [AppShipmentController::class, 'pick']);
             Route::post('/{shipment}/complete', [AppShipmentController::class, 'complete']);
+            Route::post('/{shipment}/wgr', [AppShipmentController::class, 'wgr']);
             Route::get('/{shipment}/print', [AppShipmentController::class, 'print']);
             Route::post('/{shipment}/clear-visma', [AppShipmentController::class, 'clearVisma']);
         });
