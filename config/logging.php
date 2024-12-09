@@ -73,6 +73,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'shipments' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/shipments.log'),
+            'days' => 30,
+            'level' => 'info',
+        ],
+
         'requestlog' => [
             'driver' => 'daily',
             'path' => storage_path('logs/request.log'),

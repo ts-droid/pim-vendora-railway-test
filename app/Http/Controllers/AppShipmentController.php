@@ -10,6 +10,7 @@ use App\Models\ShipmentLine;
 use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AppShipmentController extends Controller
 {
@@ -181,6 +182,8 @@ class AppShipmentController extends Controller
 
     public function complete(Request $request, Shipment $shipment)
     {
+        Log::channel('shipments')->info('Received request to complete shipment {shipmentNumber}', ['shipmentNumber' => $shipment->number]);
+
         $displayName = (string) $request->header('display-name', '');
 
         // Complete the shipment in Visma.net
@@ -188,8 +191,11 @@ class AppShipmentController extends Controller
         $response = $vismaNetShipmentService->completeShipment($shipment);
 
         if (!$response['success']) {
+            Log::channel('shipments')->warning('Failed to complete shipment {shipmentNumber} in Visma.net', ['shipmentNumber' => $shipment->number]);
             return ApiResponseController::error($response['message']);
         }
+
+        Log::channel('shipments')->info('Completed shipment {shipmentNumber} in Visma.net', ['shipmentNumber' => $shipment->number]);
 
         $trackingNumber = (string) $request->input('tracking_number', '');
 
@@ -204,8 +210,6 @@ class AppShipmentController extends Controller
 
         // Send tracking number to WGR
         if ($trackingNumber && $shipment->order_numbers) {
-            $wgrController = new WgrController();
-
             foreach ($shipment->order_numbers as $orderNumber) {
                 $wgrOrderID = SalesOrder::select('customer_ref_no')
                     ->where('order_number', $orderNumber)
@@ -217,8 +221,17 @@ class AppShipmentController extends Controller
                         'wgr_order_id' => $wgrOrderID,
                         'tracking_number' => $trackingNumber
                     ])->onQueue('main');
+
+                    Log::channel('info')->info('Queued CompleteWgrOrder for shipment {shipmentNumber}', ['shipmentNumber' => $shipment->number]);
                 }
             }
+        }
+        else {
+            Log::channel('shipments')->warning('Shipment {shipmentNumber} has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
+                'shipmentNumber' => $shipment->number,
+                'trackingNumber' => $trackingNumber,
+                'orderNumbersCount' => count($shipment->order_numbers)
+            ]);
         }
 
         return ApiResponseController::success();

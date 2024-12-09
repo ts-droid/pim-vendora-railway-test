@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class CompleteWgrOrder implements ShouldQueue
 {
@@ -38,6 +39,8 @@ class CompleteWgrOrder implements ShouldQueue
         ]);
 
         $result = $response['0']['result'] ?? false;
+
+        Log::channel('shipments')->info('CompleteWgrOrder request made. Response: ' . json_encode($response));
 
         if (!$result) {
             throw new \Exception('Failed to complete order in WGR. API Response: ' . json_encode($response));
