@@ -40,7 +40,7 @@ class CompleteWgrOrder implements ShouldQueue
 
         $result = $response['0']['result'] ?? false;
 
-        Log::channel('shipments')->info('CompleteWgrOrder request made. Response: ' . json_encode($response));
+        Log::channel('shipments')->info('CompleteWgrOrder request made for WGR-ID {wgrOrderID}. Response: ' . json_encode($response), ['wgrOrderID' => $this->wgrOrderID]);
 
         if (!$result) {
             throw new \Exception('Failed to complete order in WGR. API Response: ' . json_encode($response));
