@@ -26,4 +26,10 @@ class StockItemMovement extends Model
     {
         return $this->belongsTo(StockPlaceCompartment::class, 'to_stock_place_compartment');
     }
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number')
+            ->select(['description', '']);
+    }
 }
