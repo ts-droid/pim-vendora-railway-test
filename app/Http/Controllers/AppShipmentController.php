@@ -182,7 +182,7 @@ class AppShipmentController extends Controller
 
     public function complete(Request $request, Shipment $shipment)
     {
-        Log::channel('shipments')->info('Received request to complete shipment {shipmentNumber}', ['shipmentNumber' => $shipment->number]);
+        Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
 
         $displayName = (string) $request->header('display-name', '');
 
@@ -191,11 +191,11 @@ class AppShipmentController extends Controller
         $response = $vismaNetShipmentService->completeShipment($shipment);
 
         if (!$response['success']) {
-            Log::channel('shipments')->warning('Failed to complete shipment {shipmentNumber} in Visma.net', ['shipmentNumber' => $shipment->number]);
+            Log::channel('shipments')->warning('Failed to complete shipment in Visma.net', ['shipmentNumber' => $shipment->number]);
             return ApiResponseController::error($response['message']);
         }
 
-        Log::channel('shipments')->info('Completed shipment {shipmentNumber} in Visma.net', ['shipmentNumber' => $shipment->number]);
+        Log::channel('shipments')->info('Completed shipment in Visma.net', ['shipmentNumber' => $shipment->number]);
 
         $trackingNumber = (string) $request->input('tracking_number', '');
 
@@ -222,12 +222,15 @@ class AppShipmentController extends Controller
                         'tracking_number' => $trackingNumber
                     ])->onQueue('main');
 
-                    Log::channel('info')->info('Queued CompleteWgrOrder for shipment {shipmentNumber}', ['shipmentNumber' => $shipment->number]);
+                    Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
+                }
+                else {
+                    Log::channel('shipments')->warning('Could not queue CompleteWgrOrder for shipment. Missing WGR Order ID.', ['shipmentNumber' => $shipment->number]);
                 }
             }
         }
         else {
-            Log::channel('shipments')->warning('Shipment {shipmentNumber} has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
+            Log::channel('shipments')->warning('Shipment has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
                 'shipmentNumber' => $shipment->number,
                 'trackingNumber' => $trackingNumber,
                 'orderNumbersCount' => count($shipment->order_numbers)
