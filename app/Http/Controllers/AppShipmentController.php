@@ -189,7 +189,7 @@ class AppShipmentController extends Controller
             return ApiResponseController::error('Shipment it not completed.');
         }
 
-        if ($shipment->tracking_number) {
+        if (!$shipment->tracking_number) {
             Log::channel('shipments')->info('Aborting because tracking number is missing.', ['shipmentNumber' => $shipment->number]);
             return ApiResponseController::error('Tracking number is missing.');
         }
