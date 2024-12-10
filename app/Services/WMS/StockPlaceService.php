@@ -189,7 +189,7 @@ class StockPlaceService
             return;
         }
 
-        $template = StockPlaceTemplate::find('id', $stockPlace->template_id);
+        $template = StockPlaceTemplate::find($stockPlace->template_id);
         if (!$template) {
             return;
         }
