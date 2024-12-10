@@ -11,7 +11,7 @@ class StockOptimizationManager
     const CLASSIFICATION_ORDER = ['A', 'B', 'C'];
 
     const MAX_FILL = 0.8;
-    const REFILL_THRESHOLD = 0.4;
+    const REFILL_THRESHOLD = 0.5;
 
     private $movementCache = [];
 
