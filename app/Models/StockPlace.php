@@ -19,6 +19,7 @@ class StockPlace extends Model
         'map_size_y',
         'color',
         'type',
+        'template_id',
     ];
 
     public function compartments()
