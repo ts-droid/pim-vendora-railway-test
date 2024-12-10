@@ -32,7 +32,7 @@ class ClassifyArticles extends Command
         foreach ($articleNumbers as $articleNumber) {
             $salesData = DB::table('customer_invoice_lines')
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
-                ->select('customer_invoice_lines.quantity')
+                ->selectRaw('SUM(customer_invoice_lines.quantity) as total_quantity, COUNT(DISTINCT customer_invoice_lines.customer_invoice_id) as unique_invoices')
                 ->where('customer_invoice_lines.article_number', '=', $articleNumber)
                 ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-60 days')))
                 ->first();
