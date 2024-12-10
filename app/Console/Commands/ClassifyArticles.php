@@ -30,16 +30,17 @@ class ClassifyArticles extends Command
 
         $articleData = [];
         foreach ($articleNumbers as $articleNumber) {
-            $salesVolume = DB::table('customer_invoice_lines')
+            $salesData = DB::table('customer_invoice_lines')
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->select('customer_invoice_lines.quantity')
                 ->where('customer_invoice_lines.article_number', '=', $articleNumber)
-                ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-30 days')))
-                ->sum('customer_invoice_lines.quantity');
+                ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-60 days')))
+                ->first();
 
             $articleData[] = [
                 'article_number' => $articleNumber,
-                'sales_volume' => $salesVolume
+                'sales_volume' => $salesData->total_quantity,
+                'unique_invoices' => $salesData->unique_invoices,
             ];
         }
 
@@ -48,17 +49,32 @@ class ClassifyArticles extends Command
             return $a['sales_volume'] < $b['sales_volume'];
         });
 
+        $classCounts = [
+            'A' => 0,
+            'B' => 0,
+            'C' => 0,
+        ];
+
         for ($i = 1;$i <= count($articleData);$i++) {
             $article = $articleData[$i - 1];
 
-            if ($i <= 25) {
-                $classification = 'A';
+            if ($classCounts['A'] < 35 && $article->unique_invoices >= 3) {
+                if ($article->unique_invoices >= 3) {
+                    $classification = 'A';
+                    $classCounts['A']++;
+                }
+                else {
+                    $classification = 'B';
+                    $classCounts['B']++;
+                }
             }
-            else if ($i <= 150) {
+            else if ($classCounts['B'] < 150) {
                 $classification = 'B';
+                $classCounts['B']++;
             }
             else {
                 $classification = 'C';
+                $classCounts['C']++;
             }
 
             DB::table('articles')
