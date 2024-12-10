@@ -66,6 +66,7 @@ class StockOptimizationManager
 
                                     if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
                                         $stockData['has_main_placement'] = true;
+                                        continue 4; // Move to next article
                                     }
                                 }
                             }
@@ -106,6 +107,7 @@ class StockOptimizationManager
 
                                 if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
                                     $stockData['has_main_placement'] = true;
+                                    continue 3; // Move to next article
                                 }
                             }
                         }
