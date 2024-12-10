@@ -17,8 +17,14 @@ class StockOptimizationManager
 
     public function optimize(): void
     {
-        // Remove all StockItemMovements that have not been pinged within the last 1 minute
-        StockItemMovement::where('ping_at', '<', (time() - 60))->delete();
+        $lastWorkTime = StockItemMovement::all()->max('ping_at');
+        if ($lastWorkTime > (time() - 60)) {
+            // Do not run the operation if someone is working on a stock movement
+            return;
+        }
+
+        // Remove all existing StockItemMovements
+        StockItemMovement::truncate();
 
         // Add existing stock movements to the cache
         $existingMovements = StockItemMovement::all();
