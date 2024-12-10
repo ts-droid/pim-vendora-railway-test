@@ -33,11 +33,12 @@ class StockOptimizationManager
                 if (!isset($articleStockData[$article->article_number])) {
                     $articleStockData[$article->article_number] = [
                         'stock' => $article->stock,
-                        'managedStock' => 0
+                        'managedStock' => 0,
+                        'has_main_placement' => false,
                     ];
                 }
 
-                $stockData = $articleStockData[$article->article_number];
+                $stockData = &$articleStockData[$article->article_number];
 
                 $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
 
@@ -45,9 +46,15 @@ class StockOptimizationManager
                 while($stockData['managedStock'] < $stockData['stock']) {
                     // Start looking at the stock places with the same classification, and continue downwards
                     for ($i = $classIndex;$i < count(self::CLASSIFICATION_ORDER);$i++) {
+                        $stockPlaceClass = self::CLASSIFICATION_ORDER[$i];
                         $stockPlaces = $groupedStockPlaces[self::CLASSIFICATION_ORDER[$i]] ?? [];
 
                         if (!$stockPlaces) continue;
+
+                        if ($stockData['has_main_placement']
+                            && ($stockPlaceClass == 'A' || $stockPlaceClass == 'B')) {
+                            continue;
+                        }
 
                         // First look for existing placements
                         foreach ($stockPlaces as $stockPlace) {
@@ -56,6 +63,10 @@ class StockOptimizationManager
                                     if ($stockItem->article_number != $article->article_number) continue;
 
                                     $stockData['managedStock']++;
+
+                                    if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
+                                        $stockData['has_main_placement'] = true;
+                                    }
                                 }
                             }
                         }
@@ -92,6 +103,10 @@ class StockOptimizationManager
                                 );
 
                                 $stockData['managedStock'] += $refillCount;
+
+                                if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
+                                    $stockData['has_main_placement'] = true;
+                                }
                             }
                         }
 
