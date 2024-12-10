@@ -23,18 +23,26 @@ class StockOptimizationManager
         $groupedStockPlaces = $this->getGroupedStockPlaces();
         $groupedArticles = $this->getGroupedArticles();
 
+        $articleStockData = [];
+
         for ($classIndex = 0;$classIndex < count(self::CLASSIFICATION_ORDER);$classIndex++) {
             $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]] ?? [];
 
             // Loop each article in this classification
             foreach ($articles as $article) {
-                $totalStock = $article->stock;
-                $managedStock = 0;
+                if (!isset($articleStockData[$article->article_number])) {
+                    $articleStockData[$article->article_number] = [
+                        'stock' => $article->stock,
+                        'managedStock' => 0
+                    ];
+                }
+
+                $stockData = $articleStockData[$article->article_number];
 
                 $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
 
                 // Loop until all stock for this article has been managed
-                while($managedStock < $totalStock) {
+                while($stockData['managedStock'] < $stockData['stock']) {
                     // Start looking at the stock places with the same classification, and continue downwards
                     for ($i = $classIndex;$i < count(self::CLASSIFICATION_ORDER);$i++) {
                         $stockPlaces = $groupedStockPlaces[self::CLASSIFICATION_ORDER[$i]] ?? [];
@@ -47,7 +55,7 @@ class StockOptimizationManager
                                 foreach($compartment->stockItems as $stockItem) {
                                     if ($stockItem->article_number != $article->article_number) continue;
 
-                                    $managedStock++;
+                                    $stockData['managedStock']++;
                                 }
                             }
                         }
@@ -71,7 +79,7 @@ class StockOptimizationManager
 
                                 // Refill the compartment
                                 $refillCount = floor($freeVolume / $articleVolume);
-                                $refillCount = min($refillCount, ($totalStock - $managedStock));
+                                $refillCount = min($refillCount, ($stockData['stock'] - $stockData['managedStock']));
 
                                 if (!$refillCount) continue; // Not items found to refill with
 
@@ -83,7 +91,7 @@ class StockOptimizationManager
                                     intval($refillCount)
                                 );
 
-                                $managedStock += $refillCount;
+                                $stockData['managedStock'] += $refillCount;
                             }
                         }
 
@@ -103,7 +111,7 @@ class StockOptimizationManager
                                 $freeVolume = ($compartmentVolume * self::MAX_FILL) - $occupiedVolume;
 
                                 $fillCount = floor($freeVolume / $articleVolume);
-                                $fillCount = min($fillCount, ($totalStock - $managedStock));
+                                $fillCount = min($fillCount, ($stockData['stock'] - $stockData['managedStock']));
 
                                 if (!$fillCount) continue;
 
@@ -115,12 +123,12 @@ class StockOptimizationManager
                                     intval($fillCount)
                                 );
 
-                                $managedStock += $fillCount;
+                                $stockData['managedStock'] += $fillCount;
                             }
                         }
                     }
 
-                    if ($managedStock >= $totalStock) {
+                    if ($stockData['managedStock'] >= $stockData['stock']) {
                         break;
                     }
                 }
