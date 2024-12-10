@@ -26,6 +26,45 @@ class ClassifyArticles extends Command
      */
     public function handle()
     {
+        $this->classifySalesVolume();
+        $this->classifyVolume();
+
+        $this->info('Updated article classifications');
+    }
+
+    private function classifyVolume()
+    {
+        $articles = DB::table('articles')
+            ->select('id', 'height', 'width', 'depth')
+            ->get();
+
+        if ($articles) {
+            foreach ($articles as $article) {
+                $volume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
+
+                $classification = '';
+
+                if ($volume) {
+                    if ($volume < 0.001) {
+                        $classification = 'A';
+                    }
+                    else if ($volume < 0.01) {
+                        $classification = 'B';
+                    }
+                    else {
+                        $classification = 'C';
+                    }
+                }
+
+                DB::table('articles')
+                    ->where('id', $article->id)
+                    ->update(['classification_volume' => $classification]);
+            }
+        }
+    }
+
+    private function classifySalesVolume()
+    {
         $articleNumbers = DB::table('articles')->select('article_number')->pluck('article_number');
 
         $articleData = [];
@@ -81,7 +120,5 @@ class ClassifyArticles extends Command
                 ->where('article_number', '=', $article['article_number'])
                 ->update(['classification' => $classification]);
         }
-
-        $this->info('Updated article classifications');
     }
 }

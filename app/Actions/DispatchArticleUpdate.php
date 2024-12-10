@@ -39,6 +39,7 @@ class DispatchArticleUpdate
         'wgr_id',
         'last_sync_exception',
         'classification',
+        'classification_volume',
         'created_at',
         'updated_at,'
     ];
