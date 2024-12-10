@@ -17,8 +17,14 @@ class StockOptimizationManager
 
     public function optimize(): void
     {
-        // Remove all existing StockItemMovements
-        StockItemMovement::truncate();
+        // Remove all StockItemMovements that have not been pinged within the last 1 minute
+        StockItemMovement::where('ping_at', '<', (time() - 60))->delete();
+
+        // Add existing stock movements to the cache
+        $existingMovements = StockItemMovement::all();
+        foreach ($existingMovements as $stockItemMovement) {
+            $this->addStockMovementToCache($stockItemMovement);
+        }
 
         $groupedStockPlaces = $this->getGroupedStockPlaces();
         $groupedArticles = $this->getGroupedArticles();
@@ -200,20 +206,25 @@ class StockOptimizationManager
 
     private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity): void
     {
-        StockItemMovement::create([
+        $stockItemMovement = StockItemMovement::create([
             'article_number' => $articleNumber,
             'from_stock_place_compartment' => $fromStockPlaceCompartmentID,
             'to_stock_place_compartment' => $toStockPlaceCompartmentID,
             'quantity' => $quantity,
         ]);
 
-        if (!isset($this->movementCache[$toStockPlaceCompartmentID])) {
-            $this->movementCache[$toStockPlaceCompartmentID] = [
-                'article_number' => $articleNumber,
+        $this->addStockMovementToCache($stockItemMovement);
+    }
+
+    private function addStockMovementToCache(StockItemMovement $stockItemMovement)
+    {
+        if (!isset($this->movementCache[$stockItemMovement->to_stock_place_compartment])) {
+            $this->movementCache[$stockItemMovement->to_stock_place_compartment] = [
+                'article_number' => $stockItemMovement->article_number,
                 'quantity' => 0,
             ];
         }
 
-        $this->movementCache[$toStockPlaceCompartmentID]['quantity'] += $quantity;
+        $this->movementCache[$stockItemMovement->to_stock_place_compartment]['quantity'] += $stockItemMovement->quantity;
     }
 }
