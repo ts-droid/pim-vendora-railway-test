@@ -58,8 +58,8 @@ class ClassifyArticles extends Command
         for ($i = 1;$i <= count($articleData);$i++) {
             $article = $articleData[$i - 1];
 
-            if ($classCounts['A'] < 35 && $article->unique_invoices >= 3) {
-                if ($article->unique_invoices >= 3) {
+            if ($classCounts['A'] < 35) {
+                if ($article['unique_invoices'] >= 3) {
                     $classification = 'A';
                     $classCounts['A']++;
                 }
