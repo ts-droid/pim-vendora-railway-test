@@ -12,6 +12,7 @@ class StockPlaceCompartment extends Model
     protected $fillable = [
         'identifier',
         'stock_place_id',
+        'volume_class',
         'width',
         'height',
         'depth',
