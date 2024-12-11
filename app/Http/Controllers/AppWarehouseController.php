@@ -41,7 +41,7 @@ class AppWarehouseController extends Controller
             ->where('id', $stockItemMovement->id)
             ->first();
 
-        $articleData = $this->getArticleData([$stockItemMovement->article_number]);
+        $articleData = $this->getArticleData([$stockItemMovement->article_number], true);
 
         $stockItemMovement->article = $articleData[$stockItemMovement->article_number] ?? null;
 
@@ -95,10 +95,10 @@ class AppWarehouseController extends Controller
         return ApiResponseController::success();
     }
 
-    private function getArticleData(array $articleNumbers)
+    private function getArticleData(array $articleNumbers, bool $detailed)
     {
         $articles = DB::table('articles')
-            ->select('id', 'article_number', 'description')
+            ->select('id', 'article_number', 'description', 'stock_on_hand AS stock')
             ->whereIn('article_number', $articleNumbers)
             ->get();
 
@@ -113,13 +113,25 @@ class AppWarehouseController extends Controller
         $articlesData = [];
 
         foreach ($articles as $article) {
+            // Fetch main image
             $article->image = null;
-
             foreach($articleImages as $articleImage) {
                 if ($articleImage->article_id == $article->id) {
                     $article->image = $articleImage->path_url;
                     break;
                 }
+            }
+
+            // Fetch detailed data
+            if ($detailed) {
+                $article->incoming_stock = (int) DB::table('purchase_order_lines')
+                    ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+                    ->selectRaw('SUM(purchase_order_lines.quantity - purchase_order_lines.quantity_received) AS incoming_quantity')
+                    ->where('purchase_order_lines.article_number', '=', $article->article_number)
+                    ->where('purchase_order_lines.is_completed', 0)
+                    ->where('purchase_orders.date', '>=', '2023-01-01')
+                    ->pluck('incoming_quantity')
+                    ->first();
             }
 
             $articlesData[$article->article_number] = $article;
