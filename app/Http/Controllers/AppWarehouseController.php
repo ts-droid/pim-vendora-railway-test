@@ -83,7 +83,7 @@ class AppWarehouseController extends Controller
 
     public function investigateMovement(StockItemMovement $stockItemMovement)
     {
-        // TODO: Investigate the movement
+        $stockItemMovement->update(['is_investigation' => 1]);
 
         return ApiResponseController::success();
     }
