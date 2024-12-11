@@ -48,6 +48,9 @@ class TodoItemMetaService
             'package_image_front_url' => $article->package_image_front_url,
             'package_image_back' => $article->package_image_back,
             'package_image_back_url' => $article->package_image_back_url,
+            'total_stock' => 0,
+            'incoming_stock' => 0,
+            'oldest_purchase_date' => '',
         ];
     }
 }
