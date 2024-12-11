@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('stock_place_compartment_reservations', function (Blueprint $table) {
             $table->id();
             $table->integer('stock_place_compartment_id');
-            $table->timestamps('reserved_until');
+            $table->timestamp('reserved_until');
             $table->timestamps();
         });
     }
