@@ -140,7 +140,6 @@ class AppWarehouseController extends Controller
                     ->where('purchase_order_lines.article_number', '=', $article->article_number)
                     ->where('purchase_order_lines.is_completed', 0)
                     ->where('purchase_orders.date', '>=', '2023-01-01')
-                    ->pluck('incoming_quantity')
                     ->first();
 
                 $article->incoming_stock = $purchaseData->incoming_quantity ?? 0;
