@@ -39,7 +39,11 @@ class StockOptimizationManager
         $articleStockData = [];
 
         for ($classIndex = 0;$classIndex < count(self::CLASSIFICATION_ORDER);$classIndex++) {
+            $this->debug('Processing classification: ' . self::CLASSIFICATION_ORDER[$classIndex]);
+
             $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]] ?? [];
+
+            $this->debug('Found ' . count($articles) . ' articles to process...');
 
             // Loop each article in this classification
             foreach ($articles as $article) {
@@ -151,7 +155,7 @@ class StockOptimizationManager
                                 $article->article_number,
                                 0,
                                 $compartment->id,
-                                intval($fillCount)
+                                $fillCount
                             );
 
                             $stockData['managedStock'] += $fillCount;
@@ -246,5 +250,10 @@ class StockOptimizationManager
     private function roundQuantity(int $quantity): int
     {
         return floor($quantity / 5) * 5;
+    }
+
+    private function debug(string $string)
+    {
+        echo $string . PHP_EOL;
     }
 }
