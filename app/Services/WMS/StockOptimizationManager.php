@@ -97,6 +97,7 @@ class StockOptimizationManager
                             // Refill the compartment
                             $refillCount = floor($freeVolume / $articleVolume);
                             $refillCount = min($refillCount, ($stockData['stock'] - $stockData['managedStock']));
+                            $refillCount = $this->roundQuantity($refillCount);
 
                             if (!$refillCount) continue; // Not items found to refill with
 
@@ -105,7 +106,7 @@ class StockOptimizationManager
                                 $article->article_number,
                                 0,
                                 $compartment->id,
-                                intval($refillCount)
+                                $refillCount
                             );
 
                             $stockData['managedStock'] += $refillCount;
@@ -134,6 +135,7 @@ class StockOptimizationManager
 
                             $fillCount = floor($freeVolume / $articleVolume);
                             $fillCount = min($fillCount, ($stockData['stock'] - $stockData['managedStock']));
+                            $fillCount = $this->roundQuantity($fillCount);
 
                             if (!$fillCount) continue;
 
@@ -232,5 +234,10 @@ class StockOptimizationManager
         }
 
         $this->movementCache[$stockItemMovement->to_stock_place_compartment]['quantity'] += $stockItemMovement->quantity;
+    }
+
+    private function roundQuantity(int $quantity): int
+    {
+        return floor($quantity / 5) * 5;
     }
 }
