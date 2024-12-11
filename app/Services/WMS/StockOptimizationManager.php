@@ -10,7 +10,7 @@ class StockOptimizationManager
 {
     const CLASSIFICATION_ORDER = ['A', 'B', 'C'];
 
-    const MAX_FILL = 0.8;               // Fill compartments to max 80% of its volume
+    const MAX_FILL = 0.7;               // Fill compartments to max 70% of its volume
     const REFILL_THRESHOLD = 0.5;       // Refill a compartment when occupied volume is below 50%
     const MAX_PER_COMPARTMENT = 100;    // Place max 100 items in a compartment
 

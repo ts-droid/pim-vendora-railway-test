@@ -48,7 +48,7 @@ class ClassifyArticles extends Command
                     if ($volume < 0.001) {
                         $classification = 'A';
                     }
-                    else if ($volume < 0.01) {
+                    else if ($volume < 0.005) {
                         $classification = 'B';
                     }
                     else {
