@@ -48,9 +48,18 @@ class AppWarehouseController extends Controller
         return ApiResponseController::success($stockItemMovement->toArray());
     }
 
-    public function confirmMovement(StockItemMovement $stockItemMovement)
+    public function confirmMovement(Request $request, StockItemMovement $stockItemMovement)
     {
         $stockItemService = new StockItemService();
+
+        $quantity = (int) $request->input('quantity');
+        if ($quantity > 0) {
+            if ($quantity > $stockItemMovement->quantity) {
+                return ApiResponseController::error('You can not move more than the suggested quantity.');
+            }
+
+            $stockItemMovement->update(['quantity' => $quantity]);
+        }
 
         $stockItemMovement->load('toStockPlaceCompartment', 'fromStockPlaceCompartment');
 
