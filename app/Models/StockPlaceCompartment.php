@@ -31,4 +31,11 @@ class StockPlaceCompartment extends Model
     {
         return $this->hasMany(StockItem::class);
     }
+
+    public function is_reserved()
+    {
+        return StockPlaceCompartmentReservation::where('stock_place_compartment_id', $this->id)
+            ->where('reserved_until', '>', date('Y-m-d H:i:s'))
+            ->exists();
+    }
 }

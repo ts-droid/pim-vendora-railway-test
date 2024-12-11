@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockItemMovement;
+use App\Models\StockPlaceCompartmentReservation;
 use App\Services\WMS\StockItemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -93,6 +94,15 @@ class AppWarehouseController extends Controller
     public function investigateMovement(StockItemMovement $stockItemMovement)
     {
         $stockItemMovement->update(['is_investigation' => 1]);
+
+        // Remove old reservations
+        StockPlaceCompartmentReservation::where('reserved_until', '<', date('Y-m-d H:i:s'))->delete();
+
+        // Reserv the stock compartment for 30 minutes
+        StockPlaceCompartmentReservation::create([
+            'stock_place_compartment_id' => $stockItemMovement->to_stock_place_compartment,
+            'reserved_until' => date('Y-m-d H:i:s', strtotime('+30 minutes'))
+        ]);
 
         return ApiResponseController::success();
     }

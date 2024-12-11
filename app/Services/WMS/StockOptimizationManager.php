@@ -83,6 +83,10 @@ class StockOptimizationManager
                     // Look for refills
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
+                            if ($compartment->is_reserved()) {
+                                continue;
+                            }
+
                             $stockItemCount = $compartment->stockItems->count();
 
                             if (!$stockItemCount) continue; // Empty stock place
@@ -126,13 +130,15 @@ class StockOptimizationManager
                     // Fill remaining stock to new compartments
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
+                            if ($compartment->is_reserved()) {
+                                continue;
+                            }
+
                             if ($compartment->stockItems->count()) {
-                                // Compartment is not empty
                                 continue;
                             }
 
                             if ($compartment->volume_class != $article->classification_volume) {
-                                // Wrong volume class
                                 continue;
                             }
 
