@@ -39,11 +39,7 @@ class StockOptimizationManager
         $articleStockData = [];
 
         for ($classIndex = 0;$classIndex < count(self::CLASSIFICATION_ORDER);$classIndex++) {
-            $this->debug('Processing classification: ' . self::CLASSIFICATION_ORDER[$classIndex]);
-
             $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]] ?? [];
-
-            $this->debug('Found ' . count($articles) . ' articles to process...');
 
             // Loop each article in this classification
             foreach ($articles as $article) {
@@ -128,14 +124,33 @@ class StockOptimizationManager
                     // Fill remaining stock to new compartments
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            if ($compartment->stockItems->count()) continue; // Compartment is not empty
+                            $debug = $stockPlace->identifier == 'A9';
 
-                            if ($compartment->volume_class != $article->classification_volume) continue; // Wrong volume class
+                            if ($compartment->stockItems->count()) { // Compartment is not empty
+                                if ($debug) {
+                                    $this->debug('A9 is not empty');
+                                }
+                                continue;
+                            }
+
+                            if ($compartment->volume_class != $article->classification_volume) { // Wrong volume class
+                                if ($debug) {
+                                    $this->debug('A9 is wrong volume class');
+                                }
+                                continue;
+                            }
 
                             $compartmentCache = $this->movementCache[$compartment->id] ?? null;
                             if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
                                 // Another article is planed to moved to this compartment
+                                if ($debug) {
+                                    $this->debug('A9 has a movement');
+                                }
                                 continue;
+                            }
+
+                            if ($debug) {
+                                $this->debug('A9 is correct choice');
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
