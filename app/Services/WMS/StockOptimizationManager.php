@@ -10,8 +10,9 @@ class StockOptimizationManager
 {
     const CLASSIFICATION_ORDER = ['A', 'B', 'C'];
 
-    const MAX_FILL = 0.8;
-    const REFILL_THRESHOLD = 0.5;
+    const MAX_FILL = 0.8;               // Fill compartments to max 80% of its volume
+    const REFILL_THRESHOLD = 0.5;       // Refill a compartment when occupied volume is below 50%
+    const MAX_PER_COMPARTMENT = 100;    // Place max 100 items in a compartment
 
     private $movementCache = [];
 
@@ -89,8 +90,10 @@ class StockOptimizationManager
 
                             // This article is hosted here, check if it is time to refill
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * self::MAX_PER_COMPARTMENT));
+
                             $occupiedVolume = $articleVolume * $stockItemCount;
-                            $freeVolume = ($compartmentVolume * self::MAX_FILL) - $occupiedVolume;
+                            $freeVolume = $maxVolume - $occupiedVolume;
 
                             if ($occupiedVolume > self::REFILL_THRESHOLD) continue; // No need to refill, volume is not below 40%
 
@@ -130,8 +133,10 @@ class StockOptimizationManager
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * self::MAX_PER_COMPARTMENT));
+
                             $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
-                            $freeVolume = ($compartmentVolume * self::MAX_FILL) - $occupiedVolume;
+                            $freeVolume = $maxVolume - $occupiedVolume;
 
                             $fillCount = floor($freeVolume / $articleVolume);
                             $fillCount = min($fillCount, ($stockData['stock'] - $stockData['managedStock']));
