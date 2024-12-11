@@ -128,14 +128,14 @@ class StockOptimizationManager
 
                             if ($compartment->stockItems->count()) { // Compartment is not empty
                                 if ($debug) {
-                                    $this->debug('A9 is not empty');
+                                    $this->debug('A9 is not empty (' . $stockPlaceClass . ')');
                                 }
                                 continue;
                             }
 
                             if ($compartment->volume_class != $article->classification_volume) { // Wrong volume class
                                 if ($debug) {
-                                    $this->debug('A9 is wrong volume class');
+                                    $this->debug('A9 is wrong volume class (' . $stockPlaceClass . ')');
                                 }
                                 continue;
                             }
@@ -144,13 +144,13 @@ class StockOptimizationManager
                             if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
                                 // Another article is planed to moved to this compartment
                                 if ($debug) {
-                                    $this->debug('A9 has a movement');
+                                    $this->debug('A9 has a movement (' . $stockPlaceClass . ')');
                                 }
                                 continue;
                             }
 
                             if ($debug) {
-                                $this->debug('A9 is correct choice');
+                                $this->debug('A9 is correct choice (' . $stockPlaceClass . ')');
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
