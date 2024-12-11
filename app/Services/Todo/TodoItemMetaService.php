@@ -32,6 +32,16 @@ class TodoItemMetaService
             ->limit(1)
             ->first();
 
+        $purchaseData = DB::table('purchase_order_lines')
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->selectRaw('
+                SUM(purchase_order_lines.quantity - purchase_order_lines.quantity_received) AS incoming_quantity,
+                MIN(purchase_orders.date) AS oldest_purchase_date
+            ')
+            ->where('purchase_order_lines.article_number', '=', $article->article_number)
+            ->where('purchase_order_lines.is_completed', 0)
+            ->where('purchase_orders.date', '>=', '2023-01-01')
+            ->first();
 
         return [
             'article_number' => $article->article_number,
@@ -48,9 +58,9 @@ class TodoItemMetaService
             'package_image_front_url' => $article->package_image_front_url,
             'package_image_back' => $article->package_image_back,
             'package_image_back_url' => $article->package_image_back_url,
-            'total_stock' => 0,
-            'incoming_stock' => 0,
-            'oldest_purchase_date' => '',
+            'total_stock' => $article->stock_on_hand,
+            'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
+            'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
         ];
     }
 }
