@@ -38,10 +38,10 @@ class StockOptimizationManager
 
         $articleStockData = [];
 
-        for ($classIndex = 0;$classIndex < count(self::CLASSIFICATION_ORDER);$classIndex++) {
-            $articles = $groupedArticles[self::CLASSIFICATION_ORDER[$classIndex]] ?? [];
+        // Process articles in classification order: A, B, C
+        foreach (self::CLASSIFICATION_ORDER as $classIndex => $class) {
+            $articles = $groupedArticles[$class] ?? [];
 
-            // Loop each article in this classification
             foreach ($articles as $article) {
                 if (!isset($articleStockData[$article->article_number])) {
                     $articleStockData[$article->article_number] = [
@@ -55,13 +55,15 @@ class StockOptimizationManager
 
                 $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
 
-                // Start looking at the stock places with the same classification, and continue downwards
-                for ($i = $classIndex;$i < count(self::CLASSIFICATION_ORDER);$i++) {
+                // Iterate from 0 to current classIndex to include higher-priority stock places
+                for ($i = 0;$i <= $classIndex;$i++) {
                     $stockPlaceClass = self::CLASSIFICATION_ORDER[$i];
-                    $stockPlaces = $groupedStockPlaces[self::CLASSIFICATION_ORDER[$i]] ?? [];
+                    $stockPlaces = $groupedStockPlaces[$stockPlaceClass] ?? [];
 
                     if (!$stockPlaces) continue;
 
+                    // Allow multiple placements in higher-priority stock places
+                    // Remove or adjust the following condition if necessary
                     if ($stockData['has_main_placement']
                         && ($stockPlaceClass == 'A' || $stockPlaceClass == 'B')) {
                         continue;
@@ -124,33 +126,20 @@ class StockOptimizationManager
                     // Fill remaining stock to new compartments
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            $debug = $stockPlace->identifier == 'A9';
-
-                            if ($compartment->stockItems->count()) { // Compartment is not empty
-                                if ($debug) {
-                                    $this->debug('A9 is not empty (' . $stockPlaceClass . ')');
-                                }
+                            if ($compartment->stockItems->count()) {
+                                // Compartment is not empty
                                 continue;
                             }
 
-                            if ($compartment->volume_class != $article->classification_volume) { // Wrong volume class
-                                if ($debug) {
-                                    $this->debug('A9 is wrong volume class (' . $stockPlaceClass . ')');
-                                }
+                            if ($compartment->volume_class != $article->classification_volume) {
+                                // Wrong volume class
                                 continue;
                             }
 
                             $compartmentCache = $this->movementCache[$compartment->id] ?? null;
                             if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
                                 // Another article is planed to moved to this compartment
-                                if ($debug) {
-                                    $this->debug('A9 has a movement (' . $stockPlaceClass . ')');
-                                }
                                 continue;
-                            }
-
-                            if ($debug) {
-                                $this->debug('A9 is correct choice (' . $stockPlaceClass . ')');
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
