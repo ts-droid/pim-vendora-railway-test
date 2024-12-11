@@ -95,7 +95,7 @@ class AppWarehouseController extends Controller
         return ApiResponseController::success();
     }
 
-    private function getArticleData(array $articleNumbers, bool $detailed)
+    private function getArticleData(array $articleNumbers, bool $detailed = false)
     {
         $articles = DB::table('articles')
             ->select('id', 'article_number', 'description', 'stock_on_hand AS stock')
