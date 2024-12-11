@@ -126,6 +126,8 @@ class StockOptimizationManager
                         foreach ($stockPlace->compartments as $compartment) {
                             if ($compartment->stockItems->count()) continue; // Compartment is not empty
 
+                            if ($compartment->volume_class != $article->classification_volume) continue; // Wrong volume class
+
                             $compartmentCache = $this->movementCache[$compartment->id] ?? null;
                             if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
                                 // Another article is planed to moved to this compartment
@@ -187,7 +189,7 @@ class StockOptimizationManager
     private function getGroupedArticles(): array
     {
         $articles = DB::table('articles')
-            ->select(['id', 'article_number', 'stock_on_hand AS stock', 'classification', 'width', 'depth', 'height'])
+            ->select(['id', 'article_number', 'stock_on_hand AS stock', 'classification', 'classification_volume', 'width', 'depth', 'height'])
             ->where('width', '>', 0)
             ->where('height', '>', 0)
             ->where('depth', '>', 0)
