@@ -85,7 +85,7 @@ class ClassifyArticles extends Command
 
         // Sort articles by sales volume
         usort($articleData, function ($a, $b) {
-            return $a['sales_volume'] < $b['sales_volume'];
+            return $a['unique_invoices'] < $b['unique_invoices'];
         });
 
         $classCounts = [
