@@ -73,7 +73,7 @@ class ClassifyArticles extends Command
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->selectRaw('SUM(customer_invoice_lines.quantity) as total_quantity, COUNT(DISTINCT customer_invoice_lines.customer_invoice_id) as unique_invoices')
                 ->where('customer_invoice_lines.article_number', '=', $articleNumber)
-                ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-60 days')))
+                ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-120 days')))
                 ->first();
 
             $articleData[] = [
