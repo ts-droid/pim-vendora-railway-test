@@ -95,6 +95,8 @@ class StockPlaceController extends Controller
                 return ApiResponseController::error('Template not found');
             }
 
+            $templateGroup = ((int) StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->max('template_group')) + 1;
+
             foreach ($template->data as $templateData) {
                 $compartmentsData[] = [
                     'volume_class' => $templateData['volume_class'],
@@ -105,6 +107,8 @@ class StockPlaceController extends Controller
                     'is_movable' => $templateData['is_movable'],
                     'is_walk_through' => $templateData['is_walk_through'],
                     'is_manual' => $templateData['is_manual'],
+                    'template_id' => $templateID,
+                    'template_group' => $templateGroup,
                 ];
             }
         }
