@@ -213,7 +213,7 @@ class StockPlaceController extends Controller
 
     private function pushTemplateToCompartments(CompartmentsTemplate $template)
     {
-        $compartments = StockPlaceCompartment::where('template_id', 6)
+        $compartments = StockPlaceCompartment::where('template_id', $template->id)
             ->orderBy('id', 'DESC')
             ->get();
 
