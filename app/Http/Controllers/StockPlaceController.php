@@ -218,7 +218,7 @@ class StockPlaceController extends Controller
     private function pushTemplateToCompartments(CompartmentsTemplate $template)
     {
         $compartments = StockPlaceCompartment::where('template_id', $template->id)
-            ->orderBy('id', 'DESC')
+            ->orderBy('id', 'ASC')
             ->get();
 
         $groupedCompartments = $compartments->groupBy('stock_place_id');
