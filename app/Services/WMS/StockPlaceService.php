@@ -27,6 +27,7 @@ class StockPlaceService
             'map_size_y' => (int) $data['map_size_y'],
             'color' => (string) ($data['color'] ?? '#878787'),
             'type' => (int) ($data['type'] ?? 1),
+            'is_active' => 0,
         ]);
 
         return array('success' => true, 'stockPlace' => $stockPlace);

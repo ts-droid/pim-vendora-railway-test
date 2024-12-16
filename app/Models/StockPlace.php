@@ -20,6 +20,7 @@ class StockPlace extends Model
         'color',
         'type',
         'template_id',
+        'is_active',
     ];
 
     public function compartments()

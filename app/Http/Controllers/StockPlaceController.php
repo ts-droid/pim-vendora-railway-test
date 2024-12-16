@@ -102,6 +102,7 @@ class StockPlaceController extends Controller
             'map_size_y',
             'color',
             'type',
+            'is_active',
         ));
 
         return ApiResponseController::success($stockPlace->toArray());

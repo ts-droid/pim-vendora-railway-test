@@ -183,7 +183,9 @@ class StockOptimizationManager
 
     private function getGroupedStockPlaces(): array
     {
-        $stockPlaces = StockPlace::where('type', '=', 1)->get();
+        $stockPlaces = StockPlace::where('type', '=', 1)
+            ->where('is_active', '=', 1)
+            ->get();
 
         $groupedStockPlaces = [];
 
