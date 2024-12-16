@@ -198,7 +198,7 @@ class StockPlaceController extends Controller
             }
         }
 
-        $data = $template->data;
+        $data = array_reverse($template->data);
 
         foreach ($template->data as $index => $templateCompartment) {
             if ($index != $stockPlaceCompartmentIndex) {
@@ -210,7 +210,7 @@ class StockPlaceController extends Controller
             }
         }
 
-        $template->update(['data' => $data]);
+        $template->update(['data' => array_reverse($data)]);
 
         //$this->pushTemplateToCompartments($template);
     }
