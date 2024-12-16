@@ -85,22 +85,47 @@ class StockPlaceController extends Controller
     public function storeStockPlaceCompartment(Request $request, StockPlace $stockPlace)
     {
         $stockPlaceService = new StockPlaceService();
-        $response = $stockPlaceService->createStockPlaceCompartment($stockPlace, $request->only(
-            'volume_class',
-            'width',
-            'height',
-            'depth',
-            'is_truck',
-            'is_movable',
-            'is_walk_through',
-            'is_manual',
-        ));
 
-        if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
+        $compartmentsData = [];
+
+        $templateID = $request->input('template_id');
+        if ($templateID) {
+            $template = CompartmentsTemplate::find($templateID);
+            if (!$template) {
+                return ApiResponseController::error('Template not found');
+            }
+
+            foreach ($template->data as $templateData) {
+                $compartmentsData[] = [
+                    'volume_class' => $templateData['volume_class'],
+                    'width' => $templateData['width'],
+                    'height' => $templateData['height'],
+                    'depth' => $templateData['depth'],
+                    'is_truck' => $templateData['is_truck'],
+                    'is_movable' => $templateData['is_movable'],
+                    'is_walk_through' => $templateData['is_walk_through'],
+                    'is_manual' => $templateData['is_manual'],
+                ];
+            }
+        }
+        else {
+            $compartmentsData[] = $request->only(
+                'volume_class',
+                'width',
+                'height',
+                'depth',
+                'is_truck',
+                'is_movable',
+                'is_walk_through',
+                'is_manual',
+            );
         }
 
-        return ApiResponseController::success($response['stockPlaceCompartment']->toArray());
+        foreach ($compartmentsData as $data) {
+            $stockPlaceService->createStockPlaceCompartment($stockPlace, $data);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function updateStockPlaceCompartment(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
