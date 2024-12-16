@@ -4,7 +4,6 @@ namespace App\Services\WMS;
 
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
-use App\Models\StockPlaceTemplate;
 
 class StockPlaceService
 {
@@ -42,8 +41,6 @@ class StockPlaceService
         }
 
         $stockPlace->update($data);
-
-        $this->pushToTemplate($stockPlace);
 
         return $stockPlace;
     }
@@ -106,8 +103,6 @@ class StockPlaceService
     {
         $stockPlaceCompartment->update($data);
 
-        $this->pushToTemplate($stockPlaceCompartment->stockPlace);
-
         return $stockPlaceCompartment;
     }
 
@@ -123,130 +118,5 @@ class StockPlaceService
         $stockPlaceCompartment->delete();
 
         return ['success' => true];
-    }
-
-    public function createStockPlaceTemplate(StockPlace $stockPlace, string $name): StockPlaceTemplate
-    {
-        $stockPlaceTemplate = StockPlaceTemplate::create([
-            'name' => $name,
-            'stock_place' => $stockPlace->toArray(),
-            'stock_place_compartments' => $stockPlace->compartments->toArray()
-        ]);
-
-        $stockPlace->update(['template_id' => $stockPlaceTemplate->id]);
-
-        return $stockPlaceTemplate;
-    }
-
-    public function copyStockPlaceTemplate(StockPlaceTemplate $stockPlaceTemplate, string $identifier, int $positionX, int $positionY): array
-    {
-        // First create the stock place
-        $stockPlaceData = $stockPlaceTemplate->stock_place;
-
-        $stockPlaceData['identifier'] = $identifier;
-        $stockPlaceData['map_position_x'] = $positionX;
-        $stockPlaceData['map_position_y'] = $positionY;
-
-        unset($stockPlaceData['id']);
-        unset($stockPlaceData['created_at']);
-        unset($stockPlaceData['updated_at']);
-
-        $response = $this->createStockPlace($stockPlaceData);
-        if (!$response['success']) {
-            return $response;
-        }
-
-        $stockPlace = $response['stockPlace'];
-        $stockPlace->update(['template_id' => $stockPlaceTemplate->id]);
-
-        // Then create the compartments
-        $compartments = $stockPlaceTemplate->stock_place_compartments ?: [];
-
-        if ($compartments) {
-            $compartments = array_reverse($compartments);
-
-            for ($i = 1;$i <= count($compartments);$i++) {
-                $compartmentData = $compartments[$i - 1];
-
-                $compartmentData['identifier'] = $i;
-
-                unset($compartmentData['id']);
-                unset($compartmentData['stock_place_id']);
-                unset($compartmentData['created_at']);
-                unset($compartmentData['updated_at']);
-
-                $this->createStockPlaceCompartment($stockPlace, $compartmentData);
-            }
-        }
-
-        return [
-            'success' => true,
-            'stockPlace' => $stockPlace
-        ];
-    }
-
-    private function pushToTemplate(StockPlace $stockPlace)
-    {
-        if (!$stockPlace->template_id) {
-            return;
-        }
-
-        $template = StockPlaceTemplate::find($stockPlace->template_id);
-        if (!$template) {
-            return;
-        }
-
-        $stockPlace = StockPlace::find($stockPlace->id);
-
-        $template->update([
-            'stock_place' => $stockPlace->toArray(),
-            'stock_place_compartments' => $stockPlace->compartments->toArray()
-        ]);
-
-        $siblings = StockPlace::where('template_id', $template->id)
-            ->where('id', '!=', $stockPlace->id)
-            ->get();
-
-        if ($siblings) {
-            foreach ($siblings as $sibling) {
-                $this->pushTemplateToStockPlace($template, $sibling);
-            }
-        }
-    }
-
-    private function pushTemplateToStockPlace(StockPlaceTemplate $template, StockPlace $stockPlace)
-    {
-        // Update the stock place
-        $stockPlaceData = $template->stock_place;
-
-        unset($stockPlaceData['id']);
-        unset($stockPlaceData['created_at']);
-        unset($stockPlaceData['updated_at']);
-        unset($stockPlaceData['identifier']);
-        unset($stockPlaceData['map_position_x']);
-        unset($stockPlaceData['map_position_y']);
-
-        $stockPlace->update($stockPlaceData);
-
-        // Update compartments
-        $templateCompartments = $template->stock_place_compartments ?: [];
-
-        foreach ($templateCompartments as $templateCompartment) {
-            $stockPlaceCompartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
-                ->where('identifier', $templateCompartment['identifier'])
-                ->first();
-
-            if (!$stockPlaceCompartment) {
-                continue;
-            }
-
-            unset($templateCompartment['id']);
-            unset($templateCompartment['identifier']);
-            unset($templateCompartment['stock_place_id']);
-            unset($templateCompartment['created_at']);
-            unset($templateCompartment['updated_at']);
-
-            $stockPlaceCompartment->update($templateCompartment);
-        }
     }
 }
