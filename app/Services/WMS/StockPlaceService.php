@@ -93,7 +93,9 @@ class StockPlaceService
             'is_truck' => (int) ($data['is_truck'] ?? 0),
             'is_movable' => (int) ($data['is_movable'] ?? 0),
             'is_walk_through' => (int) ($data['is_walk_through'] ?? 0),
-            'is_manual' => (int) ($data['is_manual'] ?? 0)
+            'is_manual' => (int) ($data['is_manual'] ?? 0),
+            'template_id' => (int) ($data['template_id'] ?? 0),
+            'template_group' => (int) ($data['template_group'] ?? 0),
         ]);
 
         return array('success' => true, 'stockPlaceCompartment' => $stockPlaceCompartment);
