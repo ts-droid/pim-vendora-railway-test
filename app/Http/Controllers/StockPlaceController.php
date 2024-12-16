@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompartmentsTemplate;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Services\WMS\StockPlaceService;
@@ -129,5 +130,12 @@ class StockPlaceController extends Controller
         }
 
         return ApiResponseController::success();
+    }
+
+    public function getCompartmentTemplates()
+    {
+        $templates = CompartmentsTemplate::orderBy('name', 'ASC')->get();
+
+        return ApiResponseController::success($templates->toArray());
     }
 }
