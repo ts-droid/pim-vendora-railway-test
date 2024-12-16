@@ -194,17 +194,19 @@ class StockPlaceController extends Controller
             }
         }
 
+        $data = $template->data;
+
         foreach ($template->data as $index => $templateCompartment) {
             if ($index != $stockPlaceCompartmentIndex) {
                 continue;
             }
 
             foreach (CompartmentsTemplate::TEMPLATE_COLUMNS as $column) {
-                $template->data[$index][$column] = $stockPlaceCompartment->{$column};
+                $data[$index][$column] = $stockPlaceCompartment->{$column};
             }
         }
 
-        $template->update(['data' => $template->data]);
+        $template->update(['data' => $data]);
 
         $this->pushTemplateToCompartments($template);
     }
