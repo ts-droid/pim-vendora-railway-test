@@ -24,7 +24,7 @@ return new class extends Migration
                 [
                     'volume_class' => 'C',
                     'width' => 79.5,
-                    'height' => 95,
+                    'height' => 78,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
@@ -34,7 +34,7 @@ return new class extends Migration
                 [
                     'volume_class' => 'C',
                     'width' => 79.5,
-                    'height' => 78,
+                    'height' => 95,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
@@ -48,9 +48,9 @@ return new class extends Migration
             'name' => 'VN-SHELF-03',
             'data' => [
                 [
-                    'volume_class' => 'A',
+                    'volume_class' => 'C',
                     'width' => 79.5,
-                    'height' => 24.5,
+                    'height' => 78,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
@@ -68,9 +68,9 @@ return new class extends Migration
                     'is_manual' => 0
                 ],
                 [
-                    'volume_class' => 'C',
+                    'volume_class' => 'A',
                     'width' => 79.5,
-                    'height' => 78,
+                    'height' => 24.5,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
@@ -84,19 +84,9 @@ return new class extends Migration
             'name' => 'VN-SHELF-04',
             'data' => [
                 [
-                    'volume_class' => 'A',
+                    'volume_class' => 'C',
                     'width' => 79.5,
-                    'height' => 24.5,
-                    'depth' => 113,
-                    'is_truck' => 0,
-                    'is_movable' => 1,
-                    'is_walk_through' => 0,
-                    'is_manual' => 0
-                ],
-                [
-                    'volume_class' => 'A',
-                    'width' => 79.5,
-                    'height' => 28,
+                    'height' => 78,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
@@ -114,9 +104,19 @@ return new class extends Migration
                     'is_manual' => 0
                 ],
                 [
-                    'volume_class' => 'C',
+                    'volume_class' => 'A',
                     'width' => 79.5,
-                    'height' => 78,
+                    'height' => 28,
+                    'depth' => 113,
+                    'is_truck' => 0,
+                    'is_movable' => 1,
+                    'is_walk_through' => 0,
+                    'is_manual' => 0
+                ],
+                [
+                    'volume_class' => 'A',
+                    'width' => 79.5,
+                    'height' => 24.5,
                     'depth' => 113,
                     'is_truck' => 0,
                     'is_movable' => 1,
