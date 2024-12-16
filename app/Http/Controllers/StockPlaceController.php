@@ -212,7 +212,7 @@ class StockPlaceController extends Controller
 
         $template->update(['data' => $data]);
 
-        $this->pushTemplateToCompartments($template);
+        //$this->pushTemplateToCompartments($template);
     }
 
     private function pushTemplateToCompartments(CompartmentsTemplate $template)
