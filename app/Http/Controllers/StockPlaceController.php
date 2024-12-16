@@ -186,7 +186,7 @@ class StockPlaceController extends Controller
         }
 
         $stockPlaceCompartmentIndex = 0;
-        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlaceCompartment->id)
+        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlaceCompartment->stock_place_id)
             ->where('template_group', $stockPlaceCompartment->template_group)
             ->orderBy('id', 'DESC')
             ->get();
