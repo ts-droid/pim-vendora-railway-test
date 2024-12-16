@@ -184,7 +184,7 @@ class StockPlaceController extends Controller
         $stockPlaceCompartmentIndex = 0;
         $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlaceCompartment->id)
             ->where('template_group', $stockPlaceCompartment->template_group)
-            ->orderBy('id', 'ASC')
+            ->orderBy('id', 'DESC')
             ->get();
 
         foreach ($compartments as $index => $compartment) {
@@ -214,7 +214,7 @@ class StockPlaceController extends Controller
     private function pushTemplateToCompartments(CompartmentsTemplate $template)
     {
         $compartments = StockPlaceCompartment::where('template_id', 6)
-            ->orderBy('id', 'ASC')
+            ->orderBy('id', 'DESC')
             ->get();
 
         $groupedCompartments = $compartments->groupBy('stock_place_id');
