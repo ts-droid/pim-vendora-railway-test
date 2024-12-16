@@ -146,6 +146,8 @@ class StockPlaceController extends Controller
             'is_manual',
         ));
 
+        $this->pushCompartmentToTemplate($stockPlaceCompartment);
+
         return ApiResponseController::success($stockPlaceCompartment->toArray());
     }
 
@@ -166,5 +168,73 @@ class StockPlaceController extends Controller
         $templates = CompartmentsTemplate::orderBy('name', 'ASC')->get();
 
         return ApiResponseController::success($templates->toArray());
+    }
+
+    private function pushCompartmentToTemplate(StockPlaceCompartment $stockPlaceCompartment)
+    {
+        if (!$stockPlaceCompartment->template_id) {
+            return;
+        }
+
+        $template = CompartmentsTemplate::find($stockPlaceCompartment->template_id);
+        if (!$template) {
+            return;
+        }
+
+        $stockPlaceCompartmentIndex = 0;
+        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlaceCompartment->id)
+            ->where('template_group', $stockPlaceCompartment->template_group)
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        foreach ($compartments as $index => $compartment) {
+            if ($compartment->id == $stockPlaceCompartment->id) {
+                $stockPlaceCompartmentIndex = $index;
+                break;
+            }
+        }
+
+        foreach ($template->data as $index => $templateCompartment) {
+            if ($index != $stockPlaceCompartmentIndex) {
+                continue;
+            }
+
+            foreach (CompartmentsTemplate::TEMPLATE_COLUMNS as $column) {
+                $template->data[$index][$column] = $stockPlaceCompartment->{$column};
+            }
+        }
+
+        $template->update(['data' => $template->data]);
+
+        $this->pushTemplateToCompartments($template);
+    }
+
+    private function pushTemplateToCompartments(CompartmentsTemplate $template)
+    {
+        $compartments = StockPlaceCompartment::where('template_id', 6)
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        $groupedCompartments = $compartments->groupBy('stock_place_id');
+
+        foreach($groupedCompartments as $index => $compartments) {
+            $groupedCompartments[$index] = $compartments->groupBy('template_group');
+        }
+
+        foreach ($groupedCompartments as $stockPlaceCompartments) {
+            foreach ($stockPlaceCompartments as $groupCompartments) {
+                for ($i = 0;$i < count($groupCompartments);$i++) {
+                    $groupCompartment = $groupCompartments[$i];
+                    $templateCompartment = $template->data[$i];
+
+                    $updateData = [];
+                    foreach (CompartmentsTemplate::TEMPLATE_COLUMNS as $column) {
+                        $updateData[$column] = $templateCompartment[$column];
+                    }
+
+                    $groupCompartment->update($updateData);
+                }
+            }
+        }
     }
 }

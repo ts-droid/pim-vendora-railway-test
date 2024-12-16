@@ -17,4 +17,15 @@ class CompartmentsTemplate extends Model
     protected $casts = [
         'data' => 'array'
     ];
+
+    const TEMPLATE_COLUMNS = [
+        'volume_class',
+        'width',
+        'height',
+        'depth',
+        'is_truck',
+        'is_movable',
+        'is_walk_through',
+        'is_manual',
+    ];
 }
