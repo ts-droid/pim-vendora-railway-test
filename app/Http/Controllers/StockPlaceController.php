@@ -69,10 +69,10 @@ class StockPlaceController extends Controller
         if (!$identifier) {
             return ApiResponseController::error('Identifier is required');
         }
-        if (!$mapPositionX) {
+        if ($mapPositionX >= 0) {
             return ApiResponseController::error('X position is required');
         }
-        if (!$mapPositionY) {
+        if ($mapPositionY >= 0) {
             return ApiResponseController::error('Y position is required');
         }
 
