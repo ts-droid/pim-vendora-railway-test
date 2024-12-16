@@ -20,6 +20,8 @@ class StockPlaceCompartment extends Model
         'is_movable',
         'is_walk_through',
         'is_manual',
+        'template_id',
+        'template_group'
     ];
 
     public function stockPlace()
