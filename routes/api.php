@@ -33,6 +33,7 @@ use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockLogController;
+use App\Http\Controllers\StockOptimizationController;
 use App\Http\Controllers\StockPlaceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPriceController;
@@ -74,6 +75,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/stock-places/{stockPlace}/compartments', [StockPlaceController::class, 'storeStockPlaceCompartment']);
         Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}', [StockPlaceController::class, 'updateStockPlaceCompartment']);
         Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}/delete', [StockPlaceController::class, 'deleteStockPlaceCompartment']);
+
+        Route::post('/optimization-stock', [StockOptimizationController::class, 'optimizeStock']);
     });
 
     Route::prefix('/commands')->group(function() {
