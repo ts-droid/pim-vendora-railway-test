@@ -206,8 +206,6 @@ class StockOptimizationManager
                     0,
                     $quantity
                 );
-
-                StockPlaceCompartment::where('id', $compartmentID)->update(['unleash' => 0]);
             }
         }
     }
