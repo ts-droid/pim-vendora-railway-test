@@ -76,6 +76,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}', [StockPlaceController::class, 'updateStockPlaceCompartment']);
         Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}/delete', [StockPlaceController::class, 'deleteStockPlaceCompartment']);
 
+        Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}/section', [StockPlaceController::class, 'storeCompartmentSection']);
+        Route::post('/stock-places/{stockPlace}/compartments/{stockPlaceCompartment}/section/{compartmentSection}/delete', [StockPlaceController::class, 'deleteCompartmentSection']);
+
         Route::post('/optimization-stock', [StockOptimizationController::class, 'optimizeStock']);
     });
 

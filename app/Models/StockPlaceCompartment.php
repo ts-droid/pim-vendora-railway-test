@@ -35,6 +35,11 @@ class StockPlaceCompartment extends Model
         return $this->hasMany(StockItem::class);
     }
 
+    public function compartmentSections()
+    {
+        return $this->hasMany(CompartmentSection::class);
+    }
+
     public function is_reserved()
     {
         return StockPlaceCompartmentReservation::where('stock_place_compartment_id', $this->id)

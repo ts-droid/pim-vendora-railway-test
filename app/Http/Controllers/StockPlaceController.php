@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompartmentSection;
 use App\Models\CompartmentsTemplate;
+use App\Models\StockItem;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Services\WMS\StockPlaceService;
@@ -173,6 +175,26 @@ class StockPlaceController extends Controller
         $templates = CompartmentsTemplate::orderBy('name', 'ASC')->get();
 
         return ApiResponseController::success($templates->toArray());
+    }
+
+    public function storeCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
+    {
+        $compartmentSection = CompartmentSection::create([
+            'stock_place_compartment_id' => $stockPlaceCompartment->id
+        ]);
+
+        return ApiResponseController::success($compartmentSection->toArray());
+    }
+
+    public function deleteCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection $compartmentSection)
+    {
+        // Remove section from all stock items
+        StockItem::where('compartment_section_id', $compartmentSection->id)
+            ->update(['compartment_section_id' => 0]);
+
+        $compartmentSection->delete();
+
+        return ApiResponseController::success();
     }
 
     private function pushCompartmentToTemplate(StockPlaceCompartment $stockPlaceCompartment)
