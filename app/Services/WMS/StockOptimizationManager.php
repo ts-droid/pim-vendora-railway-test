@@ -2,6 +2,7 @@
 
 namespace App\Services\WMS;
 
+use App\Http\Controllers\ConfigController;
 use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
@@ -14,9 +15,19 @@ class StockOptimizationManager
 
     const MAX_FILL = 0.7;               // Fill compartments to max 70% of its volume
     const REFILL_THRESHOLD = 0.5;       // Refill a compartment when occupied volume is below 50%
-    const MAX_PER_COMPARTMENT = 100;    // Place max 100 items in a compartment
+
+    private array $config;
 
     private $movementCache = [];
+
+    public function __construct()
+    {
+        $this->config = [
+            'max_quantity_A' => ConfigController::getConfig('max_quantity_class_size_a', 100),
+            'max_quantity_B' => ConfigController::getConfig('max_quantity_class_size_b', 100),
+            'max_quantity_C' => ConfigController::getConfig('max_quantity_class_size_c', 100),
+        ];
+    }
 
     public function optimize(): void
     {
@@ -100,7 +111,7 @@ class StockOptimizationManager
 
                             // This article is hosted here, check if it is time to refill
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * self::MAX_PER_COMPARTMENT));
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $stockPlaceClass]));
 
                             $occupiedVolume = $articleVolume * $stockItemCount;
                             $freeVolume = $maxVolume - $occupiedVolume;
@@ -153,7 +164,7 @@ class StockOptimizationManager
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * self::MAX_PER_COMPARTMENT));
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $stockPlaceClass]));
 
                             $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
                             $freeVolume = $maxVolume - $occupiedVolume;
