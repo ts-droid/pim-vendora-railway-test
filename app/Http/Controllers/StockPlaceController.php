@@ -14,7 +14,7 @@ class StockPlaceController extends Controller
 {
     public function getStockPlaces(Request $request)
     {
-        $stockPlaces = StockPlace::with('compartments')->get();
+        $stockPlaces = StockPlace::with('compartments', 'compartments.sections')->get();
 
         $stockPlacesArray = [];
         foreach ($stockPlaces as $stockPlace) {
