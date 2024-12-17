@@ -115,11 +115,10 @@ class StockOptimizationManager
                             // This article is hosted here, check if it is time to refill
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                             $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                            $maxArticles = floor($maxVolume / $articleVolume);
 
                             $occupiedVolume = $articleVolume * $stockItemCount;
                             $freeVolume = $maxVolume - $occupiedVolume;
-
-                            if ($occupiedVolume > self::REFILL_THRESHOLD) continue; // No need to refill, volume is not below 40%
 
                             // Refill the compartment
                             $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
@@ -128,10 +127,17 @@ class StockOptimizationManager
                             $refillCount = min($refillCount, $stockLeftToMove);
 
                             if ($multiIntelligence) {
+                                $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
+
                                 $intelligenceCount = $this->getArticleSales($article->article_number);
                                 $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
 
-                                $refillCount = min($intelligenceRefill, $stockLeftToMove);
+                                $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
+                            }
+                            else {
+                                if ($occupiedVolume > self::REFILL_THRESHOLD) {
+                                    continue; // No need to refill, volume is not below threshold
+                                }
                             }
 
                             $refillCount = $this->roundQuantity($refillCount);
@@ -178,6 +184,7 @@ class StockOptimizationManager
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                             $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                            $maxArticles = floor($maxVolume / $articleVolume);
 
                             $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
                             $freeVolume = $maxVolume - $occupiedVolume;
@@ -192,6 +199,7 @@ class StockOptimizationManager
                                 $fillCount = min($intelligenceCount, $stockLeftToMove);
                             }
 
+                            $fillCount = min($fillCount, $maxArticles);
                             $fillCount = $this->roundQuantity($fillCount);
 
                             if (!$fillCount) continue;
