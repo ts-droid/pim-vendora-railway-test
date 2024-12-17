@@ -87,7 +87,7 @@ class StockOptimizationManager
                     // Look for refills
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            if ($compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
+                            if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
                                 continue;
                             }
 
@@ -134,7 +134,7 @@ class StockOptimizationManager
                     // Fill remaining stock to new compartments
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            if ($compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
+                            if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
                                 continue;
                             }
 
@@ -214,7 +214,6 @@ class StockOptimizationManager
     {
         $stockPlaces = StockPlace::where('type', '=', 1)
             ->where('is_active', '=', 1)
-            ->where('is_manual', '=', 0)
             ->get();
 
         $groupedStockPlaces = [];
