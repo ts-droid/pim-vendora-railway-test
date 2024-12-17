@@ -21,7 +21,8 @@ class StockPlaceCompartment extends Model
         'is_walk_through',
         'is_manual',
         'template_id',
-        'template_group'
+        'template_group',
+        'unleash',
     ];
 
     public function stockPlace()

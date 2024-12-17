@@ -2,6 +2,7 @@
 
 namespace App\Services\WMS;
 
+use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,8 @@ class StockOptimizationManager
 
         $groupedStockPlaces = $this->getGroupedStockPlaces();
         $groupedArticles = $this->getGroupedArticles();
+
+        $unleashCompartmentIDs = $this->clearUnleashStatus($groupedStockPlaces);
 
         $articleStockData = [];
 
@@ -83,7 +86,7 @@ class StockOptimizationManager
                     // Look for refills
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            if ($compartment->is_reserved()) {
+                            if ($compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
                                 continue;
                             }
 
@@ -130,7 +133,7 @@ class StockOptimizationManager
                     // Fill remaining stock to new compartments
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
-                            if ($compartment->is_reserved()) {
+                            if ($compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
                                 continue;
                             }
 
@@ -179,12 +182,38 @@ class StockOptimizationManager
                 }
             }
         }
+
+        // Unleash items from stock places
+        foreach ($unleashCompartmentIDs as $compartmentID) {
+            $stockItems = StockItem::where('stock_place_compartment_id', $compartmentID)->get();
+
+            if (!$stockItems) continue;
+
+            $groupedStockItems = [];
+            foreach ($stockItems as $stockItem) {
+                if (!isset($groupedStockItems[$stockItem->article_number])) {
+                    $groupedStockItems[$stockItem->article_number] = 0;
+                }
+
+                $groupedStockItems[$stockItem->article_number]++;
+            }
+
+            foreach ($groupedStockItems as $articleNumber => $quantity) {
+                $this->makeStockMovement(
+                    $articleNumber,
+                    $compartmentID,
+                    0,
+                    $quantity
+                );
+            }
+        }
     }
 
     private function getGroupedStockPlaces(): array
     {
         $stockPlaces = StockPlace::where('type', '=', 1)
             ->where('is_active', '=', 1)
+            ->where('is_manual', '=', 0)
             ->get();
 
         $groupedStockPlaces = [];
@@ -257,6 +286,29 @@ class StockOptimizationManager
         }
 
         $this->movementCache[$stockItemMovement->to_stock_place_compartment]['quantity'] += $stockItemMovement->quantity;
+    }
+
+    private function clearUnleashStatus($groupedStockPlaces)
+    {
+        $unleashCompartmentIDs = [];
+
+        // Clear unleash status for empty stock places
+        foreach ($groupedStockPlaces as $stockPlaces) {
+            foreach ($stockPlaces as $stockPlace) {
+                foreach ($stockPlace->compartments as $compartment) {
+                    if (!$compartment->unleash) continue;
+
+                    if ($compartment->stockItems->count()) {
+                        $unleashCompartmentIDs[] = $compartment->id;
+                    }
+                    else {
+                        $compartment->update(['unleash' => 0]);
+                    }
+                }
+            }
+        }
+
+        return $unleashCompartmentIDs;
     }
 
     private function roundQuantity(int $quantity): int
