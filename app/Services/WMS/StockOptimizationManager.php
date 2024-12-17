@@ -111,7 +111,7 @@ class StockOptimizationManager
 
                             // This article is hosted here, check if it is time to refill
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $stockPlaceClass]));
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
 
                             $occupiedVolume = $articleVolume * $stockItemCount;
                             $freeVolume = $maxVolume - $occupiedVolume;
@@ -164,7 +164,7 @@ class StockOptimizationManager
                             }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $stockPlaceClass]));
+                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
 
                             $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
                             $freeVolume = $maxVolume - $occupiedVolume;
