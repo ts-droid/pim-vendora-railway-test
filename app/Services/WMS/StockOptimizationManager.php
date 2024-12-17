@@ -26,6 +26,7 @@ class StockOptimizationManager
             'max_quantity_A' => ConfigController::getConfig('max_quantity_class_size_a', 100),
             'max_quantity_B' => ConfigController::getConfig('max_quantity_class_size_b', 100),
             'max_quantity_C' => ConfigController::getConfig('max_quantity_class_size_c', 100),
+            'wms_multi_intelligence' => ConfigController::getConfig('wms_multi_intelligence', 0),
         ];
     }
 
@@ -50,6 +51,8 @@ class StockOptimizationManager
         $groupedArticles = $this->getGroupedArticles();
 
         $unleashCompartmentIDs = $this->clearUnleashStatus($groupedStockPlaces);
+
+        $multiIntelligence = $this->config['wms_multi_intelligence'];
 
         $articleStockData = [];
 
@@ -119,8 +122,18 @@ class StockOptimizationManager
                             if ($occupiedVolume > self::REFILL_THRESHOLD) continue; // No need to refill, volume is not below 40%
 
                             // Refill the compartment
+                            $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
+
                             $refillCount = floor($freeVolume / $articleVolume);
-                            $refillCount = min($refillCount, ($stockData['stock'] - $stockData['managedStock']));
+                            $refillCount = min($refillCount, $stockLeftToMove);
+
+                            if ($multiIntelligence) {
+                                $intelligenceCount = $this->getArticleSales($article->article_number);
+                                $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
+
+                                $refillCount = min($intelligenceRefill, $stockLeftToMove);
+                            }
+
                             $refillCount = $this->roundQuantity($refillCount);
 
                             if (!$refillCount) continue; // Not items found to refill with
@@ -169,8 +182,16 @@ class StockOptimizationManager
                             $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
                             $freeVolume = $maxVolume - $occupiedVolume;
 
+                            $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
+
                             $fillCount = floor($freeVolume / $articleVolume);
-                            $fillCount = min($fillCount, ($stockData['stock'] - $stockData['managedStock']));
+                            $fillCount = min($fillCount, $stockLeftToMove);
+
+                            if ($multiIntelligence) {
+                                $intelligenceCount = $this->getArticleSales($article->article_number);
+                                $fillCount = min($intelligenceCount, $stockLeftToMove);
+                            }
+
                             $fillCount = $this->roundQuantity($fillCount);
 
                             if (!$fillCount) continue;
@@ -322,13 +343,23 @@ class StockOptimizationManager
         return $unleashCompartmentIDs;
     }
 
+    private function getArticleSales(string $articleNumber, int $days = 7)
+    {
+        $totalSalesQuantity = DB::table('customer_invoice_lines')
+            ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+            ->selectRaw('SUM(customer_invoice_lines.quantity) as total_quantity')
+            ->where('customer_invoice_lines.article_number', '=', $articleNumber)
+            ->where('customer_invoices.date', '>=', date('Y-m-d H:i:s', strtotime('-120 days')))
+            ->pluck('total_quantity')
+            ->first();
+
+        $weeklySalesQuantity = $totalSalesQuantity / (120 / $days);
+
+        return floor($weeklySalesQuantity * 1.1); // Add 10% margin
+    }
+
     private function roundQuantity(int $quantity): int
     {
         return floor($quantity / 5) * 5;
-    }
-
-    private function debug(string $string)
-    {
-        echo $string . PHP_EOL;
     }
 }
