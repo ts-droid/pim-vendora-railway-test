@@ -35,9 +35,9 @@ class StockPlaceCompartment extends Model
         return $this->hasMany(StockItem::class);
     }
 
-    public function compartmentSections()
+    public function sections()
     {
-        return $this->hasMany(CompartmentSection::class);
+        return $this->hasMany(CompartmentSection::class)->orderBy('id', 'ASC');
     }
 
     public function is_reserved()

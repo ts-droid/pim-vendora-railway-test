@@ -29,7 +29,7 @@ class StockPlaceController extends Controller
 
     public function getStockPlace(Request $request, StockPlace $stockPlace)
     {
-        $stockPlace->load('compartments');
+        $stockPlace->load('compartments', 'compartments.sections');
 
         $stockPlaceArray = $stockPlace->toArray();
         $stockPlaceArray['is_walk_through'] = $stockPlace->is_walk_through();
