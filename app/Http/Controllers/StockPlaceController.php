@@ -144,6 +144,7 @@ class StockPlaceController extends Controller
             'is_movable',
             'is_walk_through',
             'is_manual',
+            'unleash',
         ));
 
         $this->pushCompartmentToTemplate($stockPlaceCompartment);
