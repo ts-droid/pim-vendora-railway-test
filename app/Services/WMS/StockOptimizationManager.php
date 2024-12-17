@@ -5,6 +5,7 @@ namespace App\Services\WMS;
 use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
 use Illuminate\Support\Facades\DB;
 
 class StockOptimizationManager
@@ -205,6 +206,8 @@ class StockOptimizationManager
                     0,
                     $quantity
                 );
+
+                StockPlaceCompartment::where('id', $compartmentID)->update(['unleash' => 0]);
             }
         }
     }
