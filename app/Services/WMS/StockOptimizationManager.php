@@ -149,7 +149,8 @@ class StockOptimizationManager
                                 $article->article_number,
                                 0,
                                 $compartment->id,
-                                $refillCount
+                                $refillCount,
+                                'refill'
                             );
 
                             $stockData['managedStock'] += $refillCount;
@@ -209,7 +210,8 @@ class StockOptimizationManager
                                 $article->article_number,
                                 0,
                                 $compartment->id,
-                                $fillCount
+                                $fillCount,
+                                'organization'
                             );
 
                             $stockData['managedStock'] += $fillCount;
@@ -244,7 +246,8 @@ class StockOptimizationManager
                     $articleNumber,
                     $compartmentID,
                     0,
-                    $quantity
+                    $quantity,
+                    'unleash'
                 );
             }
         }
@@ -304,9 +307,10 @@ class StockOptimizationManager
         };
     }
 
-    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity): void
+    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
     {
         $stockItemMovement = StockItemMovement::create([
+            'type' => $type,
             'article_number' => $articleNumber,
             'from_stock_place_compartment' => $fromStockPlaceCompartmentID,
             'to_stock_place_compartment' => $toStockPlaceCompartmentID,
