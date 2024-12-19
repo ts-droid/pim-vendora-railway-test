@@ -38,6 +38,7 @@ Route::prefix('/app')->group(function() {
 
         Route::prefix('/warehouse')->group(function() {
             Route::get('/movements', [AppWarehouseController::class, 'getMovements']);
+            Route::post('/movements', [AppWarehouseController::class, 'createMovement']);
             Route::get('/movements/{stockItemMovement}', [AppWarehouseController::class, 'getMovement']);
             Route::post('/movements/{stockItemMovement}/ping', [AppWarehouseController::class, 'pingMovement']);
             Route::post('/movements/{stockItemMovement}/unping', [AppWarehouseController::class, 'unpingMovement']);
