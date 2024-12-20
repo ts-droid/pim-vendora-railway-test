@@ -203,7 +203,7 @@ class StockOptimizationManager
 
                                 $stockItems = $section ? $section->stockItems : $compartment->stockItems;
 
-                                if (!$stockItems->count()) {
+                                if ($stockItems->count()) {
                                     continue;
                                 }
 
