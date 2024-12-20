@@ -7,8 +7,12 @@ use App\Jobs\CompleteWgrOrder;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
+use App\Models\StockItem;
+use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
 use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetShipmentService;
+use App\Services\WMS\StockItemService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -130,7 +134,8 @@ class AppShipmentController extends Controller
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
                 $investigationComment = $line['investigation_comment'] ?? '';
-                $sound = $request->file('sound_' . $lineID); // TODO: Process and save sound
+
+                $sound = $request->file('sound_' . $lineID);
 
                 $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
                     ->where('id', '=', $lineID)
@@ -169,6 +174,63 @@ class AppShipmentController extends Controller
             ]);
         }
         else {
+            // Make stock movements
+            if ($lines && is_array($lines)) {
+                foreach ($lines as $line) {
+                    $lineID = $line['id'] ?? 0;
+                    $quantity = $line['quantity'] ?? 0;
+                    $pickingLocations = $line['picking_locations'] ?? ['--'];
+
+                    $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
+                        ->where('id', '=', $lineID)
+                        ->first();
+
+                    if (!$shipmentLine) continue;
+
+                    $stockItemService = new StockItemService();
+
+                    $movedQuantity = 0;
+                    foreach ($pickingLocations as $pickingLocation) {
+                        if ($pickingLocation === '--') {
+                            continue;
+                        }
+
+                        $pickingLocationData = explode(':', $pickingLocation);
+
+                        $stockPlace = StockPlace::where('identifier', ($pickingLocationData[0] ?? ''))->first();
+                        if (!$stockPlace) {
+                            return ApiResponseController::error('Could not find stock place.');
+                        }
+
+                        $compartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+                            ->where('identifier', ($pickingLocationData[1] ?? ''))
+                            ->first();
+                        if (!$compartment) {
+                            return ApiResponseController::error('Could not find compartment.');
+                        }
+
+                        $stockItems = StockItem::where('stock_place_compartment_id', $compartment->id)
+                            ->where('compartment_section_id', $compartment->id)
+                            ->where('article_number', $shipmentLine->article_number)
+                            ->get();
+
+                        if (!$stockItems) {
+                            continue;
+                        }
+
+                        $itemsToMove = min($stockItems->count(), ($quantity - $movedQuantity));
+
+                        $stockItems = $stockItems->take($itemsToMove);
+
+                        foreach ($stockItems as $stockItem) {
+                            $stockItemService->removeStockItem($stockItem);
+                        }
+
+                        $movedQuantity += $itemsToMove;
+                    }
+                }
+            }
+
             // Mark as picked
             $shipment->update([
                 'pick_signature' => $displayName,
