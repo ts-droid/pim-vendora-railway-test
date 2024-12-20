@@ -220,8 +220,8 @@ class AppWarehouseController extends Controller
                 // Insert the item to the new compartment
                 $response = $stockItemService->addStockItem(
                     $stockItemMovement->article_number,
-                    $stockItemMovement->toStockPlaceCompartment,
                     $stockItemMovement->quantity,
+                    $stockItemMovement->toStockPlaceCompartment,
                     $stockItemMovement->toCompartmentSection ?: null,
                 );
             }
