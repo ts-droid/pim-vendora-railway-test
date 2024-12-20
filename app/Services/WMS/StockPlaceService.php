@@ -2,6 +2,7 @@
 
 namespace App\Services\WMS;
 
+use App\Models\CompartmentSection;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 
@@ -51,6 +52,12 @@ class StockPlaceService
             foreach ($stockPlace->compartments as $compartment) {
                 if ($compartment->stockItems()->exists()) {
                     return array('success' => false, 'message' => 'Stock place is not empty');
+                }
+
+                foreach ($compartment->sections as $section) {
+                    if ($section->stockItems()->exists()) {
+                        return array('success' => false, 'message' => 'Stock place is not empty');
+                    }
                 }
             }
 
@@ -115,6 +122,19 @@ class StockPlaceService
                 'success' => false,
                 'message' => 'Stock compartment is not empty'
             ];
+        }
+
+        foreach ($stockPlaceCompartment->sections as $section) {
+            if ($section->stockItems()->exists()) {
+                return [
+                    'success' => false,
+                    'message' => 'Section is not empty'
+                ];
+            }
+        }
+
+        foreach ($stockPlaceCompartment->sections as $section) {
+            $section->delete();
         }
 
         $stockPlaceCompartment->delete();
