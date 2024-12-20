@@ -356,7 +356,9 @@ class StockOptimizationManager
             'type' => $type,
             'article_number' => $articleNumber,
             'from_stock_place_compartment' => $fromStockPlaceCompartmentID,
+            'from_compartment_section' => $fromCompartmentSectionID,
             'to_stock_place_compartment' => $toStockPlaceCompartmentID,
+            'to_compartment_section' => $toCompartmentSectionID,
             'quantity' => $quantity,
         ]);
 
