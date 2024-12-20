@@ -9,6 +9,7 @@ use App\Models\Shipment;
 use App\Models\ShipmentLine;
 use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetShipmentService;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -56,6 +57,7 @@ class AppShipmentController extends Controller
 
         foreach ($shipment->lines as &$line) {
             $line->order_quantity = $line->orderQuantity();
+            $line->picking_locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity);
         }
 
         $shipment->is_backorder = $shipment->isBackorder();
