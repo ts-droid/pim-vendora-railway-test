@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
+use App\Models\StockItem;
 use App\Models\StockItemMovement;
+use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceCompartmentReservation;
 use App\Services\WMS\StockItemService;
 use Illuminate\Http\Request;
@@ -33,8 +37,134 @@ class AppWarehouseController extends Controller
 
     public function createMovement(Request $request)
     {
-        sleep(2);
+        $articleNumber = $request->input('article_number');
+        $quantity = (int) $request->input('quantity');
 
+        $fromStockPlace = str_replace('--', '', $request->input('fromStockPlace', ''));
+        $fromCompartment = str_replace('--', '', $request->input('fromCompartment', ''));
+        $fromSection = (int) str_replace('--', '', $request->input('fromSection', ''));
+
+        $toStockPlace = str_replace('--', '', $request->input('toStockPlace', ''));
+        $toCompartment = str_replace('--', '', $request->input('toCompartment', ''));
+        $toSection = (int) str_replace('--', '', $request->input('toSection', ''));
+
+        $fromStockPlaceObject = null;
+        $fromCompartmentObject = null;
+        $fromSectionObject = null;
+
+        $toStockPlaceObject = null;
+        $toCompartmentObject = null;
+        $toSectionObject = null;
+
+        if ($quantity <= 0) {
+            return ApiResponseController::error('Quantity must be greater than 0.');
+        }
+
+        $article = Article::where('article_number', $articleNumber)->first();
+        if (!$article) {
+            return ApiResponseController::error('Article not found.');
+        }
+
+        // Validate from location
+        if ($fromStockPlace) {
+            $fromStockPlaceObject = StockPlace::where('identifier', $fromStockPlace)->first();
+            if (!$fromStockPlaceObject) {
+                return ApiResponseController::error('Stock place not found.');
+            }
+
+            $fromCompartmentObject = StockPlaceCompartment::where('stock_place_id', $fromStockPlaceObject->id)->where('identifier', $fromCompartment)->first();
+            if (!$fromCompartmentObject) {
+                return ApiResponseController::error('Compartment not found.');
+            }
+
+            if ($fromCompartmentObject->sections->count() > 0) {
+                for ($i = 1;$i <= $fromCompartmentObject->sections->count();$i++) {
+                    if ($fromSection != $i) {
+                        continue;
+                    }
+
+                    $fromSectionObject = $fromCompartmentObject->sections[$i - 1];
+                }
+
+                if (!$fromSectionObject) {
+                    return ApiResponseController::error('Section not found.');
+                }
+            }
+        }
+
+
+        // Validate to location
+        $toStockPlaceObject = StockPlace::where('identifier', $toStockPlace)->first();
+        if (!$toStockPlaceObject) {
+            return ApiResponseController::error('Stock place not found.');
+        }
+
+        $toCompartmentObject = StockPlaceCompartment::where('stock_place_id', $toStockPlaceObject->id)->where('identifier', $toCompartment)->first();
+        if (!$toCompartmentObject) {
+            return ApiResponseController::error('Compartment not found.');
+        }
+
+        if ($toCompartmentObject->sections->count() > 0) {
+            for ($i = 1;$i <= $toCompartmentObject->sections->count();$i++) {
+                if ($toSection != $i) {
+                    continue;
+                }
+
+                $toSectionObject = $toCompartmentObject->sections[$i - 1];
+            }
+
+            if (!$toSectionObject) {
+                return ApiResponseController::error('Section not found.');
+            }
+        }
+
+
+        // Validate article & quantity
+        if ($fromStockPlace) {
+            $stockPlaceQuantity = (int) StockItem::where('article_number', $articleNumber)
+                ->where('stock_place_compartment_id', ($fromCompartmentObject->id ?? 0))
+                ->where('compartment_section_id', ($fromSectionObject->id ?? 0))
+                ->count();
+
+            if ($stockPlaceQuantity < $quantity) {
+                return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
+            }
+        }
+        else {
+            $managedStock = (int) StockItem::where('article_number', $articleNumber)->count();
+            $unmanagedStock = $article->stock - $managedStock;
+
+            if ($unmanagedStock < $quantity) {
+                return ApiResponseController::error('Not enough unmanaged stock in the warehouse to move this quantity.');
+            }
+        }
+
+
+        // Make the movement
+        $stockItemService = new StockItemService();
+
+        if ($fromCompartmentObject) {
+            $response = $stockItemService->moveStockItems(
+                $article->article_number,
+                $quantity,
+                $fromCompartmentObject,
+                $fromSectionObject,
+                $toCompartmentObject,
+                $toSectionObject
+            );
+        }
+        else {
+            $response = $stockItemService->addStockItem(
+                $articleNumber->article_number,
+                $quantity,
+                $toCompartmentObject,
+                $toSectionObject
+            );
+        }
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
 
         return ApiResponseController::success();
     }
@@ -76,9 +206,11 @@ class AppWarehouseController extends Controller
             // Move the item from the existing compartment to the new compartment
             $response = $stockItemService->moveStockItems(
                 $stockItemMovement->article_number,
+                $stockItemMovement->quantity,
                 $stockItemMovement->fromStockPlaceCompartment,
+                $stockItemMovement->fromCompartmentSection ?: null,
                 $stockItemMovement->toStockPlaceCompartment,
-                $stockItemMovement->quantity
+                $stockItemMovement->toCompartmentSection ?: null,
             );
         }
         else {
@@ -86,7 +218,8 @@ class AppWarehouseController extends Controller
             $response = $stockItemService->addStockItem(
                 $stockItemMovement->article_number,
                 $stockItemMovement->toStockPlaceCompartment,
-                $stockItemMovement->quantity
+                $stockItemMovement->quantity,
+                $stockItemMovement->toCompartmentSection ?: null,
             );
         }
 

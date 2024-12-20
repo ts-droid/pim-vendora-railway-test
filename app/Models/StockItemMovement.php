@@ -12,7 +12,9 @@ class StockItemMovement extends Model
     protected $fillable = [
         'article_number',
         'from_stock_place_compartment',
+        'from_compartment_section',
         'to_stock_place_compartment',
+        'to_compartment_section',
         'quantity',
         'ping_at',
         'is_investigation',
@@ -27,6 +29,16 @@ class StockItemMovement extends Model
     public function toStockPlaceCompartment()
     {
         return $this->belongsTo(StockPlaceCompartment::class, 'to_stock_place_compartment');
+    }
+
+    public function fromCompartmentSection()
+    {
+        return $this->belongsTo(CompartmentSection::class, 'from_compartment_section');
+    }
+
+    public function toCompartmentSection()
+    {
+        return $this->belongsTo(CompartmentSection::class, 'to_compartment_section');
     }
 
     public function article()
