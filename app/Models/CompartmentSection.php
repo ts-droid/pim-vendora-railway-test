@@ -12,4 +12,9 @@ class CompartmentSection extends Model
     protected $fillable = [
         'stock_place_compartment_id'
     ];
+
+    public function stockItems()
+    {
+        return $this->hasMany(StockItem::class);
+    }
 }

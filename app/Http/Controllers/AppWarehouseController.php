@@ -202,7 +202,9 @@ class AppWarehouseController extends Controller
 
         $stockItemMovement->load('toStockPlaceCompartment', 'fromStockPlaceCompartment');
 
-        if ($stockItemMovement->from_stock_place_compartment) {
+        $response = null;
+
+        if ($stockItemMovement->from_stock_place_compartment && $stockItemMovement->to_stock_place_compartment) {
             // Move the item from the existing compartment to the new compartment
             $response = $stockItemService->moveStockItems(
                 $stockItemMovement->article_number,
@@ -214,13 +216,29 @@ class AppWarehouseController extends Controller
             );
         }
         else {
-            // Insert the item to the new compartment
-            $response = $stockItemService->addStockItem(
-                $stockItemMovement->article_number,
-                $stockItemMovement->toStockPlaceCompartment,
-                $stockItemMovement->quantity,
-                $stockItemMovement->toCompartmentSection ?: null,
-            );
+            if ($stockItemMovement->to_stock_place_compartment) {
+                // Insert the item to the new compartment
+                $response = $stockItemService->addStockItem(
+                    $stockItemMovement->article_number,
+                    $stockItemMovement->toStockPlaceCompartment,
+                    $stockItemMovement->quantity,
+                    $stockItemMovement->toCompartmentSection ?: null,
+                );
+            }
+            else if ($stockItemMovement->from_stock_place_compartment) {
+                $stockItems = StockItem::where('stock_place_compartment_id', $stockItemMovement->from_stock_place_compartment)
+                    ->where('compartment_section_id', $stockItemMovement->from_compartment_section)
+                    ->limit($stockItemMovement->quantity)
+                    ->get();
+
+                foreach ($stockItems as $stockItem) {
+                    $response = $stockItemService->removeStockItem($stockItem);
+                }
+            }
+        }
+
+        if (!$response) {
+            return ApiResponseController::error('Invalid movement.');
         }
 
         if (!$response['success']) {

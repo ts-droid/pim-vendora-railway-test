@@ -3,6 +3,7 @@
 namespace App\Services\WMS;
 
 use App\Http\Controllers\ConfigController;
+use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
@@ -106,58 +107,78 @@ class StockOptimizationManager
                             }
 
                             $stockItemCount = $compartment->stockItems->count();
-
-                            if (!$stockItemCount) continue; // Empty stock place
-
-                            $articleNumber = $compartment->stockItems->first()->article_number;
-                            if ($articleNumber != $article->article_number) continue; // Another article is hosted in this compartment
-
-                            // This article is hosted here, check if it is time to refill
-                            $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
-                            $maxArticles = floor($maxVolume / $articleVolume);
-
-                            $occupiedVolume = $articleVolume * $stockItemCount;
-                            $freeVolume = $maxVolume - $occupiedVolume;
-
-                            // Refill the compartment
-                            $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
-
-                            $refillCount = floor($freeVolume / $articleVolume);
-                            $refillCount = min($refillCount, $stockLeftToMove);
-
-                            if ($multiIntelligence) {
-                                $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
-
-                                $intelligenceCount = $this->getArticleSales($article->article_number);
-                                $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
-
-                                $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
+                            if (!$stockItemCount) {
+                                // Empty stock place
+                                continue;
                             }
-                            else {
-                                if ($occupiedVolume > self::REFILL_THRESHOLD) {
-                                    continue; // No need to refill, volume is not below threshold
+
+                            $sectionIDs = $compartment->sections->pluck('id')->toArray();
+                            $sectionIDs = $sectionIDs ?: [0];
+
+                            foreach ($sectionIDs as $sectionID) {
+                                $section = CompartmentSection::where('id', $sectionID)->first();
+
+                                $stockItems = $section ? $section->stockItems : $compartment->stockItems;
+
+                                if (!$stockItems->count()) {
+                                    // Empty section
+                                    continue;
                                 }
-                            }
 
-                            $refillCount = $this->roundQuantity($refillCount);
+                                $articleNumber = $stockItems->first()->article_number;
+                                if ($articleNumber != $article->article_number) continue; // Another article is hosted at this place
 
-                            if (!$refillCount) continue; // Not items found to refill with
+                                // This article is hosted here, check if it's time to refill
+                                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                                $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                            // Make a stock movement
-                            $this->makeStockMovement(
-                                $article->article_number,
-                                0,
-                                $compartment->id,
-                                $refillCount,
-                                'refill'
-                            );
+                                $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                                $maxArticles = floor($maxVolume / $articleVolume);
 
-                            $stockData['managedStock'] += $refillCount;
+                                $occupiedVolume = $articleVolume * $stockItemCount;
+                                $freeVolume = $maxVolume - $occupiedVolume;
 
-                            if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
-                                $stockData['has_main_placement'] = true;
-                                continue 3; // Move to next article
+                                // Refill the compartment
+                                $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
+
+                                $refillCount = floor($freeVolume / $articleVolume);
+                                $refillCount = min($refillCount, $stockLeftToMove);
+
+                                if ($multiIntelligence) {
+                                    $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
+
+                                    $intelligenceCount = $this->getArticleSales($article->article_number);
+                                    $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
+
+                                    $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
+                                }
+                                else {
+                                    if ($occupiedVolume > self::REFILL_THRESHOLD) {
+                                        continue; // No need to refill, volume is not below threshold
+                                    }
+                                }
+
+                                $refillCount = $this->roundQuantity($refillCount);
+
+                                if (!$refillCount) continue; // Not items found to refill with
+
+                                // Make a stock movement
+                                $this->makeStockMovement(
+                                    $article->article_number,
+                                    0,
+                                    0,
+                                    $compartment->id,
+                                    $sectionID,
+                                    $refillCount,
+                                    'refill'
+                                );
+
+                                $stockData['managedStock'] += $refillCount;
+
+                                if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
+                                    $stockData['has_main_placement'] = true;
+                                    continue 4; // Move to next article
+                                }
                             }
                         }
                     }
@@ -169,56 +190,70 @@ class StockOptimizationManager
                                 continue;
                             }
 
-                            if ($compartment->stockItems->count()) {
-                                continue;
-                            }
-
                             if ($compartment->volume_class != $article->classification_volume) {
                                 continue;
                             }
 
-                            $compartmentCache = $this->movementCache[$compartment->id] ?? null;
-                            if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
-                                // Another article is planed to moved to this compartment
-                                continue;
-                            }
 
-                            $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                            $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
-                            $maxArticles = floor($maxVolume / $articleVolume);
+                            $sectionIDs = $compartment->sections->pluck('id')->toArray();
+                            $sectionIDs = $sectionIDs ?: [0];
 
-                            $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
-                            $freeVolume = $maxVolume - $occupiedVolume;
+                            foreach ($sectionIDs as $sectionID) {
+                                $section = CompartmentSection::where('id', $sectionID)->first();
 
-                            $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
+                                $stockItems = $section ? $section->stockItems : $compartment->stockItems;
 
-                            $fillCount = floor($freeVolume / $articleVolume);
-                            $fillCount = min($fillCount, $stockLeftToMove);
+                                if (!$stockItems->count()) {
+                                    continue;
+                                }
 
-                            if ($multiIntelligence) {
-                                $intelligenceCount = $this->getArticleSales($article->article_number);
-                                $fillCount = min($intelligenceCount, $stockLeftToMove);
-                            }
+                                $compartmentCache = $this->movementCache[$compartment->id . '_' . $sectionID];
+                                if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
+                                    // Another article is planed to move to this compartment
+                                    continue;
+                                }
 
-                            $fillCount = min($fillCount, $maxArticles);
-                            $fillCount = $this->roundQuantity($fillCount);
+                                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                                $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                            if (!$fillCount) continue;
+                                $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                                $maxArticles = floor($maxVolume / $articleVolume);
 
-                            // Make a stock movement
-                            $this->makeStockMovement(
-                                $article->article_number,
-                                0,
-                                $compartment->id,
-                                $fillCount,
-                                'organization'
-                            );
+                                $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
+                                $freeVolume = $maxVolume - $occupiedVolume;
 
-                            $stockData['managedStock'] += $fillCount;
+                                $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
 
-                            if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
-                                $stockData['has_main_placement'] = true;
-                                continue 3; // Move to next article
+                                $fillCount = floor($freeVolume / $articleVolume);
+                                $fillCount = min($fillCount, $stockLeftToMove);
+
+                                if ($multiIntelligence) {
+                                    $intelligenceCount = $this->getArticleSales($article->article_number);
+                                    $fillCount = min($intelligenceCount, $stockLeftToMove);
+                                }
+
+                                $fillCount = min($fillCount, $maxArticles);
+                                $fillCount = $this->roundQuantity($fillCount);
+
+                                if (!$fillCount) continue;
+
+                                // Make a stock movement
+                                $this->makeStockMovement(
+                                    $article->article_number,
+                                    0,
+                                    0,
+                                    $compartment->id,
+                                    $sectionID,
+                                    $fillCount,
+                                    'organization'
+                                );
+
+                                $stockData['managedStock'] += $fillCount;
+
+                                if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
+                                    $stockData['has_main_placement'] = true;
+                                    continue 4; // Move to next article
+                                }
                             }
                         }
                     }
@@ -234,19 +269,27 @@ class StockOptimizationManager
 
             $groupedStockItems = [];
             foreach ($stockItems as $stockItem) {
-                if (!isset($groupedStockItems[$stockItem->article_number])) {
-                    $groupedStockItems[$stockItem->article_number] = 0;
+                $key = $stockItem->article_number . '_' . $stockItem->stock_place_compartment_id . '_' . $stockItem->compartment_section_id;
+                if (!isset($groupedStockItems[$key])) {
+                    $groupedStockItems[$key] = [
+                        'article_number' => $stockItem->article_number,
+                        'stock_place_compartment_id' => $stockItem->stock_place_compartment_id,
+                        'compartment_section_id' => $stockItem->compartment_section_id,
+                        'quantity' => 0,
+                    ];
                 }
 
-                $groupedStockItems[$stockItem->article_number]++;
+                $groupedStockItems[$key]['quantity']++;
             }
 
-            foreach ($groupedStockItems as $articleNumber => $quantity) {
+            foreach ($groupedStockItems as $data) {
                 $this->makeStockMovement(
-                    $articleNumber,
-                    $compartmentID,
+                    $data['article_number'],
+                    $data['stock_place_compartment_id'],
+                    $data['compartment_section_id'],
                     0,
-                    $quantity,
+                    0,
+                    $data['quantity'],
                     'unleash'
                 );
             }
@@ -307,7 +350,7 @@ class StockOptimizationManager
         };
     }
 
-    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
+    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $fromCompartmentSectionID, int $toStockPlaceCompartmentID, int $toCompartmentSectionID, int $quantity, string $type): void
     {
         $stockItemMovement = StockItemMovement::create([
             'type' => $type,
@@ -322,14 +365,16 @@ class StockOptimizationManager
 
     private function addStockMovementToCache(StockItemMovement $stockItemMovement)
     {
-        if (!isset($this->movementCache[$stockItemMovement->to_stock_place_compartment])) {
-            $this->movementCache[$stockItemMovement->to_stock_place_compartment] = [
+        $key = $stockItemMovement->to_stock_place_compartment . '_' . $stockItemMovement->to_compartment_section;
+
+        if (!isset($this->movementCache[$key])) {
+            $this->movementCache[$key] = [
                 'article_number' => $stockItemMovement->article_number,
                 'quantity' => 0,
             ];
         }
 
-        $this->movementCache[$stockItemMovement->to_stock_place_compartment]['quantity'] += $stockItemMovement->quantity;
+        $this->movementCache[$key]['quantity'] += $stockItemMovement->quantity;
     }
 
     private function clearUnleashStatus($groupedStockPlaces)
