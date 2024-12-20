@@ -207,7 +207,7 @@ class StockOptimizationManager
                                     continue;
                                 }
 
-                                $compartmentCache = $this->movementCache[$compartment->id . '_' . $sectionID];
+                                $compartmentCache = $this->movementCache[$compartment->id . '_' . $sectionID] ?? null;
                                 if ($compartmentCache && $compartmentCache['article_number'] != $article->article_number) {
                                     // Another article is planed to move to this compartment
                                     continue;
