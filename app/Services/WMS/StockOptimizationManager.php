@@ -33,6 +33,8 @@ class StockOptimizationManager
 
     public function optimize(): void
     {
+        ConfigController::setConfigs(['optimize_stock_running' => 1]);
+
         $lastWorkTime = StockItemMovement::all()->max('ping_at');
         if ($lastWorkTime > (time() - 60)) {
             // Do not run the operation if someone is working on a stock movement
@@ -294,6 +296,9 @@ class StockOptimizationManager
                 );
             }
         }
+
+        ConfigController::setConfigs(['optimize_stock_running' => 0]);
+        ConfigController::setConfigs(['optimize_stock_last_run' => date('Y-m-d H:i:s')]);
     }
 
     private function getGroupedStockPlaces(): array
