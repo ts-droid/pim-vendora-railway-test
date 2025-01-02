@@ -199,6 +199,8 @@ class StockPlaceController extends Controller
 
     private function pushCompartmentToTemplate(StockPlaceCompartment $stockPlaceCompartment)
     {
+        return;
+
         if (!$stockPlaceCompartment->template_id) {
             return;
         }
@@ -240,6 +242,8 @@ class StockPlaceController extends Controller
 
     private function pushTemplateToCompartments(CompartmentsTemplate $template)
     {
+        return;
+
         $compartments = StockPlaceCompartment::where('template_id', $template->id)
             ->orderBy('id', 'ASC')
             ->get();
