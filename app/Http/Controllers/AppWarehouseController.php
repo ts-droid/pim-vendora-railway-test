@@ -193,9 +193,9 @@ class AppWarehouseController extends Controller
 
         $quantity = (int) $request->input('quantity');
         if ($quantity > 0) {
-            if ($quantity > $stockItemMovement->quantity) {
+            /*if ($quantity > $stockItemMovement->quantity) {
                 return ApiResponseController::error('You can not move more than the suggested quantity.');
-            }
+            }*/
 
             $stockItemMovement->update(['quantity' => $quantity]);
         }
