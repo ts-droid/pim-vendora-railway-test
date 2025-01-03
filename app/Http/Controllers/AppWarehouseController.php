@@ -175,7 +175,8 @@ class AppWarehouseController extends Controller
                 'fromStockPlaceCompartment',
                 'fromStockPlaceCompartment.stockPlace',
                 'toStockPlaceCompartment',
-                'toStockPlaceCompartment.stockPlace'
+                'toStockPlaceCompartment.stockPlace',
+                'toStockPlaceCompartment.sections'
             )
             ->where('id', $stockItemMovement->id)
             ->first();
