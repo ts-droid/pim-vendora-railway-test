@@ -14,7 +14,6 @@ class StockOptimizationManager
 {
     const CLASSIFICATION_ORDER = ['A', 'B', 'C'];
 
-    const MAX_FILL = 0.7;               // Fill compartments to max 70% of its volume
     const REFILL_THRESHOLD = 0.5;       // Refill a compartment when occupied volume is below 50%
 
     private array $config;
@@ -24,9 +23,9 @@ class StockOptimizationManager
     public function __construct()
     {
         $this->config = [
-            'max_quantity_A' => ConfigController::getConfig('max_quantity_class_size_a', 100),
-            'max_quantity_B' => ConfigController::getConfig('max_quantity_class_size_b', 100),
-            'max_quantity_C' => ConfigController::getConfig('max_quantity_class_size_c', 100),
+            'max_volume_A' => ConfigController::getConfig('max_volume_class_size_a', 100),
+            'max_volume_B' => ConfigController::getConfig('max_volume_class_size_b', 100),
+            'max_volume_C' => ConfigController::getConfig('max_volume_class_size_c', 100),
             'wms_multi_intelligence' => ConfigController::getConfig('wms_multi_intelligence', 0),
         ];
     }
@@ -134,7 +133,7 @@ class StockOptimizationManager
                                 $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                                 $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                                $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                                $maxVolume = $compartmentVolume * ($this->config['max_volume_' . $compartment->volume_class] / 100);
                                 $maxArticles = floor($maxVolume / $articleVolume);
 
                                 $occupiedVolume = $articleVolume * $stockItemCount;
@@ -218,7 +217,7 @@ class StockOptimizationManager
                                 $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                                 $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                                $maxVolume = min(($compartmentVolume * self::MAX_FILL), ($articleVolume * $this->config['max_quantity_' . $compartment->volume_class]));
+                                $maxVolume = $compartmentVolume * ($this->config['max_volume_' . $compartment->volume_class] / 100);
                                 $maxArticles = floor($maxVolume / $articleVolume);
 
                                 $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
