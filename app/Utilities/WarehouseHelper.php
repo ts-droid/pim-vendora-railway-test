@@ -4,6 +4,7 @@ namespace App\Utilities;
 
 use App\Models\StockItem;
 use App\Models\StockPlace;
+use Illuminate\Support\Facades\DB;
 
 class WarehouseHelper
 {
@@ -21,6 +22,8 @@ class WarehouseHelper
             ->get();
 
         // Check if any compartment can deliver the entire quantity
+        $managedStockCount = 0;
+
         foreach($stockPlaces as $stockPlace) {
             foreach($stockPlace->compartments as $compartment) {
                 $sectionIDs = array_merge([0], $compartment->sections->pluck('id')->toArray());
@@ -31,11 +34,25 @@ class WarehouseHelper
                         ->where('compartment_section_id', $sectionID)
                         ->count();
 
+                    $managedStockCount += $stockItemsCount;
+
                     if ($stockItemsCount >= $quantity) {
                         return [$stockPlace->identifier . ':' . $compartment->identifier];
                     }
                 }
             }
+        }
+
+        // Check if unplaced articles can deliver the entire quantity
+        $articleStock = DB::table('articles')
+            ->select('stock')
+            ->where('article_number', $articleNumber)
+            ->value('stock');
+
+        $unmanagedStock = $articleStock - $managedStockCount;
+
+        if ($unmanagedStock >= $quantity) {
+            return ['--'];
         }
 
         // Look recursively through all compartments
