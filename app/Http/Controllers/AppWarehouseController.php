@@ -42,11 +42,9 @@ class AppWarehouseController extends Controller
 
         $fromStockPlace = str_replace('--', '', $request->input('fromStockPlace', ''));
         $fromCompartment = str_replace('--', '', $request->input('fromCompartment', ''));
-        $fromSection = (int) str_replace('--', '', $request->input('fromSection', ''));
 
         $toStockPlace = str_replace('--', '', $request->input('toStockPlace', ''));
         $toCompartment = str_replace('--', '', $request->input('toCompartment', ''));
-        $toSection = (int) str_replace('--', '', $request->input('toSection', ''));
 
         $fromStockPlaceObject = null;
         $fromCompartmentObject = null;
@@ -78,12 +76,16 @@ class AppWarehouseController extends Controller
             }
 
             if ($fromCompartmentObject->sections->count() > 0) {
-                for ($i = 1;$i <= $fromCompartmentObject->sections->count();$i++) {
-                    if ($fromSection != $i) {
-                        continue;
-                    }
+                foreach ($fromCompartmentObject->sections as $section) {
+                    $hasArticle = StockItem::where('article_number', $articleNumber)
+                        ->where('stock_place_compartment_id', $fromCompartmentObject->id)
+                        ->where('compartment_section_id', $section->id)
+                        ->exists();
 
-                    $fromSectionObject = $fromCompartmentObject->sections[$i - 1];
+                    if ($hasArticle) {
+                        $fromSectionObject = $section;
+                        break;
+                    }
                 }
 
                 if (!$fromSectionObject) {
@@ -105,16 +107,19 @@ class AppWarehouseController extends Controller
         }
 
         if ($toCompartmentObject->sections->count() > 0) {
-            for ($i = 1;$i <= $toCompartmentObject->sections->count();$i++) {
-                if ($toSection != $i) {
-                    continue;
+            foreach ($toCompartmentObject->sections as $section) {
+                $sectionArticleNumber = StockItem::where('stock_place_compartment_id', $toCompartmentObject->id)
+                    ->where('compartment_section_id', $section->id)
+                    ->first()->article_number ?? null;
+
+                if (!$sectionArticleNumber || $sectionArticleNumber == $articleNumber) {
+                    $toSectionObject = $section;
+                    break;
                 }
 
-                $toSectionObject = $toCompartmentObject->sections[$i - 1];
-            }
-
-            if (!$toSectionObject) {
-                return ApiResponseController::error('Section not found.');
+                if (!$toSectionObject) {
+                    return ApiResponseController::error('No available section found.');
+                }
             }
         }
 
