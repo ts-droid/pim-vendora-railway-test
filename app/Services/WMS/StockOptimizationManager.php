@@ -8,6 +8,7 @@ use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Support\Facades\DB;
 
 class StockOptimizationManager
@@ -67,7 +68,7 @@ class StockOptimizationManager
                     $articleStockData[$article->article_number] = [
                         'stock' => $article->stock,
                         'managedStock' => 0,
-                        'has_main_placement' => false,
+                        'has_main_placement' => WarehouseHelper::articleHasPlacement($article->article_number, ['A', 'B']),
                     ];
                 }
 
@@ -82,7 +83,7 @@ class StockOptimizationManager
 
                     if (!$stockPlaces) continue;
 
-                    // Allow multiple placements in higher-priority stock places
+                    // Allow only one placement in higher-priority stock places
                     // Remove or adjust the following condition if necessary
                     if ($stockData['has_main_placement']
                         && ($stockPlaceClass == 'A' || $stockPlaceClass == 'B')) {

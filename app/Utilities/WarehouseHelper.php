@@ -8,6 +8,33 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseHelper
 {
+    public static function articleHasPlacement(string $articleNumber, array $classes): bool
+    {
+        $colors = [];
+        foreach ($classes as $class) {
+            $colors[] = self::classToColor($class);
+        }
+
+        $stockPlaceIDs = DB::table('stock_places')
+            ->select('id')
+            ->whereIn('color', $colors)
+            ->pluck('id');
+
+        $compartmentIDs = [];
+
+        foreach ($stockPlaceIDs as $stockPlaceID) {
+            $compartmentIDs[] = DB::table('stock_place_compartments')
+                ->select('id')
+                ->where('stock_place_id', $stockPlaceID)
+                ->pluck('id');
+        }
+
+        return DB::table('stock_items')
+            ->whereIn('stock_place_compartment_id', $compartmentIDs)
+            ->where('article_number', $articleNumber)
+            ->exists();
+    }
+
     public static function getArticleLocations(string $articleNumber, int $quantity): array
     {
         $colors = [
@@ -83,5 +110,37 @@ class WarehouseHelper
 
         $pickingPlaces[] = '--';
         return $pickingPlaces;
+    }
+
+    public static function colorToClass(string $color): string
+    {
+        switch ($color) {
+            case '#50f25b':
+                return 'A';
+
+            case '#f2a950':
+                return 'B';
+
+            case '#f2505f':
+                return 'C';
+        }
+
+        return '';
+    }
+
+    public static function classToColor(string $class): string
+    {
+        switch ($class) {
+            case 'A':
+                return '#50f25b';
+
+            case 'B':
+                return '#f2a950';
+
+            case 'C':
+                return '#f2505f';
+        }
+
+        return '';
     }
 }
