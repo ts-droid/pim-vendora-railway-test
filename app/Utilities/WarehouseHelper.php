@@ -26,7 +26,8 @@ class WarehouseHelper
             $compartmentIDs[] = DB::table('stock_place_compartments')
                 ->select('id')
                 ->where('stock_place_id', $stockPlaceID)
-                ->pluck('id');
+                ->pluck('id')
+                ->toArray();
         }
 
         return DB::table('stock_items')
