@@ -23,11 +23,13 @@ class WarehouseHelper
         $compartmentIDs = [];
 
         foreach ($stockPlaceIDs as $stockPlaceID) {
-            $compartmentIDs[] = DB::table('stock_place_compartments')
+            $ids = DB::table('stock_place_compartments')
                 ->select('id')
                 ->where('stock_place_id', $stockPlaceID)
                 ->pluck('id')
                 ->toArray();
+
+            $compartmentIDs = array_merge($compartmentIDs, $ids);
         }
 
         return DB::table('stock_items')
