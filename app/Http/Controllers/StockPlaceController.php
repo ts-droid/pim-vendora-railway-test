@@ -183,7 +183,7 @@ class StockPlaceController extends Controller
         $stockPlaceGroups = StockPlaceGroup::all();
 
         foreach ($stockPlaceGroups as &$stockPlaceGroup) {
-            $stockPlaceGroup->stockPlaces = StockPlace::whereIn('id', $stockPlaceGroup->stock_places)->get();
+            $stockPlaceGroup->stockPlaces = StockPlace::whereIn('id', $stockPlaceGroup->stock_places)->get()->toArray();
         }
 
         return ApiResponseController::success($stockPlaceGroups->toArray());
