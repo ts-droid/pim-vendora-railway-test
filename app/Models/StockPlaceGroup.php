@@ -10,7 +10,12 @@ class StockPlaceGroup extends Model
     use HasFactory;
 
     protected $fillable = [
-        'stock_places'
+        'stock_places',
+        'max_volume_class_size_a',
+        'max_volume_class_size_b',
+        'max_volume_class_size_c',
+        'wms_multi_intelligence',
+        'wms_multi_intelligence_period',
     ];
 
     protected $casts = [
