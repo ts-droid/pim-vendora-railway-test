@@ -7,6 +7,7 @@ use App\Models\CompartmentsTemplate;
 use App\Models\StockItem;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Models\StockPlaceGroup;
 use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 
@@ -175,6 +176,39 @@ class StockPlaceController extends Controller
         $templates = CompartmentsTemplate::orderBy('name', 'ASC')->get();
 
         return ApiResponseController::success($templates->toArray());
+    }
+
+    public function getStockPlaceGroups()
+    {
+        $stockPlaceGroups = StockPlaceGroup::with('stockPlaces')->get();
+
+        return ApiResponseController::success($stockPlaceGroups->toArray());
+    }
+
+    public function storeStockPlaceGroups(Request $request)
+    {
+        $stockPlaceIDs = $request->input('stock_places');
+
+        $stockPlaceIDs = array_unique($stockPlaceIDs);
+        $stockPlaceIDs = array_filter($stockPlaceIDs);
+
+        foreach ($stockPlaceIDs as $stockPlaceID) {
+            $exists = StockPlace::where('id', '=', $stockPlaceID)->exists();
+            if (!$exists) {
+                return ApiResponseController::error('Stock place not found');
+            }
+
+            $hasGroup = StockPlaceGroup::whereJsonContains('stock_places', $stockPlaceID)->exists();
+            if ($hasGroup) {
+                return ApiResponseController::error('Stock place already in group');
+            }
+        }
+
+        $stockPlaceGroup = StockPlaceGroup::create([
+            'stock_places' => $stockPlaceIDs
+        ]);
+
+        return ApiResponseController::success($stockPlaceGroup->toArray());
     }
 
     public function storeCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
