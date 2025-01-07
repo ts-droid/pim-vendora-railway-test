@@ -240,6 +240,13 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($stockPlaceGroup->toArray());
     }
 
+    public function deleteStockPlaceGroup(StockPlaceGroup $stockPlaceGroup)
+    {
+        $stockPlaceGroup->delete();
+
+        return ApiResponseController::success();
+    }
+
     public function storeCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
         $compartmentSection = CompartmentSection::create([
