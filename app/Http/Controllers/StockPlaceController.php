@@ -209,7 +209,7 @@ class StockPlaceController extends Controller
                 'stock_places' => $stockPlaceIDs
             ]);
         }
-        catch (\Exception $e) {
+        catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
         }
 
