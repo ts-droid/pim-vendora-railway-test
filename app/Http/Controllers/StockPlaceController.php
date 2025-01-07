@@ -187,26 +187,31 @@ class StockPlaceController extends Controller
 
     public function storeStockPlaceGroups(Request $request)
     {
-        $stockPlaceIDs = $request->input('stock_places');
+        try {
+            $stockPlaceIDs = $request->input('stock_places');
 
-        $stockPlaceIDs = array_unique($stockPlaceIDs);
-        $stockPlaceIDs = array_filter($stockPlaceIDs);
+            $stockPlaceIDs = array_unique($stockPlaceIDs);
+            $stockPlaceIDs = array_filter($stockPlaceIDs);
 
-        foreach ($stockPlaceIDs as $stockPlaceID) {
-            $exists = StockPlace::where('id', '=', $stockPlaceID)->exists();
-            if (!$exists) {
-                return ApiResponseController::error('Stock place not found');
+            foreach ($stockPlaceIDs as $stockPlaceID) {
+                $exists = StockPlace::where('id', '=', $stockPlaceID)->exists();
+                if (!$exists) {
+                    return ApiResponseController::error('Stock place not found');
+                }
+
+                $hasGroup = StockPlaceGroup::whereJsonContains('stock_places', $stockPlaceID)->exists();
+                if ($hasGroup) {
+                    return ApiResponseController::error('Stock place already in group');
+                }
             }
 
-            $hasGroup = StockPlaceGroup::whereJsonContains('stock_places', $stockPlaceID)->exists();
-            if ($hasGroup) {
-                return ApiResponseController::error('Stock place already in group');
-            }
+            $stockPlaceGroup = StockPlaceGroup::create([
+                'stock_places' => $stockPlaceIDs
+            ]);
         }
-
-        $stockPlaceGroup = StockPlaceGroup::create([
-            'stock_places' => $stockPlaceIDs
-        ]);
+        catch (\Exception $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
 
         return ApiResponseController::success($stockPlaceGroup->toArray());
     }
