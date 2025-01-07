@@ -28,6 +28,7 @@ class StockOptimizationManager
             'max_volume_B' => ConfigController::getConfig('max_volume_class_size_b', 100),
             'max_volume_C' => ConfigController::getConfig('max_volume_class_size_c', 100),
             'wms_multi_intelligence' => ConfigController::getConfig('wms_multi_intelligence', 0),
+            'wms_multi_intelligence_period' => ConfigController::getConfig('wms_multi_intelligence_period', 7)
         ];
     }
 
@@ -56,6 +57,7 @@ class StockOptimizationManager
         $unleashCompartmentIDs = $this->clearUnleashStatus($groupedStockPlaces);
 
         $multiIntelligence = $this->config['wms_multi_intelligence'];
+        $multiIntelligencePeriod = $this->config['wms_multi_intelligence_period'];
 
         $articleStockData = [];
 
@@ -149,7 +151,7 @@ class StockOptimizationManager
                                 if ($multiIntelligence) {
                                     $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
 
-                                    $intelligenceCount = $this->getArticleSales($article->article_number);
+                                    $intelligenceCount = $this->getArticleSales($article->article_number, $multiIntelligencePeriod);
                                     $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
 
                                     $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
@@ -230,7 +232,7 @@ class StockOptimizationManager
                                 $fillCount = min($fillCount, $stockLeftToMove);
 
                                 if ($multiIntelligence) {
-                                    $intelligenceCount = $this->getArticleSales($article->article_number);
+                                    $intelligenceCount = $this->getArticleSales($article->article_number, $multiIntelligencePeriod);
                                     $fillCount = min($intelligenceCount, $stockLeftToMove);
                                 }
 
