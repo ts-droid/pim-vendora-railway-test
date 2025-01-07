@@ -180,7 +180,11 @@ class StockPlaceController extends Controller
 
     public function getStockPlaceGroups()
     {
-        $stockPlaceGroups = StockPlaceGroup::with('stockPlaces')->get();
+        $stockPlaceGroups = StockPlaceGroup::all();
+
+        foreach ($stockPlaceGroups as &$stockPlaceGroup) {
+            $stockPlaceGroup->stockPlaces = StockPlace::whereIn('id', $stockPlaceGroup->stock_places)->get();
+        }
 
         return ApiResponseController::success($stockPlaceGroups->toArray());
     }

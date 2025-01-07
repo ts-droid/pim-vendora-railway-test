@@ -16,9 +16,4 @@ class StockPlaceGroup extends Model
     protected $casts = [
         'stock_places' => 'array'
     ];
-
-    public function stockPlaces()
-    {
-        return $this->hasMany(StockPlace::class, 'id', 'stock_places');
-    }
 }
