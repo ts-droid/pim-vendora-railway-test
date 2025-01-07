@@ -188,7 +188,8 @@ class StockPlaceController extends Controller
     public function storeStockPlaceGroups(Request $request)
     {
         try {
-            $stockPlaceIDs = $request->input('stock_places');
+            $stockPlaceIDs = (string) $request->input('stock_places');
+            $stockPlaceIDs = explode(',', $stockPlaceIDs);
 
             $stockPlaceIDs = array_unique($stockPlaceIDs);
             $stockPlaceIDs = array_filter($stockPlaceIDs);
