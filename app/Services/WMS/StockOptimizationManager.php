@@ -8,6 +8,7 @@ use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Models\StockPlaceGroup;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Support\Facades\DB;
 
@@ -116,6 +117,14 @@ class StockOptimizationManager
                                 continue;
                             }
 
+                            $stockPlaceGroup = $this->getStockPlaceGroup($stockPlace);
+
+                            $stockPlaceConfig = [
+                                'max_volume' => (float) ($stockPlaceGroup->{'max_volume_class_' . $compartment->volume_class} ?? null) ?: $this->config['max_volume_' . $compartment->volume_class],
+                                'multi_intelligence' => (int) ($stockPlaceGroup->wms_multi_intelligence ?? null) ?: $multiIntelligence,
+                                'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
+                            ];
+
                             $sectionIDs = $compartment->sections->pluck('id')->toArray();
                             $sectionIDs = $sectionIDs ?: [0];
 
@@ -136,7 +145,7 @@ class StockOptimizationManager
                                 $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                                 $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                                $maxVolume = $compartmentVolume * ($this->config['max_volume_' . $compartment->volume_class] / 100);
+                                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
                                 $maxArticles = floor($maxVolume / $articleVolume);
 
                                 $occupiedVolume = $articleVolume * $stockItemCount;
@@ -148,10 +157,10 @@ class StockOptimizationManager
                                 $refillCount = floor($freeVolume / $articleVolume);
                                 $refillCount = min($refillCount, $stockLeftToMove);
 
-                                if ($multiIntelligence) {
+                                if ($stockPlaceConfig['multi_intelligence']) {
                                     $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
 
-                                    $intelligenceCount = $this->getArticleSales($article->article_number, $multiIntelligencePeriod);
+                                    $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                                     $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
 
                                     $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
@@ -198,6 +207,13 @@ class StockOptimizationManager
                                 continue;
                             }
 
+                            $stockPlaceGroup = $this->getStockPlaceGroup($stockPlace);
+
+                            $stockPlaceConfig = [
+                                'max_volume' => (float) ($stockPlaceGroup->{'max_volume_class_' . $compartment->volume_class} ?? null) ?: $this->config['max_volume_' . $compartment->volume_class],
+                                'multi_intelligence' => (int) ($stockPlaceGroup->wms_multi_intelligence ?? null) ?: $multiIntelligence,
+                                'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
+                            ];
 
                             $sectionIDs = $compartment->sections->pluck('id')->toArray();
                             $sectionIDs = $sectionIDs ?: [0];
@@ -220,7 +236,7 @@ class StockOptimizationManager
                                 $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                                 $compartmentVolume = $compartmentVolume / count($sectionIDs);
 
-                                $maxVolume = $compartmentVolume * ($this->config['max_volume_' . $compartment->volume_class] / 100);
+                                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
                                 $maxArticles = floor($maxVolume / $articleVolume);
 
                                 $occupiedVolume = $articleVolume * ($compartmentCache['quantity'] ?? 0);
@@ -231,8 +247,8 @@ class StockOptimizationManager
                                 $fillCount = floor($freeVolume / $articleVolume);
                                 $fillCount = min($fillCount, $stockLeftToMove);
 
-                                if ($multiIntelligence) {
-                                    $intelligenceCount = $this->getArticleSales($article->article_number, $multiIntelligencePeriod);
+                                if ($stockPlaceConfig['multi_intelligence']) {
+                                    $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                                     $fillCount = min($intelligenceCount, $stockLeftToMove);
                                 }
 
@@ -427,5 +443,12 @@ class StockOptimizationManager
     private function roundQuantity(int $quantity): int
     {
         return floor($quantity / 5) * 5;
+    }
+
+    private function getStockPlaceGroup(StockPlace $stockPlace): ?StockPlaceGroup
+    {
+        $stockPlaceGroup = StockPlaceGroup::whereJsonContains('stock_places', ((string) $stockPlace->id))->first();
+
+        return $stockPlaceGroup ?: null;
     }
 }
