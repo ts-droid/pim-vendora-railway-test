@@ -38,6 +38,30 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($stockPlaceArray);
     }
 
+    public function getDetailedStockPlaces(Request $request)
+    {
+        $stockPlaceIDs = $request->input('stock_place_ids');
+        $stockPlaceIDs = explode(',', $stockPlaceIDs);
+
+        $stockPlaces = [];
+
+        foreach ($stockPlaceIDs as $stockPlaceID) {
+            $stockPlace = StockPlace::with('compartments', 'compartments.sections')
+                ->where('id', $stockPlaceID)
+                ->first();
+
+            if (!$stockPlace) {
+                continue;
+            }
+
+
+
+            $stockPlaces[] = $stockPlace->toArray();
+        }
+
+        return ApiResponseController::success($stockPlaces);
+    }
+
     public function storeStockPlace(Request $request)
     {
         $stockPlaceService = new StockPlaceService();
