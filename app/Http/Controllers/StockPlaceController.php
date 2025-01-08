@@ -9,6 +9,7 @@ use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceGroup;
 use App\Services\WMS\StockPlaceService;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 
 class StockPlaceController extends Controller
@@ -54,9 +55,11 @@ class StockPlaceController extends Controller
                 continue;
             }
 
+            $stockPlaceArray = $stockPlace->toArray();
 
+            $stockPlaceArray['position_class'] = WarehouseHelper::colorToClass($stockPlaceArray['color']);
 
-            $stockPlaces[] = $stockPlace->toArray();
+            $stockPlaces[] = $stockPlaceArray;
         }
 
         return ApiResponseController::success($stockPlaces);
