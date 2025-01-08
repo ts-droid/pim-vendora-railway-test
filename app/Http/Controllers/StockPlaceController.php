@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\CompartmentSection;
 use App\Models\CompartmentsTemplate;
 use App\Models\StockItem;
+use App\Models\StockItemMovement;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceGroup;
 use App\Services\WMS\StockPlaceService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockPlaceController extends Controller
 {
@@ -58,6 +60,57 @@ class StockPlaceController extends Controller
             $stockPlaceArray = $stockPlace->toArray();
 
             $stockPlaceArray['position_class'] = WarehouseHelper::colorToClass($stockPlaceArray['color']);
+
+            foreach ($stockPlaceArray['compartments'] as &$compartment) {
+                $articles = [];
+
+                // Add already placed items
+                $articleNumbers = StockItem::where('stock_place_compartment_id', '=', $compartment['id'])
+                    ->select('article_number')
+                    ->distinct()
+                    ->pluck('article_number');
+
+                foreach ($articleNumbers as $articleNumber) {
+                    if (!isset($articles[$articleNumber])) {
+                        $articles[$articleNumber] = [
+                            'article_number' => $articleNumber,
+                            'image' => $this->getArticleImage($articleNumber),
+                            'stock' => StockItem::where('article_number', '=', $articleNumber)->where('stock_place_compartment_id', '=', $compartment['id'])->count(),
+                            'movement' => 0,
+                        ];
+                    }
+                }
+
+                $movementArticleNumbers = StockItemMovement::where('to_stock_place_compartment', '=', $compartment['id'])
+                    ->orWhere('from_stock_place_compartment', '=', $compartment['id'])
+                    ->select('article_number')
+                    ->distinct()
+                    ->pluck('article_number');
+
+                foreach ($movementArticleNumbers as $articleNumber) {
+                    if (!isset($articles[$articleNumber])) {
+                        $articles[$articleNumber] = [
+                            'article_number' => $articleNumber,
+                            'image' => $this->getArticleImage($articleNumber),
+                            'stock' => 0,
+                            'movement' => 0,
+                        ];
+                    }
+
+                    $moveToQuantity = StockItemMovement::where('article_number', '=', $articleNumber)
+                        ->where('to_stock_place_compartment', '=', $compartment['id'])
+                        ->sum('quantity');
+
+                    $moveFromQuantity = StockItemMovement::where('article_number', '=', $articleNumber)
+                        ->where('from_stock_place_compartment', '=', $compartment['id'])
+                        ->sum('quantity');
+
+                    $articles[$articleNumber]['movement'] += $moveToQuantity - $moveFromQuantity;
+                }
+
+
+                $compartment['articles'] = $articles;
+            }
 
             $stockPlaces[] = $stockPlaceArray;
         }
@@ -366,5 +419,22 @@ class StockPlaceController extends Controller
                 }
             }
         }
+    }
+
+    private function getArticleImage(string $articleNumber)
+    {
+        $articleID = DB::table('articles')
+            ->select('id')
+            ->where('article_number', '=', $articleNumber)
+            ->pluck('id')
+            ->first();
+
+        return DB::table('article_images')
+            ->select('path_url')
+            ->where('article_id', '=', $articleID)
+            ->where('solid_background', '=', 1)
+            ->orderBy('list_order', 'ASC')
+            ->pluck('path_url')
+            ->first();
     }
 }
