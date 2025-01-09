@@ -4,7 +4,9 @@ namespace App\Services\WMS;
 
 use App\Models\CompartmentSection;
 use App\Models\StockItem;
+use App\Models\StockItemLog;
 use App\Models\StockPlaceCompartment;
+use Illuminate\Support\Facades\DB;
 
 class StockItemService
 {
@@ -45,22 +47,36 @@ class StockItemService
 
     public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection|null $compartmentSection): array
     {
-        $stockItems = [];
+        DB::beginTransaction();
 
-        for ($i = 0;$i < $quantity;$i++) {
-            $stockItems[] = StockItem::create([
-                'article_number' => $articleNumber,
-                'stock_place_compartment_id' => $stockPlaceCompartment->id,
-                'compartment_section_id' => $compartmentSection->id ?? 0
-            ]);
+        try {
+            $stockItems = [];
 
+            for ($i = 0;$i < $quantity;$i++) {
+                $stockItems[] = StockItem::create([
+                    'article_number' => $articleNumber,
+                    'stock_place_compartment_id' => $stockPlaceCompartment->id,
+                    'compartment_section_id' => $compartmentSection->id ?? 0
+                ]);
+            }
+
+            $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity);
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Stock items added',
+                'stockItems' => $stockItems,
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Failed to add stock items: ' . $e->getMessage(),
+            ];
         }
-
-        return [
-            'success' => true,
-            'message' => 'Stock items added',
-            'stockItems' => $stockItems,
-        ];
     }
 
     public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, CompartmentSection|null $fromCompartmentSection, StockPlaceCompartment $toStockPlaceCompartment, CompartmentSection|null $toCompartmentSection): array
@@ -90,24 +106,64 @@ class StockItemService
 
     public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection|null $compartmentSection = null): array
     {
-        $stockItem->update([
-            'stock_place_compartment_id' => $stockPlaceCompartment->id,
-            'compartment_section_id' => $compartmentSection->id ?? 0
-        ]);
+        DB::beginTransaction();
 
-        return [
-            'success' => true,
-            'message' => 'Stock item moved',
-        ];
+        try {
+            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1);
+            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1);
+
+            $stockItem->update([
+                'stock_place_compartment_id' => $stockPlaceCompartment->id,
+                'compartment_section_id' => $compartmentSection->id ?? 0
+            ]);
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Stock item moved',
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Failed to move stock item: ' . $e->getMessage(),
+            ];
+        }
     }
 
     public function removeStockItem(StockItem $stockItem): array
     {
-        $stockItem->delete();
+        DB::beginTransaction();
 
-        return [
-            'success' => true,
-            'message' => 'Stock item removed',
-        ];
+        try {
+            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1);
+
+            $stockItem->delete();
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Stock item removed',
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => 'Failed to remove stock item: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity): void
+    {
+        StockItemLog::create([
+            'article_number' => $articleNumber,
+            'stock_place_compartment_id' => $stockPlaceCompartmentID,
+            'quantity' => $quantity,
+        ]);
     }
 }
