@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ShipmentInternalStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Shipment extends Model
 {
@@ -49,14 +50,16 @@ class Shipment extends Model
 
     public function isBackorder()
     {
-        $orderNumbers = $this->order_numbers;
+        return Cache::remember('shipment:' . $this->id . ':is_backorder', 3600, function() {
+            $orderNumbers = $this->order_numbers;
 
-        return (bool) Shipment::where('number', '<', $this->number)
-            ->where(function($query) use ($orderNumbers) {
-                foreach ($orderNumbers as $orderNumber) {
-                    $query->orWhere('order_numbers', 'LIKE', '%"' . $orderNumber . '"%');
-                }
-            })
-            ->exists();
+            return (bool) Shipment::where('number', '<', $this->number)
+                ->where(function($query) use ($orderNumbers) {
+                    foreach ($orderNumbers as $orderNumber) {
+                        $query->orWhere('order_numbers', 'LIKE', '%"' . $orderNumber . '"%');
+                    }
+                })
+                ->exists();
+        });
     }
 }
