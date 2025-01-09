@@ -380,6 +380,17 @@ class ArticleController extends Controller
         return ApiResponseController::success($reviews->toArray());
     }
 
+    public function getArticleWmsData(Article $article)
+    {
+        $articleData = DB::table('articles')
+            ->select('id', 'article_number', 'description')
+            ->where('article_number', '=', $article->article_number)
+            ->first()
+            ->toArray();
+
+        return ApiResponseController::success($articleData);
+    }
+
     public function getCategories(Request $request, Article $article)
     {
         $categories = [];
