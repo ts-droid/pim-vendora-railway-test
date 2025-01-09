@@ -129,7 +129,10 @@ class AppShipmentController extends Controller
             $lines = json_decode($lines, true);
         }
 
-        log_data('Pick lines: ' . json_encode($lines));
+        if ($request->has('debug')) {
+            log_data('Pick lines: ' . json_encode($lines));
+            return ApiResponseController::error('Debug mode enabled.');
+        }
 
         if ($lines && is_array($lines)) {
             foreach ($lines as $line) {
