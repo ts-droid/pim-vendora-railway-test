@@ -50,7 +50,7 @@ class Shipment extends Model
 
     public function isBackorder()
     {
-        return Cache::remember('shipment:' . $this->id . ':is_backorder', 3600, function() {
+        return Cache::remember('shipment:' . $this->id . ':is_backorder', (6 * 3600), function() {
             $orderNumbers = $this->order_numbers;
 
             return (bool) Shipment::where('number', '<', $this->number)
