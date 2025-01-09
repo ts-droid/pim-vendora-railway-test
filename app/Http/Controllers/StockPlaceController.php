@@ -329,6 +329,12 @@ class StockPlaceController extends Controller
 
     public function storeCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
+        // Make sure the compartment is empty
+        $hasItems = StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)->exists();
+        if ($hasItems) {
+            return ApiResponseController::error('Compartment must be empty to be able to edit sections');
+        }
+
         $compartmentSection = CompartmentSection::create([
             'stock_place_compartment_id' => $stockPlaceCompartment->id
         ]);
@@ -338,9 +344,11 @@ class StockPlaceController extends Controller
 
     public function deleteCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection $compartmentSection)
     {
-        // Remove section from all stock items
-        StockItem::where('compartment_section_id', $compartmentSection->id)
-            ->update(['compartment_section_id' => 0]);
+        // Make sure the compartment is empty
+        $hasItems = StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)->exists();
+        if ($hasItems) {
+            return ApiResponseController::error('Compartment must be empty to be able to edit sections');
+        }
 
         $compartmentSection->delete();
 
