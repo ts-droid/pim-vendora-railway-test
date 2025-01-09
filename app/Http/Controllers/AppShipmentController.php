@@ -129,6 +129,8 @@ class AppShipmentController extends Controller
             $lines = json_decode($lines, true);
         }
 
+        log_data('Pick lines: ' . json_encode($lines));
+
         if ($lines && is_array($lines)) {
             foreach ($lines as $line) {
                 $lineID = $line['id'] ?? 0;
