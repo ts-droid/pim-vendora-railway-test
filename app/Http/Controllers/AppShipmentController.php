@@ -129,11 +129,6 @@ class AppShipmentController extends Controller
             $lines = json_decode($lines, true);
         }
 
-        if ($request->has('debug')) {
-            log_data('Pick lines: ' . json_encode($lines));
-            return ApiResponseController::error('Debug mode enabled.');
-        }
-
         if ($lines && is_array($lines)) {
             foreach ($lines as $line) {
                 $lineID = $line['id'] ?? 0;
@@ -215,11 +210,10 @@ class AppShipmentController extends Controller
                         }
 
                         $stockItems = StockItem::where('stock_place_compartment_id', $compartment->id)
-                            ->where('compartment_section_id', $compartment->id)
                             ->where('article_number', $shipmentLine->article_number)
                             ->get();
 
-                        if (!$stockItems) {
+                        if (!$stockItems->count()) {
                             continue;
                         }
 
