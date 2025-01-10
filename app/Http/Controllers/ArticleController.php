@@ -385,8 +385,9 @@ class ArticleController extends Controller
         $articleData = DB::table('articles')
             ->select('id', 'article_number', 'description')
             ->where('article_number', '=', $article->article_number)
-            ->first()
-            ->toArray();
+            ->first();
+
+        $articleData = (array) $articleData;
 
         return ApiResponseController::success($articleData);
     }
