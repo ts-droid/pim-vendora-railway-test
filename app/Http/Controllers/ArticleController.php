@@ -10,12 +10,15 @@ use App\Models\ArticleImage;
 use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\StockItem;
+use App\Models\StockKeepTransaction;
 use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
 use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
+use App\Services\WMS\StockItemService;
 use App\Utilities\ImageBackgroundAnalyzer;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
@@ -403,9 +406,67 @@ class ArticleController extends Controller
 
     public function stockKeepArticle(Request $request, Article $article)
     {
+        $markForInvestigation = (bool) $request->input('mark_for_investigation', false);
 
+        $stockValues = $request->input('stock_values');
+        $stockValues = json_decode($stockValues, true);
 
-        return ApiResponseController::success();
+        if (!$stockValues || !is_array($stockValues)) {
+            return ApiResponseController::error('No stock values provided');
+        }
+
+        $stockItemService = new StockItemService();
+
+        $identifiers = [];
+        $values = [];
+        $diffs = [];
+
+        foreach ($stockValues as $identifier => $quantity) {
+            if ($quantity === '' || !is_numeric($quantity)) continue;
+
+            $identifierData = WarehouseHelper::getStockPlaceAndCompartment($identifier);
+            if (!$identifierData) {
+                continue;
+            }
+
+            $currentValue = WarehouseHelper::getArticleStockAtLocation($article->article_number, $identifier);
+            $diff = $quantity - $currentValue;
+
+            $identifiers[] = $identifier;
+            $values[] = $quantity;
+            $diffs[] = $diff;
+
+            // Make stock update if not marked for investigation
+            /*if (!$markForInvestigation && $diff) {
+                if ($diff > 0) {
+                    // Add stock items
+                    $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], null);
+                }
+                else {
+                    // Remove stock items
+                    $stockItems = StockItem::where('article_number', $article->article_number)
+                        ->where('stock_place_compartment_id', $identifierData['stock_place_compartment']->id)
+                        ->limit(abs($diff))
+                        ->get();
+
+                    foreach ($stockItems as $stockItem) {
+                        $stockItemService->removeStockItem($stockItem);
+                    }
+                }
+            }*/
+        }
+
+        // Save the stock keep transaction
+        $stockKeepTransaction = StockKeepTransaction::create([
+            'article_number' => $article->article_number,
+            'identifiers' => implode(',', $identifiers),
+            'values' => implode(',', $values),
+            'diffs' => implode(',', $diffs),
+            'type' => 'manual',
+            'status' => ($markForInvestigation ? 'investigation' : 'completed'),
+        ]);
+
+        return ApiResponseController::success($stockKeepTransaction->toArray());
     }
 
     public function getCategories(Request $request, Article $article)

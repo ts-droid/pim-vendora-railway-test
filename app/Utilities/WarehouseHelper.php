@@ -39,6 +39,46 @@ class WarehouseHelper
             ->exists();
     }
 
+    public static function getStockPlaceAndCompartment(string $identifier): array|bool
+    {
+        list($stockPlaceIdentifier, $compartmentIdentifier) = explode(':', $identifier);
+
+        $stockPlace = StockPlace::where('identifier', $stockPlaceIdentifier)
+            ->first();
+
+        if (!$stockPlace) {
+            return false;
+        }
+
+        $stockPlaceCompartment = StockPlaceCompartment::where('identifier', $compartmentIdentifier)
+            ->where('stock_place_id', $stockPlace->id)
+            ->first();
+
+        if (!$stockPlaceCompartment) {
+            return false;
+        }
+
+        return [
+            'stock_place' => $stockPlace,
+            'stock_place_compartment' => $stockPlaceCompartment
+        ];
+    }
+
+    public static function getArticleStockAtLocation(string $articleNumber, string $identifier): int
+    {
+        $identifierData = self::getStockPlaceAndCompartment($identifier);
+        $stockPlaceCompartment = $identifierData['stock_place_compartment'] ?? null;
+
+        if (!$stockPlaceCompartment) {
+            return 0;
+        }
+
+        return (int) StockItem::where('article_number', $articleNumber)
+            ->where('stock_place_compartment_id', $stockPlaceCompartment->id)
+            ->count();
+
+    }
+
     public static function getArticleLocationsWithStock(string $articleNumber): array
     {
         $locations = [];
