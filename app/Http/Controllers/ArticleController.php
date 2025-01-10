@@ -393,8 +393,7 @@ class ArticleController extends Controller
             ->select('path_url')
             ->where('article_id', '=', $article->id)
             ->orderBy('list_order', 'ASC')
-            ->first()
-            ->pluck('path_url');
+            ->first()->path_url ?? null;
 
         return ApiResponseController::success($articleData);
     }
