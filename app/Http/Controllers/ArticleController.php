@@ -401,6 +401,13 @@ class ArticleController extends Controller
         return ApiResponseController::success($articleData);
     }
 
+    public function stockKeepArticle(Request $request, Article $article)
+    {
+
+
+        return ApiResponseController::success();
+    }
+
     public function getCategories(Request $request, Article $article)
     {
         $categories = [];
