@@ -17,6 +17,7 @@ use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Utilities\ImageBackgroundAnalyzer;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -394,6 +395,8 @@ class ArticleController extends Controller
             ->where('article_id', '=', $article->id)
             ->orderBy('list_order', 'ASC')
             ->first()->path_url ?? null;
+
+        $articleData['locations'] = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
 
         return ApiResponseController::success($articleData);
     }

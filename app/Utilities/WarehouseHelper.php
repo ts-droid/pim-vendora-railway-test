@@ -4,6 +4,7 @@ namespace App\Utilities;
 
 use App\Models\StockItem;
 use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
 use Illuminate\Support\Facades\DB;
 
 class WarehouseHelper
@@ -38,12 +39,56 @@ class WarehouseHelper
             ->exists();
     }
 
+    public static function getArticleLocationsWithStock(string $articleNumber): array
+    {
+        $locations = [];
+
+        $managedStock = 0;
+
+        $articleStock = (int) DB::table('articles')
+            ->select('stock')
+            ->where('article_number', $articleNumber)
+            ->value('stock');
+
+        $stockItems = StockItem::where('article_number', $articleNumber)
+            ->get();
+
+        foreach ($stockItems as $stockItem) {
+            $stockPlaceCompartment = StockPlaceCompartment::where('id', $stockItem->stock_place_compartment_id)
+                ->first();
+
+            $stockPlace = StockPlace::find($stockPlaceCompartment->stock_place_id);
+
+            $identifier = $stockPlace->identifier . ':' . $stockPlaceCompartment->identifier;
+
+            if (!isset($locations[$identifier])) {
+                $locations[$identifier] = [
+                    'identifier' => $identifier,
+                    'stock' => 0
+                ];
+            }
+
+            $locations[$identifier]['stock']++;
+
+            $managedStock++;
+        }
+
+        if ($managedStock < $articleStock) {
+            $locations['--'] = [
+                'identifier' => '--',
+                'stock' => $articleStock - $managedStock
+            ];
+        }
+
+        return array_values($locations);
+    }
+
     public static function getArticleLocations(string $articleNumber, int $quantity): array
     {
         $colors = [
-            '#50f25b', // A
-            '#f2a950', // B
-            '#f2505f', // C
+            self::classToColor('A'),
+            self::classToColor('B'),
+            self::classToColor('C'),
         ];
 
         $stockPlaces = StockPlace::whereIn('color', $colors)
