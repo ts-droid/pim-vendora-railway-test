@@ -41,6 +41,10 @@ class WarehouseHelper
 
     public static function getStockPlaceAndCompartment(string $identifier): array|bool
     {
+        if (!str_contains($identifier, ':')) {
+            return false;
+        }
+
         list($stockPlaceIdentifier, $compartmentIdentifier) = explode(':', $identifier);
 
         $stockPlace = StockPlace::where('identifier', $stockPlaceIdentifier)
