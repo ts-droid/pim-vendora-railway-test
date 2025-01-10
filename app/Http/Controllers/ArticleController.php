@@ -389,6 +389,13 @@ class ArticleController extends Controller
 
         $articleData = (array) $articleData;
 
+        $articleData['image'] = DB::table('article_images')
+            ->select('path_url')
+            ->where('article_id', '=', $article->id)
+            ->orderBy('list_order', 'ASC')
+            ->first()
+            ->pluck('path_url');
+
         return ApiResponseController::success($articleData);
     }
 
