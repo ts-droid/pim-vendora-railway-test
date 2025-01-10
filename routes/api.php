@@ -32,6 +32,7 @@ use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\SalesPersonController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
+use App\Http\Controllers\StockKeepController;
 use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\StockOptimizationController;
 use App\Http\Controllers\StockPlaceController;
@@ -175,6 +176,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/supplier-prices')->group(function() {
         Route::post('/', [SupplierPriceController::class, 'store'])->name('supplierPrice.store');
+    });
+
+    Route::prefix('/stock-keep')->group(function() {
+        Route::get('/transactions', [StockKeepController::class, 'get']);
     });
 
     Route::prefix('/article-reviews')->group(function() {
