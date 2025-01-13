@@ -75,6 +75,7 @@ class StockPlaceController extends Controller
                         $articles[$articleNumber] = [
                             'article_number' => $articleNumber,
                             'image' => $this->getArticleImage($articleNumber),
+                            'is_inventoried' => $this->isArticleInventoried($articleNumber, $stockPlace->identifier . ':' . $compartment->identifier, 30),
                             'stock' => StockItem::where('article_number', '=', $articleNumber)->where('stock_place_compartment_id', '=', $compartment['id'])->count(),
                             'movement' => 0,
                         ];
@@ -450,5 +451,15 @@ class StockPlaceController extends Controller
             ->orderBy('list_order', 'ASC')
             ->pluck('path_url')
             ->first();
+    }
+
+    private function isArticleInventoried(string $articleNumber, string $identifier, int $days)
+    {
+        return DB::table('stock_keep_transactions')
+            ->where('article_number', '=', $articleNumber)
+            ->where('identifiers', 'LIKE', '%' . $identifier . '%')
+            ->where('status', '=', 'completed')
+            ->where('created_at', '>=', date('Y-m-d H:i:s', strtotime('-' . $days . ' days')))
+            ->exists();
     }
 }
