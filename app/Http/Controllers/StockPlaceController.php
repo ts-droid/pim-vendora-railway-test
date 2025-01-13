@@ -75,7 +75,7 @@ class StockPlaceController extends Controller
                         $articles[$articleNumber] = [
                             'article_number' => $articleNumber,
                             'image' => $this->getArticleImage($articleNumber),
-                            'is_inventoried' => $this->isArticleInventoried($articleNumber, $stockPlace->identifier . ':' . $compartment->identifier, 30),
+                            'is_inventoried' => $this->isArticleInventoried($articleNumber, $stockPlace->identifier . ':' . $compartment['identifier'], 30),
                             'stock' => StockItem::where('article_number', '=', $articleNumber)->where('stock_place_compartment_id', '=', $compartment['id'])->count(),
                             'movement' => 0,
                         ];
