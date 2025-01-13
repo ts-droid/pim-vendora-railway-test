@@ -440,7 +440,6 @@ class StockPlaceController extends Controller
         return DB::table('article_images')
             ->select('path_url')
             ->where('article_id', '=', $articleID)
-            ->where('solid_background', '=', 1)
             ->orderBy('list_order', 'ASC')
             ->pluck('path_url')
             ->first();
