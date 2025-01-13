@@ -165,6 +165,7 @@ class ArticleController extends Controller
                 '=',
                 'image.article_id'
             )
+            ->where('status', '!=', 'Inactive')
             ->where(function($query) use ($searchQuery) {
                 $query->where('article_number', 'LIKE', '%' . $searchQuery . '%')
                     ->orWhere('ean', 'LIKE', '%' . $searchQuery . '%')
