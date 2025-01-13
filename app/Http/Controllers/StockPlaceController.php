@@ -303,10 +303,17 @@ class StockPlaceController extends Controller
 
     public function updateStockPlaceGroup(Request $request, StockPlaceGroup $stockPlaceGroup)
     {
+        $wmsMultiIntelligence = $request->input('wms_multi_intelligence', null);
+        if ($wmsMultiIntelligence == 1 || $wmsMultiIntelligence == 0) {
+            $wmsMultiIntelligence = intval($wmsMultiIntelligence);
+        }
+        else {
+            $wmsMultiIntelligence = null;
+        }
+
         $maxVolumeClassSizeA = floatval($request->input('max_volume_class_size_a', 0)) ?: null;
         $maxVolumeClassSizeB = floatval($request->input('max_volume_class_size_b', 0)) ?: null;
         $maxVolumeClassSizeC = floatval($request->input('max_volume_class_size_c', 0)) ?: null;
-        $wmsMultiIntelligence = (intval($request->input('wms_multi_intelligence', -1)) >= 0) ?: null;
         $wmsMultiIntelligencePeriod = intval($request->input('wms_multi_intelligence_period', 0)) ?: null;
 
         $stockPlaceGroup->update([
