@@ -29,8 +29,18 @@ class StockKeepController extends Controller
             ->offset(($page - 1) * $pageSize)
             ->get();
 
+        $transactionsArray = $transactions->toArray();
+
+        foreach ($transactionsArray as &$item) {
+            $transactionsArray['description'] = DB::table('articles')
+                ->select('description')
+                ->where('article_number', '=', $item['article_number'])
+                ->pluck('description')
+                ->first();
+        }
+
         return ApiResponseController::success([
-            'results' => $transactions->toArray(),
+            'results' => $transactionsArray,
             'page' => $page,
             'next_page' => ($transactions->count() == $pageSize) ? $page + 1 : null,
         ]);
