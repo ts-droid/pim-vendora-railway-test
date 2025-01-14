@@ -17,7 +17,8 @@ class StockKeepController extends Controller
         $transactions = StockKeepTransaction::where('status', '=', $status)
             ->orderBy('created_at', 'DESC')
             ->limit($pageSize)
-            ->offset(($page - 1) * $pageSize);
+            ->offset(($page - 1) * $pageSize)
+            ->get();
 
         return ApiResponseController::success($transactions->toArray());
     }
