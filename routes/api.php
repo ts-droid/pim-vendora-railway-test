@@ -180,6 +180,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/stock-keep')->group(function() {
         Route::get('/transactions', [StockKeepController::class, 'get']);
+        Route::get('/transactions/archived-dates', [StockKeepController::class, 'archivedDates']);
     });
 
     Route::prefix('/article-reviews')->group(function() {

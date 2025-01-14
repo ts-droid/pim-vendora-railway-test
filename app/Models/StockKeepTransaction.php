@@ -16,5 +16,6 @@ class StockKeepTransaction extends Model
         'diffs',
         'type',
         'status',
+        'is_archived',
     ];
 }
