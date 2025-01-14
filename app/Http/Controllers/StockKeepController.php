@@ -23,7 +23,7 @@ class StockKeepController extends Controller
         return ApiResponseController::success([
             'results' => $transactions->toArray(),
             'page' => $page,
-            'next_page' => $transactions->count() === $pageSize ? $page + 1 : null,
+            'next_page' => ($transactions->count() == $pageSize) ? $page + 1 : null,
         ]);
     }
 }
