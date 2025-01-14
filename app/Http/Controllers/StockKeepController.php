@@ -40,4 +40,15 @@ class StockKeepController extends Controller
 
         return ApiResponseController::success($dates->toArray());
     }
+
+    public function archive(Request $request)
+    {
+        $ids = $request->input('ids');
+        $ids = explode(',', $ids);
+
+        StockKeepTransaction::whereIn('id', $ids)
+            ->update(['is_archived' => 1]);
+
+        return ApiResponseController::success();
+    }
 }
