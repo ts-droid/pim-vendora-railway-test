@@ -32,11 +32,10 @@ class StockKeepController extends Controller
         $transactionsArray = $transactions->toArray();
 
         foreach ($transactionsArray as &$item) {
-            $transactionsArray['description'] = DB::table('articles')
+            $item['description'] = DB::table('articles')
                 ->select('description')
                 ->where('article_number', '=', $item['article_number'])
-                ->pluck('description')
-                ->first();
+                ->value('description');
         }
 
         return ApiResponseController::success([
