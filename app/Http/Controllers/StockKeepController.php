@@ -20,6 +20,10 @@ class StockKeepController extends Controller
             ->offset(($page - 1) * $pageSize)
             ->get();
 
-        return ApiResponseController::success($transactions->toArray());
+        return ApiResponseController::success([
+            'results' => $transactions->toArray(),
+            'page' => $page,
+            'next_page' => $transactions->count() === $pageSize ? $page + 1 : null,
+        ]);
     }
 }
