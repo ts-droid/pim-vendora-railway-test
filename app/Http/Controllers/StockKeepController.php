@@ -9,13 +9,15 @@ class StockKeepController extends Controller
 {
     public function get(Request $request)
     {
-        $status = $request->input('status', '');
-        $date = $request->input('date', '') ?: date('Y-m-d');
+        $page = $request->input('page', 1);
+        $pageSize = $request->input('page_size', 50);
 
-        $transactions = StockKeepTransaction::where('status', $status)
-            ->whereDate('created_at', $date)
+        $status = $request->input('status', '');
+
+        $transactions = StockKeepTransaction::where('status', '=', $status)
             ->orderBy('created_at', 'DESC')
-            ->get();
+            ->limit($pageSize)
+            ->offset(($page - 1) * $pageSize);
 
         return ApiResponseController::success($transactions->toArray());
     }
