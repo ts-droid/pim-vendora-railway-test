@@ -14,11 +14,17 @@ class StockKeepController extends Controller
         $pageSize = $request->input('page_size', 50);
 
         $status = $request->input('status', '');
+        $date = $request->input('date', null);
         $archived = (int) $request->input('archived', 0);
 
-        $transactions = StockKeepTransaction::where('status', '=', $status)
-            ->where('is_archived', '=', $archived)
-            ->orderBy('created_at', 'DESC')
+        $query = StockKeepTransaction::where('status', '=', $status)
+            ->where('is_archived', '=', $archived);
+
+        if ($date) {
+            $query->where('created_at', 'LIKE', $date . '%');
+        }
+
+        $transactions = $query->orderBy('created_at', 'DESC')
             ->limit($pageSize)
             ->offset(($page - 1) * $pageSize)
             ->get();
