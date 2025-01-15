@@ -243,43 +243,26 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipment->toArray());
     }
 
-    public function wgr(Shipment $shipment)
+    public function update(Request $request, Shipment $shipment)
     {
-        Log::channel('shipments')->info('Received request to re-send shipment to WGR.', ['shipmentNumber' => $shipment->number]);
+        Log::channel('shipments')->info('Received request to update shipment', ['shipmentNumber' => $shipment->number]);
+
+        $displayName = (string) $request->header('display-name', '');
+        $trackingNumber = (string) $request->input('tracking_number', '');
 
         if (!$shipment->completed_at) {
-            Log::channel('shipments')->info('Aborting because shipment is not completed.', ['shipmentNumber' => $shipment->number]);
-            return ApiResponseController::error('Shipment it not completed.');
+            Log::channel('shipments')->info('Shipment is not completed. So can not update it.', ['shipmentNumber' => $shipment->number]);
+            return ApiResponseController::error('Shipment is not completed. So can not update it.');
         }
 
-        if (!$shipment->tracking_number) {
-            Log::channel('shipments')->info('Aborting because tracking number is missing.', ['shipmentNumber' => $shipment->number]);
-            return ApiResponseController::error('Tracking number is missing.');
-        }
+        $shipment->update([
+            'pack_signature' => $displayName,
+            'tracking_number' => $trackingNumber,
+            'ping_at' => 0
+        ]);
 
-        if (!$shipment->order_numbers) {
-            Log::channel('shipments')->info('Aborting because no linked order numbers.', ['shipmentNumber' => $shipment->number]);
-            return ApiResponseController::error('No linked order numbers.');
-        }
-
-        foreach ($shipment->order_numbers as $orderNumber) {
-            $wgrOrderID = SalesOrder::select('customer_ref_no')
-                ->where('order_number', $orderNumber)
-                ->pluck('customer_ref_no')
-                ->first();
-
-            if (!$wgrOrderID) {
-                Log::channel('shipments')->info('Could not find WGR ID for order number (' . $orderNumber . ').', ['shipmentNumber' => $shipment->number]);
-                continue;
-            }
-
-            CompleteWgrOrder::dispatch([
-                'wgr_order_id' => $wgrOrderID,
-                'tracking_number' => $shipment->tracking_number
-            ])->onQueue('main');
-
-            Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
-        }
+        // Send tracking number to WGR
+        $this->sendToWGR($shipment, $trackingNumber);
 
         return ApiResponseController::success();
     }
@@ -313,35 +296,41 @@ class AppShipmentController extends Controller
         ]);
 
         // Send tracking number to WGR
-        if ($trackingNumber && $shipment->order_numbers) {
-            foreach ($shipment->order_numbers as $orderNumber) {
-                $wgrOrderID = SalesOrder::select('customer_ref_no')
-                    ->where('order_number', $orderNumber)
-                    ->pluck('customer_ref_no')
-                    ->first();
+        $this->sendToWGR($shipment, $trackingNumber);
 
-                if ($wgrOrderID) {
-                    CompleteWgrOrder::dispatch([
-                        'wgr_order_id' => $wgrOrderID,
-                        'tracking_number' => $trackingNumber
-                    ])->onQueue('main');
+        return ApiResponseController::success();
+    }
 
-                    Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
-                }
-                else {
-                    Log::channel('shipments')->warning('Could not queue CompleteWgrOrder for shipment. Missing WGR Order ID.', ['shipmentNumber' => $shipment->number]);
-                }
-            }
-        }
-        else {
+    public function sendToWGR(Shipment $shipment, $trackingNumber)
+    {
+        if (!$trackingNumber || !$shipment->order_numbers) {
             Log::channel('shipments')->warning('Shipment has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
                 'shipmentNumber' => $shipment->number,
                 'trackingNumber' => $trackingNumber,
                 'orderNumbersCount' => count($shipment->order_numbers)
             ]);
+
+            return;
         }
 
-        return ApiResponseController::success();
+        foreach ($shipment->order_numbers as $orderNumber) {
+            $wgrOrderID = SalesOrder::select('customer_ref_no')
+                ->where('order_number', $orderNumber)
+                ->pluck('customer_ref_no')
+                ->first();
+
+            if (!$wgrOrderID) {
+                Log::channel('shipments')->warning('Could not queue CompleteWgrOrder for shipment. Missing WGR Order ID.', ['shipmentNumber' => $shipment->number]);
+                continue;
+            }
+
+            CompleteWgrOrder::dispatch([
+                'wgr_order_id' => $wgrOrderID,
+                'tracking_number' => $trackingNumber
+            ])->onQueue('main');
+
+            Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
+        }
     }
 
     public function print(Shipment $shipment)
