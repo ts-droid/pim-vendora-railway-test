@@ -27,8 +27,13 @@ class OptimizeStock extends Command
      */
     public function handle()
     {
+        $isProduction = (int) ConfigController::getConfig('wms_production_mode');
         $lastRun = (int) ConfigController::getConfig('last_wms_optimize_stock');
         $schedule = ConfigController::getConfig('wms_movement_job_schedule');
+
+        if (!$isProduction) {
+            return;
+        }
 
         switch ($schedule) {
             case 'daily':
