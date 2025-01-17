@@ -15,6 +15,7 @@ use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AppShipmentController extends Controller
@@ -135,6 +136,11 @@ class AppShipmentController extends Controller
                 $quantity = $line['quantity'] ?? 0;
                 $investigationComment = $line['investigation_comment'] ?? '';
 
+                $serialNumbers = $line['serial_numbers'] ?? '';
+                $serialNumbers = explode(',', $serialNumbers);
+                $serialNumbers = array_map('trim', $serialNumbers);
+                $serialNumbers = array_filter($serialNumbers);
+
                 $sound = $request->file('sound_' . $lineID);
 
                 $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
@@ -142,6 +148,17 @@ class AppShipmentController extends Controller
                     ->first();
 
                 if (!$shipmentLine) continue;
+
+                $articleData = DB::table('articles')
+                    ->select('serial_number_management')
+                    ->where('article_number', '=', $shipmentLine->article_number)
+                    ->first();
+
+                $serialNumberManagement = $articleData->serial_number_management ?? 0;
+
+                if ($serialNumberManagement && count($serialNumbers) != $quantity) {
+                    return ApiResponseController::error('Missing serial numbers for all articles (' . $shipmentLine->article_number . ').');
+                }
 
                 $investigationSoundPath = $shipmentLine->investigation_sound_path;
                 $investigationSoundUrl = $shipmentLine->investigation_sound_url;
@@ -155,7 +172,8 @@ class AppShipmentController extends Controller
                     'picked_quantity' => $quantity,
                     'investigation_comment' => $investigationComment,
                     'investigation_sound_path' => $investigationSoundPath,
-                    'investigation_sound_url' => $investigationSoundUrl
+                    'investigation_sound_url' => $investigationSoundUrl,
+                    'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : ''
                 ]);
 
                 if ($quantity != $shipmentLine->shipped_quantity || $quantity == 0) {
