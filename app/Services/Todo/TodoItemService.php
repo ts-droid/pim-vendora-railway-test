@@ -96,6 +96,11 @@ class TodoItemService extends TodoService
             }
         }
 
+        $serialNumberManagement = $dataArray['serial_number_management'] ?? '';
+        if ($serialNumberManagement) {
+            $updateData['serial_number_management'] = $serialNumberManagement == 'Active' ? 1 : 0;
+        }
+
         $variant = $todoItem->data['variant'] ?? '';
         switch ($variant) {
             case 'article_number':
