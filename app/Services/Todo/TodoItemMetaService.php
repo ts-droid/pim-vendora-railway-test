@@ -61,6 +61,7 @@ class TodoItemMetaService
             'total_stock' => $article->stock_on_hand,
             'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
             'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
+            'serial_number_management' => $article->serial_number_management ? 'Active' : 'Inactive',
         ];
     }
 }
