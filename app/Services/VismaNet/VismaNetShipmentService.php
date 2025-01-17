@@ -107,11 +107,17 @@ class VismaNetShipmentService extends VismaNetApiService
         ];
 
         foreach ($shipment->lines as $line) {
-            $updateData['shipmentDetailLines'][] = [
+            $lineData = [
                 'operation' => 'Update',
                 'lineNumber' => ['value' => $line->line_number],
                 'shippedQty' => ['value' => $line->picked_quantity]
             ];
+
+            if ($line->serial_number) {
+                $lineData['lotSerialNbr'] = ['value' => $line->serial_number];
+            }
+
+            $updateData['shipmentDetailLines'][] = $lineData;
         }
 
         $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
