@@ -86,13 +86,6 @@ class StockOptimizationManager
 
                     if (!$stockPlaces) continue;
 
-                    // Allow only one placement in higher-priority stock places
-                    // Remove or adjust the following condition if necessary
-                    if ($stockData['has_main_placement']
-                        && ($stockPlaceClass == 'A' || $stockPlaceClass == 'B')) {
-                        continue;
-                    }
-
                     // First look for existing placements
                     foreach ($stockPlaces as $stockPlace) {
                         foreach ($stockPlace->compartments as $compartment) {
@@ -194,6 +187,13 @@ class StockOptimizationManager
                                 }
                             }
                         }
+                    }
+
+                    // Allow only one placement in higher-priority stock places
+                    // Remove or adjust the following condition if necessary
+                    if ($stockData['has_main_placement']
+                        && ($stockPlaceClass == 'A' || $stockPlaceClass == 'B')) {
+                        continue;
                     }
 
                     // Fill remaining stock to new compartments
