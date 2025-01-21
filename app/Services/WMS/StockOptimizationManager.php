@@ -40,11 +40,12 @@ class StockOptimizationManager
         $lastWorkTime = StockItemMovement::all()->max('ping_at');
         if ($lastWorkTime > (time() - 60)) {
             // Do not run the operation if someone is working on a stock movement
+            ConfigController::setConfigs(['optimize_stock_running' => 0]);
             return false;
         }
 
         // Remove all existing StockItemMovements
-        StockItemMovement::truncate();
+        DB::table('stock_item_movements')->truncate();
 
         // Add existing stock movements to the cache
         $existingMovements = StockItemMovement::all();
