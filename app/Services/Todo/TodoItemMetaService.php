@@ -5,6 +5,7 @@ namespace App\Services\Todo;
 use App\Enums\TodoType;
 use App\Models\Article;
 use App\Models\ArticleImage;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Support\Facades\DB;
 
 class TodoItemMetaService
@@ -62,6 +63,7 @@ class TodoItemMetaService
             'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
             'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
             'serial_number_management' => $article->serial_number_management ? 'Active' : 'Inactive',
+            'locations' => WarehouseHelper::getArticleLocationsWithStock($article->article_number),
         ];
     }
 }
