@@ -9,6 +9,7 @@ use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceCompartmentReservation;
 use App\Services\WMS\StockItemService;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -328,6 +329,8 @@ class AppWarehouseController extends Controller
 
                 $article->incoming_stock = $purchaseData->incoming_quantity ?? 0;
                 $article->oldest_purchase_date = $purchaseData->oldest_purchase_date ?? '';
+
+                $article->locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
             }
 
             $articlesData[$article->article_number] = $article;
