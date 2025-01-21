@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\WMS\StockOptimizationManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,6 +27,7 @@ class OptimizeStock implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('wms:optimize-stock');
+        $manager = new StockOptimizationManager();
+        $success = $manager->optimize();
     }
 }
