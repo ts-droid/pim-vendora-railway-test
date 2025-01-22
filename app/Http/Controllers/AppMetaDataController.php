@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TodoQueue;
 use App\Models\Shipment;
+use App\Models\StockItemMovement;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,8 @@ class AppMetaDataController extends Controller
             ->where('operation', 'Issue')
             ->where('internal_status', 0)
             ->count();
+
+        $counts['warehouse'] = (int) StockItemMovement::where('is_investigation', 0)->count();
 
         $queue = $this->getQueueEnum('wms');
         if ($queue) {
