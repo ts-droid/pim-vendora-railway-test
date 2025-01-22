@@ -167,7 +167,7 @@ class StockOptimizationManager
 
                                 $refillCount = $this->roundQuantity($refillCount);
 
-                                if (!$refillCount) continue; // Not items found to refill with
+                                if ($refillCount <= 0) continue; // Not items found to refill with
 
                                 // Make a stock movement
                                 $this->makeStockMovement(
