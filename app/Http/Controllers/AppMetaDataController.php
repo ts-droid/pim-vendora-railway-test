@@ -18,7 +18,9 @@ class AppMetaDataController extends Controller
             'warehouse' => 0,
         ];
 
-        $counts['picking'] = (int) Shipment::where('status', 0)->count();
+        $counts['picking'] = (int) Shipment::where('status', 'Open')
+            ->where('operation', 'Issue')
+            ->where('status', 0)->count();
 
         $queue = $this->getQueueEnum('wms');
         if ($queue) {
