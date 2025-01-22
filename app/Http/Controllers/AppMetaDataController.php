@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TodoQueue;
+use App\Models\Shipment;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,8 @@ class AppMetaDataController extends Controller
             'inventory' => 0,
             'warehouse' => 0,
         ];
+
+        $counts['picking'] = (int) Shipment::where('status', 0)->count();
 
         $queue = $this->getQueueEnum('wms');
         if ($queue) {
