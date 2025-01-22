@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TodoQueue;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
 
@@ -24,5 +25,14 @@ class AppMetaDataController extends Controller
 
 
         return ApiResponseController::success($counts);
+    }
+
+    private function getQueueEnum(string $string)
+    {
+        try {
+            return TodoQueue::from($string);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
