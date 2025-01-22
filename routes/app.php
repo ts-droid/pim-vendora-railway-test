@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TodoController;
+use App\Http\Controllers\AppMetaDataController;
 use App\Http\Controllers\AppShipmentController;
 use App\Http\Controllers\AppWarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,8 @@ Route::prefix('/app')->group(function() {
     Route::prefix('/v1')->group(function() {
 
         Route::post('/login', [LoginController::class, 'login']);
+
+        Route::get('/tab-counts', [AppMetaDataController::class, 'getTabCounts']);
 
         Route::prefix('/todo')->group(function() {
             Route::get('/queues', [TodoController::class, 'getQueues']);
