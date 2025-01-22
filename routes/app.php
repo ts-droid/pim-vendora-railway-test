@@ -13,6 +13,7 @@ Route::prefix('/app')->group(function() {
         Route::post('/login', [LoginController::class, 'login']);
 
         Route::get('/tab-counts', [AppMetaDataController::class, 'getTabCounts']);
+        Route::get('/version', [AppMetaDataController::class, 'getVersion']);
 
         Route::prefix('/todo')->group(function() {
             Route::get('/queues', [TodoController::class, 'getQueues']);

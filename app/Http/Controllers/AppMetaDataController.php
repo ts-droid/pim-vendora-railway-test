@@ -10,6 +10,17 @@ use Illuminate\Http\Request;
 
 class AppMetaDataController extends Controller
 {
+    public function getVersion()
+    {
+        $version = ConfigController::getConfig('app_latest_version');
+        $buildNumber = ConfigController::getConfig('app_latest_build_number');
+
+        return ApiResponseController::success([
+            'version' => $version,
+            'build_number' => $buildNumber
+        ]);
+    }
+
     public function getTabCounts()
     {
         $counts = [
