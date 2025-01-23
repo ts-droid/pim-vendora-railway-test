@@ -2,6 +2,22 @@
 
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('get_display_name')) {
+    function get_display_name(): string
+    {
+        $displayName = (string) request()->header('display-name', '');
+
+        $displayName = str_replace('å', 'a', $displayName);
+        $displayName = str_replace('ä', 'a', $displayName);
+        $displayName = str_replace('ö', 'o', $displayName);
+        $displayName = str_replace('Å', 'A', $displayName);
+        $displayName = str_replace('Ä', 'A', $displayName);
+        $displayName = str_replace('Ö', 'O', $displayName);
+
+        return $displayName;
+    }
+}
+
 if (!function_exists('is_wgr_active')) {
     function is_wgr_active(): bool
     {

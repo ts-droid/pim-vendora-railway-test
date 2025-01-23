@@ -121,7 +121,7 @@ class AppShipmentController extends Controller
 
     public function pick(Request $request, Shipment $shipment)
     {
-        $displayName = (string) $request->header('display-name', '');
+        $displayName = get_display_name();
 
         $investigate = false;
 
@@ -265,7 +265,6 @@ class AppShipmentController extends Controller
     {
         Log::channel('shipments')->info('Received request to update shipment', ['shipmentNumber' => $shipment->number]);
 
-        $displayName = (string) $request->header('display-name', '');
         $trackingNumber = (string) $request->input('tracking_number', '');
 
         if (!$shipment->completed_at) {
@@ -274,7 +273,7 @@ class AppShipmentController extends Controller
         }
 
         $shipment->update([
-            'pack_signature' => $displayName,
+            'pack_signature' => get_display_name(),
             'tracking_number' => $trackingNumber,
             'ping_at' => 0
         ]);
@@ -342,8 +341,6 @@ class AppShipmentController extends Controller
     {
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
 
-        $displayName = (string) $request->header('display-name', '');
-
         // Complete the shipment in Visma.net
         $vismaNetShipmentService = new VismaNetShipmentService();
         $response = $vismaNetShipmentService->completeShipment($shipment);
@@ -359,7 +356,7 @@ class AppShipmentController extends Controller
 
         // Update internal status
         $shipment->update([
-            'pack_signature' => $displayName,
+            'pack_signature' => get_display_name(),
             'tracking_number' => $trackingNumber,
             'internal_status' => ShipmentInternalStatus::PACKED,
             'completed_at' => date('Y-m-d H:i:s'),
