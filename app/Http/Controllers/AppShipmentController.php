@@ -289,11 +289,13 @@ class AppShipmentController extends Controller
     {
         $lineID = (int) $request->input('line_id');
         $quantity = (int) $request->input('quantity');
+        $serialNumbers = (string) $request->input('serial_numbers');
 
         ShipmentLine::where('id', $lineID)
             ->where('shipment_id', $shipment->id)
             ->update([
                 'picked_quantity' => $quantity,
+                'serial_number' => $serialNumbers,
                 'is_picked' => 1,
             ]);
 
