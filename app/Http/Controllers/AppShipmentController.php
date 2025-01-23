@@ -44,10 +44,10 @@ class AppShipmentController extends Controller
     {
         $shipments = Shipment::where('operation', 'Issue')
             ->where('internal_status', ShipmentInternalStatus::PACKED)
+            ->where('completed_at', '>=', date('Y-m-d', strtotime('-7 day')))
             ->orderBy('completed_at', 'DESC')
             ->orderBy('id', 'DESC')
             ->with('address', 'lines')
-            ->limit(100)
             ->get();
 
         foreach ($shipments as &$shipment) {
