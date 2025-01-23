@@ -35,6 +35,7 @@ Route::prefix('/app')->group(function() {
             Route::post('/{shipment}/unping', [AppShipmentController::class, 'unping']);
             Route::post('/{shipment}/pick', [AppShipmentController::class, 'pick']);
             Route::post('/{shipment}/update-line', [AppShipmentController::class, 'updateLine']);
+            Route::post('/{shipment}/update-comment', [AppShipmentController::class, 'updateComment']);
             Route::post('/{shipment}/complete', [AppShipmentController::class, 'complete']);
             Route::post('/{shipment}/update', [AppShipmentController::class, 'update']);
             Route::get('/{shipment}/print', [AppShipmentController::class, 'print']);

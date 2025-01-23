@@ -287,8 +287,8 @@ class AppShipmentController extends Controller
 
     public function updateLine(Request $request, Shipment $shipment)
     {
-        $lineID = (int) $request->get('line_id');
-        $quantity = (int) $request->get('quantity');
+        $lineID = (int) $request->input('line_id');
+        $quantity = (int) $request->input('quantity');
 
         ShipmentLine::where('id', $lineID)
             ->where('shipment_id', $shipment->id)
@@ -296,6 +296,42 @@ class AppShipmentController extends Controller
                 'picked_quantity' => $quantity,
                 'is_picked' => 1,
             ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function updateComment(Request $request, Shipment $shipment)
+    {
+        $lineID = (int) $request->input('line_id');
+        $comment = (string) $request->input('comment');
+        $sound = $request->file('sound');
+
+        $shipmentLine = ShipmentLine::where('shipment_id', $shipment->id)
+            ->where('id', $lineID)
+            ->first();
+
+        if (!$shipmentLine) {
+            return ApiResponseController::error('Could not find shipment line.');
+        }
+
+        $investigationSoundPath = $shipmentLine->investigation_sound_path;
+        $investigationSoundUrl = $shipmentLine->investigation_sound_url;
+
+        if ($sound) {
+            if ($investigationSoundPath) {
+                DoSpacesController::delete($investigationSoundPath);
+            }
+
+            $filename = 'sound_' . $lineID . '.' . $sound->getClientOriginalExtension();
+            $investigationSoundPath = DoSpacesController::store('sounds/' . $filename, $sound->getContent(), true);
+            $investigationSoundUrl = DoSpacesController::getURL($investigationSoundPath);
+        }
+
+        $shipmentLine->update([
+            'investigation_comment' => $comment,
+            'investigation_sound_path' => $investigationSoundPath,
+            'investigation_sound_url' => $investigationSoundUrl
+        ]);
 
         return ApiResponseController::success();
     }
