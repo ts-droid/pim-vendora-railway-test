@@ -22,7 +22,8 @@ class ShipmentLine extends Model
         'investigation_comment',
         'investigation_sound_path',
         'investigation_sound_url',
-        'serial_number'
+        'serial_number',
+        'is_picked',
     ];
 
     public function article()

@@ -285,6 +285,21 @@ class AppShipmentController extends Controller
         return ApiResponseController::success();
     }
 
+    public function updateLine(Request $request, Shipment $shipment)
+    {
+        $lineID = (int) $request->get('line_id');
+        $quantity = (int) $request->get('quantity');
+
+        ShipmentLine::where('id', $lineID)
+            ->where('shipment_id', $shipment->id)
+            ->update([
+                'picked_quantity' => $quantity,
+                'is_picked' => 1,
+            ]);
+
+        return ApiResponseController::success();
+    }
+
     public function complete(Request $request, Shipment $shipment)
     {
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
