@@ -23,6 +23,7 @@ class AppWarehouseController extends Controller
                 'toStockPlaceCompartment',
                 'toStockPlaceCompartment.stockPlace'
             )
+            ->orderByRaw("FIELD(type, ?, ?)", ['refill', 'organization'])
             ->orderBy('id', 'ASC')
             ->get();
 
