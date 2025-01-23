@@ -322,7 +322,7 @@ class AppShipmentController extends Controller
                 DoSpacesController::delete($investigationSoundPath);
             }
 
-            $filename = 'sound_' . $lineID . '.' . $sound->getClientOriginalExtension();
+            $filename = 'sound_' . $lineID . time() . '.' . $sound->getClientOriginalExtension();
             $investigationSoundPath = DoSpacesController::store('sounds/' . $filename, $sound->getContent(), true);
             $investigationSoundUrl = DoSpacesController::getURL($investigationSoundPath);
         }
