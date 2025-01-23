@@ -47,6 +47,7 @@ class AppShipmentController extends Controller
             ->orderBy('completed_at', 'DESC')
             ->orderBy('id', 'DESC')
             ->with('address', 'lines')
+            ->limit(100)
             ->get();
 
         foreach ($shipments as &$shipment) {
