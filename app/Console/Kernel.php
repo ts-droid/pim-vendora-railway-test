@@ -57,6 +57,7 @@ class Kernel extends ConsoleKernel
         // Run in all environments
         $schedule->command('todo:unreserve-old')->everyMinute();
         $schedule->command('todo:delete-tmp')->everyMinute();
+        $schedule->command('todo:generate-items')->dailyAt('04:00');
         $schedule->command('todo:hold-items')->dailyAt('05:00');
 
         $schedule->command('wms:optimize-stock')->hourly();

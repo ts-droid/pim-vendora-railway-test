@@ -10,10 +10,19 @@ class VismaNetArticleService extends VismaNetApiService
 
     private array $attributes = [];
 
-    public function createArticle(Article $article): void
+    public function createArticle(Article $article, bool $firstCall = true): void
     {
         if ($article->brand) {
             $this->createBrand($article->brand);
+        }
+
+        // Check if article exists in Visma.net
+        if ($firstCall) {
+            $checkResponse = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+            if ($checkResponse['success']) {
+                $this->updateArticle($article, false);
+                return;
+            }
         }
 
         $postData = $this->getPostData($article, true);
@@ -38,13 +47,15 @@ class VismaNetArticleService extends VismaNetApiService
         }
     }
 
-    public function updateArticle(Article $article): void
+    public function updateArticle(Article $article, bool $firstCall = true): void
     {
         // Check if article exists in Visma.net
-        $checkResponse = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
-        if (!$checkResponse['success']) {
-            $this->createArticle($article);
-            return;
+        if ($firstCall) {
+            $checkResponse = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
+            if (!$checkResponse['success']) {
+                $this->createArticle($article, false);
+                return;
+            }
         }
 
         $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $this->getPostData($article));
