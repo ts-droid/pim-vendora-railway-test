@@ -241,11 +241,11 @@ class VismaNetArticleService extends VismaNetApiService
             return $candidates[0];
         }
 
-        foreach ($candidates as $attributeID) {
-            $attributeIDClean = preg_replace('/\s+/', '', $attributeID);
+        foreach ($candidates as $valueID) {
+            $valueIDClean = preg_replace('/\s+/', '', $valueID);
 
-            if ($attributeID === $attributeIDClean) {
-                return $attributeID;
+            if ($valueID === $valueIDClean) {
+                return $valueID;
             }
         }
 
