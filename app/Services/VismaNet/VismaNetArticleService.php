@@ -217,6 +217,8 @@ class VismaNetArticleService extends VismaNetApiService
     {
         $attributes = $this->getAttributes();
 
+        $candidates = [];
+
         foreach ($attributes as $attribute) {
             if ($attribute['attributeID'] != $attributeID) {
                 continue;
@@ -227,18 +229,34 @@ class VismaNetArticleService extends VismaNetApiService
                     continue;
                 }
 
-                return $detail['valueId'];
+                $candidates[] = $detail['valueId'];
             }
         }
 
-        return '';
+        if (!count($candidates)) {
+            return '';
+        }
+
+        if (count($candidates) === 1) {
+            return $candidates[0];
+        }
+
+        foreach ($candidates as $attributeID) {
+            $attributeIDClean = preg_replace('/\s+/', '', $attributeID);
+
+            if ($attributeID === $attributeIDClean) {
+                return $attributeID;
+            }
+        }
+
+        return $candidates[0];
     }
 
     public function createBrand(string $brand): void
     {
         $attributes = $this->getAttributes();
 
-        $attributeID = preg_replace('/\s+/', '', $brand);;
+        $attributeID = preg_replace('/\s+/', '', $brand);
         $attributeDescription = $brand;
 
         foreach ($attributes as $attribute) {
