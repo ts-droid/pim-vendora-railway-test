@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockItem;
 use App\Models\StockKeepTransaction;
+use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
+use App\Services\WMS\StockItemService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,5 +69,134 @@ class StockKeepController extends Controller
             ->update(['is_archived' => 1]);
 
         return ApiResponseController::success();
+    }
+
+    public function stockPlace(Request $request)
+    {
+        $stockItemService = new StockItemService();
+
+        $investigate = (bool) $request->input('investigate', 0);
+
+        $stockPlaceIdentifier = $request->input('stock_place_identifier');
+        $stockPlaceSplit = explode(':', $stockPlaceIdentifier);
+        $stockPlace = $stockPlaceSplit[0] ?? null;
+        $compartment = $stockPlaceSplit[1] ?? null;
+
+        $stockValues = $request->input('stock_values');
+        $stockValues = json_decode($stockValues, true);
+
+        $stockPlaceObject = StockPlace::where('identifier', '=', $stockPlace)
+            ->first();
+
+        if (!$stockPlaceObject) {
+            return ApiResponseController::error('Stock place not found');
+        }
+
+        $compartmentObject = StockPlaceCompartment::where('stock_place_id', '=', $stockPlaceObject->id)
+            ->where('identifier', '=', $compartment)
+            ->first();
+
+        if (!$compartmentObject) {
+            return ApiResponseController::error('Compartment not found');
+        }
+
+        $existingArticleNumbers = StockItem::select('article_number', DB::raw('COUNT(*) as count'))
+            ->where('stock_place_compartment_id', '=', $compartmentObject->id)
+            ->groupBy('article_number')
+            ->pluck('count', 'article_number')
+            ->toArray();
+
+        $articleNumbers = [];
+
+        foreach ($stockValues as $stockValue) {
+            $articleNumber = $stockValue['article_number'];
+            $stock = $stockValue['stock'];
+
+            if (array_key_exists($articleNumber, $existingArticleNumbers)) {
+                // Adjust current stock
+                $currentStock = $existingArticleNumbers[$articleNumber];
+                $diff = $stock - $currentStock;
+
+                if ($diff == 0) {
+                    continue;
+                }
+
+                if ($diff > 0) {
+                    // Add stock items
+                    $stockItemService->addStockItem($articleNumber, $diff, $compartmentObject, null);
+                }
+                else {
+                    // Remove stock items
+                    $stockItems = StockItem::where('article_number', $articleNumber)
+                        ->where('stock_place_compartment_id', $compartmentObject->id)
+                        ->limit(abs($diff))
+                        ->get();
+
+                    foreach ($stockItems as $stockItem) {
+                        $stockItemService->removeStockItem($stockItem);
+                    }
+                }
+
+                $this->makeTransaction(
+                    $articleNumber,
+                    ($stockPlace . ':' . $compartment),
+                    $stock,
+                    $diff,
+                    $investigate
+                );
+            }
+            else {
+                // Insert new stock
+                $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, null);
+
+                $this->makeTransaction(
+                    $articleNumber,
+                    ($stockPlace . ':' . $compartment),
+                    $stock,
+                    $stock,
+                    $investigate,
+                );
+            }
+
+            $articleNumbers[] = $articleNumber;
+        }
+
+        // Remove items that was not provided
+        foreach ($existingArticleNumbers as $articleNumber => $stock) {
+            if (in_array($articleNumber, $articleNumbers)) {
+                continue;
+            }
+
+            $stockItems = StockItem::where('article_number', $articleNumber)
+                ->where('stock_place_compartment_id', $compartmentObject->id)
+                ->limit($stock)
+                ->get();
+
+            foreach ($stockItems as $stockItem) {
+                $stockItemService->removeStockItem($stockItem);
+            }
+
+            $this->makeTransaction(
+                $articleNumber,
+                ($stockPlace . ':' . $compartment),
+                0,
+                $stock * -1,
+                $investigate
+            );
+        }
+
+        return ApiResponseController::success();
+    }
+
+    private function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate)
+    {
+        StockKeepTransaction::create([
+            'article_number' => $articleNumber,
+            'identifiers' => $identifier,
+            'values' => $value,
+            'diffs' => $diff,
+            'type' => 'manual',
+            'status' => $investigate ? 'investigation' : 'completed'
+        ]);
     }
 }
