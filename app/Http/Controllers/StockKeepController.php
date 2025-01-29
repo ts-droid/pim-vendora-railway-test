@@ -242,17 +242,10 @@ class StockKeepController extends Controller
                 ];
             }
 
-            /*
-             * article_number
-             * path_url
-             * description
-             *
-             */
-
             $responseData[$stockItem->article_number]['stock']++;
         }
 
-        return ApiResponseController::success($responseData);
+        return ApiResponseController::success(array_values($responseData));
     }
 
     private function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate)
