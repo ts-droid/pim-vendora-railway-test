@@ -190,6 +190,45 @@ class StockKeepController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getStockPlaceItems(Request $request)
+    {
+        $stockPlaceIdentifier = $request->input('stock_place_identifier');
+        $stockPlaceSplit = explode(':', $stockPlaceIdentifier);
+        $stockPlace = $stockPlaceSplit[0] ?? null;
+        $compartment = $stockPlaceSplit[1] ?? null;
+
+        $stockPlaceObject = StockPlace::where('identifier', '=', $stockPlace)
+            ->first();
+
+        if (!$stockPlaceObject) {
+            return ApiResponseController::success([]);
+        }
+
+        $stockCompartmentObject = StockPlaceCompartment::where('stock_place_id', '=', $stockPlaceObject->id)
+            ->where('identifier', '=', $compartment)
+            ->first();
+
+        if (!$stockCompartmentObject) {
+            return ApiResponseController::success([]);
+        }
+
+        $responseData = [];
+
+        $stockItems = StockItem::where('stock_place_compartment_id', $stockCompartmentObject->id)->get();
+        foreach ($stockItems as $stockItem) {
+            if (!isset($responseData[$stockItem->article_number])) {
+                $responseData[$stockItem->article_number] = [
+                    'article_number' => '',
+                    'stock' => 0,
+                ];
+            }
+
+            $responseData[$stockItem->article_number]['stock']++;
+        }
+
+        return ApiResponseController::success($responseData);
+    }
+
     private function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate)
     {
         StockKeepTransaction::create([

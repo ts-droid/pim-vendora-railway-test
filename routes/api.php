@@ -183,6 +183,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/transactions/archived-dates', [StockKeepController::class, 'archivedDates']);
         Route::post('/transactions/archive', [StockKeepController::class, 'archive']);
         Route::post('/stock-place', [StockKeepController::class, 'stockPlace']);
+        Route::get('/stock-place/get-items', [StockKeepController::class, 'getStockPlaceItems']);
     });
 
     Route::prefix('/article-reviews')->group(function() {
