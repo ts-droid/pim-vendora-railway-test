@@ -217,11 +217,37 @@ class StockKeepController extends Controller
         $stockItems = StockItem::where('stock_place_compartment_id', $stockCompartmentObject->id)->get();
         foreach ($stockItems as $stockItem) {
             if (!isset($responseData[$stockItem->article_number])) {
+                $article = DB::table('articles')
+                    ->select('articles.id', 'articles.description', 'articles.article_number', 'articles.ean', 'image.path_url')
+                    ->leftJoinSub(
+                        DB::table('article_images')
+                            ->select('article_id', 'path_url')
+                            ->whereIn('id', function($query) {
+                                $query->selectRaw('MIN(id)')
+                                    ->from('article_images')
+                                    ->groupBy('article_id');
+                            }),
+                        'image',
+                        'articles.id',
+                        '=',
+                        'image.article_id'
+                    )
+                    ->where('article_number', $stockItem->article_number)
+                    ->first();
+
                 $responseData[$stockItem->article_number] = [
                     'article_number' => '',
                     'stock' => 0,
+                    'article' => $article,
                 ];
             }
+
+            /*
+             * article_number
+             * path_url
+             * description
+             *
+             */
 
             $responseData[$stockItem->article_number]['stock']++;
         }
