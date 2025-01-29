@@ -185,6 +185,8 @@ class StockKeepController extends Controller
             );
         }
 
+        $compartmentObject->update(['is_manual' => 0]);
+
         return ApiResponseController::success();
     }
 
