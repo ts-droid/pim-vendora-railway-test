@@ -151,6 +151,7 @@ class WarehouseHelper
 
         $stockPlaces = StockPlace::whereIn('color', $colors)
             ->orderByRaw("FIELD(color, ?, ?, ?)", $colors)
+            ->orderBy('identifier', 'ASC')
             ->where('is_active', 1)
             ->get();
 
