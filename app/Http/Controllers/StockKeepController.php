@@ -112,6 +112,8 @@ class StockKeepController extends Controller
             $articleNumber = $stockValue['article_number'];
             $stock = $stockValue['stock'];
 
+            $articleNumbers[] = $articleNumber;
+
             if (array_key_exists($articleNumber, $existingArticleNumbers)) {
                 // Adjust current stock
                 $currentStock = $existingArticleNumbers[$articleNumber];
@@ -157,8 +159,6 @@ class StockKeepController extends Controller
                     $investigate,
                 );
             }
-
-            $articleNumbers[] = $articleNumber;
         }
 
         // Remove items that was not provided
