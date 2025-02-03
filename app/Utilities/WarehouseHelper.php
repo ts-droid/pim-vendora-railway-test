@@ -129,79 +129,89 @@ class WarehouseHelper
 
     public static function getArticleLocations(string $articleNumber, int $quantity): array
     {
+        $compartmentMaxPick = 0.5; // TODO: Make this a setting
+
         $colors = [
             self::classToColor('A'),
             self::classToColor('B'),
             self::classToColor('C'),
         ];
 
+        $articleLocations = [];
+        $managedStock = 0;
+
+        $articleData = DB::table('articles')
+            ->select('stock', 'inner_box', 'master_box')
+            ->where('article_number', $articleNumber)
+            ->first();
+
+        $masterBox = $articleData->master_box ?: 1;
+        $innerBox = $articleData->inner_box ?: 1;
+        $isBoxCount = (($masterBox > 1) && (($quantity % $masterBox) == 0)) || (($innerBox > 1) && (($quantity % $innerBox) == 0));
+
         $stockPlaces = StockPlace::whereIn('color', $colors)
             ->orderByRaw("FIELD(color, ?, ?, ?)", $colors)
             ->where('is_active', 1)
             ->get();
 
-        // Check if any compartment can deliver the entire quantity
-        $managedStockCount = 0;
+        foreach ($stockPlaces as $stockPlace) {
+            foreach ($stockPlace->compartments as $compartment) {
+                $stockItemsCount = StockItem::where('article_number', $articleNumber)
+                    ->where('stock_place_compartment_id', $compartment->id)
+                    ->count();
 
-        foreach($stockPlaces as $stockPlace) {
-            foreach($stockPlace->compartments as $compartment) {
-                $sectionIDs = array_merge([0], $compartment->sections->pluck('id')->toArray());
+                $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
 
-                foreach ($sectionIDs as $sectionID) {
-                    $stockItemsCount = StockItem::where('article_number', $articleNumber)
-                        ->where('stock_place_compartment_id', $compartment->id)
-                        ->where('compartment_section_id', $sectionID)
-                        ->count();
+                if ($stockItemsCount > 0) {
+                    $articleLocations[] = [
+                        'identifier' => $identifier,
+                        'stock' => $stockItemsCount,
+                        'class' => self::colorToClass($stockPlace->color)
+                    ];
 
-                    $managedStockCount += $stockItemsCount;
-
-                    if ($stockItemsCount >= $quantity) {
-                        return [$stockPlace->identifier . ':' . $compartment->identifier];
-                    }
+                    $managedStock += $stockItemsCount;
                 }
             }
         }
 
-        // Check if unplaced articles can deliver the entire quantity
-        $articleStock = DB::table('articles')
-            ->select('stock')
-            ->where('article_number', $articleNumber)
-            ->value('stock');
-
-        $unmanagedStock = $articleStock - $managedStockCount;
-
-        if ($unmanagedStock >= $quantity) {
-            return ['--'];
+        $unmanagedStock = $articleData->stock - $managedStock;
+        if ($unmanagedStock > 0) {
+            $articleLocations[] = [
+                'identifier' => '--',
+                'stock' => $unmanagedStock,
+                'class' => 'C'
+            ];
         }
 
-        // Look recursively through all compartments
-        $count = 0;
-        $pickingPlaces = [];
-
-        foreach($stockPlaces as $stockPlace) {
-            foreach($stockPlace->compartments as $compartment) {
-                $sectionIDs = array_merge([0], $compartment->sections->pluck('id')->toArray());
-
-                foreach ($sectionIDs as $sectionID) {
-                    $stockItemsCount = StockItem::where('article_number', $articleNumber)
-                        ->where('stock_place_compartment_id', $compartment->id)
-                        ->where('compartment_section_id', $sectionID)
-                        ->count();
-
-                    if ($stockItemsCount) {
-                        $count += $stockItemsCount;
-                        $pickingPlaces[] = $stockPlace->identifier . ':' . $compartment->identifier;
-
-                        if ($count >= $quantity) {
-                            return $pickingPlaces;
-                        }
-                    }
+        // Check if we can use a single compartment
+        foreach ($articleLocations as $location) {
+            if ($location['class'] === 'A') {
+                if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
+                    return [$location['identifier']];
+                }
+            }
+            else {
+                if ($quantity <= $location['stock']) {
+                    return [$location['identifier']];
                 }
             }
         }
 
-        $pickingPlaces[] = '--';
-        return $pickingPlaces;
+        // We must use a combination of compartments
+        $collectedStock = 0;
+        $identifiers = [];
+
+        $articleLocations = array_reverse($articleLocations);
+        foreach ($articleLocations as $location) {
+            $collectedStock += $location['stock'];
+            $identifiers[] = $location['identifier'];
+
+            if ($collectedStock >= $quantity) {
+                break;
+            }
+        }
+
+        return $identifiers;
     }
 
     public static function colorToClass(string $color): string
