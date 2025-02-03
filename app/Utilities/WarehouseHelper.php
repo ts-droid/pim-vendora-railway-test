@@ -90,9 +90,9 @@ class WarehouseHelper
         $managedStock = 0;
 
         $articleStock = (int) DB::table('articles')
-            ->select('stock')
+            ->select('stock_on_hand')
             ->where('article_number', $articleNumber)
-            ->value('stock');
+            ->value('stock_on_hand');
 
         $stockItems = StockItem::where('article_number', $articleNumber)
             ->get();
@@ -141,7 +141,7 @@ class WarehouseHelper
         $managedStock = 0;
 
         $articleData = DB::table('articles')
-            ->select('stock', 'inner_box', 'master_box')
+            ->select('stock_on_hand', 'inner_box', 'master_box')
             ->where('article_number', $articleNumber)
             ->first();
 
@@ -174,7 +174,7 @@ class WarehouseHelper
             }
         }
 
-        $unmanagedStock = $articleData->stock - $managedStock;
+        $unmanagedStock = $articleData->stock_on_hand - $managedStock;
         if ($unmanagedStock > 0) {
             $articleLocations[] = [
                 'identifier' => '--',
