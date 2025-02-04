@@ -152,7 +152,7 @@ class StockOptimizationManager
                                 $refillCount = min($refillCount, $stockLeftToMove);
 
                                 if ($stockPlaceConfig['multi_intelligence']) {
-                                    $maxArticlesToMove = min($stockLeftToMove, $maxArticles);
+                                    $maxArticlesToMove = min($stockLeftToMove, $maxArticles - $stockItemCount);
 
                                     $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                                     $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
@@ -160,7 +160,7 @@ class StockOptimizationManager
                                     $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
                                 }
                                 else {
-                                    if ($occupiedVolume > self::REFILL_THRESHOLD) {
+                                    if (($occupiedVolume / $maxVolume) > self::REFILL_THRESHOLD) {
                                         continue; // No need to refill, volume is not below threshold
                                     }
                                 }
@@ -250,7 +250,12 @@ class StockOptimizationManager
 
                                 if ($stockPlaceConfig['multi_intelligence']) {
                                     $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
-                                    $fillCount = min($intelligenceCount, $stockLeftToMove);
+                                    $freeCapacity = $maxArticles - ($compartmentCache['quantity'] ?? 0);
+                                    $intelligenceFill = $intelligenceCount - $stockData['managedStock'];
+                                    $fillCount = min($fillCount, $stockLeftToMove, $freeCapacity, $intelligenceFill);
+                                }
+                                else {
+                                    $fillCount = min($fillCount, $stockLeftToMove);
                                 }
 
                                 $fillCount = min($fillCount, $maxArticles);
