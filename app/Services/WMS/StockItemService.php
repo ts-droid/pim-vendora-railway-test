@@ -2,7 +2,6 @@
 
 namespace App\Services\WMS;
 
-use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockItemLog;
 use App\Models\StockPlaceCompartment;
@@ -45,7 +44,7 @@ class StockItemService
         ];
     }
 
-    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection|null $compartmentSection): array
+    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment): array
     {
         DB::beginTransaction();
 
@@ -55,8 +54,7 @@ class StockItemService
             for ($i = 0;$i < $quantity;$i++) {
                 $stockItems[] = StockItem::create([
                     'article_number' => $articleNumber,
-                    'stock_place_compartment_id' => $stockPlaceCompartment->id,
-                    'compartment_section_id' => $compartmentSection->id ?? 0
+                    'stock_place_compartment_id' => $stockPlaceCompartment->id
                 ]);
             }
 
@@ -79,11 +77,10 @@ class StockItemService
         }
     }
 
-    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, CompartmentSection|null $fromCompartmentSection, StockPlaceCompartment $toStockPlaceCompartment, CompartmentSection|null $toCompartmentSection): array
+    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment): array
     {
         $stockItems = StockItem::where('article_number', $articleNumber)
             ->where('stock_place_compartment_id', $fromStockPlaceCompartment->id)
-            ->where('compartment_section_id', $fromCompartmentSection->id ?? 0)
             ->limit($quantity)
             ->get();
 
@@ -95,7 +92,7 @@ class StockItemService
         }
 
         foreach ($stockItems as $stockItem) {
-            $this->moveStockItem($stockItem, $toStockPlaceCompartment, $toCompartmentSection);
+            $this->moveStockItem($stockItem, $toStockPlaceCompartment);
         }
 
         return [
@@ -104,7 +101,7 @@ class StockItemService
         ];
     }
 
-    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection|null $compartmentSection = null): array
+    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment): array
     {
         DB::beginTransaction();
 
@@ -113,8 +110,7 @@ class StockItemService
             $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1);
 
             $stockItem->update([
-                'stock_place_compartment_id' => $stockPlaceCompartment->id,
-                'compartment_section_id' => $compartmentSection->id ?? 0
+                'stock_place_compartment_id' => $stockPlaceCompartment->id
             ]);
 
             DB::commit();

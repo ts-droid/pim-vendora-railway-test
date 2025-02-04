@@ -50,11 +50,9 @@ class AppWarehouseController extends Controller
 
         $fromStockPlaceObject = null;
         $fromCompartmentObject = null;
-        $fromSectionObject = null;
 
         $toStockPlaceObject = null;
         $toCompartmentObject = null;
-        $toSectionObject = null;
 
         if ($quantity <= 0) {
             return ApiResponseController::error('Quantity must be greater than 0.');
@@ -76,24 +74,6 @@ class AppWarehouseController extends Controller
             if (!$fromCompartmentObject) {
                 return ApiResponseController::error('Compartment not found.');
             }
-
-            if ($fromCompartmentObject->sections->count() > 0) {
-                foreach ($fromCompartmentObject->sections as $section) {
-                    $hasArticle = StockItem::where('article_number', $articleNumber)
-                        ->where('stock_place_compartment_id', $fromCompartmentObject->id)
-                        ->where('compartment_section_id', $section->id)
-                        ->exists();
-
-                    if ($hasArticle) {
-                        $fromSectionObject = $section;
-                        break;
-                    }
-                }
-
-                if (!$fromSectionObject) {
-                    return ApiResponseController::error('Section not found.');
-                }
-            }
         }
 
 
@@ -108,29 +88,10 @@ class AppWarehouseController extends Controller
             return ApiResponseController::error('Compartment not found.');
         }
 
-        if ($toCompartmentObject->sections->count() > 0) {
-            foreach ($toCompartmentObject->sections as $section) {
-                $sectionArticleNumber = StockItem::where('stock_place_compartment_id', $toCompartmentObject->id)
-                    ->where('compartment_section_id', $section->id)
-                    ->first()->article_number ?? null;
-
-                if (!$sectionArticleNumber || $sectionArticleNumber == $articleNumber) {
-                    $toSectionObject = $section;
-                    break;
-                }
-
-                if (!$toSectionObject) {
-                    return ApiResponseController::error('No available section found.');
-                }
-            }
-        }
-
-
         // Validate article & quantity
         if ($fromStockPlace) {
             $stockPlaceQuantity = (int) StockItem::where('article_number', $articleNumber)
                 ->where('stock_place_compartment_id', ($fromCompartmentObject->id ?? 0))
-                ->where('compartment_section_id', ($fromSectionObject->id ?? 0))
                 ->count();
 
             if ($stockPlaceQuantity < $quantity) {
@@ -155,17 +116,14 @@ class AppWarehouseController extends Controller
                 $article->article_number,
                 $quantity,
                 $fromCompartmentObject,
-                $fromSectionObject,
                 $toCompartmentObject,
-                $toSectionObject
             );
         }
         else {
             $response = $stockItemService->addStockItem(
                 $articleNumber->article_number,
                 $quantity,
-                $toCompartmentObject,
-                $toSectionObject
+                $toCompartmentObject
             );
         }
 
@@ -218,9 +176,7 @@ class AppWarehouseController extends Controller
                 $stockItemMovement->article_number,
                 $stockItemMovement->quantity,
                 $stockItemMovement->fromStockPlaceCompartment,
-                $stockItemMovement->fromCompartmentSection ?: null,
-                $stockItemMovement->toStockPlaceCompartment,
-                $stockItemMovement->toCompartmentSection ?: null,
+                $stockItemMovement->toStockPlaceCompartment
             );
         }
         else {
@@ -229,13 +185,11 @@ class AppWarehouseController extends Controller
                 $response = $stockItemService->addStockItem(
                     $stockItemMovement->article_number,
                     $stockItemMovement->quantity,
-                    $stockItemMovement->toStockPlaceCompartment,
-                    $stockItemMovement->toCompartmentSection ?: null,
+                    $stockItemMovement->toStockPlaceCompartment
                 );
             }
             else if ($stockItemMovement->from_stock_place_compartment) {
                 $stockItems = StockItem::where('stock_place_compartment_id', $stockItemMovement->from_stock_place_compartment)
-                    ->where('compartment_section_id', $stockItemMovement->from_compartment_section)
                     ->limit($stockItemMovement->quantity)
                     ->get();
 

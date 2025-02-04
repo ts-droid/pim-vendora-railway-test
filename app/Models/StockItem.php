@@ -12,9 +12,13 @@ class StockItem extends Model
     protected $fillable = [
         'article_number',
         'stock_place_compartment_id',
-        'compartment_section_id',
         'allocation_type',
         'allocation_reference',
         'allocation_date',
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
 }
