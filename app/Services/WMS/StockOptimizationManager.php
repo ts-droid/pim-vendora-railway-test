@@ -119,10 +119,24 @@ class StockOptimizationManager
                                 'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
                             ];
 
-                            $sectionIDs = $compartment->sections->pluck('id')->toArray();
-                            $sectionIDs = $sectionIDs ?: [0];
+                            // Compute overall occupancy (physical + planned) for this compartment across all sections
+                            $compartmentSectionIDs = $compartment->sections->pluck('id')->toArray();
+                            $compartmentSectionIDs = $compartmentSectionIDs ?: [0];
 
-                            foreach ($sectionIDs as $sectionID) {
+                            $compartmentTotalCount = 0;
+                            foreach ($compartmentSectionIDs as $cid) {
+                                $sec = CompartmentSection::where('id', $cid)->first();
+                                $physicalCount = $sec ? $sec->stockItems->count() : $compartment->stockItems->count();
+                                $plannedQuantity = $this->movementCache[$compartment->id . '_' . $cid]['quantity'] ?? 0;
+                                $compartmentTotalCount += ($physicalCount + $plannedQuantity);
+                            }
+
+                            // Calculate overall compartment volume and allowed capacity
+                            $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                            $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
+                            $maxArticles = floor($maxVolume / $articleVolume);
+
+                            foreach ($compartmentSectionIDs as $sectionID) {
                                 $section = CompartmentSection::where('id', $sectionID)->first();
 
                                 $stockItems = $section ? $section->stockItems : $compartment->stockItems;
@@ -132,31 +146,24 @@ class StockOptimizationManager
                                     continue;
                                 }
 
-                                $plannedQuantity = $this->movementCache[$compartment->id . '_' . $sectionID]['quantity'] ?? 0;
-
-                                $totalCount = $stockItems->count() + $plannedQuantity;
-
                                 $articleNumber = $stockItems->first()->article_number;
                                 if ($articleNumber != $article->article_number) continue; // Another article is hosted at this place
 
-                                // This article is hosted here, check if it's time to refill
-                                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                                $compartmentVolume = $compartmentVolume / count($sectionIDs);
-
-                                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
-                                $maxArticles = floor($maxVolume / $articleVolume);
-
-                                $occupiedVolume = $articleVolume * $totalCount;
-                                $freeVolume = $maxVolume - $occupiedVolume;
+                                // Recalculate overall occupancy based on the current overall total
+                                $occupiedVolumeOverall = $articleVolume * $compartmentTotalCount;
+                                $freeVolumeOverall = $maxVolume - $occupiedVolumeOverall;
+                                if ($freeVolumeOverall <= 0) {
+                                    continue; // The compartment is already full overall—skip this section.
+                                }
 
                                 // Refill the compartment
                                 $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
 
-                                $refillCount = floor($freeVolume / $articleVolume);
+                                $refillCount = floor($freeVolumeOverall / $articleVolume);
                                 $refillCount = min($refillCount, $stockLeftToMove);
 
                                 if ($stockPlaceConfig['multi_intelligence']) {
-                                    $maxArticlesToMove = min($stockLeftToMove, $maxArticles - $totalCount);
+                                    $maxArticlesToMove = min($stockLeftToMove, $maxArticles - $compartmentTotalCount);
 
                                     $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                                     $intelligenceRefill = $intelligenceCount - $stockData['managedStock'];
@@ -164,7 +171,7 @@ class StockOptimizationManager
                                     $refillCount = min($intelligenceRefill, $stockLeftToMove, $maxArticlesToMove);
                                 }
                                 else {
-                                    if (($occupiedVolume / $maxVolume) > self::REFILL_THRESHOLD) {
+                                    if (($occupiedVolumeOverall / $maxVolume) > self::REFILL_THRESHOLD) {
                                         continue; // No need to refill, volume is not below threshold
                                     }
                                 }
@@ -185,6 +192,7 @@ class StockOptimizationManager
                                 );
 
                                 $stockData['managedStock'] += $refillCount;
+                                $compartmentTotalCount += $refillCount;
 
                                 if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
                                     $stockData['has_main_placement'] = true;
@@ -220,10 +228,24 @@ class StockOptimizationManager
                                 'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
                             ];
 
-                            $sectionIDs = $compartment->sections->pluck('id')->toArray();
-                            $sectionIDs = $sectionIDs ?: [0];
+                            // Compute overall occupancy for this compartment (physical + planned) across all sections
+                            $compartmentSectionIDs = $compartment->sections->pluck('id')->toArray();
+                            $compartmentSectionIDs = $compartmentSectionIDs ?: [0];
 
-                            foreach ($sectionIDs as $sectionID) {
+                            $compartmentTotalCount = 0;
+                            foreach ($compartmentSectionIDs as $cid) {
+                                $sec = CompartmentSection::where('id', $cid)->first();
+                                $physicalCount = $sec ? $sec->stockItems->count() : $compartment->stockItems->count();
+                                $plannedQuantity = $this->movementCache[$compartment->id . '_' . $cid]['quantity'] ?? 0;
+                                $compartmentTotalCount += ($physicalCount + $plannedQuantity);
+                            }
+
+                            // Compute overall allowed capacity for the compartment
+                            $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                            $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
+                            $maxArticles = floor($maxVolume / $articleVolume);
+
+                            foreach ($compartmentSectionIDs as $sectionID) {
                                 $section = CompartmentSection::where('id', $sectionID)->first();
 
                                 $stockItems = $section ? $section->stockItems : $compartment->stockItems;
@@ -238,27 +260,21 @@ class StockOptimizationManager
                                     continue;
                                 }
 
-                                $physicalCount = $section ? $section->stockItems->count() : $compartment->stockItems->count();
-
-                                $totalCount = $physicalCount + ($compartmentCache['quantity'] ?? 0);
-
-                                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                                $compartmentVolume = $compartmentVolume / count($sectionIDs);
-
-                                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
-                                $maxArticles = floor($maxVolume / $articleVolume);
-
-                                $occupiedVolume = $articleVolume * $totalCount;
-                                $freeVolume = $maxVolume - $occupiedVolume;
+                                // Determine overall free capacity for the entire compartment
+                                $occupiedVolumeOverall = $articleVolume * $compartmentTotalCount;
+                                $freeVolumeOverall = $maxVolume - $occupiedVolumeOverall;
+                                if ($freeVolumeOverall <= 0) {
+                                    continue; // Compartment full overall—skip this section.
+                                }
 
                                 $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
 
-                                $fillCount = floor($freeVolume / $articleVolume);
+                                $fillCount = floor($freeVolumeOverall / $articleVolume);
                                 $fillCount = min($fillCount, $stockLeftToMove);
 
                                 if ($stockPlaceConfig['multi_intelligence']) {
                                     $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
-                                    $freeCapacity = $maxArticles - $totalCount;
+                                    $freeCapacity = $maxArticles - $compartmentTotalCount;
                                     $intelligenceFill = $intelligenceCount - $stockData['managedStock'];
                                     $fillCount = min($fillCount, $stockLeftToMove, $freeCapacity, $intelligenceFill);
                                 }
@@ -283,6 +299,7 @@ class StockOptimizationManager
                                 );
 
                                 $stockData['managedStock'] += $fillCount;
+                                $compartmentTotalCount += $fillCount;
 
                                 if ($stockPlaceClass == 'A' || $stockPlaceClass == 'B') {
                                     $stockData['has_main_placement'] = true;
