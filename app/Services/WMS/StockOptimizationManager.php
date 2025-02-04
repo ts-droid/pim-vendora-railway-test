@@ -114,6 +114,13 @@ class StockOptimizationManager
                             $stockPlaceConfig = $this->getStockPlaceConfig($stockPlace, $compartment, $multiIntelligence, $multiIntelligencePeriod);
 
                             $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
+                            $totalSections = $compartment->sections->count() ?: 1;
+
+                            if ($uniqueStockItems > $totalSections) {
+                                // There are more items than expected in the compartments.
+                                // Do not refill, instead wait for items to be moved away.
+                                continue;
+                            }
 
                             $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
                             $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
@@ -266,7 +273,7 @@ class StockOptimizationManager
         }
 
 
-        // Unleash items from stock places
+        // Unleash marked compartments
         foreach ($unleashCompartmentIDs as $compartmentID) {
             $stockItems = StockItem::whre('stock_place_compartment_id', $compartmentID)->get();
 
@@ -296,6 +303,41 @@ class StockOptimizationManager
                 );
             }
         }
+
+        // Unleash items for overfilled compartments
+        foreach ($groupedStockPlaces as $stockPlaces) {
+            foreach ($stockPlaces as $stockPlace) {
+                foreach ($stockPlace->compartments as $compartment) {
+                    if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
+                        continue;
+                    }
+
+                    $articleNumbers = $compartment->stockItems->pluck('article_number')->unique()->values()->toArray();
+                    $totalSections = $compartment->sections->count() ?: 1;
+
+                    if ($articleNumbers <= $totalSections) {
+                        continue;
+                    }
+
+                    $articleNumbersToUnleash = array_slice($articleNumbers, $totalSections);
+
+                    foreach ($articleNumbersToUnleash as $articleNumber) {
+                        $quantity = StockItem::where('stock_place_compartment_id', $compartment->id)
+                            ->where('article_number', $articleNumber)
+                            ->count();
+
+                        $this->makeStockMovement(
+                            $articleNumber,
+                            $compartment->id,
+                            0,
+                            $quantity,
+                            'unleash'
+                        );
+                    }
+                }
+            }
+        }
+
 
         ConfigController::setConfigs(['optimize_stock_running' => 0]);
         ConfigController::setConfigs(['optimize_stock_last_run' => date('Y-m-d H:i:s')]);
