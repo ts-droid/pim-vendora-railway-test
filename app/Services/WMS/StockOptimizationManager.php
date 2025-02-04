@@ -762,7 +762,7 @@ class StockOptimizationManager
     {
         $stockPlaceGroup = $this->getStockPlaceGroup($stockPlace);
 
-        $stockPlaceConfig = [
+        return [
             'max_volume' => (float) ($stockPlaceGroup->{'max_volume_class_' . $compartment->volume_class} ?? null) ?: $this->config['max_volume_' . $compartment->volume_class],
             'multi_intelligence' => (int) ($stockPlaceGroup->wms_multi_intelligence ?? null) ?: $multiIntelligence,
             'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
