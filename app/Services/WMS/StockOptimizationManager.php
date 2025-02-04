@@ -116,7 +116,7 @@ class StockOptimizationManager
                             $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
                             $totalSections = $compartment->sections->count() ?: 1;
 
-                            if ($uniqueStockItems > $totalSections) {
+                            if ($uniqueStockItems->count() > $totalSections) {
                                 // There are more items than expected in the compartments.
                                 // Do not refill, instead wait for items to be moved away.
                                 continue;
