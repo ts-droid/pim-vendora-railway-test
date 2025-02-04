@@ -123,7 +123,7 @@ class StockOptimizationManager
 
                                 $stockItemCount = $compartment->stockItems->where('article_number', $stockItemArticleNumber)->count();
 
-                                $sectionMaxVolume = $maxVolume / $uniqueStockItems;
+                                $sectionMaxVolume = $maxVolume / $uniqueStockItems->count();
 
                                 $occupiedVolume = $articleVolume * $stockItemCount;
                                 $freeVolume = $sectionMaxVolume - $occupiedVolume;
