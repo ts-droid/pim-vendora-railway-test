@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockKeepTransaction;
 use App\Models\StockPlace;
@@ -184,6 +185,32 @@ class StockKeepController extends Controller
                 $investigate
             );
         }
+
+
+        // Update number of sections (if manual)
+        if ($compartmentObject->is_manual) {
+            $sections = array_unique($articleNumbers);
+            $sections = array_filter($sections);
+
+            if ($compartmentObject->sections->count() != $sections) {
+                if ($compartmentObject->sections->count() < $sections) {
+                    // Add more sections
+                    for ($i = 0;$i < ($sections - $compartmentObject->sections->count());$i++) {
+                        CompartmentSection::create(['stock_place_compartment_id' => $compartmentObject->id]);
+                    }
+
+                }
+                else {
+                    // Remove empty sections
+                    $sectionIDs = $compartmentObject->sections->pluck('id')->values()->toArray();
+
+                    $deleteIDs = array_slice($sectionIDs, ($compartmentObject->sections->count() - $sections));
+
+                    CompartmentSection::whereIn('id', $deleteIDs)->delete();
+                }
+            }
+        }
+
 
         $compartmentObject->update(['is_manual' => 0]);
 
