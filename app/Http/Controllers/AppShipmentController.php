@@ -124,8 +124,6 @@ class AppShipmentController extends Controller
     {
         $displayName = get_display_name();
 
-        $investigate = false;
-
         $lines = $request->input('lines');
         if (!is_array($lines)) {
             $lines = json_decode($lines, true);
@@ -176,86 +174,71 @@ class AppShipmentController extends Controller
                     'investigation_sound_url' => $investigationSoundUrl,
                     'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : ''
                 ]);
-
-                if ($quantity != $shipmentLine->shipped_quantity || $quantity == 0) {
-                    $investigate = true;
-                }
             }
         }
 
-        // Update shipment status
-        if ($investigate) {
-            // Mark for investigation
-            $shipment->update([
-                'pick_signature' => $displayName,
-                'internal_status' => ShipmentInternalStatus::INVESTIGATE,
-                'ping_at' => 0
-            ]);
-        }
-        else {
-            // Make stock movements
-            if ($lines && is_array($lines)) {
-                foreach ($lines as $line) {
-                    $lineID = $line['id'] ?? 0;
-                    $quantity = $line['quantity'] ?? 0;
-                    $pickingLocations = $line['picking_locations'] ?? ['--'];
+        // Make stock movements
+        if ($lines && is_array($lines)) {
+            foreach ($lines as $line) {
+                $lineID = $line['id'] ?? 0;
+                $quantity = $line['quantity'] ?? 0;
+                $pickingLocations = $line['picking_locations'] ?? ['--'];
 
-                    $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
-                        ->where('id', '=', $lineID)
-                        ->first();
+                $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
+                    ->where('id', '=', $lineID)
+                    ->first();
 
-                    if (!$shipmentLine) continue;
+                if (!$shipmentLine) continue;
 
-                    $stockItemService = new StockItemService();
+                $stockItemService = new StockItemService();
 
-                    $movedQuantity = 0;
-                    foreach ($pickingLocations as $pickingLocation) {
-                        if ($pickingLocation === '--') {
-                            continue;
-                        }
-
-                        $pickingLocationData = explode(':', $pickingLocation);
-
-                        $stockPlace = StockPlace::where('identifier', ($pickingLocationData[0] ?? ''))->first();
-                        if (!$stockPlace) {
-                            return ApiResponseController::error('Could not find stock place.');
-                        }
-
-                        $compartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
-                            ->where('identifier', ($pickingLocationData[1] ?? ''))
-                            ->first();
-                        if (!$compartment) {
-                            return ApiResponseController::error('Could not find compartment.');
-                        }
-
-                        $stockItems = StockItem::where('stock_place_compartment_id', $compartment->id)
-                            ->where('article_number', $shipmentLine->article_number)
-                            ->get();
-
-                        if (!$stockItems->count()) {
-                            continue;
-                        }
-
-                        $itemsToMove = min($stockItems->count(), ($quantity - $movedQuantity));
-
-                        $stockItems = $stockItems->take($itemsToMove);
-
-                        foreach ($stockItems as $stockItem) {
-                            $stockItemService->removeStockItem($stockItem);
-                        }
-
-                        $movedQuantity += $itemsToMove;
+                $movedQuantity = 0;
+                foreach ($pickingLocations as $pickingLocation) {
+                    if ($pickingLocation === '--') {
+                        continue;
                     }
+
+                    $pickingLocationData = explode(':', $pickingLocation);
+
+                    $stockPlace = StockPlace::where('identifier', ($pickingLocationData[0] ?? ''))->first();
+                    if (!$stockPlace) {
+                        return ApiResponseController::error('Could not find stock place.');
+                    }
+
+                    $compartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+                        ->where('identifier', ($pickingLocationData[1] ?? ''))
+                        ->first();
+                    if (!$compartment) {
+                        return ApiResponseController::error('Could not find compartment.');
+                    }
+
+                    $stockItems = StockItem::where('stock_place_compartment_id', $compartment->id)
+                        ->where('article_number', $shipmentLine->article_number)
+                        ->get();
+
+                    if (!$stockItems->count()) {
+                        continue;
+                    }
+
+                    $itemsToMove = min($stockItems->count(), ($quantity - $movedQuantity));
+
+                    $stockItems = $stockItems->take($itemsToMove);
+
+                    foreach ($stockItems as $stockItem) {
+                        $stockItemService->removeStockItem($stockItem);
+                    }
+
+                    $movedQuantity += $itemsToMove;
                 }
             }
-
-            // Mark as picked
-            $shipment->update([
-                'pick_signature' => $displayName,
-                'internal_status' => ShipmentInternalStatus::PICKED,
-                'ping_at' => 0
-            ]);
         }
+
+        // Mark as picked
+        $shipment->update([
+            'pick_signature' => $displayName,
+            'internal_status' => ShipmentInternalStatus::PICKED,
+            'ping_at' => 0
+        ]);
 
         $shipment->load('address', 'lines', 'lines.article');
 
