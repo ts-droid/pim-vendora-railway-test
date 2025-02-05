@@ -174,7 +174,15 @@ class ArticleController extends Controller
             ->limit(10)
             ->get();
 
-        return ApiResponseController::success($articles->toArray());
+        $articlesArray = $articles->toArray();
+
+        if ($articlesArray) {
+            foreach ($articlesArray as &$article) {
+                $article['stock_locations'] = WarehouseHelper::getArticleLocationsWithStock($article['article_number']);
+            }
+        }
+
+        return ApiResponseController::success($articlesArray);
     }
 
     public function getBasic(Request $request)
