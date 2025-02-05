@@ -477,6 +477,26 @@ class VismaNetController extends Controller
                     $updateData['stock_available_for_shipment'] += (int) ($warehouse['availableForShipment'] ?? 0);
                 }
 
+                if (isset($updateData['stock_available_for_shipment'])) {
+                    $currentAvailableForShipment = (int) DB::table('articles')
+                        ->select('stock_available_for_shipment')
+                        ->where('article_number', $updateData['article_number'])
+                        ->value('stock_available_for_shipment');
+
+                    if ($currentAvailableForShipment != $updateData['stock_available_for_shipment']) {
+                        $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/st-taucm');
+
+                        foreach ($detailedStock as $stock) {
+                            $stockLocationName = trim($stock['location']['name'] ?? '');
+
+                            if ($stockLocationName === '1') {
+                                $updateData['stock_manageable'] = $stock['onHand'];
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 // Require article number to fetch
                 if (!$updateData['article_number']) {
                     continue;
