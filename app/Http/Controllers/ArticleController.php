@@ -176,11 +176,11 @@ class ArticleController extends Controller
 
         $articlesArray = $articles->toArray();
 
-        if ($articlesArray) {
+        /*if ($articlesArray) {
             foreach ($articlesArray as &$article) {
                 $article['stock_locations'] = WarehouseHelper::getArticleLocationsWithStock($article['article_number']);
             }
-        }
+        }*/
 
         return ApiResponseController::success($articlesArray);
     }
