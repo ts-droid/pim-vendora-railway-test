@@ -484,7 +484,7 @@ class VismaNetController extends Controller
                         ->value('stock_available_for_shipment');
 
                     if ($currentAvailableForShipment != $updateData['stock_available_for_shipment']) {
-                        $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/st-taucm');
+                        $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
 
                         foreach ($detailedStock as $stock) {
                             $stockLocationName = trim($stock['location']['name'] ?? '');
