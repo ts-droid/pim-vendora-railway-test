@@ -36,12 +36,6 @@ class VismaNetArticleService extends VismaNetApiService
         if ($article->ean) {
             $this->setCrossReferences($article->article_number, 'Barcode', $article->ean, 'STYCK');
         }
-        if ($article->ean_inner_box) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_inner_box, 'INNE10');
-        }
-        if ($article->ean_master_box) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_master_box, 'MAS100');
-        }
         if ($article->wright_article_number) {
             $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
         }
@@ -64,15 +58,12 @@ class VismaNetArticleService extends VismaNetApiService
         if ($article->ean) {
             $this->setCrossReferences($article->article_number, 'Barcode', $article->ean, 'STYCK');
         }
-        if ($article->ean_inner_box) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_inner_box, 'INNE10');
-        }
-        if ($article->ean_master_box) {
-            $this->setCrossReferences($article->article_number, 'Barcode', $article->ean_master_box, 'MAS100');
-        }
         if ($article->wright_article_number) {
             $this->setCrossReferences($article->article_number, 'VPN', $article->wright_article_number);
         }
+
+        $this->setCrossReferences($article->article_number, 'Barcode', '', 'INNE10');
+        $this->setCrossReferences($article->article_number, 'Barcode', '', 'MAS100');
     }
 
     private function setCrossReferences(string $articleNumber, string $alternateType, mixed $value, string $unit = ''): void
