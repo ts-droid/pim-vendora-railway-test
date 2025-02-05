@@ -3,7 +3,6 @@
 namespace App\Services\WMS;
 
 use App\Http\Controllers\ConfigController;
-use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockItemMovement;
 use App\Models\StockPlace;
@@ -369,11 +368,11 @@ class StockOptimizationManager
     private function getGroupedArticles(): array
     {
         $articles = DB::table('articles')
-            ->select(['id', 'article_number', 'stock_on_hand AS stock', 'classification', 'classification_volume', 'width', 'depth', 'height'])
+            ->select(['id', 'article_number', 'stock_manageable AS stock', 'classification', 'classification_volume', 'width', 'depth', 'height'])
             ->where('width', '>', 0)
             ->where('height', '>', 0)
             ->where('depth', '>', 0)
-            ->where('stock_on_hand', '>', 0)
+            ->where('stock_manageable', '>', 0)
             ->get();
 
         $groupedArticles = [];
