@@ -117,12 +117,12 @@ class FetchVismaNet extends Command
                 break;
 
             case 'hourly':
-                Artisan::call('visma:fetch', ['type' => 'articles']);
                 Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'credit-notes']);
                 break;
 
             case 'quick':
+                Artisan::call('visma:fetch', ['type' => 'articles']);
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
                 Artisan::call('visma:fetch', ['type' => 'shipments']);
                 break;
