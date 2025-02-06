@@ -247,7 +247,7 @@ class StockOptimizationManager
 
                                 $fillCount = $this->roundQuantity($fillCount);
 
-                                if (!$fillCount) continue;
+                                if ($fillCount <= 0) continue;
 
                                 $this->makeStockMovement(
                                     $article->article_number,
@@ -274,9 +274,9 @@ class StockOptimizationManager
 
         // Unleash marked compartments
         foreach ($unleashCompartmentIDs as $compartmentID) {
-            $stockItems = StockItem::whre('stock_place_compartment_id', $compartmentID)->get();
+            $stockItems = StockItem::where('stock_place_compartment_id', $compartmentID)->get();
 
-            if ($stockItems) continue;
+            if (!$stockItems) continue;
 
             $groupedStockItems = [];
             foreach ($stockItems as $stockItem) {
