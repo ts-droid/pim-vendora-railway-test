@@ -27,6 +27,9 @@ class StockOptimizationManager
             'max_volume_A' => ConfigController::getConfig('max_volume_class_size_a', 100),
             'max_volume_B' => ConfigController::getConfig('max_volume_class_size_b', 100),
             'max_volume_C' => ConfigController::getConfig('max_volume_class_size_c', 100),
+            'empty_rest_products_A' => ConfigController::getConfig('wms_empty_rest_products_a', 0),
+            'empty_rest_products_B' => ConfigController::getConfig('wms_empty_rest_products_b', 0),
+            'empty_rest_products_C' => ConfigController::getConfig('wms_empty_rest_products_c', 0),
             'wms_multi_intelligence' => ConfigController::getConfig('wms_multi_intelligence', 0),
             'wms_multi_intelligence_period' => ConfigController::getConfig('wms_multi_intelligence_period', 7)
         ];
@@ -155,6 +158,10 @@ class StockOptimizationManager
                                 }
 
                                 $refillCount = $this->roundQuantity($refillCount);
+
+                                if (($refillCount + $this->config['empty_rest_products_' . $stockPlaceClass]) >= $stockLeftToMove) {
+                                    $refillCount = $stockLeftToMove;
+                                }
 
                                 if ($refillCount <= 0) continue; // Not items found to refill
 
