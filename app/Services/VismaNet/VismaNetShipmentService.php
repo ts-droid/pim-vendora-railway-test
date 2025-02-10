@@ -121,6 +121,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 foreach ($serialNumbers as $serialNumber) {
                     $allocations[] = [
                         'operation' => 'Insert',
+                        'lineNbr' => ['value' => $line->line_number],
                         'lotSerialNumber' => ['value' => $serialNumber],
                         'quantity' => ['value' => 1]
                     ];
