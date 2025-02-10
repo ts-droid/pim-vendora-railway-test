@@ -118,13 +118,16 @@ class VismaNetShipmentService extends VismaNetApiService
                 $serialNumbers = array_map('trim', $serialNumbers);
 
                 $allocations = [];
+                $lineNbr = 1;
                 foreach ($serialNumbers as $serialNumber) {
                     $allocations[] = [
                         'operation' => 'Insert',
-                        'lineNbr' => ['value' => $line->line_number],
+                        'lineNbr' => ['value' => $lineNbr],
                         'lotSerialNumber' => ['value' => $serialNumber],
                         'quantity' => ['value' => 1]
                     ];
+
+                    $lineNbr++;
                 }
 
                 $lineData['allocations'] = $allocations;

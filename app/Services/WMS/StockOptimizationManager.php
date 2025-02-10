@@ -39,6 +39,27 @@ class StockOptimizationManager
         ];
     }
 
+    public function validate(): void
+    {
+        $stockItemMovements = StockItemMovement::all();
+
+        if (!$stockItemMovements) {
+            return;
+        }
+
+        foreach ($stockItemMovements as $stockItemMovement) {
+            // Validate that all stock still exists in the "from compartment"
+            $quantityAtCompartment = (int) StockItem::where('article_number', $stockItemMovement->article_number)
+                ->where('stock_place_compartment_id', $stockItemMovement->from_stock_place_compartment)
+                ->count();
+
+            if ($quantityAtCompartment < $stockItemMovement->quantity) {
+                // There is no longer enough stock in the compartment
+                $stockItemMovement->delete();
+            }
+        }
+    }
+
     public function optimize(): bool
     {
         ConfigController::setConfigs(['optimize_stock_running' => 1]);
