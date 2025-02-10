@@ -100,6 +100,16 @@ class VismaNetShipmentService extends VismaNetApiService
         $milliseconds = sprintf("%03d", ($currentTime - floor($currentTime)) * 1000);
         $date = date('Y-m-d\TH:i:s');
 
+        $response = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);
+        $vismaShipment = $response['response'] ?? null;
+
+        if (!$vismaShipment) {
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch shipment from Visma.net (' . json_encode($response['response']) . ')'
+            ];
+        }
+
         // Update picked quantities
         $updateData = [
             'shipmentDate' => ['value' => $date . '.' . $milliseconds . 'Z'],
@@ -113,21 +123,43 @@ class VismaNetShipmentService extends VismaNetApiService
                 'shippedQty' => ['value' => $line->picked_quantity]
             ];
 
+            $vismaAllocations = null;
+            foreach ($vismaShipment['shipmentDetailLines'] as $vismaLine) {
+                if ($vismaLine['lineNumber'] == $line->line_number) {
+                    $vismaAllocations = $vismaLine['allocations'] ?? null;
+                    break;
+                }
+            }
+
             if ($line->serial_number) {
                 $serialNumbers = explode(',', $line->serial_number);
                 $serialNumbers = array_map('trim', $serialNumbers);
 
                 $allocations = [];
-                $lineNbr = 1;
+                $lineNbr = 0;
+
+                if ($vismaAllocations) {
+                    foreach ($vismaAllocations as $vismaAllocation) {
+                        $allocations[] = [
+                            'operation' => 'Delete',
+                            'lineNbr' => ['value' => $vismaAllocation['lineNbr']]
+                        ];
+
+                        if ($vismaAllocation['lineNbr'] > $lineNbr) {
+                            $lineNbr = $vismaAllocation['lineNbr'];
+                        }
+                    }
+                }
+
                 foreach ($serialNumbers as $serialNumber) {
+                    $lineNbr++;
+
                     $allocations[] = [
                         'operation' => 'Insert',
                         'lineNbr' => ['value' => $lineNbr],
                         'lotSerialNumber' => ['value' => $serialNumber],
                         'quantity' => ['value' => 1]
                     ];
-
-                    $lineNbr++;
                 }
 
                 $lineData['allocations'] = $allocations;
