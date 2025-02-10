@@ -139,27 +139,31 @@ class VismaNetShipmentService extends VismaNetApiService
                 $lineNbr = 0;
 
                 if ($vismaAllocations) {
-                    foreach ($vismaAllocations as $vismaAllocation) {
+                    for ($i = 0;$i < count($vismaAllocations);$i++) {
                         $allocations[] = [
-                            'operation' => 'Delete',
-                            'lineNbr' => ['value' => $vismaAllocation['lineNbr']]
+                            'operation' => 'Update',
+                            'lineNbr' => ['value' => $vismaAllocations[$i]['lineNbr']],
+                            'lotSerialNumber' => ['value' => ($serialNumber[$i] ?? '')],
+                            'quantity' => ['value' => 1]
                         ];
 
-                        if ($vismaAllocation['lineNbr'] > $lineNbr) {
-                            $lineNbr = $vismaAllocation['lineNbr'];
+                        if ($vismaAllocations[$i]['lineNbr'] > $lineNbr) {
+                            $lineNbr = $vismaAllocations[$i]['lineNbr'];
                         }
                     }
                 }
 
-                foreach ($serialNumbers as $serialNumber) {
-                    $lineNbr++;
+                if (count($allocations) < count($serialNumbers)) {
+                    for ($i = count($allocations);$i < count($serialNumbers);$i++) {
+                        $lineNbr++;
 
-                    $allocations[] = [
-                        'operation' => 'Insert',
-                        'lineNbr' => ['value' => $lineNbr],
-                        'lotSerialNumber' => ['value' => $serialNumber],
-                        'quantity' => ['value' => 1]
-                    ];
+                        $allocations[] = [
+                            'operation' => 'Insert',
+                            'lineNbr' => ['value' => $lineNbr],
+                            'lotSerialNumber' => ['value' => $serialNumbers[$i]],
+                            'quantity' => ['value' => 1]
+                        ];
+                    }
                 }
 
                 $lineData['allocations'] = $allocations;
