@@ -30,8 +30,12 @@ class StockOptimizationManager
             'empty_rest_products_A' => ConfigController::getConfig('wms_empty_rest_products_a', 0),
             'empty_rest_products_B' => ConfigController::getConfig('wms_empty_rest_products_b', 0),
             'empty_rest_products_C' => ConfigController::getConfig('wms_empty_rest_products_c', 0),
-            'wms_multi_intelligence' => ConfigController::getConfig('wms_multi_intelligence', 0),
-            'wms_multi_intelligence_period' => ConfigController::getConfig('wms_multi_intelligence_period', 7)
+            'wms_multi_intelligence_A' => ConfigController::getConfig('wms_multi_intelligence_a', 0),
+            'wms_multi_intelligence_B' => ConfigController::getConfig('wms_multi_intelligence_b', 0),
+            'wms_multi_intelligence_C' => ConfigController::getConfig('wms_multi_intelligence_c', 0),
+            'wms_multi_intelligence_period_A' => ConfigController::getConfig('wms_multi_intelligence_period_a', 7),
+            'wms_multi_intelligence_period_B' => ConfigController::getConfig('wms_multi_intelligence_period_b', 7),
+            'wms_multi_intelligence_period_C' => ConfigController::getConfig('wms_multi_intelligence_period_c', 7),
         ];
     }
 
@@ -60,9 +64,6 @@ class StockOptimizationManager
 
         $unleashCompartmentIDs = $this->clearUnleashStatus($groupedStockPlaces);
 
-        $multiIntelligence = $this->config['wms_multi_intelligence'];
-        $multiIntelligencePeriod = $this->config['wms_multi_intelligence_period'];
-
         $articleStockData = [];
 
         // Process articles in classification order: A, B, C
@@ -86,6 +87,9 @@ class StockOptimizationManager
                 for ($i = 0;$i < $classIndex;$i++) {
                     $stockPlaceClass = self::CLASSIFICATION_ORDER[$i];
                     $stockPlaces = $groupedStockPlaces[$stockPlaceClass] ?? [];
+
+                    $multiIntelligence = $this->config['wms_multi_intelligence_' . $stockPlaceClass];
+                    $multiIntelligencePeriod = $this->config['wms_multi_intelligence_period_' . $stockPlaceClass];
 
                     if(!$stockPlaces) continue;
 
