@@ -112,6 +112,7 @@ class VismaNetApiService
         $response = [
             'success' => $response->successful(),
             'response' => $rawResponse ? ($response->body() ?? '') : ($response->json() ?? []),
+            'http_code' => $response->status(),
             'headers' => $response->headers(),
         ];
 
