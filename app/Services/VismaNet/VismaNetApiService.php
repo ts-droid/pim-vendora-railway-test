@@ -60,14 +60,16 @@ class VismaNetApiService
      * @param string $accessToken
      * @return array
      */
-    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false): array
+    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false, bool $logRequest = false): array
     {
         if ($this->callCount > 0) {
             sleep($this->sleepTime);
         }
 
+        $accessToken = $accessToken ?: $this->getAccessToken();
+
         $headers = [
-            'Authorization' => 'Bearer ' . ($accessToken ?: $this->getAccessToken()),
+            'Authorization' => 'Bearer ' . $accessToken,
         ];
 
         if ($params) {
@@ -113,14 +115,21 @@ class VismaNetApiService
             'headers' => $response->headers(),
         ];
 
+        $metaData = [
+            'access_token' => $accessToken
+        ];
+
         // Log the API call
-        ApiLogger::log(
-            ApiLogger::TYPE_VISMA,
-            $url,
-            $params,
-            $method,
-            $response
-        );
+        if ($logRequest) {
+            ApiLogger::log(
+                ApiLogger::TYPE_VISMA,
+                $url,
+                $params,
+                $method,
+                $response,
+                $metaData
+            );
+        }
 
         return $response;
     }

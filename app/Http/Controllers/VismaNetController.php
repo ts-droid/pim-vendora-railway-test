@@ -941,18 +941,7 @@ class VismaNetController extends Controller
 
         $this->callCount++;
 
-        $response = $response->json() ?: [];
-
-        // Log the response
-        ApiLogger::log(
-            ApiLogger::TYPE_VISMA,
-            $url,
-            $params,
-            $method,
-            $response
-        );
-
-        return $response;
+        return $response->json() ?: [];
     }
 
     /**

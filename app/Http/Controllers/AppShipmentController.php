@@ -389,7 +389,7 @@ class AppShipmentController extends Controller
     {
         $vismaNetApi = new VismaNetApiService();
 
-        $response = $vismaNetApi->callAPI('GET', '/v1/shipment/' . $shipment->number . '/printShipmentConfirmation', [], '', true);
+        $response = $vismaNetApi->callAPI('GET', '/v1/shipment/' . $shipment->number . '/printShipmentConfirmation', [], '', true, true);
 
         $data = $response['response'];
 

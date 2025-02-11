@@ -10,16 +10,15 @@ class ApiLogger
 
     const TYPE_VISMA = 0;
 
-    public static function log(int $type, string $url, array $params, string $method, array $response): void
+    public static function log(int $type, string $url, array $params, string $method, array $response, array $metaData = []): void
     {
-        return;
-
         DB::table('api_logs')->insert([
             'type' => $type,
             'url' => $url,
             'params' => json_encode($params),
             'method' => $method,
             'response' => json_encode($response),
+            'meta_data' => json_encode($metaData),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
