@@ -135,6 +135,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 $serialNumbers = explode(',', $line->serial_number);
                 $serialNumbers = array_map('trim', $serialNumbers);
 
+                $processedSerialNumbers = [];
                 $allocations = [];
                 $lineNbr = 0;
 
@@ -154,11 +155,13 @@ class VismaNetShipmentService extends VismaNetApiService
                         if ($vismaAllocations[$i]['lineNbr'] > $lineNbr) {
                             $lineNbr = $vismaAllocations[$i]['lineNbr'];
                         }
+
+                        $processedSerialNumbers[] = $serialNumber;
                     }
                 }
 
-                if (count($allocations) < count($serialNumbers)) {
-                    for ($i = count($allocations);$i < count($serialNumbers);$i++) {
+                if (count($processedSerialNumbers) < count($serialNumbers)) {
+                    for ($i = count($processedSerialNumbers);$i < count($serialNumbers);$i++) {
                         $lineNbr++;
 
                         $allocations[] = [
