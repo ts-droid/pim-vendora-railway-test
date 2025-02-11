@@ -144,7 +144,7 @@ class VismaNetShipmentService extends VismaNetApiService
 
                 if ($vismaAllocations) {
                     for ($i = 0;$i < count($vismaAllocations);$i++) {
-                        $serialNumber = $serialNumber[$i] ?? '';
+                        $serialNumber = $serialNumbers[$i] ?? '';
 
                         log_data($serialNumber . ' != ' . $vismaAllocations[$i]['lotSerialNumber']);
 
