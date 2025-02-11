@@ -139,14 +139,9 @@ class VismaNetShipmentService extends VismaNetApiService
                 $allocations = [];
                 $lineNbr = 0;
 
-                log_data(json_encode($serialNumbers));
-                log_data(json_encode($vismaAllocations));
-
                 if ($vismaAllocations) {
                     for ($i = 0;$i < count($vismaAllocations);$i++) {
                         $serialNumber = $serialNumbers[$i] ?? '';
-
-                        log_data($serialNumber . ' != ' . $vismaAllocations[$i]['lotSerialNumber']);
 
                         if ($serialNumber != $vismaAllocations[$i]['lotSerialNumber']) {
                             $allocations[] = [
@@ -185,8 +180,6 @@ class VismaNetShipmentService extends VismaNetApiService
 
             $updateData['shipmentDetailLines'][] = $lineData;
         }
-
-        log_data(json_encode($updateData));
 
         $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
         if (!$response['success']) {
