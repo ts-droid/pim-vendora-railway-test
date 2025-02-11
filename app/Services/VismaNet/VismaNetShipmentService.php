@@ -139,7 +139,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 $allocations = [];
                 $lineNbr = 0;
 
-                if ($vismaAllocations) {
+                /*if ($vismaAllocations) {
                     for ($i = 0;$i < count($vismaAllocations);$i++) {
                         $serialNumber = $serialNumbers[$i] ?? '';
 
@@ -158,7 +158,7 @@ class VismaNetShipmentService extends VismaNetApiService
 
                         $processedSerialNumbers[] = $serialNumber;
                     }
-                }
+                }*/
 
                 if (count($processedSerialNumbers) < count($serialNumbers)) {
                     for ($i = count($processedSerialNumbers);$i < count($serialNumbers);$i++) {
