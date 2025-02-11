@@ -138,20 +138,24 @@ class VismaNetShipmentService extends VismaNetApiService
                 $allocations = [];
                 $lineNbr = 0;
 
-                /*if ($vismaAllocations) {
+                if ($vismaAllocations) {
                     for ($i = 0;$i < count($vismaAllocations);$i++) {
-                        $allocations[] = [
-                            'operation' => 'Update',
-                            'lineNbr' => ['value' => $vismaAllocations[$i]['lineNbr']],
-                            'lotSerialNumber' => ['value' => ($serialNumber[$i] ?? '')],
-                            'quantity' => ['value' => 1]
-                        ];
+                        $serialNumber = $serialNumber[$i] ?? '';
+
+                        if ($serialNumber != $vismaAllocations[$i]['lotSerialNumber']) {
+                            $allocations[] = [
+                                'operation' => 'Update',
+                                'lineNbr' => ['value' => $vismaAllocations[$i]['lineNbr']],
+                                'lotSerialNumber' => ['value' => $serialNumber],
+                                'quantity' => ['value' => 1]
+                            ];
+                        }
 
                         if ($vismaAllocations[$i]['lineNbr'] > $lineNbr) {
                             $lineNbr = $vismaAllocations[$i]['lineNbr'];
                         }
                     }
-                }*/
+                }
 
                 if (count($allocations) < count($serialNumbers)) {
                     for ($i = count($allocations);$i < count($serialNumbers);$i++) {
