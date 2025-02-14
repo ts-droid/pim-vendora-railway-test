@@ -13,6 +13,7 @@ use App\Models\StockPlaceCompartment;
 use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
+use App\Services\WMS\StockPlaceService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -134,6 +135,7 @@ class AppShipmentController extends Controller
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
                 $investigationComment = $line['investigation_comment'] ?? '';
+                $pickingLocations = $line['picking_locations'] ?? ['--'];
 
                 $serialNumbers = $line['serial_numbers'] ?? '';
                 $serialNumbers = explode(',', $serialNumbers);
@@ -172,63 +174,40 @@ class AppShipmentController extends Controller
                     'investigation_comment' => $investigationComment,
                     'investigation_sound_path' => $investigationSoundPath,
                     'investigation_sound_url' => $investigationSoundUrl,
-                    'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : ''
+                    'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : '',
+                    'picking_location' => json_encode($pickingLocations)
                 ]);
             }
         }
 
-        // Make stock movements
-        if ($lines && is_array($lines)) {
-            foreach ($lines as $line) {
-                $lineID = $line['id'] ?? 0;
-                $quantity = $line['quantity'] ?? 0;
-                $pickingLocations = $line['picking_locations'] ?? ['--'];
+        $stockItemService = new StockItemService();
+        $stockPlaceService = new StockPlaceService();
 
-                $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
-                    ->where('id', '=', $lineID)
-                    ->first();
+        // Get fresh pair of shipment lines
+        $shipmentLines = ShipmentLine::where('shipment_id', '=', $shipment->id)->get();
 
-                if (!$shipmentLine) continue;
+        if ($shipmentLines) {
+            foreach ($shipmentLines as $shipmentLine) {
+                $quantity = $shipmentLine->picked_quantity;
+                $pickingLocations = json_decode($shipmentLine->picking_location, true);
 
-                $stockItemService = new StockItemService();
-
-                $movedQuantity = 0;
                 foreach ($pickingLocations as $pickingLocation) {
-                    if ($pickingLocation === '--') {
+                    if ($pickingLocation == '--') {
                         continue;
                     }
 
-                    $pickingLocationData = explode(':', $pickingLocation);
+                    $compartment = $stockPlaceService->getCompartmentByIdentifier($pickingLocation);
 
-                    $stockPlace = StockPlace::where('identifier', ($pickingLocationData[0] ?? ''))->first();
-                    if (!$stockPlace) {
-                        return ApiResponseController::error('Could not find stock place.');
-                    }
-
-                    $compartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
-                        ->where('identifier', ($pickingLocationData[1] ?? ''))
-                        ->first();
-                    if (!$compartment) {
-                        return ApiResponseController::error('Could not find compartment.');
-                    }
-
-                    $stockItems = StockItem::where('stock_place_compartment_id', $compartment->id)
-                        ->where('article_number', $shipmentLine->article_number)
-                        ->get();
-
-                    if (!$stockItems->count()) {
+                    $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $quantity);
+                    if ($stockItems->count() == 0) {
                         continue;
                     }
-
-                    $itemsToMove = min($stockItems->count(), ($quantity - $movedQuantity));
-
-                    $stockItems = $stockItems->take($itemsToMove);
 
                     foreach ($stockItems as $stockItem) {
                         $stockItemService->removeStockItem($stockItem);
                     }
 
-                    $movedQuantity += $itemsToMove;
+                    $quantity -= $stockItems->count();
                 }
             }
         }

@@ -9,39 +9,12 @@ use Illuminate\Support\Facades\DB;
 
 class StockItemService
 {
-    public function allocateStockItem(StockItem $stockItem, string $allocationType, string $allocationReference, string $allocationDate = ''): array
+    public function getStockItemsFromCompartment(StockPlaceCompartment $stockPlaceCompartment, string $articleNumber, int $quantity)
     {
-        if ($stockItem->allocation_type) {
-            return [
-                'success' => false,
-                'message' => 'Stock item already allocated',
-            ];
-        }
-
-        $stockItem->update([
-            'allocation_type' => $allocationType,
-            'allocation_reference' => $allocationReference,
-            'allocation_date' => date('Y-m-d H:i:s', strtotime($allocationDate ?: 'now')),
-        ]);
-
-        return [
-            'success' => true,
-            'message' => 'Stock item allocated',
-        ];
-    }
-
-    public function deallocateStockItem(StockItem $stockItem): array
-    {
-        $stockItem->update([
-            'allocation_type' => null,
-            'allocation_reference' => null,
-            'allocation_date' => null,
-        ]);
-
-        return [
-            'success' => true,
-            'message' => 'Stock item deallocated',
-        ];
+        return StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)
+            ->where('article_number', $articleNumber)
+            ->limit($quantity)
+            ->get();
     }
 
     public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment): array
@@ -152,6 +125,41 @@ class StockItemService
                 'message' => 'Failed to remove stock item: ' . $e->getMessage(),
             ];
         }
+    }
+
+    public function allocateStockItem(StockItem $stockItem, string $allocationType, string $allocationReference, string $allocationDate = ''): array
+    {
+        if ($stockItem->allocation_type) {
+            return [
+                'success' => false,
+                'message' => 'Stock item already allocated',
+            ];
+        }
+
+        $stockItem->update([
+            'allocation_type' => $allocationType,
+            'allocation_reference' => $allocationReference,
+            'allocation_date' => date('Y-m-d H:i:s', strtotime($allocationDate ?: 'now')),
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Stock item allocated',
+        ];
+    }
+
+    public function deallocateStockItem(StockItem $stockItem): array
+    {
+        $stockItem->update([
+            'allocation_type' => null,
+            'allocation_reference' => null,
+            'allocation_date' => null,
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Stock item deallocated',
+        ];
     }
 
     private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity): void

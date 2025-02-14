@@ -8,6 +8,28 @@ use App\Models\StockPlaceCompartment;
 
 class StockPlaceService
 {
+    public function getCompartmentByIdentifier(string $identifier): ?StockPlaceCompartment
+    {
+        $split = explode(':', $identifier);
+        $stockPlaceIdentifier = $split[0];
+        $compartmentIdentifier = $split[1];
+
+        $stockPlace = StockPlace::where('identifier', $stockPlaceIdentifier)->first();
+        if (!$stockPlace) {
+            return null;
+        }
+
+        $compartment = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+            ->where('identifier', $compartmentIdentifier)
+            ->first();
+
+        if (!$compartment) {
+            return null;
+        }
+
+        return $compartment;
+    }
+
     public function createStockPlace(array $data): array
     {
         if (empty($data['identifier'])) {
