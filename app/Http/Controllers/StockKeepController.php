@@ -101,6 +101,8 @@ class StockKeepController extends Controller
             return ApiResponseController::error('Compartment not found');
         }
 
+        $isManual = $compartmentObject->is_manual;
+
         $existingArticleNumbers = StockItem::select('article_number', DB::raw('COUNT(*) as count'))
             ->where('stock_place_compartment_id', '=', $compartmentObject->id)
             ->groupBy('article_number')
@@ -153,7 +155,7 @@ class StockKeepController extends Controller
                     ($stockPlace . ':' . $compartment),
                     $stock,
                     $diff,
-                    true
+                    ($isManual ? false : true)
                 );
             }
             else {
@@ -165,7 +167,7 @@ class StockKeepController extends Controller
                     ($stockPlace . ':' . $compartment),
                     $stock,
                     $stock,
-                    true,
+                    ($isManual ? false : true)
                 );
             }
         }
@@ -196,7 +198,7 @@ class StockKeepController extends Controller
 
 
         // Update number of sections (if manual)
-        if ($compartmentObject->is_manual) {
+        if ($isManual) {
             $sections = array_unique($articleNumbers);
             $sections = array_filter($sections);
 
