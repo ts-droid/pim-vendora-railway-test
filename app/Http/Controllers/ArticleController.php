@@ -11,6 +11,7 @@ use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\StockItem;
+use App\Models\StockKeepTodo;
 use App\Models\StockKeepTransaction;
 use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
@@ -479,6 +480,11 @@ class ArticleController extends Controller
                 'type' => 'manual',
                 'status' => ($markForInvestigation ? 'investigation' : 'completed'),
             ]);
+
+            // Remove tasks to stock keep this article
+            StockKeepTodo::where('type', 'article')
+                ->where('reference', $article->article_number)
+                ->delete();
 
             return ApiResponseController::success($stockKeepTransaction->toArray());
         } catch (\Throwable $e) {

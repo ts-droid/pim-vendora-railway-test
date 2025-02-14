@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\CompartmentSection;
 use App\Models\StockItem;
+use App\Models\StockKeepTodo;
 use App\Models\StockKeepTransaction;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Services\WMS\StockItemService;
+use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -224,8 +226,12 @@ class StockKeepController extends Controller
             }
         }
 
-
         $compartmentObject->update(['is_manual' => 0]);
+
+        // Remove tasks to stock keep this compartment
+        StockKeepTodo::where('type', 'compartment')
+            ->where('reference', $stockPlaceIdentifier)
+            ->delete();
 
         return ApiResponseController::success();
     }
@@ -286,6 +292,39 @@ class StockKeepController extends Controller
         }
 
         return ApiResponseController::success(array_values($responseData));
+    }
+
+    public function getTodo()
+    {
+        $todos = StockKeepTodo::orderBy('created_at', 'ASC')
+            ->limit(50)
+            ->get();
+
+        if ($todos) {
+            foreach ($todos as &$todo) {
+
+                switch ($todo->type) {
+                    case 'article':
+                        $todo->meta_data = DB::table('articles')
+                            ->select('id', 'ean', 'article_number', 'description')
+                            ->where('article_number', $todo->reference)
+                            ->first();
+                        break;
+
+
+                    case 'compartment':
+                        $stockPlaceService = new StockPlaceService();
+
+                        $todo->meta_data = [
+                            'stock_place_compartment' => $stockPlaceService->getCompartmentByIdentifier($todo->reference)
+                        ];
+                        break;
+                }
+
+            }
+        }
+
+        return ApiResponseController::success($todos->toArray());
     }
 
     private function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate)
