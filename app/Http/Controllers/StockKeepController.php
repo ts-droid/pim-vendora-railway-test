@@ -67,7 +67,10 @@ class StockKeepController extends Controller
         $ids = explode(',', $ids);
 
         StockKeepTransaction::whereIn('id', $ids)
-            ->update(['is_archived' => 1]);
+            ->update([
+                'status' => 'completed',
+                'is_archived' => 1
+            ]);
 
         return ApiResponseController::success();
     }
