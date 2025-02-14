@@ -449,7 +449,7 @@ class ArticleController extends Controller
                 $diffs[] = $diff;
 
                 // Make stock update if not marked for investigation
-                if (!$markForInvestigation && $diff) {
+                if ($diff) {
                     if ($diff > 0) {
                         // Add stock items
                         $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
