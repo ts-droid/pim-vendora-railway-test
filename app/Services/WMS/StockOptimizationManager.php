@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class StockOptimizationManager
 {
+    const MOVEMENT_TYPE_REFILL = 'refill';
+    const MOVEMENT_TYPE_ORGANIZATION = 'organization';
+    const MOVEMENT_TYPE_UNLEASH = 'unleash';
+
     const CLASSIFICATION_ORDER = ['A', 'B', 'C'];
 
     const REFILL_THRESHOLD = 0.5;       // Refill a compartment when occupied volume is below 50%
@@ -37,27 +41,6 @@ class StockOptimizationManager
             'wms_multi_intelligence_period_B' => ConfigController::getConfig('wms_multi_intelligence_period_b', 7),
             'wms_multi_intelligence_period_C' => ConfigController::getConfig('wms_multi_intelligence_period_c', 7),
         ];
-    }
-
-    public function validate(): void
-    {
-        $stockItemMovements = StockItemMovement::all();
-
-        if (!$stockItemMovements) {
-            return;
-        }
-
-        foreach ($stockItemMovements as $stockItemMovement) {
-            // Validate that all stock still exists in the "from compartment"
-            $quantityAtCompartment = (int) StockItem::where('article_number', $stockItemMovement->article_number)
-                ->where('stock_place_compartment_id', $stockItemMovement->from_stock_place_compartment)
-                ->count();
-
-            if ($quantityAtCompartment < $stockItemMovement->quantity) {
-                // There is no longer enough stock in the compartment
-                $stockItemMovement->delete();
-            }
-        }
     }
 
     public function optimize(): bool
@@ -196,7 +179,7 @@ class StockOptimizationManager
                                     0,
                                     $compartment->id,
                                     $refillCount,
-                                    'refill'
+                                    self::MOVEMENT_TYPE_REFILL
                                 );
 
                                 $stockData['managedStock'] += $refillCount;
@@ -286,7 +269,7 @@ class StockOptimizationManager
                                     0,
                                     $compartment->id,
                                     $fillCount,
-                                    'organization'
+                                    self::MOVEMENT_TYPE_ORGANIZATION
                                 );
 
                                 $stockData['managedStock'] += $fillCount;
@@ -330,7 +313,7 @@ class StockOptimizationManager
                     $data['stock_place_compartment_id'],
                     0,
                     $data['quantity'],
-                    'unleash'
+                    self::MOVEMENT_TYPE_UNLEASH
                 );
             }
         }
@@ -362,7 +345,7 @@ class StockOptimizationManager
                             $compartment->id,
                             0,
                             $quantity,
-                            'unleash'
+                            self::MOVEMENT_TYPE_UNLEASH
                         );
                     }
                 }
@@ -430,7 +413,7 @@ class StockOptimizationManager
         };
     }
 
-    private function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
+    public function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
     {
         $stockItemMovement = StockItemMovement::create([
             'type' => $type,

@@ -60,8 +60,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('todo:generate-items')->dailyAt('04:00');
         $schedule->command('todo:hold-items')->dailyAt('05:00');
 
-        $schedule->command('wms:optimize-stock')->hourly();
-        $schedule->command('wms:validate-movements')->everyMinute()->withoutOverlapping();
+        $schedule->command('wms:optimize-stock')->hourly()->withoutOverlapping();
 
         $schedule->command('api-logger:clean')->hourly();
         $schedule->command('calculate-last-article-purchase-date')->everyThreeHours();
