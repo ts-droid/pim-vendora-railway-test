@@ -17,7 +17,7 @@ class StockItemService
             ->get();
     }
 
-    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment): array
+    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, string $signature = ''): array
     {
         DB::beginTransaction();
 
@@ -31,7 +31,7 @@ class StockItemService
                 ]);
             }
 
-            $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity);
+            $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity, $signature);
 
             DB::commit();
 
@@ -50,7 +50,7 @@ class StockItemService
         }
     }
 
-    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment): array
+    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = ''): array
     {
         $stockItems = StockItem::where('article_number', $articleNumber)
             ->where('stock_place_compartment_id', $fromStockPlaceCompartment->id)
@@ -65,7 +65,7 @@ class StockItemService
         }
 
         foreach ($stockItems as $stockItem) {
-            $this->moveStockItem($stockItem, $toStockPlaceCompartment);
+            $this->moveStockItem($stockItem, $toStockPlaceCompartment, $signature);
         }
 
         return [
@@ -74,13 +74,13 @@ class StockItemService
         ];
     }
 
-    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment): array
+    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = ''): array
     {
         DB::beginTransaction();
 
         try {
-            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1);
-            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1);
+            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature);
+            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature);
 
             $stockItem->update([
                 'stock_place_compartment_id' => $stockPlaceCompartment->id
@@ -102,12 +102,12 @@ class StockItemService
         }
     }
 
-    public function removeStockItem(StockItem $stockItem): array
+    public function removeStockItem(StockItem $stockItem, string $signature = ''): array
     {
         DB::beginTransaction();
 
         try {
-            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1);
+            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature);
 
             $stockItem->delete();
 
@@ -162,12 +162,13 @@ class StockItemService
         ];
     }
 
-    private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity): void
+    private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = ''): void
     {
         StockItemLog::create([
             'article_number' => $articleNumber,
             'stock_place_compartment_id' => $stockPlaceCompartmentID,
             'quantity' => $quantity,
+            'signature' => $signature,
         ]);
     }
 }

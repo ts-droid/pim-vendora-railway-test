@@ -39,6 +39,8 @@ class AppWarehouseController extends Controller
 
     public function createMovement(Request $request)
     {
+        $signature = get_display_name();
+
         $articleNumber = $request->input('article_number');
         $quantity = (int) $request->input('quantity');
 
@@ -117,13 +119,15 @@ class AppWarehouseController extends Controller
                 $quantity,
                 $fromCompartmentObject,
                 $toCompartmentObject,
+                $signature
             );
         }
         else {
             $response = $stockItemService->addStockItem(
                 $articleNumber->article_number,
                 $quantity,
-                $toCompartmentObject
+                $toCompartmentObject,
+                $signature
             );
         }
 
@@ -155,14 +159,12 @@ class AppWarehouseController extends Controller
 
     public function confirmMovement(Request $request, StockItemMovement $stockItemMovement)
     {
+        $signature = get_display_name();
+
         $stockItemService = new StockItemService();
 
         $quantity = (int) $request->input('quantity');
         if ($quantity > 0) {
-            /*if ($quantity > $stockItemMovement->quantity) {
-                return ApiResponseController::error('You can not move more than the suggested quantity.');
-            }*/
-
             $stockItemMovement->update(['quantity' => $quantity]);
         }
 
@@ -176,7 +178,8 @@ class AppWarehouseController extends Controller
                 $stockItemMovement->article_number,
                 $stockItemMovement->quantity,
                 $stockItemMovement->fromStockPlaceCompartment,
-                $stockItemMovement->toStockPlaceCompartment
+                $stockItemMovement->toStockPlaceCompartment,
+                $signature
             );
         }
         else {
@@ -185,7 +188,8 @@ class AppWarehouseController extends Controller
                 $response = $stockItemService->addStockItem(
                     $stockItemMovement->article_number,
                     $stockItemMovement->quantity,
-                    $stockItemMovement->toStockPlaceCompartment
+                    $stockItemMovement->toStockPlaceCompartment,
+                    $signature
                 );
             }
             else if ($stockItemMovement->from_stock_place_compartment) {
@@ -194,7 +198,7 @@ class AppWarehouseController extends Controller
                     ->get();
 
                 foreach ($stockItems as $stockItem) {
-                    $response = $stockItemService->removeStockItem($stockItem);
+                    $response = $stockItemService->removeStockItem($stockItem, $signature);
                 }
             }
         }

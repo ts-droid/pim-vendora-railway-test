@@ -74,6 +74,8 @@ class StockKeepController extends Controller
 
     public function stockPlace(Request $request)
     {
+        $signature = get_display_name();
+
         $stockItemService = new StockItemService();
 
         $investigate = (bool) $request->input('investigate', 0);
@@ -126,7 +128,7 @@ class StockKeepController extends Controller
 
                 if ($diff > 0) {
                     // Add stock items
-                    $stockItemService->addStockItem($articleNumber, $diff, $compartmentObject, null);
+                    $stockItemService->addStockItem($articleNumber, $diff, $compartmentObject, $signature);
                 }
                 else {
                     // Remove stock items
@@ -136,7 +138,7 @@ class StockKeepController extends Controller
                         ->get();
 
                     foreach ($stockItems as $stockItem) {
-                        $stockItemService->removeStockItem($stockItem);
+                        $stockItemService->removeStockItem($stockItem, $signature);
                     }
                 }
 
@@ -150,7 +152,7 @@ class StockKeepController extends Controller
             }
             else {
                 // Insert new stock
-                $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, null);
+                $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, $signature);
 
                 $this->makeTransaction(
                     $articleNumber,
@@ -174,7 +176,7 @@ class StockKeepController extends Controller
                 ->get();
 
             foreach ($stockItems as $stockItem) {
-                $stockItemService->removeStockItem($stockItem);
+                $stockItemService->removeStockItem($stockItem, $signature);
             }
 
             $this->makeTransaction(

@@ -415,6 +415,8 @@ class ArticleController extends Controller
 
     public function stockKeepArticle(Request $request, Article $article)
     {
+        $signature = get_display_name();
+
         try {
             $markForInvestigation = (bool) $request->input('mark_for_investigation', false);
 
@@ -450,7 +452,7 @@ class ArticleController extends Controller
                 if (!$markForInvestigation && $diff) {
                     if ($diff > 0) {
                         // Add stock items
-                        $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], null);
+                        $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
                     }
                     else {
                         // Remove stock items
@@ -460,7 +462,7 @@ class ArticleController extends Controller
                             ->get();
 
                         foreach ($stockItems as $stockItem) {
-                            $stockItemService->removeStockItem($stockItem);
+                            $stockItemService->removeStockItem($stockItem, $signature);
                         }
                     }
                 }

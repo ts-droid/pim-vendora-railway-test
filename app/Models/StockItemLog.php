@@ -13,5 +13,6 @@ class StockItemLog extends Model
         'article_number',
         'stock_place_compartment_id',
         'quantity',
+        'signature',
     ];
 }
