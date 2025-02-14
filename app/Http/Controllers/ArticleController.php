@@ -418,7 +418,7 @@ class ArticleController extends Controller
         $signature = get_display_name();
 
         try {
-            $markForInvestigation = (bool) $request->input('mark_for_investigation', false);
+            $markForInvestigation = false;
 
             $stockValues = $request->input('stock_values');
             $stockValues = json_decode($stockValues, true);
@@ -450,6 +450,8 @@ class ArticleController extends Controller
 
                 // Make stock update if not marked for investigation
                 if ($diff) {
+                    $markForInvestigation = true;
+
                     if ($diff > 0) {
                         // Add stock items
                         $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);

@@ -78,8 +78,6 @@ class StockKeepController extends Controller
 
         $stockItemService = new StockItemService();
 
-        $investigate = (bool) $request->input('investigate', 0);
-
         $stockPlaceIdentifier = $request->input('stock_place_identifier');
         $stockPlaceSplit = explode(':', $stockPlaceIdentifier);
         $stockPlace = $stockPlaceSplit[0] ?? null;
@@ -123,6 +121,14 @@ class StockKeepController extends Controller
                 $diff = $stock - $currentStock;
 
                 if ($diff == 0) {
+                    $this->makeTransaction(
+                        $articleNumber,
+                        ($stockPlace . ':' . $compartment),
+                        $stock,
+                        $diff,
+                        false
+                    );
+
                     continue;
                 }
 
@@ -147,7 +153,7 @@ class StockKeepController extends Controller
                     ($stockPlace . ':' . $compartment),
                     $stock,
                     $diff,
-                    $investigate
+                    true
                 );
             }
             else {
@@ -159,7 +165,7 @@ class StockKeepController extends Controller
                     ($stockPlace . ':' . $compartment),
                     $stock,
                     $stock,
-                    $investigate,
+                    true,
                 );
             }
         }
@@ -184,7 +190,7 @@ class StockKeepController extends Controller
                 ($stockPlace . ':' . $compartment),
                 0,
                 $stock * -1,
-                $investigate
+                true
             );
         }
 
