@@ -125,7 +125,7 @@ class AppWarehouseController extends Controller
             }
             else {
                 $response = $stockItemService->addStockItem(
-                    $articleNumber->article_number,
+                    $article->article_number,
                     $quantity,
                     $toCompartmentObject,
                     $signature
