@@ -217,6 +217,18 @@ class StockItemService
                 }
             }
 
+            // Check if the compartment have any unleash movements
+            foreach ($articleNumbers as $articleNumber => $count) {
+                $movement = StockItemMovement::where('article_number', $articleNumber)
+                    ->where('from_stock_place_compartment', $stockPlaceCompartment->id)
+                    ->where('type', 'unleash')
+                    ->first();
+
+                if ($movement) {
+                    $movement->update(['quantity' => $count]);
+                }
+            }
+
             // Check all movements on the way from this compartment
             $movementsFrom = StockItemMovement::where('from_stock_place_compartment', $stockPlaceCompartment->id)->get();
             if ($movementsFrom) {
