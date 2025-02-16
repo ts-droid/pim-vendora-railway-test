@@ -39,103 +39,107 @@ class AppWarehouseController extends Controller
 
     public function createMovement(Request $request)
     {
-        $signature = get_display_name();
+        try {
+            $signature = get_display_name();
 
-        $articleNumber = $request->input('article_number');
-        $quantity = (int) $request->input('quantity');
+            $articleNumber = $request->input('article_number');
+            $quantity = (int) $request->input('quantity');
 
-        $fromStockPlace = str_replace('--', '', $request->input('fromStockPlace', ''));
-        $fromCompartment = str_replace('--', '', $request->input('fromCompartment', ''));
+            $fromStockPlace = str_replace('--', '', $request->input('fromStockPlace', ''));
+            $fromCompartment = str_replace('--', '', $request->input('fromCompartment', ''));
 
-        $toStockPlace = str_replace('--', '', $request->input('toStockPlace', ''));
-        $toCompartment = str_replace('--', '', $request->input('toCompartment', ''));
+            $toStockPlace = str_replace('--', '', $request->input('toStockPlace', ''));
+            $toCompartment = str_replace('--', '', $request->input('toCompartment', ''));
 
-        $fromStockPlaceObject = null;
-        $fromCompartmentObject = null;
+            $fromStockPlaceObject = null;
+            $fromCompartmentObject = null;
 
-        $toStockPlaceObject = null;
-        $toCompartmentObject = null;
+            $toStockPlaceObject = null;
+            $toCompartmentObject = null;
 
-        if ($quantity <= 0) {
-            return ApiResponseController::error('Quantity must be greater than 0.');
-        }
+            if ($quantity <= 0) {
+                return ApiResponseController::error('Quantity must be greater than 0.');
+            }
 
-        $article = Article::where('article_number', $articleNumber)->first();
-        if (!$article) {
-            return ApiResponseController::error('Article not found.');
-        }
+            $article = Article::where('article_number', $articleNumber)->first();
+            if (!$article) {
+                return ApiResponseController::error('Article not found.');
+            }
 
-        // Validate from location
-        if ($fromStockPlace) {
-            $fromStockPlaceObject = StockPlace::where('identifier', $fromStockPlace)->first();
-            if (!$fromStockPlaceObject) {
+            // Validate from location
+            if ($fromStockPlace) {
+                $fromStockPlaceObject = StockPlace::where('identifier', $fromStockPlace)->first();
+                if (!$fromStockPlaceObject) {
+                    return ApiResponseController::error('Stock place not found.');
+                }
+
+                $fromCompartmentObject = StockPlaceCompartment::where('stock_place_id', $fromStockPlaceObject->id)->where('identifier', $fromCompartment)->first();
+                if (!$fromCompartmentObject) {
+                    return ApiResponseController::error('Compartment not found.');
+                }
+            }
+
+
+            // Validate to location
+            $toStockPlaceObject = StockPlace::where('identifier', $toStockPlace)->first();
+            if (!$toStockPlaceObject) {
                 return ApiResponseController::error('Stock place not found.');
             }
 
-            $fromCompartmentObject = StockPlaceCompartment::where('stock_place_id', $fromStockPlaceObject->id)->where('identifier', $fromCompartment)->first();
-            if (!$fromCompartmentObject) {
+            $toCompartmentObject = StockPlaceCompartment::where('stock_place_id', $toStockPlaceObject->id)->where('identifier', $toCompartment)->first();
+            if (!$toCompartmentObject) {
                 return ApiResponseController::error('Compartment not found.');
             }
-        }
 
+            // Validate article & quantity
+            if ($fromStockPlace) {
+                $stockPlaceQuantity = (int) StockItem::where('article_number', $articleNumber)
+                    ->where('stock_place_compartment_id', ($fromCompartmentObject->id ?? 0))
+                    ->count();
 
-        // Validate to location
-        $toStockPlaceObject = StockPlace::where('identifier', $toStockPlace)->first();
-        if (!$toStockPlaceObject) {
-            return ApiResponseController::error('Stock place not found.');
-        }
-
-        $toCompartmentObject = StockPlaceCompartment::where('stock_place_id', $toStockPlaceObject->id)->where('identifier', $toCompartment)->first();
-        if (!$toCompartmentObject) {
-            return ApiResponseController::error('Compartment not found.');
-        }
-
-        // Validate article & quantity
-        if ($fromStockPlace) {
-            $stockPlaceQuantity = (int) StockItem::where('article_number', $articleNumber)
-                ->where('stock_place_compartment_id', ($fromCompartmentObject->id ?? 0))
-                ->count();
-
-            if ($stockPlaceQuantity < $quantity) {
-                return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
+                if ($stockPlaceQuantity < $quantity) {
+                    return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
+                }
             }
-        }
-        else {
-            $managedStock = (int) StockItem::where('article_number', $articleNumber)->count();
-            $unmanagedStock = $article->stock - $managedStock;
+            else {
+                $managedStock = (int) StockItem::where('article_number', $articleNumber)->count();
+                $unmanagedStock = $article->stock - $managedStock;
 
-            if ($unmanagedStock < $quantity) {
-                return ApiResponseController::error('Not enough unmanaged stock in the warehouse to move this quantity.');
+                if ($unmanagedStock < $quantity) {
+                    return ApiResponseController::error('Not enough unmanaged stock in the warehouse to move this quantity.');
+                }
             }
+
+
+            // Make the movement
+            $stockItemService = new StockItemService();
+
+            if ($fromCompartmentObject) {
+                $response = $stockItemService->moveStockItems(
+                    $article->article_number,
+                    $quantity,
+                    $fromCompartmentObject,
+                    $toCompartmentObject,
+                    $signature
+                );
+            }
+            else {
+                $response = $stockItemService->addStockItem(
+                    $articleNumber->article_number,
+                    $quantity,
+                    $toCompartmentObject,
+                    $signature
+                );
+            }
+
+            if (!$response['success']) {
+                return ApiResponseController::error($response['message']);
+            }
+
+            return ApiResponseController::success();
+        } catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
         }
-
-
-        // Make the movement
-        $stockItemService = new StockItemService();
-
-        if ($fromCompartmentObject) {
-            $response = $stockItemService->moveStockItems(
-                $article->article_number,
-                $quantity,
-                $fromCompartmentObject,
-                $toCompartmentObject,
-                $signature
-            );
-        }
-        else {
-            $response = $stockItemService->addStockItem(
-                $articleNumber->article_number,
-                $quantity,
-                $toCompartmentObject,
-                $signature
-            );
-        }
-
-        if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
-        }
-
-        return ApiResponseController::success();
     }
 
     public function getMovement(StockItemMovement $stockItemMovement)
