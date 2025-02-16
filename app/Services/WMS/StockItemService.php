@@ -178,8 +178,12 @@ class StockItemService
         $stockOptimizationManager = new StockOptimizationManager();
         $warehouseHelper = new WarehouseHelper();
 
+        $test = [];
+
         foreach ($stockPlaceCompartments as $stockPlaceCompartment) {
             if (!($stockPlaceCompartment instanceof StockPlaceCompartment)) continue;
+
+            $test[] = $stockPlaceCompartment->id;
 
             $stockItems = StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)
                 ->get();
@@ -201,7 +205,7 @@ class StockItemService
                         ->first();
 
                     if ($movement) {
-                        $movement->update(['quantity' => $count,]);
+                        $movement->update(['quantity' => $count]);
                     }
                     else {
                         $stockOptimizationManager->makeStockMovement(
@@ -261,6 +265,8 @@ class StockItemService
                 }
             }
         }
+
+        log_data('updated movements for compartments' . json_encode($test));
     }
 
     private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = ''): void
