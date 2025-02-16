@@ -178,12 +178,8 @@ class StockItemService
         $stockOptimizationManager = new StockOptimizationManager();
         $warehouseHelper = new WarehouseHelper();
 
-        $test = [];
-
         foreach ($stockPlaceCompartments as $stockPlaceCompartment) {
             if (!($stockPlaceCompartment instanceof StockPlaceCompartment)) continue;
-
-            $test[] = $stockPlaceCompartment->id;
 
             $stockItems = StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)
                 ->get();
@@ -195,6 +191,8 @@ class StockItemService
             else {
                 $articleNumbers = [];
             }
+
+            log_data('ID: ' . $stockPlaceCompartment->id . ' ' . json_encode($articleNumbers))
 
             // Check if the compartment is marked for unleash
             if ($stockPlaceCompartment->unleash) {
@@ -265,8 +263,6 @@ class StockItemService
                 }
             }
         }
-
-        log_data('updated movements for compartments' . json_encode($test));
     }
 
     private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = ''): void
