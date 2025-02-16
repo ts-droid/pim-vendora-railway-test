@@ -192,8 +192,6 @@ class StockItemService
                 $articleNumbers = [];
             }
 
-            log_data('ID: ' . $stockPlaceCompartment->id . ' ' . json_encode($articleNumbers));
-
             // Check if the compartment is marked for unleash
             if ($stockPlaceCompartment->unleash) {
                 foreach ($articleNumbers as $articleNumber => $count) {
