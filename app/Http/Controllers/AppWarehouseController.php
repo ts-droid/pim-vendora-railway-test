@@ -253,7 +253,7 @@ class AppWarehouseController extends Controller
     private function getArticleData(array $articleNumbers, bool $detailed = false)
     {
         $articles = DB::table('articles')
-            ->select('id', 'article_number', 'ean', 'description', 'stock_manageable as stock', 'inner_box', 'master_box', 'package_image_front_url')
+            ->select('id', 'article_number', 'ean', 'description', 'stock_on_hand as stock', 'inner_box', 'master_box', 'package_image_front_url')
             ->whereIn('article_number', $articleNumbers)
             ->get();
 
@@ -290,6 +290,7 @@ class AppWarehouseController extends Controller
                     ->where('purchase_orders.date', '>=', '2023-01-01')
                     ->first();
 
+                $article->reserved_stock = WarehouseHelper::getReservedStock($article->article_number);
                 $article->incoming_stock = $purchaseData->incoming_quantity ?? 0;
                 $article->oldest_purchase_date = $purchaseData->oldest_purchase_date ?? '';
 

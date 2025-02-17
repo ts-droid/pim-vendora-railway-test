@@ -9,6 +9,17 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseHelper
 {
+    public static function getReservedStock(string $articleNumber): int
+    {
+        return (int) DB::table('shipment_lines')
+            ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
+            ->select('shipment_lines.quantity')
+            ->where('shipment_lines.article_number', $articleNumber)
+            ->where('shipments.status', 'Open')
+            ->where('shipments.operation', 'Issue')
+            ->sum('shipment_lines.quantity');
+    }
+
     public static function articleHasPlacement(string $articleNumber, array $classes): bool
     {
         $colors = [];

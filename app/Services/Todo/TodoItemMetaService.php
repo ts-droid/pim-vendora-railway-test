@@ -44,14 +44,6 @@ class TodoItemMetaService
             ->where('purchase_orders.date', '>=', '2023-01-01')
             ->first();
 
-        $reservedStock = (int) DB::table('shipment_lines')
-            ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
-            ->select('shipment_lines.quantity')
-            ->where('shipment_lines.article_number', $article->article_number)
-            ->where('shipments.status', 'Open')
-            ->where('shipments.operation', 'Issue')
-            ->sum('shipment_lines.quantity');;
-
         return [
             'article_number' => $article->article_number,
             'ean' => $article->ean,
@@ -68,7 +60,7 @@ class TodoItemMetaService
             'package_image_back' => $article->package_image_back,
             'package_image_back_url' => $article->package_image_back_url,
             'total_stock' => $article->stock_on_hand,
-            'reserved_stock' => $reservedStock,
+            'reserved_stock' => WarehouseHelper::getReservedStock($article->article_number),
             'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
             'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
             'serial_number_management' => $article->serial_number_management ? 'Active' : 'Inactive',
