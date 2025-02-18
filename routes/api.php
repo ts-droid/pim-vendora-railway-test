@@ -186,6 +186,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/stock-place/get-items', [StockKeepController::class, 'getStockPlaceItems']);
 
         Route::get('/todo', [StockKeepController::class, 'getTodo']);
+        Route::post('/todo/compartment', [StockKeepController::class, 'createCompartmentTodo']);
+        Route::post('/todo/article', [StockKeepController::class, 'createArticleTodo']);
     });
 
     Route::prefix('/article-reviews')->group(function() {

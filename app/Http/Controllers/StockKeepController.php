@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockKeepTodo;
@@ -292,6 +293,56 @@ class StockKeepController extends Controller
         }
 
         return ApiResponseController::success(array_values($responseData));
+    }
+
+    public function createArticleTodo(Request $request)
+    {
+        $articleNumber = $request->input('article_number');
+
+        $article = Article::where('article_number', $articleNumber)->first();
+        if (!$article) {
+            return ApiResponseController::error('Article not found');
+        }
+
+        StockKeepTodo::create([
+            'reference' => $article->article_number,
+            'type' => 'article'
+        ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function createCompartmentTodo(Request $request)
+    {
+        $stockPlaceIdentifier = $request->input('stock_place');
+        $compartmentIdentifier = $request->input('compartment');
+
+        $stockPlace = StockPlace::where('identifier', $stockPlaceIdentifier)->first();
+        if (!$stockPlace) {
+            return ApiResponseController::error('Stock place not found');
+        }
+
+        if ($compartmentIdentifier) {
+            $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+                ->where('identifier', $compartmentIdentifier)
+                ->get();
+        }
+        else {
+            $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->get();
+        }
+
+        if ($compartments->count() == 0) {
+            return ApiResponseController::error('Compartment not found');
+        }
+
+        foreach ($compartments as $compartment) {
+            StockKeepTodo::create([
+                'reference' => $stockPlace->identifier . ':' . $compartment->identifier,
+                'type' => 'compartment'
+            ]);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function getTodo()
