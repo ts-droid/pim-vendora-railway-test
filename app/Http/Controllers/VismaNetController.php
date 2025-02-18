@@ -488,13 +488,25 @@ class VismaNetController extends Controller
                 }
 
                 // Fetch detailed stock
-                $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
-                foreach ($detailedStock as $stock) {
-                    $stockLocationName = trim($stock['location']['name'] ?? '');
+                $currentStock = DB::table('articles')
+                    ->select('stock', 'stock_warehouse', 'stock_on_hand', 'stock_available_for_shipment')
+                    ->where('article_number', $updateData['article_number'])
+                    ->first();
 
-                    if ($stockLocationName === '1') {
-                        $updateData['stock_manageable'] = $stock['onHand'];
-                        break;
+                if (!$currentStock
+                    || $currentStock->stock != $updateData['stock']
+                    || $currentStock->stock_warehouse != $updateData['stock_warehouse']
+                    || $currentStock->stock_on_hand != $updateData['stock_on_hand']
+                    || $currentStock->stock_available_for_shipment != $updateData['stock_available_for_shipment']) {
+
+                    $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
+                    foreach ($detailedStock as $stock) {
+                        $stockLocationName = trim($stock['location']['name'] ?? '');
+
+                        if ($stockLocationName === '1') {
+                            $updateData['stock_manageable'] = $stock['onHand'];
+                            break;
+                        }
                     }
                 }
 
