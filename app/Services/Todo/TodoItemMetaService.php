@@ -59,7 +59,7 @@ class TodoItemMetaService
             'package_image_front_url' => $article->package_image_front_url,
             'package_image_back' => $article->package_image_back,
             'package_image_back_url' => $article->package_image_back_url,
-            'total_stock' => $article->stock_on_hand,
+            'total_stock' => $article->stock_manageable,
             'reserved_stock' => WarehouseHelper::getReservedStock($article->article_number),
             'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
             'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
