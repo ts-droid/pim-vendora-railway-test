@@ -173,6 +173,18 @@ class StockItemService
         ];
     }
 
+    public function updateAllStockMovements()
+    {
+        $stockPlaceCompartments = StockPlaceCompartment::all();
+
+        $array = [];
+        foreach($stockPlaceCompartments as $compartment) {
+            $array[] = $compartment;
+        }
+
+        $this->updateStockMovements($array);
+    }
+
     private function updateStockMovements(array $stockPlaceCompartments)
     {
         $stockOptimizationManager = new StockOptimizationManager();
@@ -265,7 +277,9 @@ class StockItemService
                             }
                         }
 
-                        if ($unmanagedStock < $movement->quantity) {
+                        if ($unmanagedStock == 0) {
+                            $movement->delete();
+                        } else if ($unmanagedStock < $movement->quantity) {
                             $movement->update(['quantity' => $unmanagedStock]);
                         }
                     }

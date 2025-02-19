@@ -16,6 +16,7 @@ use App\Services\ApiLogger;
 use App\Services\CreditNoteService;
 use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
+use App\Services\WMS\StockItemService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -533,6 +534,9 @@ class VismaNetController extends Controller
         }
 
         if ($fetchedData) {
+            $stockItemService = new StockItemService();
+            $stockItemService->updateAllStockMovements();
+
             ConfigController::setConfigs(['vismanet_last_article_fetch' => $fetchTime]);
         }
     }
