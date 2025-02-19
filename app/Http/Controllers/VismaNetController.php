@@ -466,7 +466,6 @@ class VismaNetController extends Controller
                     'stock_warehouse' => 0,
                     'stock_on_hand' => 0,
                     'stock_available_for_shipment' => 0,
-                    'stock_manageable' => 0,
                 ];
 
                 // Fetch stock
@@ -476,10 +475,6 @@ class VismaNetController extends Controller
                     $updateData['stock_warehouse'] += (int) ($warehouse['warehouse'] ?? 0);
                     $updateData['stock_on_hand'] += (int) ($warehouse['quantityOnHand'] ?? 0);
                     $updateData['stock_available_for_shipment'] += (int) ($warehouse['availableForShipment'] ?? 0);
-
-                    if ($warehouse['warehouse'] == '1') {
-                        $updateData['stock_manageable'] += (int) ($warehouse['quantityOnHand'] ?? 0);
-                    }
                 }
 
                 // Require article number to fetch
@@ -493,7 +488,7 @@ class VismaNetController extends Controller
                 }
 
                 // Fetch detailed stock
-                /*$currentStock = DB::table('articles')
+                $currentStock = DB::table('articles')
                     ->select('stock', 'stock_warehouse', 'stock_on_hand', 'stock_available_for_shipment')
                     ->where('article_number', $updateData['article_number'])
                     ->first();
@@ -513,7 +508,7 @@ class VismaNetController extends Controller
                             break;
                         }
                     }
-                }*/
+                }
 
                 // Update existing article
                 $hasUpdate = false;
