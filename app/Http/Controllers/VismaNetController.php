@@ -507,6 +507,8 @@ class VismaNetController extends Controller
                             break;
                         }
                     }
+
+                    clear_stock_sync($updateData['article_number']);
                 }
 
                 // Update existing article

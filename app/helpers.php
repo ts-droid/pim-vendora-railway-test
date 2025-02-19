@@ -12,6 +12,15 @@ if (!function_exists('trigger_stock_sync')) {
     }
 }
 
+if (!function_exists('clear_stock_sync')) {
+    function clear_stock_sync(string $articleNumber)
+    {
+        DB::table('articles')
+            ->where('article_number', $articleNumber)
+            ->update(['stock_sync' => 0]);
+    }
+}
+
 if (!function_exists('should_sync_stock')) {
     function should_sync_stock(string $articleNumber)
     {
