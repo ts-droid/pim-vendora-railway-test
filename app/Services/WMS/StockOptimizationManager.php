@@ -165,7 +165,9 @@ class StockOptimizationManager
                                     $refillCount = min($intelligenceRefill, $refillCount);
                                 }
 
-                                $refillCount = $this->roundQuantity($refillCount);
+                                if ($refillCount != $stockLeftToMove) {
+                                    $refillCount = $this->roundQuantity($refillCount);
+                                }
 
                                 if (($refillCount + $this->config['empty_rest_products_' . $stockPlaceClass]) >= $stockLeftToMove) {
                                     $refillCount = $stockLeftToMove;
@@ -260,7 +262,9 @@ class StockOptimizationManager
                                     $fillCount = min($intelligenceRefill, $fillCount);
                                 }
 
-                                $fillCount = $this->roundQuantity($fillCount);
+                                if ($fillCount != $stockLeftToMove) {
+                                    $fillCount = $this->roundQuantity($fillCount);
+                                }
 
                                 if ($fillCount <= 0) continue;
 
