@@ -99,9 +99,11 @@ class VismaNetCustomerInvoiceService extends VismaNetApiService
             $salesOrderNumber = (string) ($invoiceLine['soOrderNbr'] ?? '');
             $orderNumbers[] = $salesOrderNumber;
 
+            $articleNumber = (string) ($invoiceLine['inventoryNumber'] ?? '');
+
             $invoiceData['lines'][] = [
                 'line_key' => (string) ($invoiceLine['lineNumber'] ?? ''),
-                'article_number' => (string) ($invoiceLine['inventoryNumber'] ?? ''),
+                'article_number' => $articleNumber,
                 'description' => (string) ($invoiceLine['description'] ?? ''),
                 'order_number' => $salesOrderNumber,
                 'shipment_number' => (string) ($invoiceLine['soShipmentNbr'] ?? ''),
@@ -112,6 +114,8 @@ class VismaNetCustomerInvoiceService extends VismaNetApiService
                 'cost' => (float) ($invoiceLine['cost'] ?? 0),
                 'sales_person_id' => (string) ($invoiceLine['salesperson'] ?? ''),
             ];
+
+            trigger_stock_sync($articleNumber);
         }
 
         $existingInvoice = CustomerInvoice::where('invoice_number', $invoiceData['invoice_number'])->first();

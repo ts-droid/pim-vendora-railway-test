@@ -81,9 +81,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
 
         foreach (($order['lines'] ?? []) as $line) {
+            $articleNumber = $line['inventory']['number'];
+
             $orderData['lines'][] = [
                 'line_number' => $line['lineNbr'],
-                'article_number' => $line['inventory']['number'],
+                'article_number' => $articleNumber,
                 'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
                 'sales_person' => ($line['salesPerson']['id'] ?? ''),
                 'quantity' => (int) $line['quantity'],
@@ -95,6 +97,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 'description' => (string) ($line['lineDescription'] ?? ''),
                 'is_completed' => (int) ($line['completed'] ?? 0),
             ];
+
+            trigger_stock_sync($articleNumber);
         }
 
         $response = $salesOrderController->get(new Request([

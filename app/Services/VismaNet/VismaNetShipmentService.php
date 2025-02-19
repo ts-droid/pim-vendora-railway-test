@@ -74,17 +74,21 @@ class VismaNetShipmentService extends VismaNetApiService
 
         if ($shipment['shipmentDetailLines'] ?? null) {
             foreach ($shipment['shipmentDetailLines'] as $shipmentLine) {
+                $articleNumber = (string) ($shipmentLine['inventoryNumber'] ?? '');
+
                 $shipmentData['lines'][] = [
                     'line_number' => (int) ($shipmentLine['lineNumber'] ?? 0),
                     'order_number' => (string) ($shipmentLine['orderNbr'] ?? ''),
                     'order_line_number' => (string) ($shipmentLine['orderLineNbr'] ?? ''),
-                    'article_number' => (string) ($shipmentLine['inventoryNumber'] ?? ''),
+                    'article_number' => $articleNumber,
                     'description' => (string) ($shipmentLine['description'] ?? ''),
                     'quantity' => (int) ($shipmentLine['orderedQty'] ?? 0),
                     'shipped_quantity' => (int) ($shipmentLine['shippedQty'] ?? 0),
                 ];
 
                 $shipmentData['order_numbers'][] = (string) ($shipmentLine['orderNbr'] ?? '');
+
+                trigger_stock_sync($articleNumber);
             }
         }
 

@@ -181,14 +181,18 @@ class VismaNetController extends Controller
                 ];
 
                 foreach (($receipt['receiptLines'] ?? []) as $line) {
+                    $articleNumber = (string) ($line['inventoryItem']['number'] ?? '');
+
                     $receiptData['lines'][] = [
                         'line_key' => (string) ($line['lineNumber'] ?? ''),
-                        'article_number' => (string) ($line['inventoryItem']['number'] ?? ''),
+                        'article_number' => $articleNumber,
                         'description' => (string) ($line['description'] ?? ''),
                         'unit_cost' => (float) ($line['unitCost'] ?? ''),
                         'quantity' => (int) ($line['quantity'] ?? ''),
                         'total_cost' => (float) ($line['extCost'] ?? ''),
                     ];
+
+                    trigger_stock_sync($articleNumber);
                 }
 
                 $response = $receiptController->get(new Request([
@@ -321,9 +325,11 @@ class VismaNetController extends Controller
                     $orderLinePromisedDate = $line['promised'] ?? '';
                     $orderLinePromisedDate = $orderLinePromisedDate ? (date('Y-m-d', strtotime($orderLinePromisedDate))) : '';
 
+                    $articleNumber = (string) ($line['inventory']['number'] ?? '');
+
                     $orderData['lines'][] = [
                         'line_key' => (string) ($line['lineNbr'] ?? ''),
-                        'article_number' => (string) ($line['inventory']['number'] ?? ''),
+                        'article_number' => $articleNumber,
                         'description' => (string) ($line['lineDescription'] ?? ''),
                         'quantity' => (int) ($line['orderQty'] ?? 0),
                         'quantity_received' => (int) ($line['qtyOnReceipts'] ?? 0),
@@ -333,6 +339,8 @@ class VismaNetController extends Controller
                         'is_completed' => (int) ($line['completed'] ?? 0),
                         'is_canceled' => (int) ($line['canceled'] ?? 0),
                     ];
+
+                    trigger_stock_sync($articleNumber);
                 }
 
                 $response = $orderController->get(new Request([
@@ -489,17 +497,7 @@ class VismaNetController extends Controller
                 }
 
                 // Fetch detailed stock
-                $currentStock = DB::table('articles')
-                    ->select('stock', 'stock_warehouse', 'stock_on_hand', 'stock_available_for_shipment')
-                    ->where('article_number', $updateData['article_number'])
-                    ->first();
-
-                if (!$currentStock
-                    || $currentStock->stock != $updateData['stock']
-                    || $currentStock->stock_warehouse != $updateData['stock_warehouse']
-                    || $currentStock->stock_on_hand != $updateData['stock_on_hand']
-                    || $currentStock->stock_available_for_shipment != $updateData['stock_available_for_shipment']) {
-
+                if (should_sync_stock($updateData['article_number'])) {
                     $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
                     foreach ($detailedStock as $stock) {
                         $stockLocationName = trim($stock['location']['name'] ?? '');

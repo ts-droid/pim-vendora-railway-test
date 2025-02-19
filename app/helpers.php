@@ -1,6 +1,26 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+
+if (!function_exists('trigger_stock_sync')) {
+    function trigger_stock_sync(string $articleNumber)
+    {
+        DB::table('articles')
+            ->where('article_number', $articleNumber)
+            ->update(['stock_sync' => 1]);
+    }
+}
+
+if (!function_exists('should_sync_stock')) {
+    function should_sync_stock(string $articleNumber)
+    {
+        return (bool) DB::table('articles')
+            ->select('stock_sync')
+            ->where('article_number', $articleNumber)
+            ->value('stock_sync');
+    }
+}
 
 if (!function_exists('get_display_name')) {
     function get_display_name(): string
