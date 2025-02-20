@@ -106,9 +106,6 @@ class FetchVismaNet extends Command
                 Artisan::call('visma:fetch', ['type' => 'customers']);
                 Artisan::call('visma:fetch', ['type' => 'sales-persons']);
                 Artisan::call('visma:fetch', ['type' => 'suppliers']);
-                Artisan::call('visma:fetch', ['type' => 'purchase-orders']);
-                Artisan::call('visma:fetch', ['type' => 'purchase-receipts']);
-                Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
                 Artisan::call('visma:fetch', ['type' => 'currency']);
                 Artisan::call('visma:fetch', ['type' => 'transactions']);
 
@@ -117,14 +114,17 @@ class FetchVismaNet extends Command
                 break;
 
             case 'hourly':
-                Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'credit-notes']);
                 break;
 
             case 'quick':
-                Artisan::call('visma:fetch', ['type' => 'articles']);
+                Artisan::call('visma:fetch', ['type' => 'purchase-orders']);
+                Artisan::call('visma:fetch', ['type' => 'purchase-receipts']);
+                Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
                 Artisan::call('visma:fetch', ['type' => 'shipments']);
+                Artisan::call('visma:fetch', ['type' => 'invoices']);
+                Artisan::call('visma:fetch', ['type' => 'articles']);
                 break;
 
             case 'all':
