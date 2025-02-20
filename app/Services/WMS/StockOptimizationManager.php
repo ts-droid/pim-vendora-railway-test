@@ -9,6 +9,7 @@ use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceGroup;
 use App\Utilities\WarehouseHelper;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class StockOptimizationManager
@@ -53,6 +54,8 @@ class StockOptimizationManager
             ConfigController::setConfigs(['optimize_stock_running' => 0]);
             return false;
         }
+
+        Artisan::call('articles:classify');
 
         // Remove all existing StockItemMovements
         DB::table('stock_item_movements')->truncate();
