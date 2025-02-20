@@ -32,7 +32,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_orders_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
+            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 

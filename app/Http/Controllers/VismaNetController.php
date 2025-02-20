@@ -159,7 +159,7 @@ class VismaNetController extends Controller
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_inventory_receipts_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
+            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
@@ -226,7 +226,7 @@ class VismaNetController extends Controller
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_receipts_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
+            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
@@ -290,7 +290,7 @@ class VismaNetController extends Controller
             $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_orders_fetch');
 
             if ($updatedAfter) {
-                $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
+                $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
                 $params['lastModifiedDateTimeCondition'] = '>';
             }
 

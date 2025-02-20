@@ -21,7 +21,7 @@ class VismaNetShipmentService extends VismaNetApiService
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_shipment_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-30 minutes', strtotime($updatedAfter)));
+            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
             $params['lastModifiedDateTimeCondition'] = '>';
         }
 
