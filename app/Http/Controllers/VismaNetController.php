@@ -249,6 +249,8 @@ class VismaNetController extends Controller
         $purchaseOrderNumbers = array_unique($purchaseOrderNumbers);
         $purchaseOrderNumbers = array_filter($purchaseOrderNumbers);
 
+        ConfigController::setConfigs(['vismanet_last_purchase_receipts_fetch' => $fetchTime]);
+
         if (count($purchaseOrderNumbers) == 0) {
             return;
         }
@@ -256,8 +258,6 @@ class VismaNetController extends Controller
         foreach ($purchaseOrderNumbers as $purchaseOrderNumber) {
             $this->fetchPurchaseOrders('', $purchaseOrderNumber);
         }
-
-        ConfigController::setConfigs(['vismanet_last_purchase_receipts_fetch' => $fetchTime]);
     }
 
     /**
