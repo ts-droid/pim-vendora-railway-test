@@ -295,6 +295,29 @@ class StockKeepController extends Controller
         return ApiResponseController::success(array_values($responseData));
     }
 
+    public function createBrandTodo(Request $request)
+    {
+        $brand = $request->input('brand');
+
+        $articleNumbers = DB::table('articles')
+            ->select('article_number')
+            ->where('brand', $brand)
+            ->pluck('article_number');
+
+        if ($articleNumbers->count() == 0) {
+            return ApiResponseController::error('No articles found for this brand');
+        }
+
+        foreach ($articleNumbers as $articleNumber) {
+            StockKeepTodo::create([
+                'reference' => $articleNumber,
+                'type' => 'article'
+            ]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function createArticleTodo(Request $request)
     {
         $articleNumber = $request->input('article_number');
