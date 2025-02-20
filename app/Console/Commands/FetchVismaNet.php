@@ -108,13 +108,13 @@ class FetchVismaNet extends Command
                 Artisan::call('visma:fetch', ['type' => 'suppliers']);
                 Artisan::call('visma:fetch', ['type' => 'currency']);
                 Artisan::call('visma:fetch', ['type' => 'transactions']);
+                Artisan::call('visma:fetch', ['type' => 'invoices']);
 
                 // Calculate customer credit values
                 $this->calculateCustomersCreditBalance();
                 break;
 
             case 'hourly':
-                Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'credit-notes']);
                 break;
 
