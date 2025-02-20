@@ -46,6 +46,11 @@ class StockOptimizationManager
 
     public function optimize(): bool
     {
+        $isRunning = ConfigController::getConfig('optimize_stock_running', 0);
+        if ($isRunning) {
+            return false;
+        }
+
         ConfigController::setConfigs(['optimize_stock_running' => 1]);
 
         $lastWorkTime = StockItemMovement::all()->max('ping_at');
