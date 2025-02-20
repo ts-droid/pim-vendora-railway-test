@@ -219,6 +219,8 @@ class VismaNetController extends Controller
 
     public function fetchPurchaseReceipts(string $updatedAfter = ''): void
     {
+        $fetchTime = date('Y-m-d H:i:s');
+
         $params = [];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_purchase_receipts_fetch');
@@ -254,6 +256,8 @@ class VismaNetController extends Controller
         foreach ($purchaseOrderNumbers as $purchaseOrderNumber) {
             $this->fetchPurchaseOrders('', $purchaseOrderNumber);
         }
+
+        ConfigController::setConfigs(['vismanet_last_purchase_receipts_fetch' => $fetchTime]);
     }
 
     /**
