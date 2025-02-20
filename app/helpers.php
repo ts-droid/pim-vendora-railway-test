@@ -24,6 +24,18 @@ if (!function_exists('clear_stock_sync')) {
 if (!function_exists('should_sync_stock')) {
     function should_sync_stock(string $articleNumber)
     {
+        // Never sync stock for a article with unmanaged stock marked for investigation
+        $hasInvestigation = DB::table('stock_keep_transactions')
+            ->where('status', '=', 'investigation')
+            ->where('article_number', '=', $articleNumber)
+            ->where('identifiers', 'LIKE', '%--%')
+            ->exists();
+
+        if ($hasInvestigation) {
+            return false;
+        }
+
+        // Check if the article is set to sync stock
         return (bool) DB::table('articles')
             ->select('stock_sync')
             ->where('article_number', $articleNumber)

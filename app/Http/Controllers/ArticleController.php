@@ -428,8 +428,6 @@ class ArticleController extends Controller
                 return ApiResponseController::error('No stock values provided');
             }
 
-            $stockItemService = new StockItemService();
-
             $identifiers = [];
             $values = [];
             $diffs = [];
@@ -437,49 +435,36 @@ class ArticleController extends Controller
             foreach ($stockValues as $identifier => $quantity) {
                 if ($quantity === '' || !is_numeric($quantity)) continue;
 
-                $identifierData = WarehouseHelper::getStockPlaceAndCompartment($identifier);
-                if (!$identifierData) {
-                    continue;
+                if ($identifier == '--') {
+                    $response = $this->stockKeepArticleUnspecified($article, $quantity, $signature);
+                }
+                else {
+                    $response = $this->stockKeepArticlePlace($article, $identifier, $quantity, $signature);
                 }
 
-                $currentValue = WarehouseHelper::getArticleStockAtLocation($article->article_number, $identifier);
-                $diff = $quantity - $currentValue;
+                $identifiers[] = $response['identifier'];
+                $values[] = $response['value'];
+                $diffs[] = $response['diff'];
 
-                $identifiers[] = $identifier;
-                $values[] = $quantity;
-                $diffs[] = $diff;
-
-                // Make stock update if not marked for investigation
-                if ($diff) {
+                if ($response['mark_for_investigation']) {
                     $markForInvestigation = true;
-
-                    if ($diff > 0) {
-                        // Add stock items
-                        $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
-                    }
-                    else {
-                        // Remove stock items
-                        $stockItems = StockItem::where('article_number', $article->article_number)
-                            ->where('stock_place_compartment_id', $identifierData['stock_place_compartment']->id)
-                            ->limit(abs($diff))
-                            ->get();
-
-                        foreach ($stockItems as $stockItem) {
-                            $stockItemService->removeStockItem($stockItem, $signature);
-                        }
-                    }
                 }
             }
 
             // Save the stock keep transaction
-            $stockKeepTransaction = StockKeepTransaction::create([
-                'article_number' => $article->article_number,
-                'identifiers' => implode(',', $identifiers),
-                'values' => implode(',', $values),
-                'diffs' => implode(',', $diffs),
-                'type' => 'manual',
-                'status' => ($markForInvestigation ? 'investigation' : 'completed'),
-            ]);
+            if (count($identifiers) > 0
+                && count($values) > 0
+                && count($diffs) > 0) {
+
+                $stockKeepTransaction = StockKeepTransaction::create([
+                    'article_number' => $article->article_number,
+                    'identifiers' => implode(',', $identifiers),
+                    'values' => implode(',', $values),
+                    'diffs' => implode(',', $diffs),
+                    'type' => 'manual',
+                    'status' => ($markForInvestigation ? 'investigation' : 'completed'),
+                ]);
+            }
 
             // Remove tasks to stock keep this article
             StockKeepTodo::where('type', 'article')
@@ -490,6 +475,78 @@ class ArticleController extends Controller
         } catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
         }
+    }
+
+    private function stockKeepArticlePlace($article, $identifier, $quantity, $signature)
+    {
+        $response = [
+            'identifier' => $identifier,
+            'value' => $quantity,
+            'diff' => 0,
+            'mark_for_investigation' => false
+        ];
+
+        $identifierData = WarehouseHelper::getStockPlaceAndCompartment($identifier);
+        if (!$identifierData) {
+            return $response;
+        }
+
+        $stockItemService = new StockItemService();
+
+        $currentValue = WarehouseHelper::getArticleStockAtLocation($article->article_number, $identifier);
+        $diff = $quantity - $currentValue;
+
+        $response['diff'] = $diff;
+
+        // Make stock update if a diff is found
+        if ($diff) {
+            $response['mark_for_investigation'] = true;
+
+            if ($diff > 0) {
+                // Add stock items
+                $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
+            }
+            else {
+                // Remove stock items
+                $stockItems = StockItem::where('article_number', $article->article_number)
+                    ->where('stock_place_compartment_id', $identifierData['stock_place_compartment']->id)
+                    ->limit(abs($diff))
+                    ->get();
+
+                foreach ($stockItems as $stockItem) {
+                    $stockItemService->removeStockItem($stockItem, $signature);
+                }
+            }
+        }
+
+        return $response;
+    }
+
+    private function stockKeepArticleUnspecified($article, $quantity, $signature)
+    {
+        $stockItemsCount = (int) StockItem::where('article_number', $article->article_number)
+            ->count();
+
+        $currentStockManageable = (int) DB::table('articles')
+            ->select('stock_manageable')
+            ->where('article_number', $article->article_number)
+            ->value('stock_manageable');
+
+        $stockManageable = $stockItemsCount + $quantity;
+
+        $diff = $stockManageable - $currentStockManageable;
+
+        // Update the manageable stock value
+        DB::table('articles')
+            ->where('article_number', $article->article_number)
+            ->update(['stock_manageable' => $stockManageable]);
+
+        return [
+            'identifier' => '--',
+            'value' => $quantity,
+            'diff' => $diff,
+            'mark_for_investigation' => !($diff === 0)
+        ];
     }
 
     public function getCategories(Request $request, Article $article)
