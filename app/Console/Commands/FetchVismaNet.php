@@ -114,6 +114,7 @@ class FetchVismaNet extends Command
                 break;
 
             case 'hourly':
+                Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'credit-notes']);
                 break;
 
@@ -123,7 +124,6 @@ class FetchVismaNet extends Command
                 Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
                 Artisan::call('visma:fetch', ['type' => 'shipments']);
-                Artisan::call('visma:fetch', ['type' => 'invoices']);
                 Artisan::call('visma:fetch', ['type' => 'articles']);
                 break;
 
