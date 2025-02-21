@@ -191,6 +191,7 @@ class StockOptimizationManager
 
                         $stockData['managedStock'] += $fillCount;
                         $stockData['has_main_placement'] = true;
+                        $stockData['has_a_placement'] = true;
 
                         $occupiedVolumeOverall += ($articleVolume * $fillCount);
 
