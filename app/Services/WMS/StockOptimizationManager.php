@@ -73,12 +73,112 @@ class StockOptimizationManager
 
         $groupedStockPlaces = $this->getGroupedStockPlaces();
         $groupedArticles = $this->getGroupedArticles();
+        $articlesToplist = $this->getArticlesToplist();
 
         $unleashCompartmentIDs = $this->clearUnleashStatus($groupedStockPlaces);
 
         $articleStockData = [];
 
-        // Process articles in classification order: A, B, C
+        // First fill all A stock places forcefully
+        $toplistIndex = 0;
+        foreach (($groupedArticles['A'] ?? []) as $stockPlace) {
+            foreach ($stockPlace->compartments as $compartment) {
+                if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
+                    continue;
+                }
+
+                $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
+                $totalSections = $compartment->sections->count() ?: 1;
+
+                if ($uniqueStockItems->count() >= $totalSections) {
+                    // No empty compartments
+                    continue;
+                }
+
+                $multiIntelligence = $this->config['wms_multi_intelligence_A'];
+                $multiIntelligencePeriod = $this->config['wms_multi_intelligence_period_A'];
+                $stockPlaceConfig = $this->getStockPlaceConfig($stockPlace, $compartment, $multiIntelligence, $multiIntelligencePeriod);
+
+                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
+
+                $sectionVolume = $compartmentVolume / $totalSections;
+                $maxSectionVolume = $sectionVolume * ($stockPlaceConfig['max_volume'] / 100);
+
+                $occupiedVolumeOverall = 0;
+                foreach ($compartment->stockItems as $stockItem) {
+                    $stockItemVolume = ($stockItem->article->height / 1000) * ($stockItem->article->width / 1000) * ($stockItem->article->depth / 1000);
+                    $occupiedVolumeOverall += $stockItemVolume;
+                }
+
+                $emptySections = $totalSections - $uniqueStockItems->count();
+
+                for ($i = 0;$i < $emptySections;$i++) {
+                    $failCount = 0;
+
+                    while ($failCount < 100) {
+                        $article = $articlesToplist[$toplistIndex] ?? null;
+                        if (!$article) {
+                            break 3; // No more articles to fill
+                        }
+
+                        if (!isset($articleStockData[$article['article_number']])) {
+                            $articleStockData[$article['article_number']] = [
+                                'stock' => $article->stock,
+                                'managedStock' => 0,
+                                'has_main_placement' => WarehouseHelper::articleHasPlacement($article['article_number'], ['A', 'B']),
+                            ];
+                        }
+
+                        $stockData = &$articleStockData[$article['article_number']];
+
+                        if ($stockData['has_main_placement']) {
+                            $toplistIndex++;
+                            $failCount++;
+                            continue;
+                        }
+
+                        $articleVolume = ($article['height'] / 1000) * ($article['width'] / 1000) * ($article['depth'] / 1000);
+
+                        $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
+
+                        $stockLeftToMove = $stockData['stock'] - $stockData['managedStock'];
+
+                        $fillCount = floor($freeVolume / $articleVolume);
+                        $fillCount = min($fillCount, $stockLeftToMove);
+
+                        if ($stockPlaceConfig['multi_intelligence']) {
+                            $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
+                            $intelligenceRefill = $intelligenceCount - $stockLeftToMove;
+
+                            $fillCount = min($intelligenceRefill, $fillCount);
+                        }
+
+                        if ($fillCount != $stockLeftToMove) {
+                            $fillCount = $this->roundQuantity($fillCount);
+                        }
+
+                        if ($fillCount <= 0) {
+                            $toplistIndex++;
+                            $failCount++;
+                            continue;
+                        }
+
+                        $this->makeStockMovement(
+                            $article['article_number'],
+                            0,
+                            $compartment->id,
+                            $fillCount,
+                            self::MOVEMENT_TYPE_ORGANIZATION
+                        );
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Then process articles in classification order: A, B, C
         foreach (self::CLASSIFICATION_ORDER as $classIndex => $class) {
             $articles = $groupedArticles[$class] ?? [];
 
@@ -390,6 +490,20 @@ class StockOptimizationManager
         }
 
         return $groupedStockPlaces;
+    }
+
+    private function getArticlesToplist(): array
+    {
+        return DB::table('articles')
+            ->select(['id', 'article_number', 'stock_manageable AS stock', 'classification', 'classification_volume', 'width', 'depth', 'height'])
+            ->where('bestseller_position', '>', 0)
+            ->where('width', '>', 0)
+            ->where('height', '>', 0)
+            ->where('depth', '>', 0)
+            ->where('stock_manageable', '>', 0)
+            ->orderBy('bestseller_position', 'ASC')
+            ->get()
+            ->toArray();
     }
 
     private function getGroupedArticles(): array
