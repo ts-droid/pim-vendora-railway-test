@@ -46,8 +46,11 @@ class StockOptimizationManager
 
     public function optimize(): bool
     {
+        $this->printLine('Starting optimize()');
+
         $isRunning = ConfigController::getConfig('optimize_stock_running', 0);
         if ($isRunning) {
+            $this->printLine('Another process is already running.');
             return false;
         }
 
@@ -56,21 +59,20 @@ class StockOptimizationManager
         $lastWorkTime = StockItemMovement::all()->max('ping_at');
         if ($lastWorkTime > (time() - 60)) {
             // Do not run the operation if someone is working on a stock movement
+            $this->printLine('A user is working on a stock movement. Stopping.');
             ConfigController::setConfigs(['optimize_stock_running' => 0]);
             return false;
         }
 
+        $this->printLine('Classifying articles.');
         Artisan::call('articles:classify');
 
         // Remove all existing StockItemMovements
+        $this->printLine('Removing existing stock movements.');
         DB::table('stock_item_movements')->truncate();
 
-        // Add existing stock movements to the cache
-        $existingMovements = StockItemMovement::all();
-        foreach ($existingMovements as $stockItemMovement) {
-            $this->addStockMovementToCache($stockItemMovement);
-        }
 
+        $this->printLine('Fetching articles and stock places.');
         $groupedStockPlaces = $this->getGroupedStockPlaces();
         $groupedArticles = $this->getGroupedArticles();
         $articlesToplist = $this->getArticlesToplist();
@@ -80,6 +82,8 @@ class StockOptimizationManager
         $articleStockData = [];
 
         // First fill all A stock places forcefully
+        $this->printLine('Start to forcefully fill all A compartments.');
+
         $toplistIndex = 0;
         foreach (($groupedArticles['A'] ?? []) as $stockPlace) {
             foreach ($stockPlace->compartments as $compartment) {
@@ -87,11 +91,15 @@ class StockOptimizationManager
                     continue;
                 }
 
+                $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
+                $this->printLine('Processing ' . $identifier);
+
                 $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
                 $totalSections = $compartment->sections->count() ?: 1;
 
                 if ($uniqueStockItems->count() >= $totalSections) {
                     // No empty compartments
+                    $this->printLine('No empty compartments.');
                     continue;
                 }
 
@@ -116,25 +124,32 @@ class StockOptimizationManager
                 for ($i = 0;$i < $emptySections;$i++) {
                     $failCount = 0;
 
+                    $this->printLine('Processing compartment index ' . $i);
+
                     while ($failCount < 100) {
                         $article = $articlesToplist[$toplistIndex] ?? null;
                         if (!$article) {
+                            $this->printLine('No more articles found to fill.');
                             break 3; // No more articles to fill
                         }
+
+                        $this->printLine('Selecting article: ' . $article['article_number']);
 
                         if (!isset($articleStockData[$article['article_number']])) {
                             $articleStockData[$article['article_number']] = [
                                 'stock' => $article->stock,
                                 'managedStock' => 0,
+                                'has_a_placement' => WarehouseHelper::articleHasPlacement($article['article_number'], ['A']),
                                 'has_main_placement' => WarehouseHelper::articleHasPlacement($article['article_number'], ['A', 'B']),
                             ];
                         }
 
                         $stockData = &$articleStockData[$article['article_number']];
 
-                        if ($stockData['has_main_placement']) {
+                        if ($stockData['has_a_placement']) {
                             $toplistIndex++;
                             $failCount++;
+                            $this->printLine('Article already have placement in an A compartment');
                             continue;
                         }
 
@@ -161,6 +176,7 @@ class StockOptimizationManager
                         if ($fillCount <= 0) {
                             $toplistIndex++;
                             $failCount++;
+                            $this->printLine('Fill count below 0.');
                             continue;
                         }
 
@@ -179,6 +195,7 @@ class StockOptimizationManager
         }
 
         // Then process articles in classification order: A, B, C
+        $this->printLine('Process articles in classification order');
         foreach (self::CLASSIFICATION_ORDER as $classIndex => $class) {
             $articles = $groupedArticles[$class] ?? [];
 
@@ -541,6 +558,8 @@ class StockOptimizationManager
 
     public function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
     {
+        $this->printLine('Making stock movement for ' . $articleNumber . ' from ' . $fromStockPlaceCompartmentID . ' to ' . $toStockPlaceCompartmentID . ' (Pcs: ' . $quantity . ') (Type: ' . $type . ')');
+
         $stockItemMovement = StockItemMovement::create([
             'type' => $type,
             'article_number' => $articleNumber,
@@ -627,5 +646,10 @@ class StockOptimizationManager
             'multi_intelligence' => (int) ($stockPlaceGroup->wms_multi_intelligence ?? null) ?: $multiIntelligence,
             'multi_intelligence_period' => (int) ($stockPlaceGroup->wms_multi_intelligence_period ?? null) ?: $multiIntelligencePeriod
         ];
+    }
+
+    private function printLine(string $string)
+    {
+        echo $string . PHP_EOL;
     }
 }
