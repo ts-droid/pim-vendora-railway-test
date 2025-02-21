@@ -72,9 +72,14 @@ class StockPlaceController extends Controller
 
                 foreach ($articleNumbers as $articleNumber) {
                     if (!isset($articles[$articleNumber])) {
+                        $articleData = $this->getArticleData($articleNumber);
+
                         $articles[$articleNumber] = [
                             'article_number' => $articleNumber,
-                            'image' => $this->getArticleImage($articleNumber),
+                            'image' => $articleData->path_url ?? '',
+                            'width' => $articleData->width ?? 0,
+                            'height' => $articleData->height ?? 0,
+                            'depth' => $articleData->depth ?? 0,
                             'is_inventoried' => $this->isArticleInventoried($articleNumber, $stockPlace->identifier . ':' . $compartment['identifier'], 30),
                             'stock' => StockItem::where('article_number', '=', $articleNumber)->where('stock_place_compartment_id', '=', $compartment['id'])->count(),
                             'movement' => 0,
@@ -90,9 +95,14 @@ class StockPlaceController extends Controller
 
                 foreach ($movementArticleNumbers as $articleNumber) {
                     if (!isset($articles[$articleNumber])) {
+                        $articleData = $this->getArticleData($articleNumber);
+
                         $articles[$articleNumber] = [
                             'article_number' => $articleNumber,
-                            'image' => $this->getArticleImage($articleNumber),
+                            'image' => $articleData->path_url ?? '',
+                            'width' => $articleData->width ?? 0,
+                            'height' => $articleData->height ?? 0,
+                            'depth' => $articleData->depth ?? 0,
                             'stock' => 0,
                             'movement' => 0,
                         ];
@@ -425,20 +435,22 @@ class StockPlaceController extends Controller
         }
     }
 
-    private function getArticleImage(string $articleNumber)
+    private function getArticleData(string $articleNumber)
     {
-        $articleID = DB::table('articles')
-            ->select('id')
+        $article = DB::table('articles')
+            ->select('id', 'height', 'width', 'depth')
             ->where('article_number', '=', $articleNumber)
-            ->pluck('id')
             ->first();
 
-        return DB::table('article_images')
+
+        $article->path_url = DB::table('article_images')
             ->select('path_url')
-            ->where('article_id', '=', $articleID)
+            ->where('article_id', '=', $article->id)
             ->orderBy('list_order', 'ASC')
             ->pluck('path_url')
             ->first();
+
+        return $article;
     }
 
     private function isArticleInventoried(string $articleNumber, string $identifier, int $days)
