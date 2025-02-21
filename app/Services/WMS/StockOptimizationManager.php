@@ -163,12 +163,12 @@ class StockOptimizationManager
                         $fillCount = floor($freeVolume / $articleVolume);
                         $fillCount = min($fillCount, $stockLeftToMove);
 
-                        if ($stockPlaceConfig['multi_intelligence']) {
+                        /*if ($stockPlaceConfig['multi_intelligence']) {
                             $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                             $intelligenceRefill = $intelligenceCount - $stockLeftToMove;
 
                             $fillCount = min($intelligenceRefill, $fillCount);
-                        }
+                        }*/
 
                         if ($fillCount != $stockLeftToMove) {
                             $fillCount = $this->roundQuantity($fillCount);
