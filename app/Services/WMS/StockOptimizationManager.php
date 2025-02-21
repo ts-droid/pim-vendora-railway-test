@@ -188,6 +188,11 @@ class StockOptimizationManager
                             self::MOVEMENT_TYPE_ORGANIZATION
                         );
 
+                        $stockData['managedStock'] += $fillCount;
+                        $stockData['has_main_placement'] = true;
+
+                        $occupiedVolumeOverall += ($articleVolume * $fillCount);
+
                         $toplistIndex++;
 
                         break;
