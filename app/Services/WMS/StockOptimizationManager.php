@@ -133,18 +133,18 @@ class StockOptimizationManager
                             break 3; // No more articles to fill
                         }
 
-                        $this->printLine('Selecting article: ' . $article['article_number']);
+                        $this->printLine('Selecting article: ' . $article->article_number);
 
-                        if (!isset($articleStockData[$article['article_number']])) {
-                            $articleStockData[$article['article_number']] = [
+                        if (!isset($articleStockData[$article->article_number])) {
+                            $articleStockData[$article->article_number] = [
                                 'stock' => $article->stock,
                                 'managedStock' => 0,
-                                'has_a_placement' => WarehouseHelper::articleHasPlacement($article['article_number'], ['A']),
-                                'has_main_placement' => WarehouseHelper::articleHasPlacement($article['article_number'], ['A', 'B']),
+                                'has_a_placement' => WarehouseHelper::articleHasPlacement($article->article_number, ['A']),
+                                'has_main_placement' => WarehouseHelper::articleHasPlacement($article->article_number, ['A', 'B']),
                             ];
                         }
 
-                        $stockData = &$articleStockData[$article['article_number']];
+                        $stockData = &$articleStockData[$article->article_number];
 
                         if ($stockData['has_a_placement']) {
                             $toplistIndex++;
@@ -153,7 +153,7 @@ class StockOptimizationManager
                             continue;
                         }
 
-                        $articleVolume = ($article['height'] / 1000) * ($article['width'] / 1000) * ($article['depth'] / 1000);
+                        $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
 
                         $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
 
@@ -181,7 +181,7 @@ class StockOptimizationManager
                         }
 
                         $this->makeStockMovement(
-                            $article['article_number'],
+                            $article->article_number,
                             0,
                             $compartment->id,
                             $fillCount,
