@@ -84,12 +84,13 @@ class StockOptimizationManager
         // First fill all A stock places forcefully
         $this->printLine('Start to forcefully fill all A compartments.');
 
-        $toplistIndex = 0;
         foreach (($groupedStockPlaces['A'] ?? []) as $stockPlace) {
             foreach ($stockPlace->compartments as $compartment) {
                 if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
                     continue;
                 }
+
+                $toplistIndex = 0;
 
                 $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
                 $this->printLine('Processing ' . $identifier);
