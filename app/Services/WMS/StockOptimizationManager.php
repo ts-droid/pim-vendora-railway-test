@@ -188,6 +188,8 @@ class StockOptimizationManager
                             self::MOVEMENT_TYPE_ORGANIZATION
                         );
 
+                        $toplistIndex++;
+
                         break;
                     }
                 }
