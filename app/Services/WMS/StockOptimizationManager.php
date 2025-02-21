@@ -355,7 +355,18 @@ class StockOptimizationManager
                             $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
 
                             $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
+                            $uniqueStockItemsCount = $uniqueStockItems->count();
                             $uniqueArticleNumbers = $uniqueStockItems->values()->toArray();
+
+                            $cacheItems = $this->movementCache[$compartment->id] ?? [];
+                            foreach ($cacheItems as $cacheItem) {
+                                $articleNumber = $cacheItem['article_number'];
+
+                                if (!in_array($articleNumber, $uniqueArticleNumbers)) {
+                                    $uniqueArticleNumbers[] = $articleNumber;
+                                    $uniqueStockItemsCount++;
+                                }
+                            }
 
                             $occupiedVolumeOverall = 0;
 
@@ -364,7 +375,7 @@ class StockOptimizationManager
                                 $occupiedVolumeOverall += $stockItemVolume;
                             }
 
-                            if ($uniqueStockItems->count() >= $totalSections) {
+                            if ($uniqueStockItemsCount >= $totalSections) {
                                 continue; // This compartment already have full sections
                             }
 
