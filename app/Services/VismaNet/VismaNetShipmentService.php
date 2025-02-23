@@ -162,7 +162,7 @@ class VismaNetShipmentService extends VismaNetApiService
             $updateData['shipmentDetailLines'][] = $lineData;
         }
 
-        $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
+        $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData, '', false, true);
         if (!$response['success']) {
             return [
                 'success' => false,
