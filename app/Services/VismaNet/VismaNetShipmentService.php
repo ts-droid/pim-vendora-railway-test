@@ -162,12 +162,28 @@ class VismaNetShipmentService extends VismaNetApiService
             $updateData['shipmentDetailLines'][] = $lineData;
         }
 
-        $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData, '', false, true);
+        $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
         if (!$response['success']) {
-            return [
-                'success' => false,
-                'message' => 'Failed to update shipment in Visma.net (' . json_encode($response['response']) . ')'
-            ];
+
+            // Try again and add dummy data to serial numbers
+            foreach ($updateData['shipmentDetailLines'] as &$lineData) {
+                if (!($lineData['allocations'] ?? null)) {
+                    continue;
+                }
+
+                for ($i = 0;$i < count($lineData['allocations']);$i++) {
+                    $lineData['allocations'][$i]['lotSerialNumber']['value'] .= time();
+                }
+            }
+
+            $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
+
+            if (!$response['success']) {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to update shipment in Visma.net (' . json_encode($response['response']) . ')'
+                ];
+            }
         }
 
         // Confirm shipment
