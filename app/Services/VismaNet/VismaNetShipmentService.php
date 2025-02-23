@@ -127,58 +127,35 @@ class VismaNetShipmentService extends VismaNetApiService
                 'shippedQty' => ['value' => $line->picked_quantity]
             ];
 
-            $vismaAllocations = null;
-            foreach ($vismaShipment['shipmentDetailLines'] as $vismaLine) {
-                if ($vismaLine['lineNumber'] == $line->line_number) {
-                    $vismaAllocations = $vismaLine['allocations'] ?? null;
-                    break;
-                }
-            }
-
             if ($line->serial_number) {
-                $serialNumbers = explode(',', $line->serial_number);
-                $serialNumbers = array_map('trim', $serialNumbers);
+                // Only add serial numbers if the article also has serial number management in Visma.net
+                $vismaResponse = $this->callAPI('GET', '/v1/inventory/' . $line->article_number);
+                $vismaHasSerialNumber = ($vismaResponse['response']['lotSerialClass']['id'] ?? '0') != '0';
 
-                $processedSerialNumbers = [];
-                $allocations = [];
-                $lineNbr = 0;
+                if ($vismaHasSerialNumber) {
+                    $serialNumbers = explode(',', $line->serial_number);
+                    $serialNumbers = array_map('trim', $serialNumbers);
 
-                /*if ($vismaAllocations) {
-                    for ($i = 0;$i < count($vismaAllocations);$i++) {
-                        $serialNumber = $serialNumbers[$i] ?? '';
+                    $processedSerialNumbers = [];
+                    $allocations = [];
+                    $lineNbr = 0;
 
-                        if ($serialNumber != $vismaAllocations[$i]['lotSerialNumber']) {
+                    if (count($processedSerialNumbers) < count($serialNumbers)) {
+                        for ($i = count($processedSerialNumbers);$i < count($serialNumbers);$i++) {
+                            $lineNbr++;
+
                             $allocations[] = [
-                                'operation' => 'Update',
-                                'lineNbr' => ['value' => $vismaAllocations[$i]['lineNbr']],
-                                'lotSerialNumber' => ['value' => $serialNumber],
+                                'operation' => 'Insert',
+                                'lineNbr' => ['value' => $lineNbr],
+                                'lotSerialNumber' => ['value' => $serialNumbers[$i]],
                                 'quantity' => ['value' => 1]
                             ];
                         }
-
-                        if ($vismaAllocations[$i]['lineNbr'] > $lineNbr) {
-                            $lineNbr = $vismaAllocations[$i]['lineNbr'];
-                        }
-
-                        $processedSerialNumbers[] = $serialNumber;
                     }
-                }*/
 
-                if (count($processedSerialNumbers) < count($serialNumbers)) {
-                    for ($i = count($processedSerialNumbers);$i < count($serialNumbers);$i++) {
-                        $lineNbr++;
-
-                        $allocations[] = [
-                            'operation' => 'Insert',
-                            'lineNbr' => ['value' => $lineNbr],
-                            'lotSerialNumber' => ['value' => $serialNumbers[$i]],
-                            'quantity' => ['value' => 1]
-                        ];
+                    if (count($allocations) > 0) {
+                        $lineData['allocations'] = $allocations;
                     }
-                }
-
-                if (count($allocations) > 0) {
-                    $lineData['allocations'] = $allocations;
                 }
             }
 
