@@ -512,6 +512,7 @@ class StockOptimizationManager
     {
         $stockPlaces = StockPlace::where('type', '=', 1)
             ->where('is_active', '=', 1)
+            ->where('color', '=', WarehouseHelper::classToColor('A'))
             ->get();
 
         $groupedStockPlaces = [];
