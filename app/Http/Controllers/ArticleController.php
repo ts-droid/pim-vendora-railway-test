@@ -150,7 +150,7 @@ class ArticleController extends Controller
 
         $articles = DB::table('articles')
             ->select(
-                'articles.id', 'articles.description', 'articles.article_number', 'articles.ean',
+                'articles.id', 'articles.description', 'articles.article_number', 'articles.ean', 'articles.stock_manageable AS total_stock',
                 'image.path_url'
             )
             ->leftJoinSub(

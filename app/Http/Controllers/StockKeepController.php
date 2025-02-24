@@ -265,7 +265,7 @@ class StockKeepController extends Controller
         foreach ($stockItems as $stockItem) {
             if (!isset($responseData[$stockItem->article_number])) {
                 $article = DB::table('articles')
-                    ->select('articles.id', 'articles.description', 'articles.article_number', 'articles.ean', 'image.path_url')
+                    ->select('articles.id', 'articles.description', 'articles.article_number', 'articles.ean', 'articles.stock_manageable AS total_stock', 'image.path_url')
                     ->leftJoinSub(
                         DB::table('article_images')
                             ->select('article_id', 'path_url')
