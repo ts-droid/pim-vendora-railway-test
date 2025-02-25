@@ -203,21 +203,21 @@ class StockKeepController extends Controller
         }
 
 
-        // Update number of sections (if manual)
-        if ($isManual) {
-            $sections = array_unique($articleNumbers);
-            $sections = array_filter($sections);
+        // Update number of sections
+        $sections = array_unique($articleNumbers);
+        $sections = array_filter($sections);
 
-            if ($compartmentObject->sections->count() != $sections) {
-                if ($compartmentObject->sections->count() < $sections) {
-                    // Add more sections
-                    for ($i = 0;$i < ($sections - $compartmentObject->sections->count());$i++) {
-                        CompartmentSection::create(['stock_place_compartment_id' => $compartmentObject->id]);
-                    }
-
+        if ($compartmentObject->sections->count() != $sections) {
+            if ($compartmentObject->sections->count() < $sections) {
+                // Add more sections
+                for ($i = 0;$i < ($sections - $compartmentObject->sections->count());$i++) {
+                    CompartmentSection::create(['stock_place_compartment_id' => $compartmentObject->id]);
                 }
-                else {
-                    // Remove empty sections
+
+            }
+            else {
+                // Remove empty sections (only if manual)
+                if ($isManual) {
                     $sectionIDs = $compartmentObject->sections->pluck('id')->values()->toArray();
 
                     $deleteIDs = array_slice($sectionIDs, ($compartmentObject->sections->count() - $sections));
