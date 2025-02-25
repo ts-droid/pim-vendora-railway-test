@@ -119,7 +119,8 @@ class WarehouseHelper
             if (!isset($locations[$identifier])) {
                 $locations[$identifier] = [
                     'identifier' => $identifier,
-                    'stock' => 0
+                    'stock' => 0,
+                    'last_inventory' => self::lastInventoryDate($articleNumber, $identifier)
                 ];
             }
 
@@ -131,7 +132,8 @@ class WarehouseHelper
         if ($managedStock < $articleStock) {
             $locations['--'] = [
                 'identifier' => '--',
-                'stock' => $articleStock - $managedStock
+                'stock' => $articleStock - $managedStock,
+                'last_inventory' => '',
             ];
         }
 
@@ -224,6 +226,17 @@ class WarehouseHelper
         }
 
         return $identifiers;
+    }
+
+    public static function lastInventoryDate(string $articleNumber, string $identifier): string
+    {
+        return (string) DB::table('stock_keep_transactions')
+            ->select('created_at')
+            ->where('article_number', '=', $articleNumber)
+            ->where('identifiers', 'LIKE', '%' . $identifier . '%')
+            ->where('status', '=', 'completed')
+            ->orderBy('created_at', 'DESC')
+            ->value('created_at');
     }
 
     public static function colorToClass(string $color): string
