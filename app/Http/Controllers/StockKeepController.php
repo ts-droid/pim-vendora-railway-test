@@ -292,7 +292,10 @@ class StockKeepController extends Controller
             $responseData[$stockItem->article_number]['stock']++;
         }
 
-        return ApiResponseController::success(array_values($responseData));
+        return ApiResponseController::success([
+            'items' => array_values($responseData),
+            'total_sections' => $stockCompartmentObject->sections->count() ?: 1
+        ]);
     }
 
     public function createBrandTodo(Request $request)
