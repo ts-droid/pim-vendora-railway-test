@@ -80,6 +80,87 @@ class StockKeepController extends Controller
 
     public function stockPlace(Request $request)
     {
+        if ($request->input('is_movement')) {
+            return $this->stockPlaceMovement($request);
+        }
+        else {
+            return $this->stockPlaceKeeping($request);
+        }
+    }
+
+    private function stockPlaceMovement(Request $request)
+    {
+        $stockItemService = new StockItemService();
+
+        $signature = get_display_name();
+
+        $stockPlaceIdentifier = $request->input('stock_place_identifier');
+        $stockPlaceSplit = explode(':', $stockPlaceIdentifier);
+        $stockPlace = $stockPlaceSplit[0] ?? null;
+        $compartment = $stockPlaceSplit[1] ?? null;
+
+        $stockValues = $request->input('stock_values');
+        $stockValues = json_decode($stockValues, true);
+
+        $stockPlaceObject = StockPlace::where('identifier', '=', $stockPlace)
+            ->first();
+
+        if (!$stockPlaceObject) {
+            return ApiResponseController::error('Stock place not found');
+        }
+
+        $compartmentObject = StockPlaceCompartment::where('stock_place_id', '=', $stockPlaceObject->id)
+            ->where('identifier', '=', $compartment)
+            ->first();
+
+        if (!$compartmentObject) {
+            return ApiResponseController::error('Compartment not found');
+        }
+
+        $existingArticleNumbers = StockItem::select('article_number', DB::raw('COUNT(*) as count'))
+            ->where('stock_place_compartment_id', '=', $compartmentObject->id)
+            ->groupBy('article_number')
+            ->pluck('count', 'article_number')
+            ->toArray();
+
+        foreach ($stockValues as $stockValue) {
+            $articleNumber = $stockValue['article_number'];
+            $stock = $stockValue['stock'];
+
+            $currentStock = $existingArticleNumbers[$articleNumber] ?? 0;
+            $diff = $stock - $currentStock;
+
+            if ($diff == 0) {
+                continue;
+            }
+
+            if ($diff > 0) {
+                // Move from -- to compartment
+                $stockItemService->moveStockItems(
+                    $articleNumber,
+                    abs($diff),
+                    0,
+                    $compartmentObject->id,
+                    $signature
+                );
+            }
+            else {
+                // Move from compartment to --
+                $stockItemService->moveStockItems(
+                    $articleNumber,
+                    abs($diff),
+                    $compartmentObject->id,
+                    0,
+                    $signature
+                );
+            }
+        }
+
+        return ApiResponseController::success();
+    }
+
+    private function stockPlaceKeeping(Request $request)
+    {
         $signature = get_display_name();
 
         $stockItemService = new StockItemService();
