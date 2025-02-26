@@ -146,23 +146,23 @@ class StockKeepController extends Controller
 
             if ($diff > 0) {
                 // Move from -- to compartment
-                $stockItemService->moveStockItems(
+                $stockItemService->addStockItem(
                     $articleNumber,
                     abs($diff),
-                    0,
                     $compartmentObject->id,
                     $signature
                 );
             }
             else {
                 // Move from compartment to --
-                $stockItemService->moveStockItems(
-                    $articleNumber,
-                    abs($diff),
-                    $compartmentObject->id,
-                    0,
-                    $signature
-                );
+                $stockItems = StockItem::where('article_number', $articleNumber)
+                    ->where('stock_place_compartment_id', $compartmentObject->id)
+                    ->limit(abs($diff))
+                    ->get();
+
+                foreach ($stockItems as $stockItem) {
+                    $stockItemService->removeStockItem($stockItem, $signature);
+                }
             }
         }
 
