@@ -17,6 +17,7 @@ use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
 use App\Services\SupplierArticlePriceService;
+use App\Services\Todo\TodoItemService;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Services\WMS\StockItemService;
@@ -1271,6 +1272,29 @@ class ArticleController extends Controller
 
         return ApiResponseController::success($retailers);
 	}
+
+    public function createStockKeepTodo(Request $request, Article $article)
+    {
+        StockKeepTodo::create([
+            'reference' => $article->article_number,
+            'type' => 'article'
+        ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function createMeasurementTodo(Request $request, Article $article)
+    {
+        $service = new TodoItemService();
+        $service->createCollectArticle(
+            $article->id,
+            'size',
+            0,
+            'system'
+        );
+
+        return ApiResponseController::success();
+    }
 
     private function formatPostData(Request $request, array $data)
     {

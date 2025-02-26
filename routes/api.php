@@ -219,6 +219,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/categories', [ArticleController::class, 'getCategories'])->name('articles.getCategories');
         Route::get('/{article}/reviews', [ArticleController::class, 'getReviews'])->name('articles.getReviews');
 
+        Route::post('/{article}/todo/stock-keep', [ArticleController::class, 'createStockKeepTodo']);
+        Route::post('/{article}/todo/measurement', [ArticleController::class, 'createMeasurementTodo']);
+
         Route::get('/{article}/wms-data', [ArticleController::class, 'getArticleWmsData'])->name('articles.getWmsData');
         Route::post('/{article}/stock-keep', [ArticleController::class, 'stockKeepArticle'])->name('articles.stockKeep');
 
