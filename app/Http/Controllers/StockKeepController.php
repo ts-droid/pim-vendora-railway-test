@@ -149,7 +149,7 @@ class StockKeepController extends Controller
                 $stockItemService->addStockItem(
                     $articleNumber,
                     abs($diff),
-                    $compartmentObject->id,
+                    $compartmentObject,
                     $signature
                 );
             }
