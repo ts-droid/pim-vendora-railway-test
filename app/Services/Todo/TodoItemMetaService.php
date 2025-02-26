@@ -45,6 +45,7 @@ class TodoItemMetaService
             ->first();
 
         return [
+            'id' => $article->id,
             'article_number' => $article->article_number,
             'ean' => $article->ean,
             'description' => $article->description,
