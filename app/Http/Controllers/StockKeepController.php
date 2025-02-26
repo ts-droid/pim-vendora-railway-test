@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleImage;
 use App\Models\CompartmentSection;
 use App\Models\StockItem;
 use App\Models\StockKeepTodo;
@@ -40,10 +41,19 @@ class StockKeepController extends Controller
         $transactionsArray = $transactions->toArray();
 
         foreach ($transactionsArray as &$item) {
-            $item['description'] = DB::table('articles')
-                ->select('description')
+            $articleData = DB::table('articles')
+                ->select('id', 'description')
                 ->where('article_number', '=', $item['article_number'])
-                ->value('description');
+                ->first();
+
+            $image = ArticleImage::select('path_url')
+                ->where('article_id', $articleData->id)
+                ->orderBy('list_order', 'ASC')
+                ->limit(1)
+                ->first();
+
+            $item['description'] = $articleData->description ?? '';
+            $item['image'] = $image->path_url ?? '';
         }
 
         return ApiResponseController::success([
