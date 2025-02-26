@@ -163,12 +163,12 @@ class StockOptimizationManager
                         $fillCount = floor($freeVolume / $articleVolume);
                         $fillCount = min($fillCount, $stockLeftToMove);
 
-                        /*if ($stockPlaceConfig['multi_intelligence']) {
+                        if ($stockPlaceConfig['multi_intelligence'] && $fillCount > 0) {
                             $intelligenceCount = $this->getArticleSales($article->article_number, $stockPlaceConfig['multi_intelligence_period']);
                             $intelligenceRefill = $intelligenceCount - $stockLeftToMove;
 
                             $fillCount = min($intelligenceRefill, $fillCount);
-                        }*/
+                        }
 
                         if ($fillCount != $stockLeftToMove) {
                             $fillCount = $this->roundQuantity($fillCount);
@@ -204,7 +204,7 @@ class StockOptimizationManager
         }
 
         // Then process articles in classification order: A, B, C
-        $this->printLine('Process articles in classification order');
+        /*$this->printLine('Process articles in classification order');
         foreach (self::CLASSIFICATION_ORDER as $classIndex => $class) {
             $articles = $groupedArticles[$class] ?? [];
 
@@ -433,7 +433,7 @@ class StockOptimizationManager
                     }
                 }
             }
-        }
+        }*/
 
 
         // Unleash marked compartments
