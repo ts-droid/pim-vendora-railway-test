@@ -164,6 +164,57 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($stockPlace->toArray());
     }
 
+    public function copyStockPlace(Request $request, StockPlace $stockPlace)
+    {
+        $identifier = $request->input('identifier');
+        if (!$identifier) {
+            return ApiResponseController::error('Identifier is required');
+        }
+
+        // Make sure the identifier is unique
+        $exists = StockPlace::where('identifier', '=', $identifier)->exists();
+        if ($exists) {
+            return ApiResponseController::error('Identifier already exists');
+        }
+
+        $newStockPlace = StockPlace::create([
+            'identifier' => $identifier,
+            'map_position_x' => ($stockPlace->map_position_x + $stockPlace->map_size_x),
+            'map_position_y' => $stockPlace->map_position_y,
+            'map_size_x' => $stockPlace->map_size_x,
+            'map_size_y' => $stockPlace->map_size_y,
+            'color' => $stockPlace->color,
+            'type' => $stockPlace->type,
+            'template_id' => $stockPlace->template_id,
+            'is_active' => $stockPlace->is_active,
+        ]);
+
+        foreach ($stockPlace->compartments as $compartment) {
+            $newCompartment = StockPlaceCompartment::create([
+                'identifier' => $compartment->identifier,
+                'stock_place_id' => $newStockPlace->id,
+                'volume_class' => $compartment->volume_class,
+                'width' => $compartment->width,
+                'height' => $compartment->height,
+                'depth' => $compartment->depth,
+                'is_truck' => $compartment->is_truck,
+                'is_movable' => $compartment->is_movable,
+                'is_walk_through' => $compartment->is_walk_through,
+                'is_manual' => $compartment->is_manual,
+                'template_id' => $compartment->template_id,
+                'template_group' => $compartment->template_group,
+            ]);
+
+            foreach ($compartment->sections as $section) {
+                CompartmentSection::create([
+                    'stock_place_compartment_id' => $newCompartment->id
+                ]);
+            }
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function deleteStockPlace(Request $request, StockPlace $stockPlace)
     {
         $stockPlaceService = new StockPlaceService();
