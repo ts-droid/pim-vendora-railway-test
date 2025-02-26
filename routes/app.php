@@ -50,6 +50,8 @@ Route::prefix('/app')->group(function() {
             Route::post('/movements/{stockItemMovement}/unping', [AppWarehouseController::class, 'unpingMovement']);
             Route::post('/movements/{stockItemMovement}/confirm', [AppWarehouseController::class, 'confirmMovement']);
             Route::post('/movements/{stockItemMovement}/investigate', [AppWarehouseController::class, 'investigateMovement']);
+            Route::post('/movements/{stockItemMovement}/stock-keep-todo', [AppWarehouseController::class, 'stockKeepTodo']);
+            Route::post('/movements/{stockItemMovement}/measurement-todo', [AppWarehouseController::class, 'measurementTodo']);
         });
     });
 });

@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\StockItem;
 use App\Models\StockItemMovement;
+use App\Models\StockKeepTodo;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceCompartmentReservation;
+use App\Services\Todo\TodoItemService;
+use App\Services\Todo\TodoService;
 use App\Services\WMS\StockItemService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
@@ -232,6 +235,42 @@ class AppWarehouseController extends Controller
             'stock_place_compartment_id' => $stockItemMovement->to_stock_place_compartment,
             'reserved_until' => date('Y-m-d H:i:s', strtotime('+30 minutes'))
         ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function stockKeepTodo(StockItemMovement $stockItemMovement)
+    {
+        StockKeepTodo::create([
+            'reference' => $stockItemMovement->article_number,
+            'type' => 'article'
+        ]);
+
+        $stockItemMovement->delete();
+
+        return ApiResponseController::success();
+    }
+
+    public function measurementTodo(StockItemMovement $stockItemMovement)
+    {
+        $articleID = (int) DB::table('articles')
+            ->select('id')
+            ->where('article_number', $stockItemMovement->article_number)
+            ->value('id');
+
+        if (!$articleID) {
+            return ApiResponseController::error('Article not found.');
+        }
+
+        $service = new TodoItemService();
+        $service->createCollectArticle(
+            $articleID,
+            'size',
+            0,
+            'system'
+        );
+
+        $stockItemMovement->delete();
 
         return ApiResponseController::success();
     }
