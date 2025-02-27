@@ -32,6 +32,6 @@ class StockItemMovement extends Model
     public function article()
     {
         return $this->belongsTo(Article::class, 'article_number', 'article_number')
-            ->select(['description', 'width', 'height', 'depth']);
+            ->select(['article_number', 'description', 'width', 'height', 'depth']);
     }
 }
