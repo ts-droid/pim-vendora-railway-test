@@ -404,6 +404,14 @@ class StockKeepController extends Controller
         }
 
         foreach ($articleNumbers as $articleNumber) {
+            $hasTodo = StockKeepTodo::where('reference', $articleNumber)
+                ->where('type', 'article')
+                ->exists();
+
+            if ($hasTodo) {
+                continue;
+            }
+
             StockKeepTodo::create([
                 'reference' => $articleNumber,
                 'type' => 'article'
@@ -420,6 +428,14 @@ class StockKeepController extends Controller
         $article = Article::where('article_number', $articleNumber)->first();
         if (!$article) {
             return ApiResponseController::error('Article not found');
+        }
+
+        $hasTodo = StockKeepTodo::where('reference', $article->article_number)
+            ->where('type', 'article')
+            ->exists();
+
+        if ($hasTodo) {
+            return ApiResponseController::error('Article already has a todo');
         }
 
         StockKeepTodo::create([
@@ -454,8 +470,18 @@ class StockKeepController extends Controller
         }
 
         foreach ($compartments as $compartment) {
+            $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
+
+            $hasTodo = StockKeepTodo::where('reference', $identifier)
+                ->where('type', 'compartment')
+                ->exists();
+
+            if ($hasTodo) {
+                continue;
+            }
+
             StockKeepTodo::create([
-                'reference' => $stockPlace->identifier . ':' . $compartment->identifier,
+                'reference' => $identifier,
                 'type' => 'compartment'
             ]);
         }

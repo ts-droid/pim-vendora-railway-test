@@ -1275,6 +1275,14 @@ class ArticleController extends Controller
 
     public function createStockKeepTodo(Request $request, Article $article)
     {
+        $hasTodo = StockKeepTodo::where('type', 'article')
+            ->where('reference', $article->article_number)
+            ->exists();
+
+        if ($hasTodo) {
+            return ApiResponseController::error('Stock keep todo already exists');
+        }
+
         StockKeepTodo::create([
             'reference' => $article->article_number,
             'type' => 'article'
