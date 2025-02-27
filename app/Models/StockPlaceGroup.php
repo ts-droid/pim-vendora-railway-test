@@ -11,11 +11,8 @@ class StockPlaceGroup extends Model
 
     protected $fillable = [
         'stock_places',
-        'max_volume_class_size_a',
-        'max_volume_class_size_b',
-        'max_volume_class_size_c',
-        'wms_multi_intelligence',
-        'wms_multi_intelligence_period',
+        'max_volume',
+        'min_volume',
     ];
 
     protected $casts = [

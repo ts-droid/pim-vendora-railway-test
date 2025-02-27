@@ -13,7 +13,7 @@ class ClassifyArticles extends Command
      *
      * @var string
      */
-    protected $signature = 'articles:classify';
+    protected $signature = 'articles:classify {type=all}';
 
     /**
      * The console command description.
@@ -29,9 +29,19 @@ class ClassifyArticles extends Command
      */
     public function handle()
     {
+        $type = $this->argument('type') ?: 'all';
+
         $this->loadConfig();
-        $this->classifySalesVolume();
-        $this->classifyVolume();
+
+        if ($type == 'all' || $type == 'salesvolume') {
+            $this->classifySalesVolume();
+        }
+        if ($type == 'all' || $type == 'volume') {
+            $this->classifyVolume();
+        }
+        if ($type == 'all' || $type == 'wms') {
+            $this->classifyWMS();
+        }
 
         $this->info('Updated article classifications');
     }
@@ -77,6 +87,50 @@ class ClassifyArticles extends Command
                     ->where('id', $article->id)
                     ->update(['classification_volume' => $classification]);
             }
+        }
+    }
+
+    private function classifyWMS()
+    {
+        $salesData = DB::table('shipment_lines')
+            ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
+            ->selectRaw('shipment_lines.article_number, SUM(shipment_lines.quantity) AS sum_quantity')
+            ->where('shipments.date', '>', date('Y-m-d', strtotime('-30 days')))
+            ->groupBy('shipment_lines.article_number')
+            ->get()
+            ->toArray();
+
+        usort($salesData, function ($a, $b) {
+            return $a->sum_quantity < $b->sum_quantity;
+        });
+
+        // Reset toplist
+        DB::table('articles')->update(['wms_toplist' => 0]);
+
+        // Set the new toplist
+        $toplistIndex = 1;
+        foreach ($salesData as $row) {
+            DB::table('articles')
+                ->where('article_number', '=', $row->article_number)
+                ->update(['wms_toplist' => $toplistIndex]);
+
+            $toplistIndex++;
+        }
+
+        // Get array with only article numbers
+        $articleNumbers = array_column($salesData, 'article_number');
+
+        $unknownArticles = DB::table('articles')
+            ->select('article_number')
+            ->whereNotIn('article_number', $articleNumbers)
+            ->pluck('article_number');
+
+        foreach ($unknownArticles as $articleNumber) {
+            DB::table('articles')
+                ->where('article_number', '=', $articleNumber)
+                ->update(['wms_toplist' => $toplistIndex]);
+
+            $toplistIndex++;
         }
     }
 

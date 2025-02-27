@@ -40,6 +40,7 @@ class DispatchArticleUpdate
         'last_sync_exception',
         'classification',
         'classification_volume',
+        'wms_toplist',
         'created_at',
         'updated_at,'
     ];

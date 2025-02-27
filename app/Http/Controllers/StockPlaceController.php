@@ -373,17 +373,12 @@ class StockPlaceController extends Controller
             $wmsMultiIntelligence = null;
         }
 
-        $maxVolumeClassSizeA = floatval($request->input('max_volume_class_size_a', 0)) ?: null;
-        $maxVolumeClassSizeB = floatval($request->input('max_volume_class_size_b', 0)) ?: null;
-        $maxVolumeClassSizeC = floatval($request->input('max_volume_class_size_c', 0)) ?: null;
-        $wmsMultiIntelligencePeriod = intval($request->input('wms_multi_intelligence_period', 0)) ?: null;
+        $maxVolume = intval($request->input('max_volume', 0)) ?: null;
+        $minVolume = intval($request->input('min_volume', 0)) ?: null;
 
         $stockPlaceGroup->update([
-            'max_volume_class_size_a' => $maxVolumeClassSizeA,
-            'max_volume_class_size_b' => $maxVolumeClassSizeB,
-            'max_volume_class_size_c' => $maxVolumeClassSizeC,
-            'wms_multi_intelligence' => $wmsMultiIntelligence,
-            'wms_multi_intelligence_period' => $wmsMultiIntelligencePeriod,
+            'max_volume' => $maxVolume,
+            'min_volume' => $minVolume,
         ]);
 
         return ApiResponseController::success($stockPlaceGroup->toArray());
