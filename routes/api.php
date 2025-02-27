@@ -188,6 +188,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/stock-place', [StockKeepController::class, 'stockPlace']);
         Route::get('/stock-place/get-items', [StockKeepController::class, 'getStockPlaceItems']);
 
+        Route::get('/unmanaged', [StockKeepController::class, 'getUnmanaged']);
+
         Route::get('/todo', [StockKeepController::class, 'getTodo']);
         Route::post('/todo/compartment', [StockKeepController::class, 'createCompartmentTodo']);
         Route::post('/todo/article', [StockKeepController::class, 'createArticleTodo']);

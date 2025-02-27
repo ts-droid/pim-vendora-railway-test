@@ -12,6 +12,7 @@ use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
+use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -392,6 +393,41 @@ class StockKeepController extends Controller
             'items' => array_values($responseData),
             'total_sections' => $stockCompartmentObject->sections->count() ?: 1
         ]);
+    }
+
+    public function getUnmanaged()
+    {
+        $articleNumbers = DB::table('articles')
+            ->select('article_number')
+            ->where('stock_manageable', '>', 0)
+            ->pluck('article_number');
+
+        $result = [];
+
+        foreach($articleNumbers as $articleNumber) {
+            $stockData = WarehouseHelper::getArticleLocationsWithStock($articleNumber);
+            $identifiers = array_column($stockData, 'identifier');
+
+            if (!in_array('--', $identifiers)) {
+                continue;
+            }
+
+            $unmanagedStock = 0;
+            foreach ($stockData as $item) {
+                if ($item['identifier'] == '--') {
+                    $unmanagedStock = $item['stock'];
+                    break;
+                }
+            }
+
+            $result[] = [
+                'article_number' => $articleNumber,
+                'unmanaged_stock' => $unmanagedStock,
+                'locations' => $stockData
+            ];
+        }
+
+        return ApiResponseController::success($result);
     }
 
     public function createBrandTodo(Request $request)
