@@ -374,15 +374,14 @@ class StockKeepController extends Controller
                     ->where('article_number', $stockItem->article_number)
                     ->first();
 
-                $hasStockKeepTodo = StockKeepTodo::where('reference', $stockItem->article_number)
+                $article->has_stock_keep_todo = StockKeepTodo::where('reference', $stockItem->article_number)
                     ->where('type', 'article')
                     ->exists();
 
                 $responseData[$stockItem->article_number] = [
                     'article_number' => '',
                     'stock' => 0,
-                    'article' => $article,
-                    'has_stock_keep_todo' => $hasStockKeepTodo ? 1 : 0
+                    'article' => $article
                 ];
             }
 
