@@ -365,8 +365,8 @@ class StockPlaceController extends Controller
 
     public function updateStockPlaceGroup(Request $request, StockPlaceGroup $stockPlaceGroup)
     {
-        $maxVolume = intval($request->input('max_volume', 0)) ?: null;
-        $minVolume = intval($request->input('min_volume', 0)) ?: null;
+        $maxVolume = intval($request->input('max_volume', 0)) ?: 0;
+        $minVolume = intval($request->input('min_volume', 0)) ?: 0;
 
         $stockPlaceGroup->update([
             'max_volume' => $maxVolume,
