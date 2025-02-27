@@ -400,6 +400,7 @@ class StockKeepController extends Controller
         $articleNumbers = DB::table('articles')
             ->select('article_number')
             ->where('stock_manageable', '>', 0)
+            ->limit(50)
             ->pluck('article_number');
 
         $result = [];
