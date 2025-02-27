@@ -31,6 +31,23 @@ class StockPlaceController extends Controller
         return ApiResponseController::success($stockPlacesArray);
     }
 
+    public function setCompartmentListOrder(Request $request)
+    {
+        $sortedIDs = (string) $request->input('sorted_ids', '');
+
+        $sortedIDs = explode(',', $sortedIDs);
+
+        $sortedIDs = array_unique($sortedIDs);
+        $sortedIDs = array_filter($sortedIDs);
+
+        for ($i = 0;$i < count($sortedIDs);$i++) {
+            StockPlaceCompartment::where('id', $sortedIDs[$i])
+                ->update(['list_order' => $i]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function getStockPlace(Request $request, StockPlace $stockPlace)
     {
         $stockPlace->load('compartments', 'compartments.sections');

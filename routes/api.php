@@ -78,6 +78,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/stock-places/groups/{stockPlaceGroup}', [StockPlaceController::class, 'updateStockPlaceGroup']);
         Route::post('/stock-places/groups/{stockPlaceGroup}/delete', [StockPlaceController::class, 'deleteStockPlaceGroup']);
 
+        Route::post('/stock-places/compartment-list-order', [StockPlaceController::class, 'setCompartmentListOrder']);
+
         Route::get('/stock-places/{stockPlace}', [StockPlaceController::class, 'getStockPlace']);
         Route::post('/stock-places/{stockPlace}', [StockPlaceController::class, 'updateStockPlace']);
         Route::post('/stock-places/{stockPlace}/copy', [StockPlaceController::class, 'copyStockPlace']);
