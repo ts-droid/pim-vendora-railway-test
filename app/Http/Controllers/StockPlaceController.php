@@ -365,14 +365,6 @@ class StockPlaceController extends Controller
 
     public function updateStockPlaceGroup(Request $request, StockPlaceGroup $stockPlaceGroup)
     {
-        $wmsMultiIntelligence = $request->input('wms_multi_intelligence', null);
-        if ($wmsMultiIntelligence == 1 || $wmsMultiIntelligence == 0) {
-            $wmsMultiIntelligence = intval($wmsMultiIntelligence);
-        }
-        else {
-            $wmsMultiIntelligence = null;
-        }
-
         $maxVolume = intval($request->input('max_volume', 0)) ?: null;
         $minVolume = intval($request->input('min_volume', 0)) ?: null;
 
