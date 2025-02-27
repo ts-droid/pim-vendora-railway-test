@@ -203,6 +203,7 @@ class StockPlaceController extends Controller
                 'is_manual' => $compartment->is_manual,
                 'template_id' => $compartment->template_id,
                 'template_group' => $compartment->template_group,
+                'list_order' => $compartment->list_order
             ]);
 
             foreach ($compartment->sections as $section) {

@@ -23,6 +23,7 @@ class StockPlaceCompartment extends Model
         'template_id',
         'template_group',
         'unleash',
+        'list_order',
     ];
 
     public function stockPlace()
