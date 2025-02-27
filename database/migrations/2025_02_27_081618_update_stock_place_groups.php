@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
+        Schema::table('stock_place_groups', function (Blueprint $table) {
             $table->dropColumn('max_volume_class_size_a');
             $table->dropColumn('max_volume_class_size_b');
             $table->dropColumn('max_volume_class_size_c');
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
+        Schema::table('stock_place_groups', function (Blueprint $table) {
             $table->float('max_volume_class_size_a')->default(null)->nullable();
             $table->float('max_volume_class_size_b')->default(null)->nullable();
             $table->float('max_volume_class_size_c')->default(null)->nullable();
