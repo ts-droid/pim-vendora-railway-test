@@ -106,7 +106,7 @@ class StockOptimizationManager
 
                     $this->printLine('Processing compartment index ' . $i);
 
-                    while ($failCount < 100) {
+                    while ($failCount < 200) {
                         $article = $this->articles[$toplistIndex] ?? null;
                         if (!$article) {
                             $this->printLine('No more articles found to fill.');
@@ -134,6 +134,13 @@ class StockOptimizationManager
 
                         $fillCount = floor($freeVolume / $articleVolume);
                         $fillCount = min($fillCount, $stockLeftToMove);
+
+                        if (!$fillCount) {
+                            $toplistIndex++;
+                            $failCount++;
+                            $this->printLine('Article has no fill count.');
+                            continue;
+                        }
 
                         $this->makeStockMovement(
                             $article->article_number,
