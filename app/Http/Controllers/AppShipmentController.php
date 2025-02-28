@@ -134,15 +134,12 @@ class AppShipmentController extends Controller
             foreach ($lines as $line) {
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
-                $investigationComment = $line['investigation_comment'] ?? '';
                 $pickingLocations = $line['picking_locations'] ?? ['--'];
 
                 $serialNumbers = $line['serial_numbers'] ?? '';
                 $serialNumbers = explode(',', $serialNumbers);
                 $serialNumbers = array_map('trim', $serialNumbers);
                 $serialNumbers = array_filter($serialNumbers);
-
-                $sound = $request->file('sound_' . $lineID);
 
                 $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
                     ->where('id', '=', $lineID)
@@ -161,19 +158,8 @@ class AppShipmentController extends Controller
                     return ApiResponseController::error('Missing serial numbers for all articles (' . $shipmentLine->article_number . ').');
                 }
 
-                $investigationSoundPath = $shipmentLine->investigation_sound_path;
-                $investigationSoundUrl = $shipmentLine->investigation_sound_url;
-                if ($sound) {
-                    $filename = 'sound_' . $lineID . '.' . $sound->getClientOriginalExtension();
-                    $investigationSoundPath = DoSpacesController::store('sounds/' . $filename, $sound->getContent(), true);
-                    $investigationSoundUrl = DoSpacesController::getURL($investigationSoundPath);
-                }
-
                 $shipmentLine->update([
                     'picked_quantity' => $quantity,
-                    'investigation_comment' => $investigationComment,
-                    'investigation_sound_path' => $investigationSoundPath,
-                    'investigation_sound_url' => $investigationSoundUrl,
                     'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : '',
                     'picking_location' => json_encode($pickingLocations)
                 ]);
@@ -186,10 +172,16 @@ class AppShipmentController extends Controller
         // Get fresh pair of shipment lines
         $shipmentLines = ShipmentLine::where('shipment_id', '=', $shipment->id)->get();
 
+        $markForInvestigation = false;
+
         if ($shipmentLines) {
             foreach ($shipmentLines as $shipmentLine) {
                 $quantity = $shipmentLine->picked_quantity;
                 $pickingLocations = json_decode($shipmentLine->picking_location, true);
+
+                if ($shipmentLine->quantity != $shipmentLine->picked_quantity) {
+                    $markForInvestigation = true;
+                }
 
                 foreach ($pickingLocations as $pickingLocation) {
                     if ($pickingLocation == '--') {
@@ -212,10 +204,12 @@ class AppShipmentController extends Controller
             }
         }
 
+
+
         // Mark as picked
         $shipment->update([
             'pick_signature' => $displayName,
-            'internal_status' => ShipmentInternalStatus::PICKED,
+            'internal_status' => $markForInvestigation ? ShipmentInternalStatus::INVESTIGATE : ShipmentInternalStatus::PICKED,
             'ping_at' => 0
         ]);
 
