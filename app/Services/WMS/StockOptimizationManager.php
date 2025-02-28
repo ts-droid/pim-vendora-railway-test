@@ -374,9 +374,21 @@ class StockOptimizationManager
     private function initStockData($article)
     {
         if (!isset($this->stockData[$article->article_number])) {
+
+            $locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
+
+            $managedStock = 0;
+            foreach ($locations as $location) {
+                if ($location['identifier'] == '--') {
+                    continue;
+                }
+
+                $managedStock += $location['stock'];
+            }
+
             $this->stockData[$article->article_number] = [
                 'stock' => $article->stock,
-                'managed_stock' => 0,
+                'managed_stock' => $managedStock,
                 'has_main_placement' => WarehouseHelper::articleHasPlacement($article->article_number, ['A']),
             ];
         }
