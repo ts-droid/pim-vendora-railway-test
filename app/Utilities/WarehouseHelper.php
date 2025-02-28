@@ -129,13 +129,11 @@ class WarehouseHelper
             $managedStock++;
         }
 
-        if ($managedStock < $articleStock) {
-            $locations['--'] = [
-                'identifier' => '--',
-                'stock' => $articleStock - $managedStock,
-                'last_inventory' => '',
-            ];
-        }
+        $locations['--'] = [
+            'identifier' => '--',
+            'stock' => $articleStock - $managedStock,
+            'last_inventory' => '',
+        ];
 
         return array_values($locations);
     }
