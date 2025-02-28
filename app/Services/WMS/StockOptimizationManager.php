@@ -383,6 +383,8 @@ class StockOptimizationManager
     {
         if (!isset($this->stockData[$article->article_number])) {
 
+            $reservedStock = WarehouseHelper::getReservedStock($article->article_number);
+
             $locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
 
             $managedStock = 0;
@@ -395,7 +397,7 @@ class StockOptimizationManager
             }
 
             $this->stockData[$article->article_number] = [
-                'stock' => $article->stock,
+                'stock' => $article->stock - $reservedStock,
                 'managed_stock' => $managedStock,
                 'has_main_placement' => WarehouseHelper::articleHasPlacement($article->article_number, ['A']),
             ];
