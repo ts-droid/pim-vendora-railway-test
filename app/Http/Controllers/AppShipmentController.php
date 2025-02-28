@@ -179,7 +179,7 @@ class AppShipmentController extends Controller
                 $quantity = $shipmentLine->picked_quantity;
                 $pickingLocations = json_decode($shipmentLine->picking_location, true);
 
-                if ($shipmentLine->quantity != $shipmentLine->picked_quantity) {
+                if ($shipmentLine->shipped_quantity != $shipmentLine->picked_quantity) {
                     $markForInvestigation = true;
                 }
 
@@ -203,8 +203,6 @@ class AppShipmentController extends Controller
                 }
             }
         }
-
-
 
         // Mark as picked
         $shipment->update([
