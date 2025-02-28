@@ -130,6 +130,7 @@ class StockOptimizationManager
                         $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
 
                         $stockLeftToMove = $stockData['stock'] - $stockData['managed_stock'];
+                        $stockLeftToMove = max(0, $stockLeftToMove);
 
                         $fillCount = floor($freeVolume / $articleVolume);
                         $fillCount = min($fillCount, $stockLeftToMove);
