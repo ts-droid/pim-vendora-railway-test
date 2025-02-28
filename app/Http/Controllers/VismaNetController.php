@@ -502,12 +502,14 @@ class VismaNetController extends Controller
 
                 // Fetch detailed stock
                 if (should_sync_stock($updateData['article_number'])) {
+                    $updateData['stock_manageable'] = 0;
+
                     $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
                     foreach ($detailedStock as $stock) {
                         $stockLocationName = trim($stock['location']['name'] ?? '');
 
                         if ($stockLocationName === '1') {
-                            $updateData['stock_manageable'] = $stock['onHand'];
+                            $updateData['stock_manageable'] += $stock['onHand'];
                             break;
                         }
                     }
