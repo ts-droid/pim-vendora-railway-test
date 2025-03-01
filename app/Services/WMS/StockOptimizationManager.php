@@ -8,6 +8,7 @@ use App\Models\StockItemMovement;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceGroup;
+use App\Models\TodoItem;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -496,6 +497,18 @@ class StockOptimizationManager
 
     private function getArticles()
     {
+        // Get articles with an active todo item
+        $todos = TodoItem::where('on_hold', 0)
+            ->whereNull('reserved_at')
+            ->whereNull('completed_at')
+            ->orderBy('list_order', 'ASC')
+            ->get();
+
+        $todoArticleIDs = [];
+        foreach ($todos as $todo) {
+            $todoArticleIDs[] = $todo->data['article_id'];
+        }
+
         return DB::table('articles')
             ->select(['id', 'article_number', 'stock_manageable AS stock', 'width', 'depth', 'height'])
             ->where('wms_toplist', '>', 0)
@@ -503,6 +516,7 @@ class StockOptimizationManager
             ->where('height', '>', 0)
             ->where('depth', '>', 0)
             ->where('stock_manageable', '>', 0)
+            ->whereNotIn('id', $todoArticleIDs)
             ->orderBy('wms_toplist', 'ASC')
             ->get();
     }
