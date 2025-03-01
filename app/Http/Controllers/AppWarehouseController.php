@@ -171,6 +171,11 @@ class AppWarehouseController extends Controller
         $stockItemService = new StockItemService();
 
         $quantity = (int) $request->input('quantity');
+
+        if ($quantity < 0) {
+            return ApiResponseController::error('Quantity must be greater than or equal to 0.');
+        }
+
         if ($quantity > 0) {
             $stockItemMovement->update(['quantity' => $quantity]);
         }
@@ -203,6 +208,10 @@ class AppWarehouseController extends Controller
                 $stockItems = StockItem::where('stock_place_compartment_id', $stockItemMovement->from_stock_place_compartment)
                     ->limit($stockItemMovement->quantity)
                     ->get();
+
+                if ($stockItems->count() < $stockItemMovement->quantity) {
+                    return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
+                }
 
                 foreach ($stockItems as $stockItem) {
                     $response = $stockItemService->removeStockItem($stockItem, $signature);
