@@ -292,7 +292,10 @@ class AppWarehouseController extends Controller
     private function getArticleData(array $articleNumbers, bool $detailed = false)
     {
         $articles = DB::table('articles')
-            ->select('id', 'article_number', 'ean', 'description', 'stock_manageable as stock', 'inner_box', 'master_box', 'package_image_front_url')
+            ->select(
+                'id', 'article_number', 'ean', 'description', 'stock_manageable as stock',
+                'inner_box', 'master_box', 'package_image_front_url', 'width', 'height', 'depth'
+            )
             ->whereIn('article_number', $articleNumbers)
             ->get();
 
