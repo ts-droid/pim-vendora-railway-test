@@ -111,8 +111,8 @@ class WgrController extends Controller
         $orders = $response[0]['result'] ?? [];
 
         foreach ($orders as $order) {
-            SalesOrder::where('customer_ref_no', $order['id'])
-                ->update(['internal_note' => $order['comment']]);
+            SalesOrder::where('customer_ref_no', (string) ($order['id'] ?? ''))
+                ->update(['internal_note' => (string) ($order['comment'] ?? '')]);
         }
 
         ConfigController::setConfigs(['wgr_last_order_fetch' => $fetchTime]);
