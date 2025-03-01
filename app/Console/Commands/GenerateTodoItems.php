@@ -45,9 +45,15 @@ class GenerateTodoItems extends Command
             }
         }
 
+        $excludeList = [
+            'DWG'
+        ];
+
         $articleIDs = DB::table('articles')
             ->select('id')
             ->where('status', '=', 'Active')
+            ->whereNotIn('article_number', $excludeList)
+            ->whereNotIn('id', $existingArticleIDs)
             ->where(function($query) {
                 $query->where('article_number', '=', '')
                     ->orWhereNull('article_number')
@@ -81,10 +87,6 @@ class GenerateTodoItems extends Command
         $todoItemService = new TodoItemService();
 
         foreach ($articleIDs as $articleID) {
-            if (in_array($articleID, $existingArticleIDs)) {
-                continue;
-            }
-
             $todoItemService->createCollectArticle($articleID, 'all', 0, 'system');
         }
     }
