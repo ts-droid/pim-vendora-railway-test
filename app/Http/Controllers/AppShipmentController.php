@@ -69,6 +69,18 @@ class AppShipmentController extends Controller
 
         $shipment->is_backorder = $shipment->isBackorder();
 
+        // Load order comments
+        $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
+
+        $orderNotes = [];
+        foreach ($salesOrders as $salesOrder) {
+            if (!$salesOrder->internal_note) continue;
+
+            $orderNotes[] = (string) $salesOrder->internal_note;
+        }
+
+        $shipment->internal_note = implode((PHP_EOL . PHP_EOL), $orderNotes);
+
         // Load open siblings
         if (!in_array($shipment->customer_number, self::GROUP_CUSTOMER_EXCLUDES)) {
             $shipment->openSiblings = Shipment::where('customer_number', '=', $shipment->customer_number)
