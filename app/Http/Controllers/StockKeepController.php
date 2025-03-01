@@ -248,25 +248,30 @@ class StockKeepController extends Controller
                     }
                 }
 
-                $this->makeTransaction(
-                    $articleNumber,
-                    ($stockPlace . ':' . $compartment),
-                    $stock,
-                    $diff,
-                    ($isManual ? false : true)
-                );
+
+                if (!$isManual) {
+                    $this->makeTransaction(
+                        $articleNumber,
+                        ($stockPlace . ':' . $compartment),
+                        $stock,
+                        $diff,
+                        true
+                    );
+                }
             }
             else {
                 // Insert new stock
                 $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, $signature);
 
-                $this->makeTransaction(
-                    $articleNumber,
-                    ($stockPlace . ':' . $compartment),
-                    $stock,
-                    $stock,
-                    ($isManual ? false : true)
-                );
+                if (!$isManual) {
+                    $this->makeTransaction(
+                        $articleNumber,
+                        ($stockPlace . ':' . $compartment),
+                        $stock,
+                        $stock,
+                        true
+                    );
+                }
             }
         }
 
