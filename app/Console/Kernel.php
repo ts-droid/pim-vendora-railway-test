@@ -34,7 +34,6 @@ class Kernel extends ConsoleKernel
             $schedule->command('process-visma-deletions')->dailyAt('04:00');
             $schedule->command('visma:delete-shipments')->everyTenMinutes();
 
-            $schedule->command('wgr:fetch')->dailyAt('01:00');
             $schedule->command('wgr:fetch')->everyTenMinutes();
 
             $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');

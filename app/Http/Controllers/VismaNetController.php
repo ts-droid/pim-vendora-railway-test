@@ -241,7 +241,7 @@ class VismaNetController extends Controller
                 }
 
                 foreach ($receipt['lines'] as $line) {
-                    $purchaseOrderNumbers[] = $line['poOrderNbr'];
+                    $purchaseOrderNumbers[] = $line['poOrderNbr'] ?? '';
                 }
             }
         }
