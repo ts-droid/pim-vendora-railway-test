@@ -30,6 +30,7 @@ Route::prefix('/app')->group(function() {
         Route::prefix('/shipments')->group(function() {
             Route::get('/', [AppShipmentController::class, 'list']);
             Route::get('/history', [AppShipmentController::class, 'listHistory']);
+            Route::post('/check-serial-number', [AppShipmentController::class, 'checkSerialNumber']);
             Route::get('/{shipment}', [AppShipmentController::class, 'get']);
             Route::post('/{shipment}/ping', [AppShipmentController::class, 'ping']);
             Route::post('/{shipment}/unping', [AppShipmentController::class, 'unping']);

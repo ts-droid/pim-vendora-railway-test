@@ -133,6 +133,36 @@ class AppShipmentController extends Controller
         return ApiResponseController::success();
     }
 
+    public function checkSerialNumber(Request $request)
+    {
+        $serialNumber = trim($request->input('serial_number'));
+        $excludeLineID = (int) $request->input('exclude_line_id');
+
+        if (!$serialNumber) {
+            return ApiResponseController::error('Serial number must not be empty.');
+        }
+
+        $lines = DB::table('shipment_lines')
+            ->select('serial_number')
+            ->where('serial_number', 'LIKE', '%' . $serialNumber . '%')
+            ->where('id', '!=', $excludeLineID)
+            ->pluck('serial_number');
+
+        if (!$lines || !$lines->count()) {
+            return ApiResponseController::success();
+        }
+
+        foreach ($lines as $line) {
+            $lineSerialNumbers = explode(',', $line);
+
+            if (in_array($serialNumber, $lineSerialNumbers)) {
+                return ApiResponseController::error('Serial number already in use.');
+            }
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function pick(Request $request, Shipment $shipment)
     {
         $displayName = get_display_name();
