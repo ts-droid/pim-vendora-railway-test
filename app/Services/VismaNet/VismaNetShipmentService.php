@@ -181,7 +181,7 @@ class VismaNetShipmentService extends VismaNetApiService
             if (!$response['success']) {
 
                 $log = [
-                    'post' => $updateData['shipmentDetailLines'],
+                    'post' => $updateData,
                     'response' => $response['response']
                 ];
 
