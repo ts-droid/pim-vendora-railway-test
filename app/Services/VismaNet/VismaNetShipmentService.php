@@ -179,6 +179,14 @@ class VismaNetShipmentService extends VismaNetApiService
             $response = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, $updateData);
 
             if (!$response['success']) {
+
+                $log = [
+                    'post' => $updateData['shipmentDetailLines'],
+                    'response' => $response['response']
+                ];
+
+                log_data(json_encode($log));
+
                 return [
                     'success' => false,
                     'message' => 'Failed to update shipment in Visma.net (' . json_encode($response['response']) . ')'
