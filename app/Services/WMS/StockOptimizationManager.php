@@ -203,64 +203,6 @@ class StockOptimizationManager
             }
         }
 
-
-        // Try to fill stock places from managed stock
-        foreach ($this->stockPlaces as $stockPlace) {
-
-            $stockPlaceConfig = $this->getStockPlaceConfig($stockPlace);
-
-            foreach ($stockPlace->compartments as $compartment) {
-                if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
-                    continue;
-                }
-
-                $toplistIndex = 0;
-
-                $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
-                $totalSections = $compartment->sections->count() ?: 1;
-
-                if ($uniqueStockItems->count() >= $totalSections) {
-                    // No empty compartments
-                    continue;
-                }
-
-                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
-                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
-
-                $sectionVolume = $compartmentVolume / $totalSections;
-                $maxSectionVolume = $sectionVolume * ($stockPlaceConfig['max_volume'] / 100);
-
-                $occupiedVolumeOverall = $this->getOccupiedVolume($compartment);
-
-                $emptySections = $totalSections - $uniqueStockItems->count();
-
-                for ($i = 0;$i < $emptySections;$i++) {
-                    $failCount = 0;
-
-                    while ($failCount < 1000) {
-                        $article = $this->articles[$toplistIndex] ?? null;
-                        if (!$article) {
-                            break 3;
-                        }
-
-                        $this->initStockData($article);
-                        $stockData = &$this->stockData[$article->article_number];
-
-                        if ($stockData['has_main_placement'] || !$stockData['managed_stock']) {
-                            $topListIndex++;
-                            $failCount++;
-                            continue;
-                        }
-
-                        $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
-
-                        $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
-                    }
-                }
-            }
-        }
-
-
         // Try to refill stock places from unmanaged stock
         foreach ($this->stockPlaces as $stockPlace) {
 
