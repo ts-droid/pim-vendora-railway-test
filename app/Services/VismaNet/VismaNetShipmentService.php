@@ -172,7 +172,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 }
 
                 for ($i = 0;$i < count($lineData['allocations']);$i++) {
-                    $lineData['allocations'][$i]['lotSerialNumber']['value'] .= str_replace('.', '', microtime());
+                    $lineData['allocations'][$i]['lotSerialNumber']['value'] .= str_replace('.', '', microtime(true));
                 }
             }
 
