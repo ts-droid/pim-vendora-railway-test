@@ -136,21 +136,45 @@ class VismaNetShipmentService extends VismaNetApiService
                     $serialNumbers = explode(',', $line->serial_number);
                     $serialNumbers = array_map('trim', $serialNumbers);
 
-                    $processedSerialNumbers = [];
                     $allocations = [];
                     $lineNbr = 0;
 
-                    if (count($processedSerialNumbers) < count($serialNumbers)) {
-                        for ($i = count($processedSerialNumbers);$i < count($serialNumbers);$i++) {
-                            $lineNbr++;
-
-                            $allocations[] = [
-                                'operation' => 'Insert',
-                                'lineNbr' => ['value' => $lineNbr],
-                                'lotSerialNumber' => ['value' => $serialNumbers[$i]],
-                                'quantity' => ['value' => 1]
-                            ];
+                    // Update existing allocations
+                    foreach ($vismaShipment['shipmentDetailLines'] as $vismaLine) {
+                        if ($vismaLine['lineNumber'] != $line->line_number) {
+                            continue;
                         }
+
+                        foreach (($vismaLine['allocations'] ?? []) as $existingAllocation) {
+                            $allocations[] = [
+                                'operation' => 'Update',
+                                'lineNbr' => $existingAllocation['lineNbr'],
+                                'quantity' => ['value' => 1],
+                                'lotSerialNumber' => ['value' => ($serialNumbers[0] ?? '')],
+                            ];
+
+                            if ($existingAllocation['lineNbr'] > $lineNbr) {
+                                $lineNbr = $existingAllocation['lineNbr'];
+                            }
+
+                            array_shift($serialNumbers);
+                        }
+
+                        break;
+                    }
+
+                    // Add new serial numbers
+                    for ($i = 0;$i < ($line->picked_quantity - count($allocations));$i++) {
+                        $lineNbr++;
+
+                        $allocations[] = [
+                            'operation' => 'Insert',
+                            'lineNbr' => ['value' => $lineNbr],
+                            'quantity' => ['value' => 1],
+                            'lotSerialNumber' => ['value' => ($serialNumbers[0] ?? '')],
+                        ];
+
+                        array_shift($serialNumbers);
                     }
 
                     if (count($allocations) > 0) {
