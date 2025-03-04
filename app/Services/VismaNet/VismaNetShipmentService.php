@@ -136,6 +136,19 @@ class VismaNetShipmentService extends VismaNetApiService
                     $serialNumbers = explode(',', $line->serial_number);
                     $serialNumbers = array_map('trim', $serialNumbers);
 
+                    // Make sure the serial numbers are unique
+                    $checkedSerialNumbers = [];
+                    for ($i = 0;$i < count($serialNumbers);$i++) {
+                        $newSerialNumber = $serialNumbers[$i];
+
+                        if (in_array($newSerialNumber, $checkedSerialNumbers)) {
+                            $newSerialNumber .= str_replace('.', '', microtime(true)) . rand(1, 9_999_999_999);
+                        }
+
+                        $serialNumbers[$i] = $newSerialNumber;
+                        $checkedSerialNumbers[] = $newSerialNumber;
+                    }
+
                     $allocations = [];
                     $lineNbr = 0;
 
