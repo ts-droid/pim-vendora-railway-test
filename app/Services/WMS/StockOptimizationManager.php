@@ -196,6 +196,8 @@ class StockOptimizationManager
                                 }
                             }
                         }
+
+                        $toplistIndex++;
                     }
                 }
             }
