@@ -107,7 +107,7 @@ class StockOptimizationManager
 
                     $this->printLine('Processing compartment index ' . $i);
 
-                    while ($failCount < 200) {
+                    while ($failCount < 1000) {
                         $article = $this->articles[$toplistIndex] ?? null;
                         if (!$article) {
                             $this->printLine('No more articles found to fill.');
@@ -130,42 +130,133 @@ class StockOptimizationManager
 
                         $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
 
-                        $stockLeftToMove = $stockData['stock'] - $stockData['managed_stock'];
-                        $stockLeftToMove = max(0, $stockLeftToMove);
+                        // Fill using unmanaged stock if possible
+                        $unmanagedStock = $stockData['stock'] - $stockData['managed_stock'];
 
-                        $fillCount = floor($freeVolume / $articleVolume);
-                        $fillCount = min($fillCount, $stockLeftToMove);
+                        if ($unmanagedStock > 0) {
+                            // Fill using unmanaged stock
+                            $stockLeftToMove = max(0, $unmanagedStock);
 
-                        if (!$fillCount) {
-                            $toplistIndex++;
-                            $failCount++;
-                            $this->printLine('Article has no fill count.');
-                            continue;
+                            $fillCount = floor($freeVolume / $articleVolume);
+                            $fillCount = min($fillCount, $stockLeftToMove);
+
+                            if ($fillCount > 0) {
+                                $this->makeStockMovement(
+                                    $article->article_number,
+                                    0,
+                                    $compartment->id,
+                                    $fillCount,
+                                    self::MOVEMENT_TYPE_ORGANIZATION
+                                );
+
+                                $stockData['managed_stock'] += $fillCount;
+                                $stockData['has_main_placement'] = true;
+
+                                $occupiedVolumeOverall += ($articleVolume * $fillCount);
+
+                                $toplistIndex++;
+
+                                break;
+                            }
                         }
 
-                        $this->makeStockMovement(
-                            $article->article_number,
-                            0,
-                            $compartment->id,
-                            $fillCount,
-                            self::MOVEMENT_TYPE_ORGANIZATION
-                        );
+                        // Try to fill using managed stock instead
+                        $locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
+                        foreach ($locations as $location) {
+                            if ($location['identifier'] == '--') {
+                                continue;
+                            }
 
-                        $stockData['managed_stock'] += $fillCount;
-                        $stockData['has_main_placement'] = true;
+                            $stockLeftToMove = max(0, $location['stock']);
 
-                        $occupiedVolumeOverall += ($articleVolume * $fillCount);
+                            $fillCount = floor($freeVolume / $articleVolume);
+                            $fillCount = min($fillCount, $stockLeftToMove);
 
-                        $toplistIndex++;
+                            if ($fillCount > 0) {
+                                $lookup = WarehouseHelper::getStockPlaceAndCompartment($location['identifier']);
 
-                        break;
+                                $fromStockPlaceCompartment = $lookup['stock_place_compartment'] ?? null;
+
+                                if ($fromStockPlaceCompartment) {
+                                    $this->makeStockMovement(
+                                        $article->article_number,
+                                        $fromStockPlaceCompartment->id,
+                                        $compartment->id,
+                                        $fillCount,
+                                        self::MOVEMENT_TYPE_ORGANIZATION
+                                    );
+
+                                    $stockData['has_main_placement'] = true;
+
+                                    $occupiedVolumeOverall += ($articleVolume * $fillCount);
+
+                                    $toplistIndex++;
+
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
 
-        // TODO: Try to fill stock places from managed stock
+        // Try to fill stock places from managed stock
+        foreach ($this->stockPlaces as $stockPlace) {
+
+            $stockPlaceConfig = $this->getStockPlaceConfig($stockPlace);
+
+            foreach ($stockPlace->compartments as $compartment) {
+                if ($compartment->is_manual || $compartment->is_reserved() || in_array($compartment->id, $unleashCompartmentIDs)) {
+                    continue;
+                }
+
+                $toplistIndex = 0;
+
+                $uniqueStockItems = $compartment->stockItems->pluck('article_number')->unique();
+                $totalSections = $compartment->sections->count() ?: 1;
+
+                if ($uniqueStockItems->count() >= $totalSections) {
+                    // No empty compartments
+                    continue;
+                }
+
+                $compartmentVolume = ($compartment->height / 100) * ($compartment->width / 100) * ($compartment->depth / 100);
+                $maxVolume = $compartmentVolume * ($stockPlaceConfig['max_volume'] / 100);
+
+                $sectionVolume = $compartmentVolume / $totalSections;
+                $maxSectionVolume = $sectionVolume * ($stockPlaceConfig['max_volume'] / 100);
+
+                $occupiedVolumeOverall = $this->getOccupiedVolume($compartment);
+
+                $emptySections = $totalSections - $uniqueStockItems->count();
+
+                for ($i = 0;$i < $emptySections;$i++) {
+                    $failCount = 0;
+
+                    while ($failCount < 1000) {
+                        $article = $this->articles[$toplistIndex] ?? null;
+                        if (!$article) {
+                            break 3;
+                        }
+
+                        $this->initStockData($article);
+                        $stockData = &$this->stockData[$article->article_number];
+
+                        if ($stockData['has_main_placement'] || !$stockData['managed_stock']) {
+                            $topListIndex++;
+                            $failCount++;
+                            continue;
+                        }
+
+                        $articleVolume = ($article->height / 1000) * ($article->width / 1000) * ($article->depth / 1000);
+
+                        $freeVolume = min($maxSectionVolume, ($maxVolume - $occupiedVolumeOverall));
+                    }
+                }
+            }
+        }
 
 
         // Try to refill stock places from unmanaged stock
