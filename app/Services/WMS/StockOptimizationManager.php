@@ -192,7 +192,7 @@ class StockOptimizationManager
 
                                     $toplistIndex++;
 
-                                    break;
+                                    break 2;
                                 }
                             }
                         }
