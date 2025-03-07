@@ -148,44 +148,51 @@ class WarehouseHelper
             self::classToColor('C'),
         ];
 
-        $articleLocations = [];
-        $managedStock = 0;
-
         $articleData = DB::table('articles')
             ->select('stock_manageable', 'inner_box', 'master_box')
             ->where('article_number', $articleNumber)
             ->first();
 
+        if (!$articleData) {
+            return [];
+        }
+
         $masterBox = $articleData->master_box ?: 1;
         $innerBox = $articleData->inner_box ?: 1;
         $isBoxCount = (($masterBox > 1) && (($quantity % $masterBox) == 0)) || (($innerBox > 1) && (($quantity % $innerBox) == 0));
 
+        // Fetch stock places with compartments and items in a single query
         $stockPlaces = StockPlace::whereIn('color', $colors)
-            ->orderByRaw("FIELD(color, ?, ?, ?)", $colors)
-            ->orderBy('identifier', 'ASC')
             ->where('is_active', 1)
-            ->get();
+            ->with(['compartments.stockItems' => function ($query) use ($articleNumber) {
+                $query->where('article_number', $articleNumber);
+            }])
+            ->get()
+            ->sortBy(function ($stockPlace) use ($colors) {
+                return array_search($stockPlace->color, $colors);
+            });
 
+        $articleLocations = [];
+        $managedStock = 0;
+
+        // Process stock places and compartments
         foreach ($stockPlaces as $stockPlace) {
             foreach ($stockPlace->compartments as $compartment) {
-                $stockItemsCount = StockItem::where('article_number', $articleNumber)
-                    ->where('stock_place_compartment_id', $compartment->id)
-                    ->count();
-
-                $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
+                $stockItemsCount = $compartment->stockItems->count();
 
                 if ($stockItemsCount > 0) {
+                    $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
                     $articleLocations[] = [
                         'identifier' => $identifier,
                         'stock' => $stockItemsCount,
                         'class' => self::colorToClass($stockPlace->color)
                     ];
-
                     $managedStock += $stockItemsCount;
                 }
             }
         }
 
+        // Add unmanaged stock
         $unmanagedStock = $articleData->stock_manageable - $managedStock;
         if ($unmanagedStock > 0) {
             $articleLocations[] = [
@@ -195,26 +202,24 @@ class WarehouseHelper
             ];
         }
 
-        // Check if we can use a single compartment
+        // Check if a single compartment is sufficient
         foreach ($articleLocations as $location) {
             if ($location['class'] === 'A') {
                 if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
                     return [$location['identifier']];
                 }
-            }
-            else {
+            } else {
                 if ($quantity <= $location['stock']) {
                     return [$location['identifier']];
                 }
             }
         }
 
-        // We must use a combination of compartments
+        // If multiple compartments are needed, aggregate stock
         $collectedStock = 0;
         $identifiers = [];
 
-        $articleLocations = array_reverse($articleLocations);
-        foreach ($articleLocations as $location) {
+        foreach (array_reverse($articleLocations) as $location) {
             $collectedStock += $location['stock'];
             $identifiers[] = $location['identifier'];
 
