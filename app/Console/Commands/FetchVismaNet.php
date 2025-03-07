@@ -13,6 +13,7 @@ use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\VismaNet\VismaNetTransactionService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Process;
 
 class FetchVismaNet extends Command
 {
@@ -120,28 +121,22 @@ class FetchVismaNet extends Command
 
             case 'quick':
                 $this->info('Fetching purchase orders...');
-                Artisan::call('visma:fetch', ['type' => 'purchase-orders']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch purchase-orders');
 
                 $this->info('Fetching purchase receipts...');
-                Artisan::call('visma:fetch', ['type' => 'purchase-receipts']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch purchase-receipts');
 
                 $this->info('Fetching inventory receipts...');
-                Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch inventory-receipts');
 
                 $this->info('Fetching sales orders...');
-                Artisan::call('visma:fetch', ['type' => 'sales-orders']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch sales-orders');
 
                 $this->info('Fetching shipments...');
-                Artisan::call('visma:fetch', ['type' => 'shipments']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch shipments');
 
                 $this->info('Fetching purchase articles...');
-                Artisan::call('visma:fetch', ['type' => 'articles']);
-                $this->line(Artisan::output());
+                Process::run('php artisan visma:fetch articles');
                 break;
 
             case 'all':
