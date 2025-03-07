@@ -42,14 +42,21 @@ class VismaNetTransactionService extends VismaNetApiService
 
         foreach ($transactions as $transaction) {
             $accountNumber = $transaction['account']['number'] ?? '';
+            $lineNumber = $transaction['lineNumber'] ?? '';
+            $batchNumber = $transaction['batchNumber'] ?? '';
+            $transactionDate = $transaction['tranDate'] ?? '';
 
-            $debitAmount = $transaction['debitAmount'];
-            $creditAmount = $transaction['creditAmount'];
+            if (!$lineNumber || !$batchNumber || !$accountNumber || !$transactionDate) {
+                continue;
+            }
 
-            if ($transaction['currDebitAmount']) {
+            $debitAmount = $transaction['debitAmount'] ?? 0;
+            $creditAmount = $transaction['creditAmount'] ?? 0;
+
+            if ($transaction['currDebitAmount'] ?? 0) {
                 $currencyRate = $transaction['debitAmount'] / $transaction['currDebitAmount'];
             }
-            elseif ($transaction['currCreditAmount']) {
+            elseif ($transaction['currCreditAmount'] ?? 0) {
                 $currencyRate = $transaction['creditAmount'] / $transaction['currCreditAmount'];
             }
             else {
@@ -57,12 +64,12 @@ class VismaNetTransactionService extends VismaNetApiService
             }
 
             $transactionService->saveTransaction([
-                'transaction_id' => $transaction['lineNumber'] . '_' . $transaction['batchNumber'] . '_' . $accountNumber . '_' . $transaction['tranDate'],
-                'date' => date('Y-m-d', strtotime($transaction['tranDate'])),
+                'transaction_id' => $lineNumber . '_' . $batchNumber . '_' . $accountNumber . '_' . $transactionDate,
+                'date' => date('Y-m-d', strtotime($transactionDate)),
                 'account' => (string) $accountNumber,
                 'debit' => (float) $debitAmount,
                 'credit' => (float) $creditAmount,
-                'currency' => $transaction['currency'],
+                'currency' => ($transaction['currency'] ?? ''),
                 'currency_rate' => $currencyRate,
             ]);
         }

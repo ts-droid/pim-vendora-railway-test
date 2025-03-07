@@ -73,10 +73,14 @@ class VismaNetCustomerInvoiceService extends VismaNetApiService
         if ($applications) {
             foreach ($applications as $application) {
                 $docType = $application['docType'] ?? '';
-                $applicationDate = date('Y-m-d', strtotime($application['applicationDate']));
+                $applicationDate = isset($application['applicationDate']) ? date('Y-m-d', strtotime($application['applicationDate'])) : null;
                 $applicationAmount = (float) ($application['amountPaid'] ?? 0);
 
                 if ($docType !== 'PMT') {
+                    continue;
+                }
+
+                if (!$applicationDate) {
                     continue;
                 }
 

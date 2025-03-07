@@ -509,7 +509,7 @@ class VismaNetController extends Controller
                         $stockLocationName = trim($stock['location']['name'] ?? '');
 
                         if ($stockLocationName === '1') {
-                            $updateData['stock_manageable'] += $stock['onHand'];
+                            $updateData['stock_manageable'] += ($stock['onHand'] ?? 0);
                             break;
                         }
                     }

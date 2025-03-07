@@ -50,7 +50,7 @@ class VismaNetCustomerPaymentService extends VismaNetApiService
             'reference_number' => $payment['refNbr'] ?? '',
             'status' => $payment['status'] ?? '',
             'customer_number' => ($payment['customer']['number'] ?? ''),
-            'application_date' => date('Y-m-d', strtotime($payment['applicationDate'])),
+            'application_date' => date('Y-m-d', strtotime($payment['applicationDate'] ?? '')),
             'payment_reference' => $payment['paymentRef'] ?? '',
             'currency' => $payment['currency'] ?? '',
             'payment_amount' => $payment['paymentAmount'] ?? 0,

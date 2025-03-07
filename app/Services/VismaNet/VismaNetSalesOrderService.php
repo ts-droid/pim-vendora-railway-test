@@ -67,33 +67,38 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'order_type' => (string) $order['orderType'],
             'order_number' => (string) $order['orderNo'],
             'customer_ref_no' => (string) ($order['customerRefNo'] ?? ''),
-            'status' => (string) $order['status'],
+            'status' => (string) ($order['status'] ?? ''),
             'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
             'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
-            'date' => (string) $order['date'],
+            'date' => (string) ($order['date'] ?? ''),
             'customer' => (string) ($order['customer']['internalId'] ?? ''),
-            'currency' => (string) $order['currency'],
-            'order_total' => (float) $order['orderTotal'],
-            'exchange_rate' => (float) $order['exchangeRate'],
+            'currency' => (string) ($order['currency'] ?? ''),
+            'order_total' => (float) ($order['orderTotal'] ?? 0),
+            'exchange_rate' => (float) ($order['exchangeRate'] ?? 0),
             'note' => (string) ($order['note'] ?? ''),
             'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
             'lines' => [],
         ];
 
         foreach (($order['lines'] ?? []) as $line) {
-            $articleNumber = $line['inventory']['number'];
+            $articleNumber = $line['inventory']['number'] ?? '';
+            $lineNumber = $line['lineNbr'] ?? '';
+
+            if (!$articleNumber || !$lineNumber) {
+                continue;
+            }
 
             $orderData['lines'][] = [
-                'line_number' => $line['lineNbr'],
+                'line_number' => $lineNumber,
                 'article_number' => $articleNumber,
                 'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
                 'sales_person' => ($line['salesPerson']['id'] ?? ''),
-                'quantity' => (int) $line['quantity'],
+                'quantity' => (int) ($line['quantity'] ?? 0),
                 'quantity_on_shipments' => (int) ($line['qtyOnShipments'] ?? 0),
                 'quantity_open' => (int) ($line['openQty'] ?? 0),
-                'unit_cost' => (float) $line['unitCost'],
-                'unit_price' => (float) $line['unitPrice'],
-                'unbilled_amount' => (float) $line['unbilledAmount'],
+                'unit_cost' => (float) ($line['unitCost'] ?? 0),
+                'unit_price' => (float) ($line['unitPrice'] ?? 0),
+                'unbilled_amount' => (float) ($line['unbilledAmount'] ?? 0),
                 'description' => (string) ($line['lineDescription'] ?? ''),
                 'is_completed' => (int) ($line['completed'] ?? 0),
             ];
