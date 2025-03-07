@@ -369,6 +369,8 @@ class VismaNetController extends Controller
         if (!$orderNumber && $fetchedData) {
             ConfigController::setConfigs(['vismanet_last_purchase_orders_fetch' => $fetchTime]);
         }
+
+        echo 'DONE';
     }
 
     public function fetchCustomerCreditNotes(string $updatedAfter = ''): void
