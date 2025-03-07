@@ -121,21 +121,27 @@ class FetchVismaNet extends Command
             case 'quick':
                 $this->info('Fetching purchase orders...');
                 Artisan::call('visma:fetch', ['type' => 'purchase-orders']);
+                $this->line(Artisan::output());
 
                 $this->info('Fetching purchase receipts...');
                 Artisan::call('visma:fetch', ['type' => 'purchase-receipts']);
+                $this->line(Artisan::output());
 
                 $this->info('Fetching inventory receipts...');
                 Artisan::call('visma:fetch', ['type' => 'inventory-receipts']);
+                $this->line(Artisan::output());
 
                 $this->info('Fetching sales orders...');
                 Artisan::call('visma:fetch', ['type' => 'sales-orders']);
+                $this->line(Artisan::output());
 
                 $this->info('Fetching shipments...');
                 Artisan::call('visma:fetch', ['type' => 'shipments']);
+                $this->line(Artisan::output());
 
                 $this->info('Fetching purchase articles...');
                 Artisan::call('visma:fetch', ['type' => 'articles']);
+                $this->line(Artisan::output());
                 break;
 
             case 'all':
