@@ -104,39 +104,52 @@ class FetchVismaNet extends Command
 
             case 'daily':
                 // Fetch all data from Visma
-                Artisan::call('visma:fetch', ['type' => 'customers']);
-                Artisan::call('visma:fetch', ['type' => 'sales-persons']);
-                Artisan::call('visma:fetch', ['type' => 'suppliers']);
-                Artisan::call('visma:fetch', ['type' => 'currency']);
-                Artisan::call('visma:fetch', ['type' => 'transactions']);
-                Artisan::call('visma:fetch', ['type' => 'invoices']);
+                $this->info('Fetching customers...');
+                Process::timeout(7200)->run('php artisan visma:fetch customers');
+
+                $this->info('Fetching sales persons...');
+                Process::timeout(7200)->run('php artisan visma:fetch sales-persons');
+
+                $this->info('Fetching suppliers...');
+                Process::timeout(7200)->run('php artisan visma:fetch suppliers');
+
+                $this->info('Fetching currency...');
+                Process::timeout(7200)->run('php artisan visma:fetch currency');
+
+                $this->info('Fetching transactions...');
+                Process::timeout(7200)->run('php artisan visma:fetch transactions');
+
+                $this->info('Fetching invoices...');
+                Process::timeout(7200)->run('php artisan visma:fetch invoices');
 
                 // Calculate customer credit values
+                $this->info('Calculating customer credit balance...');
                 $this->calculateCustomersCreditBalance();
                 break;
 
             case 'hourly':
-                Artisan::call('visma:fetch', ['type' => 'credit-notes']);
+                $this->info('Fetching credit notes...');
+                Process::timeout(3600)->run('php artisan visma:fetch credit-notes');
                 break;
 
             case 'quick':
                 $this->info('Fetching purchase orders...');
-                Process::run('php artisan visma:fetch purchase-orders');
+                Process::timeout(300)->run('php artisan visma:fetch purchase-orders');
 
                 $this->info('Fetching purchase receipts...');
-                Process::run('php artisan visma:fetch purchase-receipts');
+                Process::timeout(300)->run('php artisan visma:fetch purchase-receipts');
 
                 $this->info('Fetching inventory receipts...');
-                Process::run('php artisan visma:fetch inventory-receipts');
+                Process::timeout(300)->run('php artisan visma:fetch inventory-receipts');
 
                 $this->info('Fetching sales orders...');
-                Process::run('php artisan visma:fetch sales-orders');
+                Process::timeout(300)->run('php artisan visma:fetch sales-orders');
 
                 $this->info('Fetching shipments...');
-                Process::run('php artisan visma:fetch shipments');
+                Process::timeout(300)->run('php artisan visma:fetch shipments');
 
-                $this->info('Fetching purchase articles...');
-                Process::run('php artisan visma:fetch articles');
+                $this->info('Fetching articles...');
+                Process::timeout(600)->run('php artisan visma:fetch articles');
                 break;
 
             case 'all':
