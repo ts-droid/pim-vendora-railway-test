@@ -869,7 +869,7 @@ class VismaNetController extends Controller
      * @param array $params
      * @return array
      */
-    private function getPagedResult(string $endpoint, array $params = []): array
+    public function getPagedResult(string $endpoint, array $params = []): array
     {
         $params['pageSize'] = self::PAGE_SIZE;
 
