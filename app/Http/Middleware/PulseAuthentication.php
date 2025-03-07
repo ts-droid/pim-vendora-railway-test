@@ -17,7 +17,8 @@ class PulseAuthentication
     public function handle(Request $request, Closure $next): Response
     {
         $allowedIPs = [
-            '95.143.200.80'
+            '95.143.200.80',
+            '213.21.125.167' // Majoren FC
         ];
 
         if (!App::isLocal() && !in_array(get_user_ip(), $allowedIPs)) {
