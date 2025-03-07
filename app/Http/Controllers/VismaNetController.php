@@ -297,6 +297,8 @@ class VismaNetController extends Controller
             $orders = $this->getPagedResult('/v1/purchaseorder', $params);
         }
 
+        echo 'Fetched purchase orders: ' . count($orders);
+
         if ($orders) {
             $orderController = new PurchaseOrderController();
 
