@@ -75,32 +75,36 @@ class PromptAPIController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'prompt_id' => 'required',
-            'inputs' => 'required',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'prompt_id' => 'required',
+                'inputs' => 'required',
+            ]);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
 
-            return ApiResponseController::error($errors[0]);
+                return ApiResponseController::error($errors[0]);
+            }
+
+            $inputs = $request->input('inputs');
+            $inputs = $inputs ? json_decode($inputs, true) : [];
+
+            $promptController = new PromptController();
+            $prompt = $promptController->store(
+                $request->input('prompt_id'),
+                $request->input('system_code'),
+                $request->input('group'),
+                $request->input('name'),
+                $request->input('system'),
+                $request->input('message'),
+                $inputs
+            );
+
+            return ApiResponseController::success($prompt->toArray());
+        } catch (\Exception $e) {
+            return ApiResponseController::error($e->getMessage());
         }
-
-        $inputs = $request->input('inputs');
-        $inputs = $inputs ? json_decode($inputs, true) : [];
-
-        $promptController = new PromptController();
-        $prompt = $promptController->store(
-            $request->input('prompt_id'),
-            $request->input('system_code'),
-            $request->input('group'),
-            $request->input('name'),
-            $request->input('system'),
-            $request->input('message'),
-            $inputs
-        );
-
-        return ApiResponseController::success($prompt->toArray());
     }
 
     public function getAll(Request $request)
