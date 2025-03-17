@@ -43,6 +43,7 @@ class AIController extends Controller
                 switch ($type) {
                     case 'openai':
                     case 'perplexity':
+                    case 'deepseek':
                         echo $data;
                         if (ob_get_length() !== false) {
                             ob_flush();

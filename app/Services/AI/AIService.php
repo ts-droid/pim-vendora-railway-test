@@ -19,6 +19,9 @@ class AIService
         else if (str_starts_with($model, 'pplx') || str_starts_with($model, 'llama')) {
             $this->aiService = new PerplexityService($model);
         }
+        else if (str_starts_with($model, 'deepseek')) {
+            $this->aiService = new DeepSeekService($model);
+        }
         else {
             $this->aiService = new OpenAIService($model);
         }
