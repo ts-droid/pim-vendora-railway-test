@@ -125,6 +125,13 @@ class PromptAPIController extends Controller
         return ApiResponseController::success($prompt->toArray());
     }
 
+    public function delete(Request $request, Prompt $prompt)
+    {
+        $prompt->delete();
+
+        return ApiResponseController::success();
+    }
+
     public function getBySystemCode(Request $request)
     {
         $validator = Validator::make($request->all(), [

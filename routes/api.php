@@ -124,6 +124,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/store', [PromptAPIController::class, 'store'])->name('prompt.store');
         Route::get('/get', [PromptAPIController::class, 'getAll'])->name('prompt.getAll');
         Route::get('/get/{prompt}', [PromptAPIController::class, 'get'])->name('prompt.get');
+        Route::post('/get/{prompt}/delete', [PromptAPIController::class, 'delete'])->name('prompt.delete');
         Route::get('/get-system-code', [PromptAPIController::class, 'getBySystemCode'])->name('prompt.getBySystemCode');
         Route::get('/group', [PromptAPIController::class, 'getGroup'])->name('prompt.getGroup');
     });
