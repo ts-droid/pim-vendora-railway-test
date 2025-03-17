@@ -102,7 +102,7 @@ class PromptAPIController extends Controller
             );
 
             return ApiResponseController::success($prompt->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
         }
     }
