@@ -104,6 +104,11 @@ class SupplierController extends Controller
         return ApiResponseController::success([$supplier->toArray()]);
     }
 
+    public function getSupplier(Supplier $supplier)
+    {
+        return ApiResponseController::success($supplier->toArray());
+    }
+
     public function update(Request $request, Supplier $supplier)
     {
         $fillables = (new Supplier)->getFillable();
