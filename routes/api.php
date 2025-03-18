@@ -174,6 +174,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/suppliers')->group(function() {
         Route::get('/', [SupplierController::class, 'get'])->name('suppliers.get');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::get('/basic', [SupplierController::class, 'getBasic'])->name('suppliers.getBasic');
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
         Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
     });
