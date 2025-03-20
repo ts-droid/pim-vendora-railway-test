@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class MarkArticleEOL implements ShouldQueue
 {
@@ -37,6 +38,11 @@ class MarkArticleEOL implements ShouldQueue
         $vismaService = new VismaNetApiService();
 
         foreach ($this->articleNumbers as $articleNumber) {
+            // Mark article as EOL in database
+            DB::table('articles')
+                ->where('article_number', $articleNumber)
+                ->update(['status' => 'NoPurchases']);
+
             // Mark articles as EOL in WGR
             $wgrController->updateArticle($articleNumber, ['eol' => true]);
 
