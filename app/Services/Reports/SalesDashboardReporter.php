@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use App\Models\SalesPerson;
 use App\Services\CustomerCreditService;
 use App\Services\TransactionService;
 use App\Services\WGR\WGROrderQueueService;
@@ -478,6 +479,30 @@ class SalesDashboardReporter
         return $orderPipeline;
     }
 
+    public function getSalesPersonsToplist(): array
+    {
+        $invoiceLines = $this->getInvoiceLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
+        $toplist = [];
+
+        foreach ($invoiceLines as $invoiceLine) {
+            if (!isset($toplist[$invoiceLine->sales_person_id])) {
+                $toplist[$invoiceLine->sales_person_id] = [
+                    'sales_person_id' => $invoiceLine->sales_person_id,
+                    'sales_person_name' => SalesPerson::where('id', $invoiceLine->sales_person_id)->value('name'),
+                    'amount' => 0,
+                ];
+            }
+
+            $toplist[$invoiceLine->sales_person_id] += $invoiceLine->amount;
+        }
+
+        return $toplist;
+    }
+
     public function getCountryChart(array $topCustomers): array
     {
         // Generate country chart
@@ -635,6 +660,7 @@ class SalesDashboardReporter
                 'customer_invoice_lines.unit_price',
                 'customer_invoice_lines.amount',
                 'customer_invoice_lines.cost',
+                'customer_invoice_lines.sales_person_id',
                 'customer_invoices.date',
                 'articles.description AS article_name'
             )
