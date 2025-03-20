@@ -120,6 +120,11 @@ class SalesDashboardReporter
             ),
         ];
 
+        $lastYearMonthSummary = $this->getSalesData(
+            date('Y-01-01 00:00:00', strtotime('-1 year')),
+            date('Y-m-t 23:59:59', strtotime('-1 year')),
+        );
+
         $yearSummary = [
             'current' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
@@ -185,6 +190,10 @@ class SalesDashboardReporter
                     'amount_shipping' => $lastYearToDateSummary['current']['turnover_shipping'],
                     'change' => $lastYearToDateTurnoverChange,
                 ],
+                'last_year_month' => [
+                    'amount' => $lastYearMonthSummary['turnover'],
+                    'diff' => $periodSummary['current']['turnover'] - $lastYearMonthSummary['turnover'],
+                ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
                     'amount_shipping' => $yearSummary['current']['turnover_shipping'],
@@ -208,6 +217,9 @@ class SalesDashboardReporter
                     'amount_shipping' => $lastYearToDateSummary['current']['margin_shipping'],
                     'change' => $lastYearToDateMarginChange,
                 ],
+                'last_year_month' => [
+                    'amount' => $lastYearMonthSummary['margin'],
+                ],
                 'year' => [
                     'amount' => $yearSummary['current']['margin'],
                     'amount_shipping' => $yearSummary['current']['margin_shipping'],
@@ -230,6 +242,10 @@ class SalesDashboardReporter
                     'amount' => $lastYearToDateSummary['current']['profit'],
                     'amount_shipping' => $lastYearToDateSummary['current']['profit_shipping'],
                     'change' => $lastYearToDateProfitChange,
+                ],
+                'last_year_month' => [
+                    'amount' => $lastYearMonthSummary['profit'],
+                    'diff' => $periodSummary['current']['profit'] - $lastYearMonthSummary['profit'],
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
