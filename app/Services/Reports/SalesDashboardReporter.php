@@ -497,7 +497,7 @@ class SalesDashboardReporter
                 ];
             }
 
-            $toplist[$invoiceLine->sales_person_id] += $invoiceLine->amount;
+            $toplist[$invoiceLine->sales_person_id]['amount'] += $invoiceLine->amount;
         }
 
         return $toplist;
