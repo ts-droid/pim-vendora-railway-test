@@ -121,8 +121,8 @@ class SalesDashboardReporter
         ];
 
         $lastYearMonthSummary = $this->getSalesData(
-            date('Y-01-01 00:00:00', strtotime('-1 year')),
-            date('Y-m-t 23:59:59', strtotime('-1 year')),
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-t 23:59:59', strtotime($this->period[1]))
         );
 
         $yearSummary = [
