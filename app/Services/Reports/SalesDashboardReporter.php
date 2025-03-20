@@ -490,15 +490,25 @@ class SalesDashboardReporter
 
         foreach ($invoiceLines as $invoiceLine) {
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
+                $name = SalesPerson::where('id', $invoiceLine->sales_person_id)->value('name');
+                if (!$name) {
+                    continue;
+                }
+
                 $toplist[$invoiceLine->sales_person_id] = [
                     'sales_person_id' => $invoiceLine->sales_person_id,
-                    'sales_person_name' => SalesPerson::where('id', $invoiceLine->sales_person_id)->value('name'),
+                    'sales_person_name' => $name,
                     'amount' => 0,
                 ];
             }
 
             $toplist[$invoiceLine->sales_person_id]['amount'] += $invoiceLine->amount;
         }
+
+        // Sort toplist by amount
+        usort($toplist, function ($item1, $item2) {
+            return $item2['amount'] <=> $item1['amount'];
+        });
 
         return $toplist;
     }
