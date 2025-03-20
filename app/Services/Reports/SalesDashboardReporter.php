@@ -490,7 +490,7 @@ class SalesDashboardReporter
 
         foreach ($invoiceLines as $invoiceLine) {
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
-                $name = SalesPerson::where('id', $invoiceLine->sales_person_id)->value('name');
+                $name = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->value('name');
                 if (!$name) {
                     continue;
                 }
