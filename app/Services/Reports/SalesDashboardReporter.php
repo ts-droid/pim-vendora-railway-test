@@ -492,6 +492,11 @@ class SalesDashboardReporter
             }
         }
 
+        // Sort order pipeline by shipping date
+        usort($orderPipeline, function ($item1, $item2) {
+            return strtotime($item1['shipping_date']) <=> strtotime($item2['shipping_date']);
+        });
+
         return $orderPipeline;
     }
 
