@@ -178,8 +178,6 @@ class PurchaseOrderGenerator
             }
         }
 
-        $generatePurchaseOrder = true;
-
         if (!$generatePurchaseOrder) {
             return false;
         }
