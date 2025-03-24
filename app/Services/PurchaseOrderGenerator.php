@@ -160,7 +160,7 @@ class PurchaseOrderGenerator
             $lastPurchaseOrderTime = $this->getSupplierLastOrder($supplier);
 
             // Check if the supplier has any "VIP orders"
-            $vipSalesOrders = $this->getVIPSalesOrders(
+            /*$vipSalesOrders = $this->getVIPSalesOrders(
                 $supplier,
                 ($lastPurchaseOrderTime ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
                 date('Y-m-d H:i:s')
@@ -168,7 +168,9 @@ class PurchaseOrderGenerator
 
             if ($vipSalesOrders->count()) {
                 $generatePurchaseOrder = true;
-            }
+            }*/
+
+            $vipSalesOrders = collect();
 
             // Check when last we last tries to generate an order for this supplier
             if (!$lastPurchaseOrderTime
