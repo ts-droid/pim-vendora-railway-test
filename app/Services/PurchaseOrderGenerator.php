@@ -223,6 +223,7 @@ class PurchaseOrderGenerator
         $purchaseOrder = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
             ->where('status', '=', 'Draft')
             ->where('is_po_system', '=', 1)
+            ->whwre('is_sent', '=', 0)
             ->first();
 
         $isNewOrder = true;
@@ -247,7 +248,7 @@ class PurchaseOrderGenerator
                         'amount' => ($purchaseOrderLine->unit_cost * $newQuantity),
                     ]);
 
-                    break;
+                    break 2;
                 }
 
                 // Create a new order line if it doesn't exist
