@@ -250,7 +250,7 @@ class PurchaseOrderGenerator
                         'amount' => ($purchaseOrderLine->unit_cost * $newQuantity),
                     ]);
 
-                    break 2;
+                    continue 2;
                 }
 
                 // Create a new order line if it doesn't exist
