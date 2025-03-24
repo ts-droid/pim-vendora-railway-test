@@ -217,44 +217,85 @@ class PurchaseOrderGenerator
             }
         }
 
-        $newOrderNumber = PurchaseOrder::where('order_number', 'NOT LIKE', '%OLD-%')
-            ->get()
-            ->max('order_number');
-        $newOrderNumber = intval($newOrderNumber) + 1;
+        // Check if we have a draft purchase order for this supplier
+        $purchaseOrder = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
+            ->where('status', '=', 'Draft')
+            ->where('is_po_system', '=', 1)
+            ->first();
 
-        // Create the purchase order
-        $purchaseOrder = PurchaseOrder::create([
-            'order_number' => $newOrderNumber,
-            'status' => 'Draft',
-            'date' => date('Y-m-d'),
-            'promised_date' => '',
-            'supplier_id' => $supplier->external_id,
-            'supplier_number' => $supplier->number,
-            'supplier_name' => $supplier->name,
-            'currency' => $supplier->currency,
-            'amount' => 0,
-            'is_draft' => 1,
-            'is_vip' => ($vipSalesOrders->count() > 0),
-            'foresight_days' => $this->settings['foresight_days'],
-            'email' => $supplier->email,
-            'is_po_system' => 1,
-            'currency_rate' => round((new CurrencyConvertController)->convert(1, $supplier->currency, 'SEK'), 2),
-        ]);
+        $isNewOrder = true;
 
-        foreach ($orderLines as $orderLine) {
-            $orderLine['purchase_order_id'] = $purchaseOrder->id;
+        if ($purchaseOrder) {
+            // Merge the existing order lines with the new ones
+            $isNewOrder = false;
 
-            PurchaseOrderLine::create($orderLine);
+            foreach ($orderLines as $orderLine) {
+                foreach ($purchaseOrder->lines as $purchaseOrderLine) {
+                    if ($purchaseOrderLine->article_number != $orderLine['article_number']) {
+                        continue;
+                    }
+
+                    $newQuantity = $purchaseOrderLine->quantity;
+                    if ($orderLine['quantity'] > $newQuantity) {
+                        $newQuantity = $orderLine['quantity'];
+                    }
+
+                    $purchaseOrderLine->update([
+                        'quantity' => $newQuantity,
+                        'amount' => ($purchaseOrderLine->unit_cost * $newQuantity),
+                    ]);
+
+                    break;
+                }
+
+                // Create a new order line if it doesn't exist
+                $purchaseOrderLine['purchase_order_id'] = $purchaseOrder->id;
+                PurchaseOrderLine::create($orderLine);
+            }
+        }
+        else {
+            // Create a new purchase order
+            $newOrderNumber = PurchaseOrder::where('order_number', 'NOT LIKE', '%OLD-%')
+                ->get()
+                ->max('order_number');
+            $newOrderNumber = intval($newOrderNumber) + 1;
+
+            // Create the purchase order
+            $purchaseOrder = PurchaseOrder::create([
+                'order_number' => $newOrderNumber,
+                'status' => 'Draft',
+                'date' => date('Y-m-d'),
+                'promised_date' => '',
+                'supplier_id' => $supplier->external_id,
+                'supplier_number' => $supplier->number,
+                'supplier_name' => $supplier->name,
+                'currency' => $supplier->currency,
+                'amount' => 0,
+                'is_draft' => 1,
+                'is_vip' => ($vipSalesOrders->count() > 0),
+                'foresight_days' => $this->settings['foresight_days'],
+                'email' => $supplier->email,
+                'is_po_system' => 1,
+                'currency_rate' => round((new CurrencyConvertController)->convert(1, $supplier->currency, 'SEK'), 2),
+            ]);
+
+            foreach ($orderLines as $orderLine) {
+                $orderLine['purchase_order_id'] = $purchaseOrder->id;
+
+                PurchaseOrderLine::create($orderLine);
+            }
         }
 
         $purchaseOrder->refresh();
 
         // Create a task
-        $taskService = new VendoraAdminTaskService();
-        $taskID = $taskService->createTask('purchase_order', [
-            'purchase_order_id' => $purchaseOrder->id,
-            'supplier_name' => $supplier->name,
-        ]);
+        if ($isNewOrder) {
+            $taskService = new VendoraAdminTaskService();
+            $taskID = $taskService->createTask('purchase_order', [
+                'purchase_order_id' => $purchaseOrder->id,
+                'supplier_name' => $supplier->name,
+            ]);
+        }
 
         return [
             'success' => true,
