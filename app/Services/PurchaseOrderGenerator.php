@@ -224,7 +224,7 @@ class PurchaseOrderGenerator
             ->where('status', '=', 'Draft')
             ->where('is_po_system', '=', 1)
             ->where('is_sent', '=', 0)
-            ->where('is_draft', '=', 0)
+            ->where('is_draft', '=', 1)
             ->where('should_delete', '=', 0)
             ->first();
 
