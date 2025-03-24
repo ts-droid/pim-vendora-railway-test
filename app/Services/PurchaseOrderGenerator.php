@@ -223,7 +223,7 @@ class PurchaseOrderGenerator
         $purchaseOrder = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
             ->where('status', '=', 'Draft')
             ->where('is_po_system', '=', 1)
-            ->whwre('is_sent', '=', 0)
+            ->where('is_sent', '=', 0)
             ->first();
 
         $isNewOrder = true;
