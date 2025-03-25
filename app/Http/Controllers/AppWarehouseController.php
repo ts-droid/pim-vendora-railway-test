@@ -311,9 +311,13 @@ class AppWarehouseController extends Controller
                 ->get();
 
             if ($stockItems->count() > 0) {
-                foreach ($stockItems as $stockItem) {
-                    $stockItemService->removeStockItem($stockItem, $signature);
-                }
+                StockItemMovement::create([
+                    'type' => 'unleash',
+                    'article_number' => $articleNumber,
+                    'from_stock_place_compartment' => $compartmentID,
+                    'to_stock_place_compartment' => 0,
+                    'quantity' => $stockItems->count(),
+                ]);
             }
 
             // Remove all movements
