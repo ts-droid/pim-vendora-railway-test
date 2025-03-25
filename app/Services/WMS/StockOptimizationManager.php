@@ -26,6 +26,7 @@ class StockOptimizationManager
 
     private $stockPlaces;
     private $articles;
+    private $groupedArticles;
 
     public function __construct()
     {
@@ -37,6 +38,7 @@ class StockOptimizationManager
 
         $this->stockPlaces = $this->getStockPlaces();
         $this->articles = $this->getArticles();
+        $this->groupedArticles = $this->getGroupedArticles();
     }
 
     public function optimize(): bool
@@ -80,6 +82,8 @@ class StockOptimizationManager
 
                 $toplistIndex = 0;
 
+                $articles = $this->getArticleGroup($compartment->volume_class);
+
                 $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
                 $this->printLine('Processing ' . $identifier);
 
@@ -108,7 +112,7 @@ class StockOptimizationManager
                     $this->printLine('Processing compartment index ' . $i);
 
                     while ($failCount < 1000) {
-                        $article = $this->articles[$toplistIndex] ?? null;
+                        $article = $articles[$toplistIndex] ?? null;
                         if (!$article) {
                             $this->printLine('No more articles found to fill.');
                             break 3; // No more articles to fill
@@ -530,6 +534,42 @@ class StockOptimizationManager
             ->get();
     }
 
+    private function getArticleGroup(string $group)
+    {
+        if ($group === 'A') {
+            $groups = ['A', 'B', 'C'];
+        }
+        else if ($group === 'B') {
+            $groups = ['B', 'A', 'C'];
+        }
+        else if ($group === 'C') {
+            $groups = ['C', 'B', 'A'];
+        }
+
+        $articles = [];
+
+        foreach ($groups as $group) {
+            $articles = array_merge($articles, $this->groupedArticles[$group]);
+        }
+
+        return array_values($articles);
+    }
+
+    private function getGroupedArticles()
+    {
+        $groupedArticles = [
+            'A' => [],
+            'B' => [],
+            'C' => [],
+        ];
+
+        foreach ($this->articles as $article) {
+            $groupedArticles[$article->classification_volume] = $article;
+        }
+
+        return $groupedArticles;
+    }
+
     private function getArticles()
     {
         // Get articles with an active todo item
@@ -545,7 +585,7 @@ class StockOptimizationManager
         }
 
         return DB::table('articles')
-            ->select(['id', 'article_number', 'stock_manageable AS stock', 'width', 'depth', 'height'])
+            ->select(['id', 'article_number', 'stock_manageable AS stock', 'width', 'depth', 'height', 'classification_volume'])
             ->where('wms_toplist', '>', 0)
             ->where('width', '>', 0)
             ->where('height', '>', 0)
