@@ -289,6 +289,7 @@ class AppWarehouseController extends Controller
         $signature = get_display_name();
 
         $articles = $request->input('articles');
+        $articles = json_decode($articles, true);
 
         if (!is_array($articles) || count($articles) == 0) {
             return ApiResponseController::error('No articles provided.');
