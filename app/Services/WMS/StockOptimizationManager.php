@@ -564,7 +564,7 @@ class StockOptimizationManager
         ];
 
         foreach ($this->articles as $article) {
-            $groupedArticles[$article->classification_volume] = $article;
+            $groupedArticles[$article->classification_volume][] = $article;
         }
 
         return $groupedArticles;
