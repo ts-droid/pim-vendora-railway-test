@@ -284,6 +284,46 @@ class AppWarehouseController extends Controller
         return ApiResponseController::success();
     }
 
+    public function unleashArticles(Request $request)
+    {
+        $signature = get_display_name();
+
+        $articles = $request->input('articles');
+
+        if (!is_array($articles) || count($articles) == 0) {
+            return ApiResponseController::error('No articles provided.');
+        }
+
+        $stockItemService = new StockItemService();
+
+        foreach ($articles as $article) {
+            $articleNumber = $article['article_number'] ?? '';
+            $compartmentID = $article['compartment_id'] ?? 0;
+
+            if (!$articleNumber || !$compartmentID) {
+                continue;
+            }
+
+            // First remove the existing stock items
+            $stockItems = StockItem::where('article_number', $articleNumber)
+                ->where('stock_place_compartment_id', $compartmentID)
+                ->get();
+
+            if ($stockItems->count() > 0) {
+                foreach ($stockItems as $stockItem) {
+                    $stockItemService->removeStockItem($stockItem, $signature);
+                }
+            }
+
+            // Remove all movements
+            StockItemMovement::where('article_number', '=', $articleNumber)
+                ->where('to_stock_place_compartment', '=', $compartmentID)
+                ->delete();
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function pingMovement(StockItemMovement $stockItemMovement)
     {
         $stockItemMovement->update(['ping_at' => time()]);
