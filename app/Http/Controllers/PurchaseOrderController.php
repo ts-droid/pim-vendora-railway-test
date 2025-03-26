@@ -239,6 +239,10 @@ class PurchaseOrderController extends Controller
         // Update the order
         foreach ($requestData as $key => $value) {
             if (in_array($key, $fillables)) {
+                if (!$value) {
+                    continue;
+                }
+
                 $orderUpdateData[$key] = $value;
             }
         }
