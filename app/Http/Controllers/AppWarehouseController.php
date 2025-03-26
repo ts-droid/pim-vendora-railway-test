@@ -317,6 +317,7 @@ class AppWarehouseController extends Controller
                     'from_stock_place_compartment' => $compartmentID,
                     'to_stock_place_compartment' => 0,
                     'quantity' => $stockItems->count(),
+                    'is_persistent' => 1
                 ]);
             }
 

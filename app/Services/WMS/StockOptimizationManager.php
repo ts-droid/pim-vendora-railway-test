@@ -66,7 +66,9 @@ class StockOptimizationManager
 
         // Remove all existing StockItemMovements
         $this->printLine('Removing existing stock movements.');
-        DB::table('stock_item_movements')->truncate();
+        DB::table('stock_item_movements')
+            ->where('is_persistent', 0)
+            ->delete();
 
         $unleashCompartmentIDs = $this->clearUnleashStatus($this->stockPlaces);
 
