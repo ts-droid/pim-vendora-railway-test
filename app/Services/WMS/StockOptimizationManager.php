@@ -70,6 +70,14 @@ class StockOptimizationManager
             ->where('is_persistent', 0)
             ->delete();
 
+        // Add existing stock movements to cache
+        $stockMovements = StockItemMovement::all();
+        if ($stockMovements) {
+            foreach ($stockMovements as $stockMovement) {
+                $this->addStockMovementToCache($stockMovement);
+            }
+        }
+
         $unleashCompartmentIDs = $this->clearUnleashStatus($this->stockPlaces);
 
         // Try to fill stock places from unmanaged stock
