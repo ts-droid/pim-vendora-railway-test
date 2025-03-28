@@ -160,7 +160,7 @@ class VismaNetShipmentService extends VismaNetApiService
 
                         foreach (($vismaLine['allocations'] ?? []) as $existingAllocation) {
                             $allocations[] = [
-                                'operation' => 'Update',
+                                'operation' => $existingAllocation['lotSerialNumber'] ? 'Update' : 'Insert',
                                 'lineNbr' => ['value' => $existingAllocation['lineNbr']],
                                 'quantity' => ['value' => 1],
                                 'lotSerialNumber' => ['value' => ($serialNumbers[0] ?? '')],
