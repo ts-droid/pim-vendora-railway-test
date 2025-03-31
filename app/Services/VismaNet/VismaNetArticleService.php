@@ -110,14 +110,14 @@ class VismaNetArticleService extends VismaNetApiService
                 'baseItemWeight' => ['value' => $article->weight]
             ],
             'attributeLines' => [
-                [
+                /*[
                     'attributeId' => ['value' => 'AFPI'],
                     'attributeValue' => ['value' => (int) $article->inner_box],
                 ],
                 [
                     'attributeId' => ['value' => 'ANTINKART'],
                     'attributeValue' => ['value' => (int) $article->master_box],
-                ],
+                ],*/
                 [
                     'attributeId' => ['value' => 'STRLFRPB'],
                     'attributeValue' => ['value' => (int) $article->width],
