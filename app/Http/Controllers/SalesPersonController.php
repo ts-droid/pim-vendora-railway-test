@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SalesPerson;
 use App\Services\SalesBudgetService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class SalesPersonController extends Controller
@@ -43,7 +44,18 @@ class SalesPersonController extends Controller
 
     public function getOne(Request $request, SalesPerson $salesPerson)
     {
-        return ApiResponseController::success($salesPerson->toArray());
+        $salesPersonArray = $salesPerson->toArray();
+
+        if ($request->get('extended_data') == '1') {
+            $salesPersonArray['sales'] = DB::table('customer_invoice_lines')
+                ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+                ->selectRaw("SUBSTRING(customer_invoices.date, 1, 7) AS date, SUM(customer_invoice_lines.amount) as total_amount")
+                ->where('sales_person_id', '=', $salesPerson->external_id)
+                ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
+                ->pluck('total_amount', 'date');
+        }
+
+        return ApiResponseController::success($salesPersonArray);
     }
 
     public function update(Request $request, SalesPerson $salesPerson)
