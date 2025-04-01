@@ -53,6 +53,36 @@ class SalesPersonController extends Controller
                 ->where('sales_person_id', '=', $salesPerson->external_id)
                 ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
                 ->pluck('total_amount', 'date');
+
+            $profitData = DB::table('customer_invoice_lines')
+                ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
+                ->selectRaw("SUBSTRING(customer_invoices.date, 1, 7) AS date, SUM(customer_invoice_lines.amount - customer_invoice_lines.cost) as total_profit")
+                ->where('sales_person_id', '=', $salesPerson->external_id)
+                ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
+                ->pluck('total_profit', 'date');
+
+            $date = '2023-01-01';
+            $currentDate = date('Y-m-01');
+
+            $earningsData = [];
+
+            while ($date <= $currentDate) {
+                $basalCompensation = $salesPerson->basal_compensation;
+                $profit = (int) $profitData[date('Y-m', strtotime($date))] ?? 0;
+                $commission = $profit * ($salesPerson->commission / 100);
+                $earnings = $basalCompensation + $commission;
+
+                $earningsData[] = [
+                    'basal_compensation' => $basalCompensation,
+                    'profit' => $profit,
+                    'commission' => $commission,
+                    'total' => $earnings
+                ];
+
+                $date = date('Y-m-01', strtotime('+1 month', strtotime($date)));
+            }
+
+            $salesPersonArray['earnings'] = $earningsData;
         }
 
         return ApiResponseController::success($salesPersonArray);
