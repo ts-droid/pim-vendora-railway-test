@@ -13,5 +13,8 @@ class SalesPerson extends Model
         'external_id',
         'name',
         'show_sales_dashboard',
+        'basal_compensation',
+        'commission',
+        'sample_amount'
     ];
 }

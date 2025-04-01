@@ -104,6 +104,24 @@ class SalesPersonController extends Controller
 
     public function saveBudget(Request $request, SalesPerson $salesPerson)
     {
+        // Save sales person data
+        $updateData = [];
+
+        if ($request->has('basal_compensation')) {
+            $updateData['basal_compensation'] = (int) $request->input('basal_compensation');
+        }
+        if ($request->has('commission')) {
+            $updateData['commission'] = (float) $request->input('commission');
+        }
+        if ($request->has('sample_amount')) {
+            $updateData['sample_amount'] = (int) $request->input('sample_amount');
+        }
+
+        if ($updateData) {
+            $salesPerson->update($updateData);
+        }
+
+        // Save budget data
         $entries = $request->input('entries');
 
         if ($entries && is_array($entries)) {
