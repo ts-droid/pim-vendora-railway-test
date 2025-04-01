@@ -68,8 +68,8 @@ class SalesPersonController extends Controller
 
             while ($date <= $currentDate) {
                 $basalCompensation = $salesPerson->basal_compensation;
-                $profit = (int) $profitData[date('Y-m', strtotime($date))] ?? 0;
-                $commission = $profit * ($salesPerson->commission / 100);
+                $profit = (int) ($profitData[date('Y-m', strtotime($date))] ?? 0);
+                $commission = (int) ($profit * ($salesPerson->commission / 100));
                 $earnings = $basalCompensation + $commission;
 
                 $earningsData[date('Y-m', strtotime($date))] = [
