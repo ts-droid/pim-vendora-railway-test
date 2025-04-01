@@ -263,8 +263,8 @@ class SalesDashboardReporter
                     'amount_last' => $periodSummary['last']['profit'],
                     'amount_shipping' => $periodSummary['current']['profit_shipping'],
                     'change' => $monthProfitChange,
-                    'budget_diff' => 700,
-                    'budget_last_diff' => 800
+                    'budget_diff' => $periodSummary['current']['profit'] - $periodSummary['budget_current']['profit'],
+                    'budget_last_diff' => $periodSummary['last']['profit'] - $periodSummary['budget_last']['profit'],
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['profit'],
@@ -621,8 +621,11 @@ class SalesDashboardReporter
 
         $result = $query->first();
 
+        $turnover = ($result->turnover ?? 0);
+
         return [
-            'turnover' => ($result->turnover ?? 0)
+            'turnover' => $turnover,
+            'profit' => $turnover * 0.3
         ];
     }
 
