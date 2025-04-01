@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use App\Http\Controllers\ConfigController;
 use App\Models\SalesPerson;
 use App\Services\CustomerCreditService;
 use App\Services\TransactionService;
@@ -623,9 +624,11 @@ class SalesDashboardReporter
 
         $turnover = ($result->turnover ?? 0);
 
+        $budgetMargin = (float) ConfigController::getConfig('budget_margin');
+
         return [
             'turnover' => $turnover,
-            'profit' => $turnover * 0.3
+            'profit' => $turnover * ($budgetMargin / 100)
         ];
     }
 
