@@ -222,7 +222,7 @@ class SalesDashboardReporter
                 'last_year_month' => [
                     'amount' => $lastYearMonthSummary['turnover'],
                     'diff' => $periodSummary['current']['turnover'] - $lastYearMonthSummary['turnover'],
-                    'budget_diff' => $lastYearMonthSummaryBudget['turnover'],
+                    'budget_diff' => $lastYearMonthSummary['turnover'] - $lastYearMonthSummaryBudget['turnover'],
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
