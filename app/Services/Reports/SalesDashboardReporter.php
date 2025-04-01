@@ -590,35 +590,17 @@ class SalesDashboardReporter
 
     private function getTurnoverBudget(string $startDate, string $endDate): array
     {
-        $startYear = (int) date('Y', strtotime($startDate));
-        $startMonth = (int) date('m', strtotime($startDate));
-
-        $endYear = (int) date('Y', strtotime($endDate));
-        $endMonth = (int) date('m', strtotime($endDate));
-
         $query = DB::table('sales_person_budget')
-            ->selectRaw('SUM(turnover) AS turnover');
+            ->selectRaw('SUM(turnover) AS turnover')
+            ->whereRaw("
+                STR_TO_DATE(CONCAT(year, '-', LPAD(month, 2, '0'), '-01'), '%Y-%m-%d')
+                BETWEEN ? AND ?
+            ", [$startDate, $endDate]);
 
         // Filter by sales person IDs if available
         if (!empty($this->salesPersonIDs)) {
             $query->whereIn('sales_person_id', $this->salesPersonIDs);
         }
-
-        // Filter by year and month range
-        $query->where(function($q) use ($startYear, $startMonth, $endYear, $endMonth) {
-            $q->where(function($q) use ($startYear, $endYear) {
-                $q->where('year', '>', $startYear)
-                    ->where('year', '<', $endYear);
-            })
-            ->orWhere(function($q) use ($startYear, $startMonth) {
-                $q->where('year', $startYear)
-                    ->where('month', '>=', $startMonth);
-            })
-            ->orWhere(function($q) use ($endYear, $endMonth) {
-                $q->where('year', $endYear)
-                    ->where('month', '<=', $endMonth);
-            });
-        });
 
         $result = $query->first();
 
