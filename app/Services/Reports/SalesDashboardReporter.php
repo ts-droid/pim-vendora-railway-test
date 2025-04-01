@@ -187,8 +187,8 @@ class SalesDashboardReporter
                     'amount_last' => $periodSummary['last']['turnover'],
                     'amount_shipping' => $periodSummary['current']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
-                    'budget_diff' => $periodSummary['budget_current']['turnover'],
-                    'budget_last_diff' => $periodSummary['budget_last']['turnover'],
+                    'budget_diff' => $periodSummary['current']['turnover'] - $periodSummary['budget_current']['turnover'],
+                    'budget_last_diff' => $periodSummary['last']['turnover'] - $periodSummary['budget_last']['turnover'],
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['turnover'],
