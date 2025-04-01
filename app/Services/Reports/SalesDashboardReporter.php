@@ -179,31 +179,31 @@ class SalesDashboardReporter
                     'amount_last' => $periodSummary['last']['turnover'],
                     'amount_shipping' => $periodSummary['current']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
-                    'budget' => 100,
-                    'budget_last' => 200,
+                    'budget_diff' => 100,
+                    'budget_last_diff' => 200,
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['turnover'],
                     'amount_shipping' => $yearToDateSummary['current']['turnover_shipping'],
                     'change' => $yearToDateTurnoverChange,
-                    'budget' => 300,
+                    'budget_diff' => 300,
                 ],
                 'last_year_to_date' => [
                     'amount' => $lastYearToDateSummary['current']['turnover'],
                     'amount_shipping' => $lastYearToDateSummary['current']['turnover_shipping'],
                     'change' => $lastYearToDateTurnoverChange,
-                    'budget' => 400
+                    'budget_diff' => 400
                 ],
                 'last_year_month' => [
                     'amount' => $lastYearMonthSummary['turnover'],
                     'diff' => $periodSummary['current']['turnover'] - $lastYearMonthSummary['turnover'],
-                    'budget' => 500
+                    'budget_diff' => 500
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
                     'amount_shipping' => $yearSummary['current']['turnover_shipping'],
                     'change' => $yearTurnoverChange,
-                    'budget' => 600
+                    'budget_diff' => 600
                 ],
             ],
             'margin' => [
@@ -238,31 +238,31 @@ class SalesDashboardReporter
                     'amount_last' => $periodSummary['last']['profit'],
                     'amount_shipping' => $periodSummary['current']['profit_shipping'],
                     'change' => $monthProfitChange,
-                    'budget' => 700,
-                    'budget_last' => 800
+                    'budget_diff' => 700,
+                    'budget_last_diff' => 800
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['profit'],
                     'amount_shipping' => $yearToDateSummary['current']['profit_shipping'],
                     'change' => $yearToDateProfitChange,
-                    'budget' => 900,
+                    'budget_diff' => 900,
                 ],
                 'last_year_to_date' => [
                     'amount' => $lastYearToDateSummary['current']['profit'],
                     'amount_shipping' => $lastYearToDateSummary['current']['profit_shipping'],
                     'change' => $lastYearToDateProfitChange,
-                    'budget' => 1000
+                    'budget_diff' => 1000
                 ],
                 'last_year_month' => [
                     'amount' => $lastYearMonthSummary['profit'],
                     'diff' => $periodSummary['current']['profit'] - $lastYearMonthSummary['profit'],
-                    'budget' => 1100
+                    'budget_diff' => 1100
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
                     'amount_shipping' => $yearSummary['current']['profit_shipping'],
                     'change' => $yearProfitChange,
-                    'budget' => 1200
+                    'budget_diff' => 1200
                 ],
             ],
         ];
