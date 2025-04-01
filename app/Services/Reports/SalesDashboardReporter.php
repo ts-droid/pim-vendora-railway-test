@@ -270,24 +270,24 @@ class SalesDashboardReporter
                     'amount' => $yearToDateSummary['current']['profit'],
                     'amount_shipping' => $yearToDateSummary['current']['profit_shipping'],
                     'change' => $yearToDateProfitChange,
-                    'budget_diff' => 900,
+                    'budget_diff' => $yearToDateSummary['current']['profit'] - $yearToDateSummary['budget_current']['profit'],
                 ],
                 'last_year_to_date' => [
                     'amount' => $lastYearToDateSummary['current']['profit'],
                     'amount_shipping' => $lastYearToDateSummary['current']['profit_shipping'],
                     'change' => $lastYearToDateProfitChange,
-                    'budget_diff' => 1000
+                    'budget_diff' => $lastYearToDateSummary['current']['profit'] - $lastYearToDateSummary['budget_current']['profit'],
                 ],
                 'last_year_month' => [
                     'amount' => $lastYearMonthSummary['profit'],
                     'diff' => $periodSummary['current']['profit'] - $lastYearMonthSummary['profit'],
-                    'budget_diff' => 1100
+                    'budget_diff' => $lastYearMonthSummary['profit'] - $lastYearMonthSummaryBudget['profit'],
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['profit'],
                     'amount_shipping' => $yearSummary['current']['profit_shipping'],
                     'change' => $yearProfitChange,
-                    'budget_diff' => 1200
+                    'budget_diff' => $yearSummary['current']['profit'] - $yearSummary['budget_current']['profit'],
                 ],
             ],
         ];
