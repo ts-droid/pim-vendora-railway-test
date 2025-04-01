@@ -96,6 +96,14 @@ class SalesDashboardReporter
                 date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
                 date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
             ),
+            'budget_current' => $this->getTurnoverBudget(
+                date('Y-m-01 00:00:00', strtotime($this->period[0])),
+                date('Y-m-d 23:59:59', strtotime($this->period[1]))
+            ),
+            'budget_last' => $this->getTurnoverBudget(
+                date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+                date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+            ),
         ];
 
         $yearToDateSummary = [
@@ -179,8 +187,8 @@ class SalesDashboardReporter
                     'amount_last' => $periodSummary['last']['turnover'],
                     'amount_shipping' => $periodSummary['current']['turnover_shipping'],
                     'change' => $monthTurnoverChange,
-                    'budget_diff' => 100,
-                    'budget_last_diff' => 200,
+                    'budget_diff' => $periodSummary['budget_current']['turnover'],
+                    'budget_last_diff' => $periodSummary['budget_last']['turnover'],
                 ],
                 'year_to_date' => [
                     'amount' => $yearToDateSummary['current']['turnover'],
@@ -578,6 +586,45 @@ class SalesDashboardReporter
         arsort($countryChart);
 
         return $countryChart;
+    }
+
+    private function getTurnoverBudget(string $startDate, string $endDate): array
+    {
+        $startYear = (int) date('Y', strtotime($startDate));
+        $startMonth = (int) date('m', strtotime($startDate));
+
+        $endYear = (int) date('Y', strtotime($endDate));
+        $endMonth = (int) date('m', strtotime($endDate));
+
+        $query = DB::table('sales_person_budget')
+            ->selectRaw('SUM(turnover) AS turnover');
+
+        // Filter by sales person IDs if available
+        if (!empty($this->salesPersonIDs)) {
+            $query->whereIn('sales_person_id', $this->salesPersonIDs);
+        }
+
+        // Filter by year and month range
+        $query->where(function($q) use ($startYear, $startMonth, $endYear, $endMonth) {
+            $q->where(function($q) use ($startYear, $endYear) {
+                $q->where('year', '>', $startYear)
+                    ->where('year', '<', $endYear);
+            })
+            ->orWhere(function($q) use ($startYear, $startMonth) {
+                $q->where('year', $startYear)
+                    ->where('month', '>=', $startMonth);
+            })
+            ->orWhere(function($q) use ($endYear, $endMonth) {
+                $q->where('year', $endYear)
+                    ->where('month', '<=', $endMonth);
+            });
+        });
+
+        $result = $query->first();
+
+        return [
+            'turnover' => ($result->turnover ?? 0)
+        ];
     }
 
     private function getSalesData(string $startDate, string $endDate): array
