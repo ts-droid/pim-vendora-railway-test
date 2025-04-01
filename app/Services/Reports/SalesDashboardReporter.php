@@ -114,7 +114,11 @@ class SalesDashboardReporter
             'last' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
                 date('Y-m-d 23:59:59', strtotime('-1 year')),
-            )
+            ),
+            'budget_current' => $this->getTurnoverBudget(
+                date('Y-01-01 00:00:00'),
+                date('Y-m-d 23:59:59'),
+            ),
         ];
 
         $lastYearToDateSummary = [
@@ -126,9 +130,18 @@ class SalesDashboardReporter
                 date('Y-01-01 00:00:00', strtotime('-2 year')),
                 date('Y-m-d 23:59:59', strtotime('-2 year')),
             ),
+            'budget_current' => $this->getTurnoverBudget(
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-m-d 23:59:59', strtotime('-1 year')),
+            ),
         ];
 
         $lastYearMonthSummary = $this->getSalesData(
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-t 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+        );
+
+        $lastYearMonthSummaryBudget = $this->getTurnoverBudget(
             date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
             date('Y-m-t 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
         );
@@ -141,6 +154,10 @@ class SalesDashboardReporter
             'last' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-2 year')),
                 date('Y-12-31 23:59:59', strtotime('-2 year'))
+            ),
+            'budget_current' => $this->getTurnoverBudget(
+                date('Y-01-01 00:00:00', strtotime('-1 year')),
+                date('Y-12-31 23:59:59', strtotime('-1 year'))
             ),
         ];
 
@@ -194,24 +211,24 @@ class SalesDashboardReporter
                     'amount' => $yearToDateSummary['current']['turnover'],
                     'amount_shipping' => $yearToDateSummary['current']['turnover_shipping'],
                     'change' => $yearToDateTurnoverChange,
-                    'budget_diff' => 300,
+                    'budget_diff' => $yearToDateSummary['current']['turnover'] - $yearToDateSummary['budget_current']['turnover'],
                 ],
                 'last_year_to_date' => [
                     'amount' => $lastYearToDateSummary['current']['turnover'],
                     'amount_shipping' => $lastYearToDateSummary['current']['turnover_shipping'],
                     'change' => $lastYearToDateTurnoverChange,
-                    'budget_diff' => 400
+                    'budget_diff' => $lastYearToDateSummary['current']['turnover'] - $lastYearToDateSummary['budget_current']['turnover'],
                 ],
                 'last_year_month' => [
                     'amount' => $lastYearMonthSummary['turnover'],
                     'diff' => $periodSummary['current']['turnover'] - $lastYearMonthSummary['turnover'],
-                    'budget_diff' => 500
+                    'budget_diff' => $lastYearMonthSummaryBudget['turnover'],
                 ],
                 'year' => [
                     'amount' => $yearSummary['current']['turnover'],
                     'amount_shipping' => $yearSummary['current']['turnover_shipping'],
                     'change' => $yearTurnoverChange,
-                    'budget_diff' => 600
+                    'budget_diff' => $yearSummary['current']['turnover'] - $yearSummary['budget_current']['turnover'],
                 ],
             ],
             'margin' => [
