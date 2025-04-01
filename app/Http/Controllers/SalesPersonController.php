@@ -72,7 +72,7 @@ class SalesPersonController extends Controller
                 $commission = $profit * ($salesPerson->commission / 100);
                 $earnings = $basalCompensation + $commission;
 
-                $earningsData[] = [
+                $earningsData[date('Y-m', strtotime($date))] = [
                     'basal_compensation' => $basalCompensation,
                     'profit' => $profit,
                     'commission' => $commission,
