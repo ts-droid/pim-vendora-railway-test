@@ -13,6 +13,7 @@ class SalesPerson extends Model
         'external_id',
         'name',
         'show_sales_dashboard',
+        'is_operating_cost',
         'basal_compensation',
         'commission',
         'sample_amount'
