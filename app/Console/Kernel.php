@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
             // Visma.net
             $schedule->command('visma:fetch quick')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:fetch hourly')->hourly()->withoutOverlapping();
+            $schedule->command('visma:fetch twicedaily')->dailyAt('13:00')->withoutOverlapping();
+            $schedule->command('visma:fetch twicedaily')->dailyAt('01:00')->withoutOverlapping();
             $schedule->command('visma:fetch daily')->dailyAt('02:00')->withoutOverlapping();
             $schedule->command('process-visma-deletions')->dailyAt('04:00');
             $schedule->command('visma:delete-shipments')->everyTenMinutes();

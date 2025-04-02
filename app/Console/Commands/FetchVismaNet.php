@@ -103,6 +103,10 @@ class FetchVismaNet extends Command
                 break;
 
             case 'daily':
+                // Currently empty :(
+                break;
+
+            case 'twicedaily':
                 // Fetch all data from Visma
                 $this->info('Fetching customers...');
                 Process::timeout(7200)->run('php artisan visma:fetch customers');
