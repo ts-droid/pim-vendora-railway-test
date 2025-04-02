@@ -54,6 +54,14 @@ class SalesDashboardReporter
             ],
         ];
 
+        $budgetChart = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+            'datasets' => [
+                'expected' => [],
+                'result' => []
+            ],
+        ];
+
         for ($i = 1;$i <= 12;$i++) {
             $month = $i;
             if ($month < 10) {
@@ -77,11 +85,15 @@ class SalesDashboardReporter
 
             $marginChart['datasets']['last_year'][] = $lastSalesData['margin'];
             $marginChart['datasets']['current_year'][] = $currentSalesData['margin'];
+
+            $budgetChart['datasets']['expected'][] = $i;
+            $budgetChart['datasets']['result'][] = $i + 1;
         }
 
         return [
             'turnover' => $turnoverChart,
-            'margin' => $marginChart
+            'margin' => $marginChart,
+            'budget' => $budgetChart,
         ];
     }
 
