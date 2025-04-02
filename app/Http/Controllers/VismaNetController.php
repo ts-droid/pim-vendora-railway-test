@@ -502,8 +502,6 @@ class VismaNetController extends Controller
 
                 // Fetch detailed stock
                 if (should_sync_stock($updateData['article_number'])) {
-                    echo 'Syncing stock for: ' . $updateData['article_number'] . PHP_EOL;
-
                     $updateData['stock_manageable'] = 0;
 
                     $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
