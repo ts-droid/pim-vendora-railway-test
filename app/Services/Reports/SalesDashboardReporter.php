@@ -80,14 +80,19 @@ class SalesDashboardReporter
                 date('Y-' . $month . '-' . $daysInMonth . ' 23:59:59')
             );
 
+            $budgetData = $this->getTurnoverBudget(
+                date('Y-' . $month . '-01 00:00:00'),
+                date('Y-' . $month . '-' . $daysInMonth . ' 23:59:59')
+            );
+
             $turnoverChart['datasets']['last_year'][] = $lastSalesData['turnover'];
             $turnoverChart['datasets']['current_year'][] = $currentSalesData['turnover'];
 
             $marginChart['datasets']['last_year'][] = $lastSalesData['margin'];
             $marginChart['datasets']['current_year'][] = $currentSalesData['margin'];
 
-            $budgetChart['datasets']['expected'][] = $i;
-            $budgetChart['datasets']['result'][] = $i + 1;
+            $budgetChart['datasets']['expected'][] = $budgetData['turnover'];
+            $budgetChart['datasets']['result'][] = $currentSalesData['turnover'];
         }
 
         return [
