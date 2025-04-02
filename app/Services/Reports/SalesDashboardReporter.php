@@ -793,6 +793,9 @@ class SalesDashboardReporter
 
     private function getInvoiceLines(string $startDate, string $endDate): array
     {
+        $startDate = date('Y-m-d', strtotime($startDate));
+        $endDate = date('Y-m-d', strtotime($endDate));
+
         // Return all invoice lines between the given dates
         return array_filter($this->invoiceLines, function ($invoiceLine) use ($startDate, $endDate) {
             return $invoiceLine->date >= $startDate && $invoiceLine->date <= $endDate;
