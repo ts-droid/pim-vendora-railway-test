@@ -223,8 +223,26 @@ class SalesDashboardReporter
         $yearMarginChange = round($yearSummary['current']['margin'] - $yearSummary['last']['margin'], 1);
         $yearProfitChange = round($yearSummary['current']['profit'] - $yearSummary['last']['profit']);
 
+        $turnoverMonthByMonth = [];
+        $budgetMonthByMonth = [];
+
+        for ($i = 1;$i <= 12;$i++) {
+            $startDate = date('Y-' . $i . '-01 00:00:00');
+            $endDate = date('Y-' . $i . '-31 23:59:59');
+
+            $salesData = $this->getSalesData($startDate, $endDate);
+            $budgetData = $this->getTurnoverBudget($startDate, $endDate);
+
+            $turnoverMonthByMonth[] = $salesData['turnover'];
+            $budgetMonthByMonth[] = $budgetData['turnover'];
+        }
+
         return [
             'turnover' => [
+                'month_by_month' => [
+                    'turnover' => $turnoverMonthByMonth,
+                    'budget' => $budgetMonthByMonth,
+                ],
                 'month' => [
                     'amount' => $periodSummary['current']['turnover'],
                     'amount_last' => $periodSummary['last']['turnover'],
