@@ -615,14 +615,28 @@ class SalesDashboardReporter
                     continue;
                 }
 
+                $budgetData = $this->getTurnoverBudget(
+                    date('Y-m-01', strtotime($this->period[0])),
+                    date('Y-m-d', strtotime($this->period[1])),
+                    $invoiceLine->sales_person_id
+                );
+
                 $toplist[$invoiceLine->sales_person_id] = [
                     'sales_person_id' => $invoiceLine->sales_person_id,
                     'sales_person_name' => $name,
                     'amount' => 0,
+                    'budget' => $budgetData['turnover'],
+                    'budget_diff' => 0,
+                    'budget_percent' => 0,
                 ];
             }
 
             $toplist[$invoiceLine->sales_person_id]['amount'] += $invoiceLine->amount;
+        }
+
+        foreach ($toplist as &$item) {
+            $item['budget_diff'] = $item['amount'] - $item['budget'];
+            $item['budget_percent'] = ($item['amount'] / $item['budget']) * 100;
         }
 
         // Sort toplist by amount
@@ -667,7 +681,7 @@ class SalesDashboardReporter
         return $countryChart;
     }
 
-    private function getTurnoverBudget(string $startDate, string $endDate): array
+    private function getTurnoverBudget(string $startDate, string $endDate, int $salesPersonID = 0): array
     {
         $query = DB::table('sales_person_budget')
             ->selectRaw('SUM(turnover) AS turnover')
@@ -677,7 +691,10 @@ class SalesDashboardReporter
             ", [$startDate, $endDate]);
 
         // Filter by sales person IDs if available
-        if (!empty($this->salesPersonIDs)) {
+        if ($salesPersonID) {
+            $query->where('sales_person_id', $salesPersonID);
+        }
+        elseif (!empty($this->salesPersonIDs)) {
             $query->whereIn('sales_person_id', $this->salesPersonIDs);
         }
 
