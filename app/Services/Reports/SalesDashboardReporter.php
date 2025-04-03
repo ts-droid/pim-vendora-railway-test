@@ -573,7 +573,7 @@ class SalesDashboardReporter
             return null;
         }
 
-        $salesPerson = SalesPerson::where('external_id', $this->salesPersonIDs[0])->first();
+        $salesPerson = SalesPerson::where('id', $this->salesPersonIDs[0])->first();
         if (!$salesPerson) {
             return null;
         }
