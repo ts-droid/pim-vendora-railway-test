@@ -229,7 +229,7 @@ class SalesDashboardReporter
 
         for ($i = 1;$i <= 12;$i++) {
             $startDate = date('Y-' . $i . '-01 00:00:00');
-            $endDate = date('Y-' . $i . '-31 23:59:59');
+            $endDate = date('Y-m-t 23:59:59', strtotime($startDate));
 
             $salesData = $this->getSalesData($startDate, $endDate);
             $budgetData = $this->getTurnoverBudget($startDate, $endDate);
