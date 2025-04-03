@@ -610,20 +610,20 @@ class SalesDashboardReporter
 
         foreach ($invoiceLines as $invoiceLine) {
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
-                $name = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->value('name');
-                if (!$name) {
+                $salesPerson = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->first();
+                if (!$salesPerson) {
                     continue;
                 }
 
                 $budgetData = $this->getTurnoverBudget(
                     date('Y-m-01', strtotime($this->period[0])),
                     date('Y-m-d', strtotime($this->period[1])),
-                    $invoiceLine->sales_person_id
+                    $salesPerson->id
                 );
 
                 $toplist[$invoiceLine->sales_person_id] = [
                     'sales_person_id' => $invoiceLine->sales_person_id,
-                    'sales_person_name' => $name,
+                    'sales_person_name' => $salesPerson->name,
                     'amount' => 0,
                     'budget' => $budgetData['turnover'],
                     'budget_diff' => 0,
