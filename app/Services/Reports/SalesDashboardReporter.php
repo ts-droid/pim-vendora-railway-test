@@ -611,7 +611,7 @@ class SalesDashboardReporter
         foreach ($invoiceLines as $invoiceLine) {
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
                 $salesPerson = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->first();
-                if (!$salesPerson) {
+                if (!$salesPerson || !$salesPerson->name) {
                     continue;
                 }
 
@@ -639,12 +639,22 @@ class SalesDashboardReporter
             $item['budget_percent'] = $item['budget'] ? (($item['amount'] / $item['budget']) * 100) : 0;
         }
 
+        // Sort toplist by budget percent
+        usort($toplist, function ($item1, $item2) {
+            return $item2['amount'] <=> $item1['amount'];
+        });
+
+        $budgetToplist = $toplist;
+
         // Sort toplist by amount
         usort($toplist, function ($item1, $item2) {
             return $item2['amount'] <=> $item1['amount'];
         });
 
-        return $toplist;
+        return [
+            'toplist' => $toplist,
+            'budget' => $budgetToplist,
+        ];
     }
 
     public function getCountryChart(array $topCustomers): array
