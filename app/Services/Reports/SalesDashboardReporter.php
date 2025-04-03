@@ -225,6 +225,7 @@ class SalesDashboardReporter
 
         $turnoverMonthByMonth = [];
         $budgetMonthByMonth = [];
+        $budgetDiffMonthByMonth = [];
 
         for ($i = 1;$i <= 12;$i++) {
             $startDate = date('Y-' . $i . '-01 00:00:00');
@@ -235,6 +236,7 @@ class SalesDashboardReporter
 
             $turnoverMonthByMonth[] = $salesData['turnover'];
             $budgetMonthByMonth[] = $budgetData['turnover'];
+            $budgetDiffMonthByMonth[] = $salesData['turnover'] - $budgetData['turnover'];
         }
 
         return [
@@ -242,6 +244,7 @@ class SalesDashboardReporter
                 'month_by_month' => [
                     'turnover' => $turnoverMonthByMonth,
                     'budget' => $budgetMonthByMonth,
+                    'budget_diff' => $budgetDiffMonthByMonth
                 ],
                 'month' => [
                     'amount' => $periodSummary['current']['turnover'],
