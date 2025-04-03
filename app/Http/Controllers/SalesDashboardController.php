@@ -40,6 +40,7 @@ class SalesDashboardController extends Controller
             'topCustomers' => $topCustomers,
             'topArticles' => $reporter->getTopArticles(),
             'orderPipeline' => $reporter->getOrderPipeline(),
+            'earnings' => $reporter->getEarnings(),
             'salesPersonsToplist' => $toplist['toplist'],
             'salesPersonsToplistBudget' => $toplist['budget'],
             'charts' => $reporter->getCharts(),

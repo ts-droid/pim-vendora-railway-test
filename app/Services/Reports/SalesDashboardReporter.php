@@ -567,6 +567,29 @@ class SalesDashboardReporter
         return array_values($topCustomers);
     }
 
+    public function getEarnings(): ?array
+    {
+        if (empty($this->salesPersonIDs) || count($this->salesPersonIDs) != 1) {
+            return null;
+        }
+
+        $salesPerson = SalesPerson::where('external_id', $this->salesPersonIDs[0])->first();
+        if (!$salesPerson) {
+            return null;
+        }
+
+        $sales = $this->getSalesData($this->period[0], $this->period[1]);
+
+        $profit = $sales['profit'];
+        $earnings = (int) ($profit * ($salesPerson->commission / 100));
+
+        return [
+            'profit' => $profit,
+            'commission' => $salesPerson->commission,
+            'earnings' => $earnings
+        ];
+    }
+
     public function getOrderPipeline(): array
     {
         $orderQueueService = new WGROrderQueueService();
