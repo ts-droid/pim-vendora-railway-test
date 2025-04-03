@@ -42,6 +42,7 @@ class SalesDashboardController extends Controller
             'charts' => $reporter->getCharts(),
             'countryChart' => $countryChart,
             'period' => $period,
+            'budget_fulfillment' => $reporter->getBudgetFulfillment(),
         ]);
     }
 

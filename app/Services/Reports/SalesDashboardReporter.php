@@ -165,6 +165,10 @@ class SalesDashboardReporter
         );
 
         $yearSummary = [
+            'active' => $this->getSalesData(
+                date('Y-01-01 00:00:00'),
+                date('Y-12-31 23:59:59')
+            ),
             'current' => $this->getSalesData(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
                 date('Y-12-31 23:59:59', strtotime('-1 year'))
@@ -176,6 +180,10 @@ class SalesDashboardReporter
             'budget_current' => $this->getTurnoverBudget(
                 date('Y-01-01 00:00:00', strtotime('-1 year')),
                 date('Y-12-31 23:59:59', strtotime('-1 year'))
+            ),
+            'budget_active' => $this->getTurnoverBudget(
+                date('Y-01-01 00:00:00'),
+                date('Y-12-31 23:59:59')
             ),
         ];
 
@@ -248,6 +256,10 @@ class SalesDashboardReporter
                     'change' => $yearTurnoverChange,
                     'budget_diff' => $yearSummary['current']['turnover'] - $yearSummary['budget_current']['turnover'],
                 ],
+                'active_year' => [
+                    'amount' => $yearSummary['active']['turnover'],
+                    'budget_diff' => $yearSummary['active']['turnover'] - $yearSummary['budget_active']['turnover'],
+                ]
             ],
             'margin' => [
                 'month' => [
