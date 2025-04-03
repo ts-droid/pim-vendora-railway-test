@@ -641,7 +641,7 @@ class SalesDashboardReporter
 
         // Sort toplist by budget percent
         usort($toplist, function ($item1, $item2) {
-            return $item2['amount'] <=> $item1['amount'];
+            return $item2['budget_percent'] <=> $item1['budget_percent'];
         });
 
         $budgetToplist = $toplist;
