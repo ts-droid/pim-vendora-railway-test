@@ -636,7 +636,7 @@ class SalesDashboardReporter
 
         foreach ($toplist as &$item) {
             $item['budget_diff'] = $item['amount'] - $item['budget'];
-            $item['budget_percent'] = ($item['amount'] / $item['budget']) * 100;
+            $item['budget_percent'] = $item['budget'] ? (($item['amount'] / $item['budget']) * 100) : 0;
         }
 
         // Sort toplist by amount
