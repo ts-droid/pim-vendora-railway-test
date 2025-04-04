@@ -224,10 +224,13 @@ class SalesDashboardReporter
         $yearProfitChange = round($yearSummary['current']['profit'] - $yearSummary['last']['profit']);
 
         $turnoverMonthByMonth = [];
+        $turnoverMonthByMonthLastYear = [];
+        $turnoverMonthByMonthLastYear2 = [];
         $budgetMonthByMonth = [];
         $budgetDiffMonthByMonth = [];
 
         for ($i = 1;$i <= 12;$i++) {
+            // Current year
             $startDate = date('Y-' . $i . '-01 00:00:00');
             $endDate = date('Y-m-t 23:59:59', strtotime($startDate));
 
@@ -237,12 +240,34 @@ class SalesDashboardReporter
             $turnoverMonthByMonth[] = $salesData['turnover'];
             $budgetMonthByMonth[] = $budgetData['turnover'];
             $budgetDiffMonthByMonth[] = $salesData['turnover'] - $budgetData['turnover'];
+
+
+
+            // Last year
+            $year = date('Y', strtotime('-1 years'));
+            $startDate = date($year . '-' . $i . '-01 00:00:00');
+            $endDate = date('Y-m-t 23:59:59', strtotime($startDate));
+
+            $salesData = $this->getSalesData($startDate, $endDate);
+            $turnoverMonthByMonthLastYear[] = $salesData['turnover'];
+
+
+
+            // Last year (2)
+            $year = date('Y', strtotime('-2 years'));
+            $startDate = date($year . '-' . $i . '-01 00:00:00');
+            $endDate = date('Y-m-t 23:59:59', strtotime($startDate));
+
+            $salesData = $this->getSalesData($startDate, $endDate);
+            $turnoverMonthByMonthLastYear2[] = $salesData['turnover'];
         }
 
         return [
             'turnover' => [
                 'month_by_month' => [
                     'turnover' => $turnoverMonthByMonth,
+                    'turnover_last_year' => $turnoverMonthByMonthLastYear,
+                    'turnover_last_year_2' => $turnoverMonthByMonthLastYear2,
                     'budget' => $budgetMonthByMonth,
                     'budget_diff' => $budgetDiffMonthByMonth
                 ],
