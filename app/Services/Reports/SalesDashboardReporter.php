@@ -584,6 +584,7 @@ class SalesDashboardReporter
         $earnings = (int) ($profit * ($salesPerson->commission / 100));
 
         return [
+            'turnover' => $sales['turnover'],
             'profit' => $profit,
             'commission' => $salesPerson->commission,
             'earnings' => $earnings
