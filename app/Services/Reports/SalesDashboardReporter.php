@@ -1051,6 +1051,7 @@ class SalesDashboardReporter
             ->select(
                 'credit_note_lines.*',
                 'credit_notes.date',
+                'customers.customer_number as customer_number',
                 'customers.name AS customer_name',
                 'customers.country AS customer_country',
                 'customers.credit_limit AS customer_credit_limit',
