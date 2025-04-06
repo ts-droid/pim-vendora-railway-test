@@ -21,6 +21,8 @@ class SalesDashboardReporter
 
     private array $invoiceLines;
 
+    private array $creditNoteLines;
+
     function __construct(
         private readonly mixed $salesPersonIDs,
         private readonly string $customerNumber,
@@ -776,6 +778,7 @@ class SalesDashboardReporter
     {
         // Load all invoice lines between the given dates
         $invoiceLines = $this->getInvoiceLines($startDate, $endDate);
+        $creditLines = $this->getCreditLines($startDate, $endDate);
 
         $totalPrice = 0;
         $totalPriceShipping = 0;
@@ -790,6 +793,16 @@ class SalesDashboardReporter
             if ($invoiceLine->article_number == 'SHIP25') {
                 $totalPriceShipping += $invoiceLine->amount;
                 $totalCostShipping += $invoiceLine->cost;
+            }
+        }
+
+        foreach ($creditLines as $creditLine) {
+            $totalPrice -= $creditLine->amount;
+            $totalCost -= $creditLine->cost;
+
+            if ($creditLine->article_number == 'SHIP25') {
+                $totalPriceShipping -= $creditLine->amount;
+                $totalCostShipping -= $creditLine->cost;
             }
         }
 
@@ -912,6 +925,32 @@ class SalesDashboardReporter
         }
 
         $this->invoiceLines = $invoiceLineQuery->get()->toArray();
+
+
+        // Load all credit notes
+        $creditNoteQuery = DB::table('credit_note_lines')
+            ->join('credit_notes', 'credit_notes.id', '=', 'credit_note_lines.credit_note_id')
+            ->join('sales_orders', 'sales_orders.order_number', '=', 'credit_note_lines.order_number')
+            ->leftJoin('articles', 'articles.article_number', '=', 'credit_note_lines.article_number')
+            ->leftJoin('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
+            ->select(
+                'credit_note_lines.*',
+                'credit_notes.date',
+                'articles.supplier_number'
+            )
+            ->where('sales_orders.order_type', '=', 'RC')
+            ->whereIn('credit_notes.customer_number', $this->customerNumbers)
+            ->whereBetween('credit_notes.date', [$startDate, $endDate]);
+
+        if ($this->excludeShipping) {
+            $creditNoteQuery->whereNotIn('credit_note_lines.article_number', ['SHIP25']);
+        }
+
+        if ($this->supplierNumber) {
+            $creditNoteQuery->where('suppliers.number', '=', $this->supplierNumber);
+        }
+
+        $this->creditNoteLines = $creditNoteQuery->get()->toArray();
     }
 
     private function getInvoiceLines(string $startDate, string $endDate): array
@@ -922,6 +961,16 @@ class SalesDashboardReporter
         // Return all invoice lines between the given dates
         return array_filter($this->invoiceLines, function ($invoiceLine) use ($startDate, $endDate) {
             return $invoiceLine->date >= $startDate && $invoiceLine->date <= $endDate;
+        });
+    }
+
+    private function getCreditLines(string $startDate, string $endDate): array
+    {
+        $startDate = date('Y-m-d', strtotime($startDate));
+        $endDate = date('Y-m-d', strtotime($endDate));
+
+        return array_filter($this->creditNoteLines, function ($creditLine) use ($startDate, $endDate) {
+            return $creditLine->date >= $startDate && $creditLine->date <= $endDate;
         });
     }
 }
