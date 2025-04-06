@@ -623,6 +623,16 @@ class SalesDashboardReporter
             date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
         );
 
+        $creditLines = $this->getCreditLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
+        $creditLinesLastYear = $this->getCreditLines(
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+        );
+
         $customerCreditService = new CustomerCreditService();
 
         $topCustomers = [];
@@ -649,12 +659,42 @@ class SalesDashboardReporter
             $topCustomers[$invoiceLine->customer_number]['amount'] += $invoiceLine->amount;
         }
 
+        foreach ($creditLines as $creditLine) {
+            if (!isset($topCustomers[$creditLine->customer_number])) {
+                $topCustomers[$creditLine->customer_number] = [
+                    'customer_number' => $creditLine->customer_number,
+                    'name' => $creditLine->customer_name,
+                    'country' => $creditLine->customer_country,
+                    'credit_limit' => $creditLine->customer_credit_limit,
+                    'credit_balance' => $creditLine->customer_credit_balance,
+                    'vendora_rating' => $creditLine->customer_vendora_rating,
+                    'amount_due' => $customerCreditService->getAmountDue($creditLine->customer_number)[0],
+                    'credit_terms' => $creditLine->customer_credit_terms,
+                    'average_payment_days' => $customerCreditService->getAveragePaymentDays($creditLine->customer_number, 24),
+                    'worst_payment_days' => $customerCreditService->getWorstPaymentDays($creditLine->customer_number, 24),
+                    'amount' => 0,
+                    'amount_last_year' => 0,
+                    'change' => 'inf',
+                ];
+            }
+
+            $topCustomers[$creditLine->customer_number]['amount'] -= $creditLine->amount;
+        }
+
         foreach ($invoiceLinesLastYear as $invoiceLine) {
             if (!isset($topCustomers[$invoiceLine->customer_number])) {
                 continue;
             }
 
             $topCustomers[$invoiceLine->customer_number]['amount_last_year'] += $invoiceLine->amount;
+        }
+
+        foreach ($creditLinesLastYear as $creditLine) {
+            if (!isset($topCustomers[$creditLine->customer_number])) {
+                continue;
+            }
+
+            $topCustomers[$creditLine->customer_number]['amount_last_year'] -= $creditLine->amount;
         }
 
         foreach ($topCustomers as &$customer) {
@@ -1005,11 +1045,18 @@ class SalesDashboardReporter
         $creditNoteQuery = DB::table('credit_note_lines')
             ->join('credit_notes', 'credit_notes.id', '=', 'credit_note_lines.credit_note_id')
             ->join('sales_orders', 'sales_orders.order_number', '=', 'credit_note_lines.order_number')
+            ->leftJoin('customers', 'customers.customer_number', '=', 'credit_notes.customer_number')
             ->leftJoin('articles', 'articles.article_number', '=', 'credit_note_lines.article_number')
             ->leftJoin('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
             ->select(
                 'credit_note_lines.*',
                 'credit_notes.date',
+                'customers.name AS customer_name',
+                'customers.country AS customer_country',
+                'customers.credit_limit AS customer_credit_limit',
+                'customers.credit_balance AS customer_credit_balance',
+                'customers.credit_terms AS customer_credit_terms',
+                'customers.vendora_rating AS customer_vendora_rating',
                 'articles.supplier_number',
                 'suppliers.number AS supplier_number',
                 'suppliers.name AS supplier_name',
