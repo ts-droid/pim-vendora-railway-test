@@ -338,6 +338,9 @@ class SalesDashboardReporter
                     'amount_shipping' => $yearSummary['current']['margin_shipping'],
                     'change' => $yearMarginChange,
                 ],
+                'active_year' => [
+                    'amount' => $yearSummary['active']['margin'],
+                ]
             ],
             'profit' => [
                 'month' => [
