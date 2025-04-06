@@ -397,6 +397,16 @@ class SalesDashboardReporter
             date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
         );
 
+        $creditLines = $this->getCreditLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
+        $creditLinesLastYear = $this->getCreditLines(
+            date('Y-m-01 00:00:00', strtotime('-1 year', strtotime($this->period[0]))),
+            date('Y-m-d 23:59:59', strtotime('-1 year', strtotime($this->period[1])))
+        );
+
         $topBrands = [];
 
         foreach ($invoiceLines as $invoiceLine) {
@@ -417,6 +427,24 @@ class SalesDashboardReporter
             $topBrands[$invoiceLine->supplier_number]['revenue'] += $invoiceLine->amount;
         }
 
+        foreach ($creditLines as $creditLine) {
+            if (!isset($topBrands[$creditLine->supplier_number])) {
+                $topBrands[$creditLine->supplier_number] = [
+                    'supplier_number' => $creditLine->supplier_number,
+                    'name' => $creditLine->supplier_name,
+                    'units' => 0,
+                    'units_last_year' => 0,
+                    'units_change' => 'inf',
+                    'revenue' => 0,
+                    'revenue_last_year' => 0,
+                    'revenue_change' => 'inf'
+                ];
+            }
+
+            $topBrands[$creditLine->supplier_number]['units'] -= $creditLine->quantity;
+            $topBrands[$creditLine->supplier_number]['revenue'] -= $creditLine->amount;
+        }
+
         foreach ($invoiceLinesLastYear as $invoiceLine) {
             if (!isset($topBrands[$invoiceLine->supplier_number])) {
                 continue;
@@ -424,6 +452,15 @@ class SalesDashboardReporter
 
             $topBrands[$invoiceLine->supplier_number]['units_last_year'] += $invoiceLine->quantity;
             $topBrands[$invoiceLine->supplier_number]['revenue_last_year'] += $invoiceLine->amount;
+        }
+
+        foreach ($creditLinesLastYear as $creditLine) {
+            if (!isset($topBrands[$creditLine->supplier_number])) {
+                continue;
+            }
+
+            $topBrands[$creditLine->supplier_number]['units_last_year'] -= $creditLine->quantity;
+            $topBrands[$creditLine->supplier_number]['revenue_last_year'] -= $creditLine->amount;
         }
 
         $units = 0;
@@ -936,7 +973,9 @@ class SalesDashboardReporter
             ->select(
                 'credit_note_lines.*',
                 'credit_notes.date',
-                'articles.supplier_number'
+                'articles.supplier_number',
+                'suppliers.number AS supplier_number',
+                'suppliers.name AS supplier_name',
             )
             ->where('sales_orders.order_type', '=', 'RC')
             ->whereIn('credit_notes.customer_number', $this->customerNumbers)
