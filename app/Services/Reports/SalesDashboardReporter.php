@@ -830,7 +830,7 @@ class SalesDashboardReporter
                 ];
             }
 
-            $toplist[$invoiceLine->sales_person_id]['amount'] -= $creditLine->amount;
+            $toplist[$creditLine->sales_person_id]['amount'] -= $creditLine->amount;
         }
 
         foreach ($toplist as &$item) {
