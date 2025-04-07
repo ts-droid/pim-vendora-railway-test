@@ -730,7 +730,9 @@ class SalesDashboardReporter
 
         return [
             'turnover' => $sales['turnover'],
+            'turnover_raw' => $sales['turnover_raw'],
             'profit' => $profit,
+            'profit_raw' => $sales['profit_raw'],
             'commission' => $salesPerson->commission,
             'earnings' => $earnings
         ];
@@ -926,6 +928,9 @@ class SalesDashboardReporter
         $invoiceLines = $this->getInvoiceLines($startDate, $endDate);
         $creditLines = $this->getCreditLines($startDate, $endDate);
 
+        $totalPriceRaw = 0;
+        $totalCostRaw = 0;
+
         $totalPrice = 0;
         $totalPriceShipping = 0;
 
@@ -933,6 +938,9 @@ class SalesDashboardReporter
         $totalCostShipping = 0;
 
         foreach ($invoiceLines as $invoiceLine) {
+            $totalPriceRaw += $invoiceLine->amount;
+            $totalCostRaw += $invoiceLine->cost;
+
             $totalPrice += $invoiceLine->amount;
             $totalCost += $invoiceLine->cost;
 
@@ -961,6 +969,9 @@ class SalesDashboardReporter
             $totalCostShipping += ($accountSummary['debit'] - $accountSummary['credit']);
         }
 
+        $totalProfitRaw = $totalPriceRaw - $totalCostRaw;
+        $totalMarginRaw = ($totalPriceRaw != 0 ? $totalProfitRaw / $totalPriceRaw : 0) * 100;
+
         $totalProfit = $totalPrice - $totalCost;
         $totalMargin = ($totalPrice != 0 ? $totalProfit / $totalPrice : 0) * 100;
 
@@ -972,6 +983,11 @@ class SalesDashboardReporter
             'cost' => round($totalCost),
             'profit' => round($totalProfit),
             'margin' => round($totalMargin, 1),
+
+            'turnover_raw' => round($totalPriceRaw),
+            'cost_raw' => round($totalCostRaw),
+            'profit_raw' => round($totalProfitRaw),
+            'margin_raw' => round($totalMarginRaw, 1),
 
             'turnover_shipping' => round($totalPriceShipping),
             'cost_shipping' => round($totalCostShipping),
