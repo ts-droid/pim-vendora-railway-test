@@ -1030,7 +1030,7 @@ class SalesDashboardReporter
         }
 
         // Load all invoice lines
-        $startDate = date('Y-m-d', strtotime('-2 year'));
+        $startDate = date('Y-01-01', strtotime('-2 year'));
         $endDate = date('Y-m-d');
 
         $invoiceLineQuery = DB::table('customer_invoice_lines')
