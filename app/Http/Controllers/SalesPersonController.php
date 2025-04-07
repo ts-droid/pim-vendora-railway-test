@@ -51,6 +51,7 @@ class SalesPersonController extends Controller
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->selectRaw("SUBSTRING(customer_invoices.date, 1, 7) AS date, SUM(customer_invoice_lines.amount) as total_amount")
                 ->where('sales_person_id', '=', $salesPerson->external_id)
+                ->whereNotIn('customer_invoice_lines.article_number', ['SHIP25'])
                 ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
                 ->pluck('total_amount', 'date');
 
@@ -60,6 +61,7 @@ class SalesPersonController extends Controller
                 ->selectRaw("SUBSTRING(credit_notes.date, 1, 7) AS date, SUM(credit_note_lines.amount) as total_amount")
                 ->where('sales_orders.sales_person', '=', $salesPerson->external_id)
                 ->where('sales_orders.order_type', '=', 'RC')
+                ->whereNotIn('credit_note_lines.article_number', ['SHIP25'])
                 ->groupBy(DB::raw("SUBSTRING(credit_notes.date, 1, 7)"))
                 ->pluck('total_amount', 'date');
 
@@ -67,6 +69,7 @@ class SalesPersonController extends Controller
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->selectRaw("SUBSTRING(customer_invoices.date, 1, 7) AS date, SUM(customer_invoice_lines.amount - customer_invoice_lines.cost) as total_profit")
                 ->where('sales_person_id', '=', $salesPerson->external_id)
+                ->whereNotIn('customer_invoice_lines.article_number', ['SHIP25'])
                 ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
                 ->pluck('total_profit', 'date');
 
@@ -76,6 +79,7 @@ class SalesPersonController extends Controller
                 ->selectRaw("SUBSTRING(credit_notes.date, 1, 7) AS date, SUM(credit_note_lines.amount - credit_note_lines.cost) as total_profit")
                 ->where('sales_orders.sales_person', '=', $salesPerson->external_id)
                 ->where('sales_orders.order_type', '=', 'RC')
+                ->whereNotIn('credit_note_lines.article_number', ['SHIP25'])
                 ->groupBy(DB::raw("SUBSTRING(credit_notes.date, 1, 7)"))
                 ->pluck('total_profit', 'date');
 
