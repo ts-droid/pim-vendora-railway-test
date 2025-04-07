@@ -774,6 +774,11 @@ class SalesDashboardReporter
             date('Y-m-d 23:59:59', strtotime($this->period[1]))
         );
 
+        $creditLines = $this->getCreditLines(
+            date('Y-m-01 00:00:00', strtotime($this->period[0])),
+            date('Y-m-d 23:59:59', strtotime($this->period[1]))
+        );
+
         $toplist = [];
 
         foreach ($invoiceLines as $invoiceLine) {
@@ -800,6 +805,32 @@ class SalesDashboardReporter
             }
 
             $toplist[$invoiceLine->sales_person_id]['amount'] += $invoiceLine->amount;
+        }
+
+        foreach ($creditLines as $creditLine) {
+            if (!isset($toplist[$creditLine->sales_person_id])) {
+                $salesPerson = SalesPerson::where('external_id', $creditLine->sales_person_id)->first();
+                if (!$salesPerson || !$salesPerson->name) {
+                    continue;
+                }
+
+                $budgetData = $this->getTurnoverBudget(
+                    date('Y-m-01', strtotime($this->period[0])),
+                    date('Y-m-d', strtotime($this->period[1])),
+                    $salesPerson->id
+                );
+
+                $toplist[$creditLine->sales_person_id] = [
+                    'sales_person_id' => $creditLine->sales_person_id,
+                    'sales_person_name' => $salesPerson->name,
+                    'amount' => 0,
+                    'budget' => $budgetData['turnover'],
+                    'budget_diff' => 0,
+                    'budget_percent' => 0,
+                ];
+            }
+
+            $toplist[$invoiceLine->sales_person_id]['amount'] -= $creditLine->amount;
         }
 
         foreach ($toplist as &$item) {
@@ -1061,7 +1092,8 @@ class SalesDashboardReporter
                 'articles.supplier_number',
                 'suppliers.number AS supplier_number',
                 'suppliers.name AS supplier_name',
-                'articles.description AS article_name'
+                'articles.description AS article_name',
+                'sales_orders.sales_person as sales_person_id'
             )
             ->where('sales_orders.order_type', '=', 'RC')
             ->whereIn('credit_notes.customer_number', $this->customerNumbers)
