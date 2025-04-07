@@ -54,11 +54,29 @@ class SalesPersonController extends Controller
                 ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
                 ->pluck('total_amount', 'date');
 
+            $salesPersonArray['credit'] = DB::table('credit_note_lines')
+                ->join('credit_notes', 'credit_notes.id', '=', 'credit_note_lines.credit_note_id')
+                ->join('sales_orders', 'sales_orders.order_number', '=', 'credit_note_lines.order_number')
+                ->selectRaw("SUBSTRING(credit_notes.date, 1, 7) AS date, SUM(credit_note_lines.amount) as total_amount")
+                ->where('sales_orders.sales_person', '=', $salesPerson->external_id)
+                ->where('sales_orders.order_type', '=', 'RC')
+                ->groupBy(DB::raw("SUBSTRING(credit_notes.date, 1, 7)"))
+                ->pluck('total_amount', 'date');
+
             $profitData = DB::table('customer_invoice_lines')
                 ->join('customer_invoices', 'customer_invoices.id', '=', 'customer_invoice_lines.customer_invoice_id')
                 ->selectRaw("SUBSTRING(customer_invoices.date, 1, 7) AS date, SUM(customer_invoice_lines.amount - customer_invoice_lines.cost) as total_profit")
                 ->where('sales_person_id', '=', $salesPerson->external_id)
                 ->groupBy(DB::raw("SUBSTRING(customer_invoices.date, 1, 7)"))
+                ->pluck('total_profit', 'date');
+
+            $creditProfitData = DB::table('credit_note_lines')
+                ->join('credit_notes', 'credit_notes.id', '=', 'credit_note_lines.credit_note_id')
+                ->join('sales_orders', 'sales_orders.order_number', '=', 'credit_note_lines.order_number')
+                ->selectRaw("SUBSTRING(credit_notes.date, 1, 7) AS date, SUM(credit_note_lines.amount - credit_note_lines.cost) as total_profit")
+                ->where('sales_orders.sales_person', '=', $salesPerson->external_id)
+                ->where('sales_orders.order_type', '=', 'RC')
+                ->groupBy(DB::raw("SUBSTRING(credit_notes.date, 1, 7)"))
                 ->pluck('total_profit', 'date');
 
             $date = '2023-01-01';
@@ -69,6 +87,10 @@ class SalesPersonController extends Controller
             while ($date <= $currentDate) {
                 $basalCompensation = $salesPerson->basal_compensation;
                 $profit = (int) ($profitData[date('Y-m', strtotime($date))] ?? 0);
+                $creditProfit = (int) ($creditProfitData[date('Y-m', strtotime($date))] ?? 0);
+
+                $profit -= $creditProfit;
+
                 $commission = (int) ($profit * ($salesPerson->commission / 100));
                 $earnings = $basalCompensation + $commission;
 
