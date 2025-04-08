@@ -1087,7 +1087,7 @@ class SalesDashboardReporter
             });
         }
         elseif (count($salesPersonIDs) > 0) {
-            $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
+            $invoiceLineQuery->whereIn('sales_people.id', $salesPersonIDs);
         }
 
         if ($this->excludeShipping) {
@@ -1130,13 +1130,13 @@ class SalesDashboardReporter
             ->whereBetween('credit_notes.date', [$startDate, $endDate]);
 
         if ($hasEmptySalesPerson) {
-            $invoiceLineQuery->where(function($query) use ($salesPersonIDs) {
+            $creditNoteQuery->where(function($query) use ($salesPersonIDs) {
                 $query->whereIn('sales_people.id', $salesPersonIDs)
                     ->orWhereNull('sales_people.id');
             });
         }
         elseif (count($salesPersonIDs) > 0) {
-            $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
+            $creditNoteQuery->whereIn('sales_people.id', $salesPersonIDs);
         }
 
         if ($this->excludeShipping) {
