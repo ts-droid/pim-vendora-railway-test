@@ -788,7 +788,7 @@ class SalesDashboardReporter
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
                 $salesPerson = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->first();
                 if (!$salesPerson || !$salesPerson->name) {
-                    //continue;
+                    continue;
                 }
 
                 $budgetData = $this->getTurnoverBudget(
@@ -1003,10 +1003,10 @@ class SalesDashboardReporter
             ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
             ->leftJoin('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
 
-        if ($this->salesPersonIDs) {
-            $salesPersonIDs = [];
-            $hasEmptySalesPerson = false;
+        $salesPersonIDs = [];
+        $hasEmptySalesPerson = false;
 
+        if ($this->salesPersonIDs) {
             foreach ($this->salesPersonIDs as $salesPersonID) {
                 if ($salesPersonID == -1) {
                     $hasEmptySalesPerson = true;
@@ -1055,6 +1055,7 @@ class SalesDashboardReporter
             ->leftJoin('customers', 'customers.customer_number', '=', 'customer_invoices.customer_number')
             ->leftJoin('articles', 'articles.article_number', '=', 'customer_invoice_lines.article_number')
             ->leftJoin('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
+            ->leftJoin('sales_people', 'sales_people.external_id', '=', 'customer_invoice_lines.sales_person_id')
             ->select(
                 'customer_invoices.customer_number',
                 'customers.name AS customer_name',
@@ -1078,6 +1079,17 @@ class SalesDashboardReporter
             ->where('customer_invoices.date', '>=', $startDate)
             ->where('customer_invoices.date', '<=', $endDate);
 
+
+        if ($hasEmptySalesPerson) {
+            $invoiceLineQuery->where(function($query) use ($salesPersonIDs) {
+                $query->whereIn('sales_people.id', $salesPersonIDs)
+                    ->orWhereNull('sales_people.id');
+            });
+        }
+        elseif (count($salesPersonIDs) > 0) {
+            $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
+        }
+
         if ($this->excludeShipping) {
             $invoiceLineQuery->whereNotIn('customer_invoice_lines.article_number', ['SHIP25']);
         }
@@ -1096,6 +1108,7 @@ class SalesDashboardReporter
             ->leftJoin('customers', 'customers.customer_number', '=', 'credit_notes.customer_number')
             ->leftJoin('articles', 'articles.article_number', '=', 'credit_note_lines.article_number')
             ->leftJoin('suppliers', 'suppliers.number', '=', 'articles.supplier_number')
+            ->leftJoin('sales_people', 'sales_people.external_id', '=', 'sales_orders.sales_person')
             ->select(
                 'credit_note_lines.*',
                 'credit_notes.date',
@@ -1115,6 +1128,16 @@ class SalesDashboardReporter
             ->where('sales_orders.order_type', '=', 'RC')
             ->whereIn('credit_notes.customer_number', $this->customerNumbers)
             ->whereBetween('credit_notes.date', [$startDate, $endDate]);
+
+        if ($hasEmptySalesPerson) {
+            $invoiceLineQuery->where(function($query) use ($salesPersonIDs) {
+                $query->whereIn('sales_people.id', $salesPersonIDs)
+                    ->orWhereNull('sales_people.id');
+            });
+        }
+        elseif (count($salesPersonIDs) > 0) {
+            $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
+        }
 
         if ($this->excludeShipping) {
             $creditNoteQuery->whereNotIn('credit_note_lines.article_number', ['SHIP25']);
