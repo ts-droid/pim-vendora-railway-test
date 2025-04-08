@@ -788,7 +788,7 @@ class SalesDashboardReporter
             if (!isset($toplist[$invoiceLine->sales_person_id])) {
                 $salesPerson = SalesPerson::where('external_id', $invoiceLine->sales_person_id)->first();
                 if (!$salesPerson || !$salesPerson->name) {
-                    continue;
+                    //continue;
                 }
 
                 $budgetData = $this->getTurnoverBudget(
