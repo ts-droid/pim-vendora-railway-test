@@ -35,7 +35,7 @@ class StockKeepService
         ]);
     }
 
-    public static function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate): StockKeepTransaction
+    public static function makeTransaction($articleNumber, $identifier, $value, $diff, $investigate): StockKeepTransaction
     {
         // Remove existing non-archived investigations
         StockKeepTransaction::where('article_number', '=', $articleNumber)
