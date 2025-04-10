@@ -10,6 +10,7 @@ use App\Models\StockKeepTodo;
 use App\Models\StockKeepTransaction;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
+use App\Services\StockKeepService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
 use App\Utilities\WarehouseHelper;
@@ -85,6 +86,25 @@ class StockKeepController extends Controller
                 'status' => 'completed',
                 'is_archived' => 1
             ]);
+
+        return ApiResponseController::success();
+    }
+
+    public function recheck(Request $request)
+    {
+        $ids = $request->input('ids');
+        $ids = explode(',', $ids);
+
+        $transactions = StockKeepTransaction::whereIn('id', $ids)->get();
+
+        if ($transactions) {
+            foreach ($transactions as $transaction) {
+                StockKeepService::makeTodo(
+                    $transaction->article_number,
+                    StockKeepService::TODO_TYPE_ARTICLE
+                );
+            }
+        }
 
         return ApiResponseController::success();
     }
@@ -221,7 +241,7 @@ class StockKeepController extends Controller
                 $diff = $stock - $currentStock;
 
                 if ($diff == 0) {
-                    $this->makeTransaction(
+                    StockKeepService::makeTransaction(
                         $articleNumber,
                         ($stockPlace . ':' . $compartment),
                         $stock,
@@ -250,7 +270,7 @@ class StockKeepController extends Controller
 
 
                 if (!$isManual) {
-                    $this->makeTransaction(
+                    StockKeepService::makeTransaction(
                         $articleNumber,
                         ($stockPlace . ':' . $compartment),
                         $stock,
@@ -264,7 +284,7 @@ class StockKeepController extends Controller
                 $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, $signature);
 
                 if (!$isManual) {
-                    $this->makeTransaction(
+                    StockKeepService::makeTransaction(
                         $articleNumber,
                         ($stockPlace . ':' . $compartment),
                         $stock,
@@ -290,7 +310,7 @@ class StockKeepController extends Controller
                 $stockItemService->removeStockItem($stockItem, $signature);
             }
 
-            $this->makeTransaction(
+            StockKeepService::makeTransaction(
                 $articleNumber,
                 ($stockPlace . ':' . $compartment),
                 0,
@@ -457,10 +477,10 @@ class StockKeepController extends Controller
                 continue;
             }
 
-            StockKeepTodo::create([
-                'reference' => $articleNumber,
-                'type' => 'article'
-            ]);
+            StockKeepService::makeTodo(
+                $articleNumber,
+                StockKeepService::TODO_TYPE_ARTICLE
+            );
         }
 
         return ApiResponseController::success();
@@ -483,10 +503,10 @@ class StockKeepController extends Controller
             return ApiResponseController::error('Article already has a todo');
         }
 
-        StockKeepTodo::create([
-            'reference' => $article->article_number,
-            'type' => 'article'
-        ]);
+        StockKeepService::makeTodo(
+            $article->article_number,
+            StockKeepService::TODO_TYPE_ARTICLE
+        );
 
         return ApiResponseController::success();
     }
@@ -525,10 +545,10 @@ class StockKeepController extends Controller
                 continue;
             }
 
-            StockKeepTodo::create([
-                'reference' => $identifier,
-                'type' => 'compartment'
-            ]);
+            StockKeepService::makeTodo(
+                $identifier,
+                StockKeepService::TODO_TYPE_COMPARTMENT
+            );
         }
 
         return ApiResponseController::success();
@@ -565,17 +585,5 @@ class StockKeepController extends Controller
         }
 
         return ApiResponseController::success($todos->toArray());
-    }
-
-    private function makeTransaction(string $articleNumber, string $identifier, int $value, int $diff, bool $investigate)
-    {
-        StockKeepTransaction::create([
-            'article_number' => $articleNumber,
-            'identifiers' => $identifier,
-            'values' => $value,
-            'diffs' => $diff,
-            'type' => 'manual',
-            'status' => $investigate ? 'investigation' : 'completed'
-        ]);
     }
 }

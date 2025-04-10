@@ -188,6 +188,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/transactions', [StockKeepController::class, 'get']);
         Route::get('/transactions/archived-dates', [StockKeepController::class, 'archivedDates']);
         Route::post('/transactions/archive', [StockKeepController::class, 'archive']);
+        Route::post('/transactions/recheck', [StockKeepController::class, 'recheck']);
         Route::post('/stock-place', [StockKeepController::class, 'stockPlace']);
         Route::get('/stock-place/get-items', [StockKeepController::class, 'getStockPlaceItems']);
 

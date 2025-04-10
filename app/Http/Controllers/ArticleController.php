@@ -16,6 +16,7 @@ use App\Models\StockKeepTransaction;
 use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
+use App\Services\StockKeepService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\Todo\TodoItemService;
 use App\Services\TranslationServiceManager;
@@ -463,14 +464,13 @@ class ArticleController extends Controller
                 && count($values) > 0
                 && count($diffs) > 0) {
 
-                $stockKeepTransaction = StockKeepTransaction::create([
-                    'article_number' => $article->article_number,
-                    'identifiers' => implode(',', $identifiers),
-                    'values' => implode(',', $values),
-                    'diffs' => implode(',', $diffs),
-                    'type' => 'manual',
-                    'status' => ($markForInvestigation ? 'investigation' : 'completed'),
-                ]);
+                $stockKeepTransaction = StockKeepService::makeTransaction(
+                    $article->article_number,
+                    implode(',', $identifiers),
+                    implode(',', $values),
+                    implode(',', $diffs),
+                    ($markForInvestigation ? 'investigation' : 'completed')
+                );
 
                 if ($updateAllStockMovements) {
                     $stockItemService = new StockItemService();
@@ -1286,10 +1286,10 @@ class ArticleController extends Controller
             return ApiResponseController::error('Stock keep todo already exists');
         }
 
-        StockKeepTodo::create([
-            'reference' => $article->article_number,
-            'type' => 'article'
-        ]);
+        StockKeepService::makeTodo(
+            $article->article_number,
+            StockKeepService::TODO_TYPE_ARTICLE
+        );
 
         return ApiResponseController::success();
     }

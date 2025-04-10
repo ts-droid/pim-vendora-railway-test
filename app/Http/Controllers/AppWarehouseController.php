@@ -9,6 +9,7 @@ use App\Models\StockKeepTodo;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
 use App\Models\StockPlaceCompartmentReservation;
+use App\Services\StockKeepService;
 use App\Services\Todo\TodoItemService;
 use App\Services\Todo\TodoService;
 use App\Services\WMS\StockItemService;
@@ -250,10 +251,10 @@ class AppWarehouseController extends Controller
 
     public function stockKeepTodo(StockItemMovement $stockItemMovement)
     {
-        StockKeepTodo::create([
-            'reference' => $stockItemMovement->article_number,
-            'type' => 'article'
-        ]);
+        StockKeepService::makeTodo(
+            $stockItemMovement->article_number,
+            StockKeepService::TODO_TYPE_ARTICLE
+        );
 
         $stockItemMovement->delete();
 
