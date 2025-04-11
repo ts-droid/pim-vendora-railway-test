@@ -27,6 +27,7 @@ class SalesOrder extends Model
         'note',
         'internal_note',
         'on_hold',
+        'source',
     ];
 
     public function lines(): HasMany
