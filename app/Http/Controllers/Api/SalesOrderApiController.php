@@ -17,7 +17,7 @@ class SalesOrderApiController
             ->paginate($perPage);
 
         return ApiResponseController::success([
-            'orders' => $salesOrders,
+            'orders' => $salesOrders->items(),
             'meta' => [
                 'current_page' => $salesOrders->currentPage(),
                 'last_page' => $salesOrders->lastPage(),
