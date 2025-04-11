@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\Api\SalesOrderApiController;
 use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\ApiArticleCategoryController;
 use App\Http\Controllers\ArticleController;
@@ -65,6 +66,13 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::get('/ecb/convert-currency', [EcbController::class, 'convertCurrency']);
+
+    Route::prefix('/sales-order')->group(function() {
+        Route::get('/', [SalesOrderApiController::class, 'index'])->name('salesOrder.index');
+        Route::post('/', [SalesOrderApiController::class, 'store'])->name('salesOrder.store');
+        Route::get('/{salesOrder}', [SalesOrderApiController::class, 'show'])->name('salesOrder.show');
+        Route::put('/{salesOrder}', [SalesOrderApiController::class, 'update'])->name('salesOrder.update');
+    });
 
     Route::prefix('/wms')->group(function() {
         Route::get('/stock-places', [StockPlaceController::class, 'getStockPlaces']);
