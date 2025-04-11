@@ -13,6 +13,7 @@ class SalesOrderApiController
         $perPage = $request->get('per_page', 30);
 
         $salesOrders = SalesOrder::query()
+            ->with('customer')
             ->latest()
             ->paginate($perPage);
 
