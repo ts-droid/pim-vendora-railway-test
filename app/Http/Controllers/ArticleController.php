@@ -476,7 +476,7 @@ class ArticleController extends Controller
                     implode(',', $identifiers),
                     implode(',', $values),
                     implode(',', $diffs),
-                    ($markForInvestigation ? 'investigation' : 'completed')
+                    $markForInvestigation
                 );
 
                 if ($updateAllStockMovements) {
