@@ -163,6 +163,8 @@ class SupplierController extends Controller
 
     public function markSuppliers()
     {
+        return;
+
         $suppliers = Supplier::all();
 
         if (!$suppliers) {

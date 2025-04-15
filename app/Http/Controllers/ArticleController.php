@@ -146,6 +146,13 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function getDataForOrderRow(Request $request)
+    {
+
+
+
+    }
+
     public function search(Request $request)
     {
         $searchQuery = (string) $request->input('search', '');
@@ -454,7 +461,7 @@ class ArticleController extends Controller
                 $values[] = $response['value'];
                 $diffs[] = $response['diff'];
 
-                if ($response['mark_for_investigation']) {
+                if ($response['diff'] != 0) {
                     $markForInvestigation = true;
                 }
             }
@@ -494,8 +501,7 @@ class ArticleController extends Controller
         $response = [
             'identifier' => $identifier,
             'value' => $quantity,
-            'diff' => 0,
-            'mark_for_investigation' => false
+            'diff' => 0
         ];
 
         $identifierData = WarehouseHelper::getStockPlaceAndCompartment($identifier);
@@ -511,9 +517,7 @@ class ArticleController extends Controller
         $response['diff'] = $diff;
 
         // Make stock update if a diff is found
-        if ($diff) {
-            $response['mark_for_investigation'] = true;
-
+        if ($diff != 0) {
             if ($diff > 0) {
                 // Add stock items
                 $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
@@ -557,7 +561,6 @@ class ArticleController extends Controller
             'identifier' => '--',
             'value' => $quantity,
             'diff' => $diff,
-            'mark_for_investigation' => !($diff === 0)
         ];
     }
 
