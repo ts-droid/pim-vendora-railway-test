@@ -125,7 +125,7 @@ class SalesOrderService
             $totalQuantity += $line->quantity;
         }
 
-        $salesOrder::update([
+        $salesOrder->update([
             'order_total' => $totalAmount,
             'order_total_quantity' => $totalQuantity,
         ]);
