@@ -28,6 +28,12 @@ class SalesOrder extends Model
         'internal_note',
         'on_hold',
         'source',
+        'shipping_address_id',
+        'billing_address_id',
+        'phone',
+        'email',
+        'billing_email',
+        'pay_method',
     ];
 
     public function lines(): HasMany
