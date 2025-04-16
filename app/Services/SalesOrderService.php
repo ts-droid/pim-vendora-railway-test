@@ -88,7 +88,7 @@ class SalesOrderService
                 $unitCost = $currencyConverter->convert(
                     (float) $supplierPrice->price,
                     $supplierPrice->currency,
-                    'SEK'
+                    $data['currency']
                 );
             }
 
@@ -104,7 +104,7 @@ class SalesOrderService
                 'quantity_open' => (int) ($line['quantity_open'] ?? 0),
                 'is_completed' => 0,
                 'unit_cost' => $unitCost,
-                'unit_price' => (float) (($line['unit_price'] ?? 0) * $currencyRate),
+                'unit_price' => (float) ($line['unit_price'] ?? 0),
                 'description' => (string) $line['description'] ?? '',
             ]);
         }
