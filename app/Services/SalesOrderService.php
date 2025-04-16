@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Actions\DispatchOrderCreated;
 use App\Http\Controllers\CurrencyConvertController;
 use App\Models\Address;
 use App\Models\Customer;
@@ -114,6 +115,8 @@ class SalesOrderService
         $salesOrder->refresh();
 
         $this->createLog($salesOrder->id, 'This order was created.');
+
+        (new DispatchOrderCreated())->execute($salesOrder);
 
         return $salesOrder;
     }
