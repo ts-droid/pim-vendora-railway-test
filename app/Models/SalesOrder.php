@@ -55,4 +55,9 @@ class SalesOrder extends Model
     {
         return $this->belongsTo(Address::class, 'shipping_address_id', 'id');
     }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(SalesOrderLog::class, 'sales_order_id', 'id');
+    }
 }

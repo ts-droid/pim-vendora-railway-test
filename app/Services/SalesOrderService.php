@@ -7,6 +7,7 @@ use App\Models\Address;
 use App\Models\Customer;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
+use App\Models\SalesOrderLog;
 use App\Models\SupplierArticlePrice;
 use Illuminate\Support\Str;
 
@@ -112,10 +113,20 @@ class SalesOrderService
 
         $salesOrder->refresh();
 
+        $this->createLog($salesOrder->id, 'This order was created.');
+
         return $salesOrder;
     }
 
-    public function calculateOrderTotals(SalesOrder $salesOrder): void
+    public function createLog(int $salesOrderID, string $description)
+    {
+        SalesOrderLog::create([
+            'sales_order_id' => $salesOrderID,
+            'description' => $description,
+        ]);
+    }
+
+    private function calculateOrderTotals(SalesOrder $salesOrder): void
     {
         $totalAmount = 0;
         $totalQuantity = 0;
