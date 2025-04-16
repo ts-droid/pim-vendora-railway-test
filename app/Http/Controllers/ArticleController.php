@@ -148,9 +148,22 @@ class ArticleController extends Controller
 
     public function getDataForOrderRow(Request $request)
     {
+        $articleNumber = $request->input('article_number');
 
+        $article = DB::table('articles')
+            ->select('id', 'article_number', 'description')
+            ->where('article_number', '=', $articleNumber)
+            ->first();
 
+        if (!$article) {
+            return ApiResponseController::error('Article not found.');
+        }
 
+        return ApiResponseController::success([
+            'article_number' => $article->article_number,
+            'description' => $article->description,
+            'unit_price' => 0,
+        ]);
     }
 
     public function search(Request $request)
