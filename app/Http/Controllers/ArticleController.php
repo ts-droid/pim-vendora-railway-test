@@ -162,7 +162,7 @@ class ArticleController extends Controller
         return ApiResponseController::success([
             'article_number' => $article->article_number,
             'description' => $article->description,
-            'unit_price' => 0,
+            'unit_price' => rand(1, 1000),
         ]);
     }
 
