@@ -95,7 +95,7 @@ class SalesOrderApiController
 
     public function show(SalesOrder $salesOrder)
     {
-        $salesOrder->load('customer', 'lines');
+        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress');
 
         return ApiResponseController::success($salesOrder->toArray());
     }
