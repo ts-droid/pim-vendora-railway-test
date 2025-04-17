@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Enums\LaravelQueues;
 use App\Models\SalesOrder;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Bus\Queueable;
@@ -11,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCreatedJob implements ShouldQueue
+class CreateSalesOrderShipmentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -24,13 +23,8 @@ class OrderCreatedJob implements ShouldQueue
 
     public function handle()
     {
-        // Send to Visma.net
+        // Create shipment in Visma.net
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();
-        $vismaNetSalesOrderService->sendSalesOrder($this->salesOrder);
-
-        // Queue creation of shipment
-        CreateSalesOrderShipmentJob::dispatch($this->salesOrder)
-            ->delay(now()->addSeconds(10))
-            ->onQueue(LaravelQueues::DEFAULT->value);
+        $vismaNetSalesOrderService->createShipment($this->salesOrder);
     }
 }
