@@ -102,6 +102,55 @@ class SalesOrderApiController
 
     public function update(Request $request, SalesOrder $salesOrder)
     {
+        $validator = Validator::make($request->all(), [
+            'order_type' => 'sometimes|string|max:255',
+            'sales_person' => 'sometimes|string|max:255',
+            'customer_number' => 'sometimes|string|max:255',
+            'currency' => 'sometimes|string|min:3|max:3',
+            'note' => 'sometimes|string',
+            'internal_note' => 'sometimes|string',
+            'store_note' => 'sometimes|string',
+            'source' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|max:255',
+            'billing_email' => 'sometimes|string|max:255',
+            'pay_method' => 'sometimes|string|max:255',
 
+            'billing_full_name' => 'sometimes|string|max:255',
+            'billing_first_name' => 'sometimes|string|max:255',
+            'billing_last_name' => 'sometimes|string|max:255',
+            'billing_street_line_1' => 'sometimes|string|max:255',
+            'billing_street_line_2' => 'sometimes|string|max:255',
+            'billing_postal_code' => 'sometimes|string|max:255',
+            'billing_city' => 'sometimes|string|max:255',
+            'billing_country_code' => 'sometimes|string|max:255',
+
+            'shipping_full_name' => 'sometimes|string|max:255',
+            'shipping_first_name' => 'sometimes|string|max:255',
+            'shipping_last_name' => 'sometimes|string|max:255',
+            'shipping_street_line_1' => 'sometimes|string|max:255',
+            'shipping_street_line_2' => 'sometimes|string|max:255',
+            'shipping_postal_code' => 'sometimes|string|max:255',
+            'shipping_city' => 'sometimes|string|max:255',
+            'shipping_country_code' => 'sometimes|string|max:255',
+
+            'lines' => 'sometimes|array|min:1',
+
+            'lines.*.article_number' => 'required|string|max:255',
+            'lines.*.quantity' => 'required|integer|min:1',
+            'lines.*.quantity_on_shipments' => 'nullable|integer|min:0',
+            'lines.*.quantity_open' => 'nullable|integer|min:0',
+            'lines.*.unit_price' => 'required|numeric|min:0',
+            'lines.*.description' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $salesOrder = $this->orderService->updateSalesOrder($salesOrder, $request->all());
+
+        return ApiResponseController::success($salesOrder->toArray());
     }
 }

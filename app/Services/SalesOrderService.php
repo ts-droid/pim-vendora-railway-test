@@ -14,9 +14,150 @@ use Illuminate\Support\Str;
 
 class SalesOrderService
 {
+    public function updateSalesOrder(SalesOrder $salesOrder, array $data): SalesOrder
+    {
+        $addressService = new AddressService();
+
+        // Update shipping address
+        $shippingAddressData = [
+            'full_name' => $data['shipping_full_name'] ?? null,
+            'first_name' => $data['shipping_first_name'] ?? null,
+            'last_name' => $data['shipping_last_name'] ?? null,
+            'street_line_1' => $data['shipping_street_line_1'] ?? null,
+            'street_line_2' => $data['shipping_street_line_2'] ?? null,
+            'postal_code' => $data['shipping_postal_code'] ?? null,
+            'city' => $data['shipping_city'] ?? null,
+            'country_code' => $data['shipping_country_code'] ?? null,
+        ];
+
+        if ($salesOrder->shipping_address_id) {
+            $shippingAddress = $addressService->updateAddress($salesOrder->shippingAddress, $shippingAddressData);
+        }
+        else {
+            $shippingAddress = $addressService->createAddress($shippingAddressData);
+        }
+
+
+        // Update billing address
+        $billingAddressData = [
+            'full_name' => $data['billing_full_name'] ?? null,
+            'first_name' => $data['billing_first_name'] ?? null,
+            'last_name' => $data['billing_last_name'] ?? null,
+            'street_line_1' => $data['billing_street_line_1'] ?? null,
+            'street_line_2' => $data['billing_street_line_2'] ?? null,
+            'postal_code' => $data['billing_postal_code'] ?? null,
+            'city' => $data['billing_city'] ?? null,
+            'country_code' => $data['billing_country_code'] ?? null,
+        ];
+
+        if ($salesOrder->billing_address_id) {
+            $billingAddress = $addressService->updateAddress($salesOrder->billingAddress, $billingAddressData);
+        }
+        else {
+            $billingAddress = $addressService->createAddress($billingAddressData);
+        }
+
+
+        // Update order lines (if set)
+        $lines = $data['lines'] ?? [];
+        if ($lines) {
+            SalesOrderLine::where('sales_order_id', $salesOrder->id)->delete();
+
+            $lineNumber = 1;
+
+            foreach ($lines as $line) {
+                if (!isset($line['line_number'])) {
+                    $line['line_number'] = $lineNumber++;
+
+                    $line['sales_person'] = ($line['sales_person'] ?? '') ?: ($data['sales_person'] ?? '');
+
+                    $currency = $data['currency'] ?? $salesOrder->currency;
+
+                    $this->insertOrderLine($salesOrder->id, $line, $currency);
+                }
+            }
+        }
+
+
+        // Update base order data
+        $orderData = [
+            'shipping_address_id' => $shippingAddress->id,
+            'billing_address_id' => $billingAddress->id,
+        ];
+
+        if (isset($data['order_type'])) {
+            $orderData['order_type'] = (string) $data['order_type'];
+        }
+        if (isset($data['order_number'])) {
+            $orderData['order_number'] = (string) $data['order_number'];
+        }
+        if (isset($data['customer_ref_no'])) {
+            $orderData['customer_ref_no'] = (string) $data['customer_ref_no'];
+        }
+        if (isset($data['status'])) {
+            $orderData['status'] = (string) $data['status'];
+        }
+        if (isset($data['invoice_number'])) {
+            $orderData['invoice_number'] = (string) $data['invoice_number'];
+        }
+        if (isset($data['sales_person'])) {
+            $orderData['sales_person'] = (string) $data['sales_person'];
+        }
+        if (isset($data['date'])) {
+            $orderData['date'] = (string) $data['date'];
+        }
+        if (isset($data['customer_number'])) {
+            $orderData['customer'] = (string) $data['customer_number'];
+        }
+        if (isset($data['currency'])) {
+            $orderData['currency'] = (string) $data['currency'];
+        }
+        if (isset($data['exchange_rate'])) {
+            $orderData['exchange_rate'] = (float) $data['exchange_rate'];
+        }
+        if (isset($data['note'])) {
+            $orderData['note'] = (string) $data['note'];
+        }
+        if (isset($data['internal_note'])) {
+            $orderData['internal_note'] = (string) $data['internal_note'];
+        }
+        if (isset($data['store_note'])) {
+            $orderData['store_note'] = (string) $data['store_note'];
+        }
+        if (isset($data['on_hold'])) {
+            $orderData['on_hold'] = (int) $data['on_hold'];
+        }
+        if (isset($data['source'])) {
+            $orderData['source'] = (string) $data['source'];
+        }
+        if (isset($data['phone'])) {
+            $orderData['phone'] = (string) $data['phone'];
+        }
+        if (isset($data['email'])) {
+            $orderData['email'] = (string) $data['email'];
+        }
+        if (isset($data['billing_email'])) {
+            $orderData['billing_email'] = (string) $data['billing_email'];
+        }
+        if (isset($data['pay_method'])) {
+            $orderData['pay_method'] = (string) $data['pay_method'];
+        }
+
+        $salesOrder->update($orderData);
+
+        $this->createLog($salesOrder->id, 'This order was updated.');
+
+        $this->calculateOrderTotals($salesOrder);
+
+        $salesOrder->refresh();
+
+        return $salesOrder;
+    }
+
     public function createSalesOrder(array $data): SalesOrder
     {
         $currencyConverter = new CurrencyConvertController();
+        $addressService = new AddressService();
 
         // Fetch the customer
         $customer = null;
@@ -25,7 +166,7 @@ class SalesOrderService
         }
 
         // Create the billing address
-        $billingAddress = Address::create([
+        $billingAddress = $addressService->createAddress([
             'full_name' => $data['billing_full_name'] ?? null,
             'first_name' => $data['billing_first_name'] ?? null,
             'last_name' => $data['billing_last_name'] ?? null,
@@ -37,7 +178,7 @@ class SalesOrderService
         ]);
 
         // Create the shipping address
-        $shippingAddress = Address::create([
+        $shippingAddress = $addressService->createAddress([
             'full_name' => $data['shipping_full_name'] ?? null,
             'first_name' => $data['shipping_first_name'] ?? null,
             'last_name' => $data['shipping_last_name'] ?? null,
@@ -54,14 +195,16 @@ class SalesOrderService
         $salesOrder = SalesOrder::create([
             'order_type' => $data['order_type'] ?? 'WO',
             'order_number' => $this->generateOrderNumber($data['order_number'] ?? ''),
-            'status' => 'Draft', // TODO: Implement this
+            'customer_ref_no' => $data['customer_ref_no'] ?? '',
+            'status' => (string) (($data['status'] ?? '') ?: 'Open'),
+            'invoice_number' => $data['invoice_number'] ?? '',
             'sales_person' => (string) ($data['sales_person'] ?? ''),
-            'date' => date('Y-m-d'),
+            'date' => (string) (($data['date'] ?? '') ?: date('Y-m-d')),
             'customer' => $customer->customer_number ?? '',
             'currency' => $data['currency'],
             'order_total' => 0,
             'order_total_quantity' => 0,
-            'exchange_rate' => $currencyRate,
+            'exchange_rate' => (float) ($data['exchange_rate'] ?? $currencyRate),
             'note' => $data['note'] ?? '',
             'internal_note' => $data['internal_note'] ?? '',
             'store_note' => $data['store_note'] ?? '',
@@ -80,34 +223,13 @@ class SalesOrderService
         $lineNumber = 1;
 
         foreach ($lines as $line) {
-
-            // Get article cost
-            $unitCost = 0;
-
-            $supplierPrice = SupplierArticlePrice::where('article_number', $line['article_number'])->first();
-            if ($supplierPrice) {
-                $unitCost = $currencyConverter->convert(
-                    (float) $supplierPrice->price,
-                    $supplierPrice->currency,
-                    $data['currency']
-                );
+            if (!isset($line['line_number'])) {
+                $line['line_number'] = $lineNumber++;
             }
 
+            $line['sales_person'] = ($line['sales_person'] ?? '') ?: ($data['sales_person'] ?? '');
 
-            SalesOrderLine::create([
-                'sales_order_id' => $salesOrder->id,
-                'line_number' => $lineNumber++,
-                'article_number' => $line['article_number'],
-                'invoice_number' => '',
-                'sales_person' => (string) ($data['sales_person'] ?? ''),
-                'quantity' => (int) ($line['quantity'] ?? 0),
-                'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
-                'quantity_open' => (int) ($line['quantity_open'] ?? 0),
-                'is_completed' => 0,
-                'unit_cost' => $unitCost,
-                'unit_price' => (float) ($line['unit_price'] ?? 0),
-                'description' => (string) $line['description'] ?? '',
-            ]);
+            $this->insertOrderLine($salesOrder->id, $line, $data['currency']);
         }
 
         $this->calculateOrderTotals($salesOrder);
@@ -115,7 +237,6 @@ class SalesOrderService
         $salesOrder->refresh();
 
         $this->createLog($salesOrder->id, 'This order was created.');
-
 
         $skipDispatch = $data['skip_dispatch'] ?? false;
         if (!$skipDispatch) {
@@ -146,6 +267,41 @@ class SalesOrderService
         $salesOrder->update([
             'order_total' => $totalAmount,
             'order_total_quantity' => $totalQuantity,
+        ]);
+    }
+
+    private function insertOrderLine(int $salesOrderID, array $line, string $currency): SalesOrderLine
+    {
+        $currencyConverter = new CurrencyConvertController();
+
+        // Get article cost
+        $unitCost = $line['unit_cost'] ?? null;
+
+        if ($unitCost === null) {
+            $supplierPrice = SupplierArticlePrice::where('article_number', $line['article_number'])->first();
+            if ($supplierPrice) {
+                $unitCost = $currencyConverter->convert(
+                    (float) $supplierPrice->price,
+                    $supplierPrice->currency,
+                    $currency
+                );
+            }
+        }
+
+        return SalesOrderLine::create([
+            'sales_order_id' => $salesOrderID,
+            'line_number' => $line['line_number'],
+            'article_number' => $line['article_number'],
+            'invoice_number' => (string) ($line['invoice_number'] ?? ''),
+            'sales_person' => (string) $line['sales_person'] ?? '',
+            'quantity' => (int) ($line['quantity'] ?? 0),
+            'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
+            'quantity_open' => (int) ($line['quantity_open'] ?? 0),
+            'unit_cost' => $unitCost,
+            'unit_price' => (float) ($line['unit_price'] ?? 0),
+            'description' => (string) $line['description'] ?? '',
+            'unbilled_amount' => (float) ($line['unbilled_amount'] ?? 0),
+            'is_completed' => (int) ($line['is_completed'] ?? 0)
         ]);
     }
 

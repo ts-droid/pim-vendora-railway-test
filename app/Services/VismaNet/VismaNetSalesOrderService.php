@@ -2,6 +2,7 @@
 
 namespace App\Services\VismaNet;
 
+use App\Http\Controllers\Api\SalesOrderApiController;
 use App\Http\Controllers\ApiResponseController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\SalesOrderController;
@@ -168,18 +169,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
         // TODO: Implement update sales order method
     }
 
-    public function fetchSalesOrder(string $orderNumber): void
-    {
-        $response = $this->callAPI('GET', '/v2/salesorder/' . $orderNumber);
-        $order = $response['response'];
-
-        if (!$order || !is_array($order)) {
-            return;
-        }
-
-        $this->importOrder($order);
-    }
-
     public function fetchSalesOrders(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
@@ -219,23 +208,45 @@ class VismaNetSalesOrderService extends VismaNetApiService
             return;
         }
 
-        $salesOrderController = new SalesOrderController();
-
         $orderData = [
             'order_type' => (string) $order['orderType'],
+            'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
+            'customer_number' => (string) ($order['customer']['internalId'] ?? ''),
+            'currency' => (string) ($order['currency'] ?? ''),
+            'note' => (string) ($order['note'] ?? ''),
             'order_number' => (string) $order['orderNo'],
             'customer_ref_no' => (string) ($order['customerRefNo'] ?? ''),
             'status' => (string) ($order['status'] ?? ''),
             'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
-            'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
             'date' => (string) ($order['date'] ?? ''),
-            'customer' => (string) ($order['customer']['internalId'] ?? ''),
-            'currency' => (string) ($order['currency'] ?? ''),
-            'order_total' => (float) ($order['orderTotal'] ?? 0),
             'exchange_rate' => (float) ($order['exchangeRate'] ?? 0),
-            'note' => (string) ($order['note'] ?? ''),
             'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
-            'lines' => [],
+            'source' => 'visma_net',
+            'phone' => (string) ($order['soShippingContact']['phone1'] ?? ''),
+            'email' => (string) ($order['soShippingContact']['email'] ?? ''),
+            'billing_email' => (string) ($order['soBillingContact']['email'] ?? ''),
+            'pay_method' => 'invoice',
+
+            'billing_full_name' => (string) ($order['soBillingContact']['name'] ?? ''),
+            'billing_first_name' => $this->getFirstNameFromFullName($order['soBillingContact']['name'] ?? ''),
+            'billing_last_name' => $this->getLastNameFromFullName($order['soBillingContact']['name'] ?? ''),
+            'billing_street_line_1' => (string) ($order['soBillingAddress']['addressLine1'] ?? ''),
+            'billing_street_line_2' => (string) ($order['soBillingAddress']['addressLine2'] ?? ''),
+            'billing_postal_code' => (string) ($order['soBillingAddress']['postalCode'] ?? ''),
+            'billing_city' => (string) ($order['soBillingAddress']['city'] ?? ''),
+            'billing_country_code' => (string) ($order['soBillingAddress']['country']['id'] ?? ''),
+
+            'shipping_full_name' => (string) ($order['soShippingContact']['name'] ?? ''),
+            'shipping_first_name' => $this->getFirstNameFromFullName($order['soShippingContact']['name'] ?? ''),
+            'shipping_last_name' => $this->getLastNameFromFullName($order['soShippingContact']['name'] ?? ''),
+            'shipping_street_line_1' => (string) ($order['soShippingAddress']['addressLine1'] ?? ''),
+            'shipping_street_line_2' => (string) ($order['soShippingAddress']['addressLine2'] ?? ''),
+            'shipping_postal_code' => (string) ($order['soShippingAddress']['postalCode'] ?? ''),
+            'shipping_city' => (string) ($order['soShippingAddress']['city'] ?? ''),
+            'shipping_country_code' => (string) ($order['soShippingAddress']['country']['id'] ?? ''),
+
+            'skip_dispatch' => 1,
+            'lines' => []
         ];
 
         foreach (($order['lines'] ?? []) as $line) {
@@ -251,7 +262,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 'article_number' => $articleNumber,
                 'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
                 'sales_person' => ($line['salesPerson']['id'] ?? ''),
-                'quantity' => (int) ($line['quantity'] ?? 0),
                 'quantity_on_shipments' => (int) ($line['qtyOnShipments'] ?? 0),
                 'quantity_open' => (int) ($line['openQty'] ?? 0),
                 'unit_cost' => (float) ($line['unitCost'] ?? 0),
@@ -264,25 +274,18 @@ class VismaNetSalesOrderService extends VismaNetApiService
             trigger_stock_sync($articleNumber);
         }
 
-        $response = $salesOrderController->get(new Request([
-            'order_type' => $orderData['order_type'],
-            'order_number' => $orderData['order_number'],
-        ]));
+        $salesOrderService = new SalesOrderService();
+        $salesOrderApiController = new SalesOrderApiController($salesOrderService);
 
-        $existingSalesOrder = ApiResponseController::getDataFromResponse($response);
+        $existingSalesOrder = SalesOrder::where('order_number', $order['orderNo'])->first();
 
-        if (!$existingSalesOrder) {
-            // Create new sales order
-            $salesOrderController->store(new Request($orderData));
+        if ($existingSalesOrder) {
+            // Update the order
+            $salesOrderApiController->update(new Request($orderData), $existingSalesOrder);
         }
         else {
-            // Update existing sales order
-            $salesOrder = SalesOrder::find($existingSalesOrder[0]['id']);
-
-            // Force update of order lines, will remove order lines that are not present int the request
-            $orderData['force_order_lines'] = 1;
-
-            $salesOrderController->update(new Request($orderData), $salesOrder);
+            // Create a new order
+            $salesOrderApiController->store(new Request($orderData));
         }
     }
 
@@ -325,5 +328,17 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
 
         return $matrix[$payMethod]['currency'] ?? null;
+    }
+
+    private function getFirstNameFromFullName(string $fullName): string
+    {
+        $nameParts = explode(' ', $fullName);
+        return $nameParts[0] ?? '';
+    }
+
+    private function getLastNameFromFullName(string $fullName): string
+    {
+        $nameParts = explode(' ', $fullName);
+        return isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
     }
 }
