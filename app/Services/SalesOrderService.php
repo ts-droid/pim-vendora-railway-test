@@ -116,7 +116,11 @@ class SalesOrderService
 
         $this->createLog($salesOrder->id, 'This order was created.');
 
-        (new DispatchOrderCreated())->execute($salesOrder);
+
+        $skipDispatch = $data['skip_dispatch'] ?? false;
+        if (!$skipDispatch) {
+            (new DispatchOrderCreated())->execute($salesOrder);
+        }
 
         return $salesOrder;
     }
