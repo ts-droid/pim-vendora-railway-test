@@ -91,7 +91,6 @@ class ArticleController extends Controller
         $stockData = DB::table('articles')
             ->select('article_number', 'stock')
             ->where('status', '!=', 'Inactive')
-            ->where('stock', '>', 0)
             ->get()
             ->toArray();
 
