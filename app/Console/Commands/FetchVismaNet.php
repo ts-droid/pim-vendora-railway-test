@@ -83,8 +83,8 @@ class FetchVismaNet extends Command
                 break;
 
             case 'sales-orders':
-                $salesOrderService = new VismaNetSalesOrderService();
-                $salesOrderService->fetchSalesOrders();
+                /*$salesOrderService = new VismaNetSalesOrderService();
+                $salesOrderService->fetchSalesOrders();*/
                 break;
 
             case 'transactions':

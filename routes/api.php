@@ -222,6 +222,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/simple', [ArticleController::class, 'getSimple'])->name('articles.getSimple');
         Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');
         Route::get('/unspsc-categories', [ArticleController::class, 'unspscCategories'])->name('articles.unspscCategories');
+        Route::get('/stock-data', [ArticleController::class, 'getStockData'])->name('articles.getStockData');
         Route::get('/order-row', [ArticleController::class, 'getDataForOrderRow'])->name('articles.getDataForOrderRow');
 
         Route::get('/edit-data', [ArticleController::class, 'getEditData'])->name('articles.getEditData');

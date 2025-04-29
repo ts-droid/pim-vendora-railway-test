@@ -8,6 +8,8 @@ use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
 use App\Http\Controllers\StatusCheckController;
 use App\Http\Controllers\VismaNetTestController;;
+
+use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +26,15 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
+});
+
+Route::get('/test', function() {
+
+    $service = new \App\Services\VismaNet\VismaNetSalesOrderService();
+    $service->fetchSalesOrders('2025-04-22 00:01:00');
+
+
+    dd('END');
 });
 
 Route::prefix('/visma')->group(function() {

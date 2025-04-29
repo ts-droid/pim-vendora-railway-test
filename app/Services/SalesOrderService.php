@@ -3,13 +3,17 @@
 namespace App\Services;
 
 use App\Actions\DispatchOrderCreated;
+use App\Actions\DispatchOrderUpdated;
+use App\Enums\LaravelQueues;
 use App\Http\Controllers\CurrencyConvertController;
+use App\Mail\SalesOrderConfirmation;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\SalesOrderLog;
 use App\Models\SupplierArticlePrice;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class SalesOrderService
@@ -151,6 +155,11 @@ class SalesOrderService
 
         $salesOrder->refresh();
 
+        $skipDispatch = $data['skip_dispatch'] ?? false;
+        if (!$skipDispatch) {
+            (new DispatchOrderUpdated())->execute($salesOrder);
+        }
+
         return $salesOrder;
     }
 
@@ -241,6 +250,13 @@ class SalesOrderService
         $skipDispatch = $data['skip_dispatch'] ?? false;
         if (!$skipDispatch) {
             (new DispatchOrderCreated())->execute($salesOrder);
+        }
+
+        $skipEmail = $data['skip_email'] ?? false;
+        if (!$skipEmail && $salesOrder->email) {
+            Mail::to($salesOrder->email)
+                ->queue(new SalesOrderConfirmation($salesOrder))
+                ->onQueue(LaravelQueues::DEFAULT->value);
         }
 
         return $salesOrder;

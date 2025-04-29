@@ -98,6 +98,13 @@ class VismaNetApiService
                     ->put($url, $params);
                 break;
 
+            case 'PATCH':
+                $response = Http::withHeaders($headers)
+                    ->connectTimeout(600)
+                    ->timeout(600)
+                    ->patch($url, $params);
+                break;
+
             case 'GET':
             default:
                 $response = Http::withHeaders($headers)

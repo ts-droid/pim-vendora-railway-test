@@ -86,6 +86,18 @@ class ArticleController extends Controller
         return ApiResponseController::success($categories->toArray());
     }
 
+    public function getStockData()
+    {
+        $stockData = DB::table('articles')
+            ->select('article_number', 'stock')
+            ->where('status', '!=', 'Inactive')
+            ->where('stock', '>', 0)
+            ->get()
+            ->toArray();
+
+        return ApiResponseController::success($stockData);
+    }
+
     public function getSimple(Request $request)
     {
         $query = DB::table('articles')
