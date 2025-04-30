@@ -26,7 +26,7 @@ class TranslateDatabase extends Command
      */
     public function handle()
     {
-        $languageFieldTranslator = new LanguageFieldTranslator(25);
+        $languageFieldTranslator = new LanguageFieldTranslator(50);
         $languageFieldTranslator->translateDatabase();
     }
 }
