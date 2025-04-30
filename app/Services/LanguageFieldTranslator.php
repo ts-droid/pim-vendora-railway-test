@@ -107,7 +107,8 @@ class LanguageFieldTranslator
         $attributes = [];
 
         foreach ($languages as $language) {
-            if ($language->language_code == self::DEFAULT_LANGUAGE) {
+            if ($language->language_code == self::DEFAULT_LANGUAGE
+                || $language->language_code == 'is') {
                 continue;
             }
 
