@@ -37,7 +37,9 @@ Route::get('/sync-all-article', function() {
     \Illuminate\Support\Facades\DB::table('articles')->where('is_syncing', 1)->update(['is_syncing' => 0]);
 
     // Queue all articles
-    $articleIDs = \Illuminate\Support\Facades\DB::table('articles')->pluck('id');
+    $articleIDs = \Illuminate\Support\Facades\DB::table('articles')
+        ->whereIn('status', ['Active', 'NoPurchases'])
+        ->pluck('id');
 
     $count = 0;
 
