@@ -29,6 +29,27 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/sync-all-article', function() {
+    // Remove all jobs
+    \Illuminate\Support\Facades\DB::table('jobs')->where('queue', 'article-sync')->delete();
+
+    // Clear sync status
+    \Illuminate\Support\Facades\DB::table('articles')->where('is_syncing', 1)->update(['is_syncing' => 0]);
+
+    // Queue all articles
+    $articleIDs = \Illuminate\Support\Facades\DB::table('articles')->pluck('id');
+
+    $count = 0;
+
+    foreach ($articleIDs as $articleID) {
+        UpdateArticleJob::dispatch($articleID, false)->onQueue('article-sync');
+
+        $count++;
+    }
+
+    die('Queued ' . $count . ' articles to sync.');
+});
+
 Route::get('/sync-article', function(\Illuminate\Http\Request $request) {
     $articleNumber = $request->get('articlenumber');
     if (!$articleNumber) {
