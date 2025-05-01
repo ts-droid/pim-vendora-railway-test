@@ -32,17 +32,21 @@ Route::get('/', function () {
 Route::get('/sync-article', function(\Illuminate\Http\Request $request) {
     $articleNumber = $request->get('articlenumber');
     if (!$articleNumber) {
-        dd('Missing parameter "articlenumber".');
+        die('Missing parameter "articlenumber".');
     }
 
     $articleID = \App\Models\Article::where('article_number', $articleNumber)->pluck('id')->first();
+
+    if (!$articleID) {
+        die('Article not found');
+    }
 
     $articleService = new \App\Services\Models\ArticleService();
 
     $job = new UpdateArticleJob($articleID, false);
     $job->handle($articleService);
 
-    dd('DONE.');
+    die('DONE!');
 });
 
 Route::prefix('/visma')->group(function() {
