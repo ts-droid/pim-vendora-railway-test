@@ -288,9 +288,11 @@ class WgrArticleService
             $postData['title_' . $language->language_code] = trim((string) $article->{'shop_title_' . $language->language_code});
             $postData['description_' . $language->language_code] = trim((string) $article->{'shop_description_' . $language->language_code});
 
-            if (!$postData['title_' . $language->language_code]
-                || !$postData['description_' . $language->language_code]) {
-                $isHidden = true;
+            if (in_array($language->language_code, LanguageController::REQUIRED_EXTERNAL_LANGUAGES['wgr'])) {
+                if (!$postData['title_' . $language->language_code]
+                    || !$postData['description_' . $language->language_code]) {
+                    $isHidden = true;
+                }
             }
         }
 

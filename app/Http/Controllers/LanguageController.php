@@ -18,6 +18,10 @@ class LanguageController extends Controller
         'wgr' => ['sv', 'en', 'no', 'fi', 'da', 'de', 'es'],
     ];
 
+    const REQUIRED_EXTERNAL_LANGUAGES = [
+        'wgr' => ['sv', 'en', 'no', 'fi', 'da']
+    ];
+
     /**
      * Returns all languages
      *
