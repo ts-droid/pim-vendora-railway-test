@@ -35,7 +35,7 @@ Route::get('/sync-article', function(\Illuminate\Http\Request $request) {
         die('Missing parameter "articlenumber".');
     }
 
-    $articleID = \App\Models\Article::where('article_number', $articleNumber)->pluck('id')->first();
+    $articleID = \Illuminate\Support\Facades\DB::table('articles')->where('article_number', $articleNumber)->value('id');
 
     if (!$articleID) {
         die('Article not found');
