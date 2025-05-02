@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\SalesOrder;
+use App\Services\SalesOrderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -33,6 +34,9 @@ class SalesOrderConfirmation extends Mailable
         $this->emailSubject = __('order_confirm_subject');
         $this->emailFromEmail = 'info@vendora.se';
         $this->emailFromName = $this->brandingData['brand_name'];
+
+        $salesOrderService = new SalesOrderService();
+        $salesOrderService->createLog($this->salesOrder->id, 'Sent order confirmation email.');
     }
 
     /**
