@@ -1,0 +1,16 @@
+{
+    "order_confirm_subject": "Your order has been received!",
+    "order_confirm_title": "Hi :name, thank you for the order!",
+    "order_confirm_text_1": "As soon as your order has been confirmed and shipped, you will hear from us again.",
+    "order_confirm_text_2": "We hope you enjoyed shopping with us!",
+    "order_confirm_items": "Products",
+    "order_confirm_quantity": "Quantity",
+    "order_confirm_shipping_address": "Shipping address",
+    "order_confirm_sub_total": "Subtotal",
+    "order_confirm_total": "Total",
+    "order_confirm_details": "Order details",
+    "order_confirm_date": "Date",
+    "order_confirm_number": "Order number",
+    "order_confirm_pay_method": "Payment method",
+    "order_confirm_billing_address": "Billing address"
+}

@@ -16,6 +16,7 @@ class SalesOrderConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public SalesOrder $salesOrder;
+    public array $brandingData;
 
     public string $emailSubject;
     public string $emailFromEmail;
@@ -27,10 +28,11 @@ class SalesOrderConfirmation extends Mailable
     public function __construct(SalesOrder $salesOrder)
     {
         $this->salesOrder = $salesOrder;
+        $this->brandingData = $salesOrder->getBrandingDate();
 
-        $this->emailSubject = 'Thank you for your purchase!';
+        $this->emailSubject = __('order_confirm_subject');
         $this->emailFromEmail = 'info@vendora.se';
-        $this->emailFromName = 'Vendora Nordic AB';
+        $this->emailFromName = $this->brandingData['brand_name'];
     }
 
     /**

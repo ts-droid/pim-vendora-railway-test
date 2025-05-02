@@ -10,29 +10,53 @@
         * {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 0.95rem;
+            line-height: 1.3;
         }
+
+        body {
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 625px;
+            margin: 0 auto;
+        }
+
         h1 {
             font-size: 1.5rem;
             font-weight: 300;
         }
-        p {
-            color: #777777;
-        }
-
-        .silent-table {
-            border-collapse: collapse;
-        }
-        .silent-table td {
-            padding: 0;
-        }
 
         .order-table {
+            width: 100%;
             border-collapse: collapse;
+        }
+        .order-table th {
+            color: #888888;
+            font-weight: 300;
+            border-bottom: 1px #e7e7e7 solid;
         }
         .order-table th,
         .order-table td {
-            border: 1px solid #777777;
-            padding: 0.25rem 0.5rem;
+            text-align: left;
+            padding: 0.5rem 0.5rem;
+            vertical-align: top;
+        }
+        .order-table td:last-child {
+            text-align: right;
+        }
+        .item-data {
+            display: flex;
+        }
+        .item-data__image {
+            width: 75px;
+            height: 75px;
+            margin-right: 16px;
+            background-color: #F5F5F5;
+        }
+        .item-data__description {
+            margin-bottom: 4px;
         }
 
         .text-start {
@@ -41,78 +65,125 @@
         .text-end {
             text-align: right !important;
         }
+
+        table {
+            width: 100%;
+        }
+
+        .box {
+            background-color: #F5F5F5;
+            padding: 16px;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
 
-<img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('/assets/img/logos/logo_vendora.png'))) }}" style="height: 28px;margin-bottom: 1rem;" />
-<h1>Thank you for your purchase!</h1>
-<p>Hi Anton! We are preparing your order for delivery. We will notify you when it has been shipped.</p>
+<div class="container">
+    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents($brandingData['logo_path'] ?: $brandingData['logo_url'])) }}" style="height: 28px;margin-bottom: 1rem;" />
 
-<br>
+    <h1>{{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}</h1>
 
-<table class="silent-table">
-    <tr>
-        <td style="padding-right: 4rem;">
-            <h2>Billing Address</h2>
-            <p>
-                Anton Kihlström<br>
-                Kastellvägen 21<br>
-                82450, Hudiksvall<br>
-                Sweden
-            </p>
-        </td>
-        <td>
-            <h2>Shipping Address</h2>
-            <p>
-                Evelina Collén<br>
-                Falkvägen 25B<br>
-                83156, Sollefteå<br>
-                Sweden
-            </p>
-        </td>
-    </tr>
-</table>
+    <p>{{ __('order_confirm_text_1') }}</p>
 
-<br>
+    <p>{{ __('order_confirm_text_2') }}</p>
 
-<table class="order-table">
-    <tr>
-        <th class="text-start">SKU</th>
-        <th class="text-start">Description</th>
-        <th class="text-end">Unit price</th>
-        <th class="text-end">Quantity</th>
-        <th class="text-end">Total</th>
-    </tr>
-    <tr>
-        <td class="text-start">PL2A-11-24</td>
-        <td class="text-start">Paperlike 21 skärmskydd för iPad Pro 11 2024 (2-pack)</td>
-        <td class="text-end">202.59</td>
-        <td class="text-end">2 pcs</td>
-        <td class="text-end">405.18</td>
-    </tr>
-    <tr>
-        <td class="text-start">P052-51-V</td>
-        <td class="text-start">Pipetto iPad 109-tum (10e gen) Origami No1 Original - Marinblå</td>
-        <td class="text-end">292.79</td>
-        <td class="text-end">4 pcs</td>
-        <td class="text-end">1 171.16</td>
-    </tr>
-    <tr>
-        <th colspan="3"></th>
-        <th class="text-end">6 pcs</th>
-        <th class="text-end">1 576.34</th>
-    </tr>
-</table>
+    <br>
 
-<br>
+    <br>
 
-<p>
-    This is an order confirmation only. Your order will be processed shortly, and you will receive a separate email
-    once your items have been shipped. If you have any questions, please contact our customer support.
-    Thank you for your purchase!
-</p>
+    <table class="order-table">
+        <tr>
+            <th colspan="2">{{ __('order_confirm_items') }}</th>
+        </tr>
+        @if($salesOrder->lines ?? false)
+            @foreach($salesOrder->lines as $salesOrderLine)
+                <tr>
+                    <td>
+                        <div class="item-data">
+                            <div class="item-data__image">
+
+                            </div>
+                            <div class="item-data__text">
+                                <div class="item-data__description">{{ $salesOrderLine->description }}</div>
+                                <div>{{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>{{ number_format(($salesOrderLine->unit_price * $salesOrderLine->quantity), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
+                    </td>
+                </tr>
+            @endforeach
+        @endif
+        <tr>
+            <td colspan="2" class="text-start">
+                {{ __('order_confirm_shipping_address') }}:<br>
+                @if($salesOrder->shippingAddress ?? false)
+                    {{ $salesOrder->shippingAddress->full_name }}<br>
+                    {{ $salesOrder->shippingAddress->street_line_1 }}<br>
+                    @if($salesOrder->shippingAddress->street_line_2)
+                        {{ $salesOrder->shippingAddress->street_line_2 }}<br>
+                    @endif
+                    {{ $salesOrder->shippingAddress->postal_code }} {{ $salesOrder->shippingAddress->city }}<br>
+                    {{ $salesOrder->shippingAddress->country_code }}
+                @endif
+            </td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <div class="box">
+        <table>
+            <tr>
+                <td class="text-start">{{ __('order_confirm_items') }}</td>
+                <td class="text-end">2</td>
+            </tr>
+            <tr>
+                <td class="text-start">{{ __('order_confirm_sub_total') }}</td>
+                <td class="text-end">{{ number_format($salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+            </tr>
+            <tr class="fw-bold">
+                <td class="text-start">{{ __('order_confirm_total') }}</td>
+                <td class="text-end">{{ number_format($salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <br><br>
+
+    <table class="order-table">
+        <tr>
+            <th colspan="2">{{ __('order_confirm_details') }}</th>
+        </tr>
+        <tr>
+            <td class="text-start">
+                {{ __('order_confirm_date') }}: {{ $salesOrder->date }}<br>
+                {{ __('order_confirm_number') }}: {{ $salesOrder->order_number }}<br>
+                {{ __('order_confirm_pay_method') }}: {{ $salesOrder->pay_method }}<br>
+            </td>
+        </tr>
+        <tr>
+            <td class="text-start">
+                {{ __('order_confirm_billing_address') }}:<br>
+                @if($salesOrder->billingAddress ?? false)
+                    {{ $salesOrder->billingAddress->full_name }}<br>
+                    {{ $salesOrder->billingAddress->street_line_1 }}<br>
+                    @if($salesOrder->billingAddress->street_line_2)
+                        {{ $salesOrder->billingAddress->street_line_2 }}<br>
+                    @endif
+                    {{ $salesOrder->billingAddress->postal_code }} {{ $salesOrder->billingAddress->city }}<br>
+                    {{ $salesOrder->billingAddress->country_code }}
+                @endif
+            </td>
+        </tr>
+    </table>
+</div>
 
 </body>
 </html>
