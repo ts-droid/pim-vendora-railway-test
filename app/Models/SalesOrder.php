@@ -27,6 +27,7 @@ class SalesOrder extends Model
         'exchange_rate',
         'note',
         'internal_note',
+        'store_note',
         'on_hold',
         'source',
         'shipping_address_id',
