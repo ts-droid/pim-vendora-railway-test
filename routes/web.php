@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleSyncController;
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\MonitorDashboardController;
@@ -29,48 +30,8 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/sync-all-article', function() {
-    // Remove all jobs
-    \Illuminate\Support\Facades\DB::table('jobs')->where('queue', 'article-sync')->delete();
-
-    // Clear sync status
-    \Illuminate\Support\Facades\DB::table('articles')->where('is_syncing', 1)->update(['is_syncing' => 0]);
-
-    // Queue all articles
-    $articleIDs = \Illuminate\Support\Facades\DB::table('articles')
-        ->whereIn('status', ['Active', 'NoPurchases'])
-        ->pluck('id');
-
-    $count = 0;
-
-    foreach ($articleIDs as $articleID) {
-        UpdateArticleJob::dispatch($articleID, false)->onQueue('article-sync');
-
-        $count++;
-    }
-
-    die('Queued ' . $count . ' articles to sync.');
-});
-
-Route::get('/sync-article', function(\Illuminate\Http\Request $request) {
-    $articleNumber = $request->get('articlenumber');
-    if (!$articleNumber) {
-        die('Missing parameter "articlenumber".');
-    }
-
-    $articleID = \Illuminate\Support\Facades\DB::table('articles')->where('article_number', $articleNumber)->value('id');
-
-    if (!$articleID) {
-        die('Article not found');
-    }
-
-    $articleService = new \App\Services\Models\ArticleService();
-
-    $job = new UpdateArticleJob($articleID, false);
-    $job->handle($articleService);
-
-    die('DONE!');
-});
+Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
+Route::get('/sync-all-article', [ArticleSyncController::class, 'syncAllArticles']);
 
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
