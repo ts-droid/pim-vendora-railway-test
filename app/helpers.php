@@ -3,6 +3,27 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('get_article_image')) {
+    function get_article_image(string $articleNumber)
+    {
+        $articleID = DB::table('articles')
+            ->where('article_number', $articleNumber)
+            ->value('id');
+
+        if (!$articleID) {
+            return null;
+        }
+
+        $articleImage = DB::table('article_images')
+            ->select('path_url')
+            ->where('article_id', $articleID)
+            ->orderBy('list_order', 'ASC')
+            ->first();
+
+        return $articleImage->path_url ?: null;
+    }
+}
+
 if (!function_exists('trigger_stock_sync')) {
     function trigger_stock_sync(string $articleNumber)
     {

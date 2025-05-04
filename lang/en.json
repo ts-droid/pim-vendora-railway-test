@@ -12,5 +12,10 @@
     "order_confirm_date": "Date",
     "order_confirm_number": "Order number",
     "order_confirm_pay_method": "Payment method",
-    "order_confirm_billing_address": "Billing address"
+    "order_confirm_billing_address": "Billing address",
+    "order_confirm_distributor": "Official distributor for",
+    "order_confirm_email": "Email",
+    "order_confirm_org_nr": "Organization number",
+    "order_confirm_vat_nr": "VAT number",
+    "order_confirm_hq": "Headquarters"
 }

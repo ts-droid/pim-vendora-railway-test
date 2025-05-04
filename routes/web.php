@@ -30,6 +30,19 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function () {
+    $salesOrder = new SalesOrder();
+    $brandingData = [
+        'brand_name' => 'Satechi',
+        'logo_url' => 'https://satechi.se/storage/1708969694satechilogo.webp',
+        'logo_path' => null
+    ];
+
+    $emailSubject = 'asd';
+
+    return view('emails.salesOrder.confirmation', compact('salesOrder', 'brandingData', 'emailSubject'));
+});
+
 Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
 Route::get('/sync-all-article', [ArticleSyncController::class, 'syncAllArticles']);
 
