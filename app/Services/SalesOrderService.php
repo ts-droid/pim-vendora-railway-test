@@ -203,7 +203,7 @@ class SalesOrderService
 
         $salesOrder = SalesOrder::create([
             'order_type' => $data['order_type'] ?? 'WO',
-            'order_number' => $this->generateOrderNumber($data['order_number'] ?? ''),
+            'order_number' => $this->generateOrderNumber(($data['order_number'] ?? ''), $data['order_number_prefix'] ?? ''),
             'customer_ref_no' => $data['customer_ref_no'] ?? '',
             'status' => (string) (($data['status'] ?? '') ?: 'Open'),
             'invoice_number' => $data['invoice_number'] ?? '',
@@ -323,24 +323,50 @@ class SalesOrderService
         ]);
     }
 
-    private function generateOrderNumber($orderNumberDefault): string
+    private function generateOrderNumber($orderNumberDefault = '', $orderNumberPrefix = ''): string
     {
         $attempt = 1;
 
-        do {
-            if ($orderNumberDefault) {
-                $orderNumber = $orderNumberDefault;
+        if ($orderNumberDefault !== '') {
+            do {
+                $number = $orderNumberDefault;
 
                 if ($attempt > 1) {
-                    $orderNumber .= '-' . $attempt;
+                    $number .= '-' . $attempt;
                 }
-            }
-            else {
-                $orderNumber = Str::random(12);
-            }
 
-            $attempt++;
-        } while ($this->orderNumberExists($orderNumber));
+                $orderNumber = $orderNumberPrefix . $number;
+                $attempt++;
+            } while ($this->orderNumberExists($orderNumber));
+
+            return $orderNumber;
+        }
+
+        $existingNumericOrders = DB::table('sales_orders')
+            ->select('order_number')
+            ->whereRaw('order_number REGEXP "^[0-9]+$"')
+            ->pluck('order_number')
+            ->map(fn($n) => (int) $n)
+            ->filter()
+            ->sort()
+            ->values();
+
+        $nextNumber = 1000;
+
+        foreach ($existingNumericOrders as $number) {
+            if ($number === $nextNumber) {
+                $nextNumber++;
+            } else {
+                break;
+            }
+        }
+
+        $orderNumber = $orderNumberPrefix . (string) $nextNumber;
+
+        while ($this->orderNumberExists($orderNumber)) {
+            $nextNumber++;
+            $orderNumber = $orderNumberPrefix . (string) $nextNumber;
+        }
 
         return $orderNumber;
     }
