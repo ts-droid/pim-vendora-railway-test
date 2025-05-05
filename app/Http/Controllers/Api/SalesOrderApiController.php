@@ -43,7 +43,7 @@ class SalesOrderApiController
         $validator = Validator::make($request->all(), [
             'order_type' => 'required|string|max:255',
             'order_number' => 'sometimes|string|max:255',
-            'order_number_prefix' => 'sometimes|string|max:2'
+            'order_number_prefix' => 'sometimes|string|max:2',
             'sales_person' => 'sometimes|string|max:255',
             'customer_number' => 'sometimes|string|max:255',
             'currency' => 'required|string|min:3|max:3',
