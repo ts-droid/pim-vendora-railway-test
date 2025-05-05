@@ -13,6 +13,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\SalesOrderLog;
 use App\Models\SupplierArticlePrice;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
