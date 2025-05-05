@@ -316,7 +316,7 @@ class SalesOrderService
             'quantity' => (int) ($line['quantity'] ?? 0),
             'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
             'quantity_open' => (int) ($line['quantity_open'] ?? 0),
-            'unit_cost' => $unitCost,
+            'unit_cost' => $unitCost ?: 0,
             'unit_price' => (float) ($line['unit_price'] ?? 0),
             'description' => (string) $line['description'] ?? '',
             'unbilled_amount' => (float) ($line['unbilled_amount'] ?? 0),
