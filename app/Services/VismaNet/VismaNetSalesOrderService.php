@@ -189,8 +189,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'exchange_rate' => (float) ($order['exchangeRate'] ?? 0),
             'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
             'source' => 'visma_net',
-            'phone' => (string) ($order['soShippingContact']['phone1'] ?? ''),
-            'email' => (string) ($order['soShippingContact']['email'] ?? ''),
+            'phone' => (string) (($order['soShippingContact']['phone1'] ?? '') ?: ($order['soBillingContact']['phone1'] ?? '')),
+            'email' => (string) (($order['soShippingContact']['email'] ?? '') ?: ($order['soBillingContact']['email'] ?? '')),
             'billing_email' => (string) ($order['soBillingContact']['email'] ?? ''),
             'pay_method' => 'invoice',
 
