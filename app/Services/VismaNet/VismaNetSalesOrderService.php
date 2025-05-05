@@ -151,8 +151,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $orders = $this->getPagedResult('/v2/salesorder', $params);
 
-        dd($orders);
-
         if ($orders) {
             foreach ($orders as $order) {
                 $fetchedData = true;
