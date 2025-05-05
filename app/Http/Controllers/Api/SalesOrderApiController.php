@@ -89,7 +89,11 @@ class SalesOrderApiController
             return ApiResponseController::error($errors[0]);
         }
 
-        $salesOrder = $this->orderService->createSalesOrder($request->all());
+        try {
+            $salesOrder = $this->orderService->createSalesOrder($request->all());
+        } catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
 
         return ApiResponseController::success($salesOrder->toArray());
     }
