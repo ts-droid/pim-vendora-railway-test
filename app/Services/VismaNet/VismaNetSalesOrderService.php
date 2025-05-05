@@ -258,7 +258,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $response = json_decode($response->content(), true);
         if (!$response['success']) {
-            Log::error($response['message']);
+            Log::error($response['error_message']);
         }
     }
 
