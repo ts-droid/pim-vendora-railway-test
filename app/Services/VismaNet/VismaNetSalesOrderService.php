@@ -11,6 +11,7 @@ use App\Models\SalesOrderLine;
 use App\Services\SalesOrderService;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VismaNetSalesOrderService extends VismaNetApiService
 {
@@ -248,11 +249,16 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if ($existingSalesOrder) {
             // Update the order
-            $salesOrderApiController->update(new Request($orderData), $existingSalesOrder);
+            $response = $salesOrderApiController->update(new Request($orderData), $existingSalesOrder);
         }
         else {
             // Create a new order
-            $salesOrderApiController->store(new Request($orderData));
+            $response = $salesOrderApiController->store(new Request($orderData));
+        }
+
+        $response = json_decode($response->content(), true);
+        if (!$response['success']) {
+            Log::error($response['message']);
         }
     }
 
