@@ -22,6 +22,7 @@ class SalesOrder extends Model
         'date',
         'customer',
         'currency',
+        'language',
         'order_total',
         'order_total_quantity',
         'exchange_rate',

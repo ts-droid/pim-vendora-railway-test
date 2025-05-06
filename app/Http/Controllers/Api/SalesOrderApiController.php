@@ -47,6 +47,7 @@ class SalesOrderApiController
             'sales_person' => 'sometimes|string|max:255',
             'customer_number' => 'sometimes|string|max:255',
             'currency' => 'required|string|min:3|max:3',
+            'language' => 'sometimes|string|min:2|max:2',
             'note' => 'sometimes|string',
             'internal_note' => 'sometimes|string',
             'store_note' => 'sometimes|string',
