@@ -73,13 +73,13 @@ class SalesOrderService
             foreach ($lines as $line) {
                 if (!isset($line['line_number'])) {
                     $line['line_number'] = $lineNumber++;
-
-                    $line['sales_person'] = ($line['sales_person'] ?? '') ?: ($data['sales_person'] ?? '');
-
-                    $currency = $data['currency'] ?? $salesOrder->currency;
-
-                    $this->insertOrderLine($salesOrder->id, $line, $currency);
                 }
+
+                $line['sales_person'] = ($line['sales_person'] ?? '') ?: ($data['sales_person'] ?? '');
+
+                $currency = $data['currency'] ?? $salesOrder->currency;
+
+                $this->insertOrderLine($salesOrder->id, $line, $currency);
             }
         }
 
