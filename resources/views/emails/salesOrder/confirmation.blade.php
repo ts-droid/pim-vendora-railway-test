@@ -6,7 +6,7 @@
     <title>{{ $emailSubject }}</title>
 </head>
 
-<body style="margin:0;padding:0;background-color:#ffffff;text-align:center;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;line-height:1.3;">
+<body style="margin:0;padding:0 32px;background-color:#ffffff;text-align:center;font-family:Arial, Helvetica, sans-serif;font-size:0.95rem;line-height:1.3;">
 
 
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
