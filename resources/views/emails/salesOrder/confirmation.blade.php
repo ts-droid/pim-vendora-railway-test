@@ -40,13 +40,11 @@
                                 </tr>
                                 @if($salesOrder->lines ?? false)
                                     @foreach($salesOrder->lines as $salesOrderLine)
-                                        @if($salesOrderLine->article_number === 'SHIP25')
-                                            @continue
-                                        @endif
-
                                         <tr>
                                             <td style="vertical-align: top;width: 90px;padding-top: 8px;">
-                                                <img src="{{ get_article_image($salesOrderLine->article_number) }}" style="background-color: #F5F5F5;height: 75px;width: 75px;" height="75" width="75" />
+                                                @if($salesOrderLine->article_number !== 'SHIP25')
+                                                    <img src="{{ get_article_image($salesOrderLine->article_number) }}" style="background-color: #F5F5F5;height: 75px;width: 75px;" height="75" width="75" />
+                                                @endif
                                             </td>
                                             <td style="vertical-align: top;padding-top: 8px;">
                                                 {{ $salesOrderLine->description }}<br>
