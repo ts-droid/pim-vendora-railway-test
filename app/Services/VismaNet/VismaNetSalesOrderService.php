@@ -33,7 +33,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if (!$response['success']) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to create shipment in Visma.net for this order.');
-            throw new \Exception('Failed to create shipment in Visma.net.');
+            throw new \Exception('Failed to create shipment in Visma.net. ' . json_encode($response));
         }
 
         $salesOrderService->createLog($salesOrder->id, 'Created shipment in Visma.net for this order.');
