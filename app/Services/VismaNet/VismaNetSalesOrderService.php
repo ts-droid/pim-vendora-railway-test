@@ -61,7 +61,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $orderData = $this->getOrderData($salesOrder, $customerNumber);
 
-        $response = $this->callAPI('POST', '/v3/salesorders', $orderData);
+        $response = $this->callAPI('POST', '/v2/salesorder', $orderData);
 
         if ($response['http_code'] !== 201) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net (' . ($response['response']['details']['message'] ?? 'unknown-error') . ')');
@@ -111,26 +111,12 @@ class VismaNetSalesOrderService extends VismaNetApiService
             throw new \Exception('Failed to update order in Visma.net. Customer ' . $customerNumber . ' not found.');
         }
 
-        $orderData = $this->getOrderData($salesOrder, $customerNumber);
-        $linesData = [
-            'lines' => [],
-            'updateCompleted' => true
-        ];
+        $orderData = $this->getOrderData($salesOrder, $customerNumber, true);
 
-        foreach ($orderData['lines'] as $line) {
-            $linesData['lines'][] = $line;
-        }
-
-        $orderResponse = $this->callAPI('PATCH', '/v3/salesorders/' . $salesOrder->order_type . '/' . $salesOrder->order_number, $orderData);
+        $orderResponse = $this->callAPI('PATCH', '/v1/salesorder/' . $salesOrder->order_number, $orderData);
         if ($orderResponse['http_code'] !== 202) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to update this order in Visma.net. API request failed to update order.');
             throw new \Exception('Failed to update order in Visma.net. API request failed to update order.');
-        }
-
-        $linesResponse = $this->callAPI('PATCH', '/v3/salesorders/' . $salesOrder->order_type . '/' . $salesOrder->order_number . '/lines', $linesData);
-        if ($linesResponse['http_code'] !== 202) {
-            $salesOrderService->createLog($salesOrder->id, 'Failed to update this order in Visma.net. API request failed to update order lines.');
-            throw new \Exception('Failed to update order in Visma.net. API request failed to update order lines.');
         }
 
         $salesOrderService->createLog($salesOrder->id, 'This order was updated in Visma.net');
@@ -263,106 +249,114 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
     }
 
-    private function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $withLineIDs = false): array
+    private function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $isUpdate = false): array
     {
         $orderData = [
-            'type' => $salesOrder->order_type,
-            'orderId' => $salesOrder->order_number,
-            'currencyId' => $salesOrder->currency,
-            'status' => $salesOrder->on_hold ? 'Hold' : 'Open',
-            'customer' => [
-                'id' => $customerNumber
-            ],
-            'note' => '',
-            'overrideNumberSeries' => true,
-            'orderLines' => [],
+            'orderType' => ['value' => $salesOrder->order_type],
+            'orderNumber' => ['value' => $salesOrder->order_number],
+            'currency' => ['value' => $salesOrder->currency],
+            'hold' => ['value' => ($salesOrder->on_hold ? true : false)],
+            'customer' => ['value' => $customerNumber],
+            'note' => ['value' => ''],
+            'overrideNumberSeries' => ['value' => true],
+            'lines' => [],
         ];
 
         $payMethodCode = $this->getPaymentMethodCode($salesOrder->pay_method, $salesOrder->currency);
         if ($payMethodCode) {
-            $orderData['paymentSettings']['paymentMethodId'] = $payMethodCode;
+            $orderData['paymentMethod']['value'] = $payMethodCode;
         }
 
         $cashAccountCode = $this->getCashAccountCode($salesOrder->pay_method, $salesOrder->currency);
         if ($cashAccountCode) {
-            $orderData['paymentSettings']['cashAccountId'] = $cashAccountCode;
+            $orderData['cashAccount']['value'] = $cashAccountCode;
         }
 
         if ($salesOrder->sales_person) {
-            $orderData['salesPersonId'] = $salesOrder->sales_person;
+            $orderData['salesPerson']['value'] = $salesOrder->sales_person;
         }
 
         if ($salesOrder->note) {
-            $orderData['note'] = $salesOrder->note;
+            $orderData['note']['values'] = $salesOrder->note;
         }
         if ($salesOrder->internal_note) {
-            $orderData['note'] = ($orderData['note'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->internal_note;
+            $orderData['note']['values'] = ($orderData['note']['values'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->internal_note;
         }
         if ($salesOrder->store_note) {
-            $orderData['note'] = ($orderData['note'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->store_note;
+            $orderData['note']['values'] = ($orderData['note']['values'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->store_note;
         }
 
         if ($salesOrder->shipping_address_id && $salesOrder->shippingAddress) {
-            $orderData['shipping'] = [
-                'address' => [
-                    'line1' => $salesOrder->shippingAddress->street_line_1,
-                    'line2' => $salesOrder->shippingAddress->street_line_2,
-                    'line3' => '',
-                    'postalCode' => $salesOrder->shippingAddress->postal_code,
-                    'city' => $salesOrder->shippingAddress->city,
-                    'countryId' => $salesOrder->shippingAddress->country_code,
-                ],
-                'contact' => [
-                    'name' => $salesOrder->shippingAddress->full_name,
-                    'attention' => '',
-                    'phone1' => $salesOrder->phone,
-                    'email' => $salesOrder->email,
+            $orderData['soShippingContact'] = [
+                'value' => [
+                    'overrideContact' => ['value' => true],
+                    'name' => ['value' => $salesOrder->shippingAddress->full_name],
+                    'email' => ['value' => $salesOrder->email],
+                    'phone1' => ['value' => $salesOrder->phone],
+                ]
+            ];
+
+            $orderData['soShippingAddress'] = [
+                'value' => [
+                    'overrideAddress' => ['value' => true],
+                    'addressLine1' => ['value' => $salesOrder->shippingAddress->street_line_1],
+                    'addressLine2' => ['value' => $salesOrder->shippingAddress->street_line_2],
+                    'postalCode' => ['value' => $salesOrder->shippingAddress->postal_code],
+                    'city' => ['value' => $salesOrder->shippingAddress->city],
+                    'countryId' => ['value' => $salesOrder->shippingAddress->country_code],
                 ]
             ];
         }
 
         if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
-            $orderData['billing'] = [
-                'address' => [
-                    'line1' => $salesOrder->billingAddress->street_line_1,
-                    'line2' => $salesOrder->billingAddress->street_line_2,
-                    'line3' => '',
-                    'postalCode' => $salesOrder->billingAddress->postal_code,
-                    'city' => $salesOrder->billingAddress->city,
-                    'countryId' => $salesOrder->billingAddress->country_code,
-                ],
-                'contact' => [
-                    'name' => $salesOrder->billingAddress->full_name,
-                    'attention' => '',
-                    'phone1' => $salesOrder->phone,
-                    'email' => $salesOrder->email,
+            $orderData['soBillingContact'] = [
+                'value' => [
+                    'overrideContact' => ['value' => true],
+                    'name' => ['value' => $salesOrder->billingAddress->full_name],
+                    'email' => ['value' => $salesOrder->email],
+                    'phone1' => ['value' => $salesOrder->phone],
+                ]
+            ];
+
+            $orderData['soBillingAddress'] = [
+                'value' => [
+                    'overrideAddress' => ['value' => true],
+                    'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
+                    'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
+                    'postalCode' => ['value' => $salesOrder->billingAddress->postal_code],
+                    'city' => ['value' => $salesOrder->billingAddress->city],
+                    'countryId' => ['value' => $salesOrder->billingAddress->country_code],
                 ]
             ];
         }
 
         foreach ($salesOrder->lines as $orderLine) {
             $lineData = [
-                'inventoryId' => $orderLine->article_number,
-                'description' => $orderLine->description,
-                'quantity' => $orderLine->quantity,
-                'unitCost' => $orderLine->unit_cost,
-                'unitPrice' => $orderLine->unit_price,
-                'warehouseId' => self::WAREHOUSE_ID
+                'operation' => ($isUpdate ? 'Update' : 'Insert'),
+                'lineNbr' => ['value' => $orderLine->line_number],
+                'inventoryNumber' => ['value' => $orderLine->article_number],
+                'warehouse' => ['value' => self::WAREHOUSE_ID],
+                'quantity' => ['value' => $orderLine->quantity],
+                'unitCost' => ['value' => $orderLine->unit_cost],
+                'unitPrice' => ['value' => $orderLine->unit_price],
+                'lineDescription' => ['value' => $orderLine->description],
+                'completed' => ['value' => ((bool) $orderLine->is_completed)],
             ];
 
-            if ($orderLine->sales_person) {
-                $lineData['salesPersonId'] = $orderLine->sales_person;
-            }
-
             if ($salesOrder->order_type === 'PR') {
-                $lineData['reasonCode'] = '20';
+                $lineData['reasonCode']['value'] = '20';
+                $lineData['freeItem']['value'] = true;
             }
 
-            if ($withLineIDs) {
-                $lineData['lineId'] = $orderLine->line_number;
+            if ($orderLine->sales_person) {
+                $lineData['salesPerson']['value'] = $orderLine->sales_person;
             }
 
-            $orderData['orderLines'][] = $lineData;
+            if ($orderLine->invoice_number) {
+                $lineData['invoiceNbr']['value'] = $orderLine->invoice_number;
+            }
+
+            $orderData['lines'][] = $lineData;
         }
 
         return $orderData;
