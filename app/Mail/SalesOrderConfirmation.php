@@ -11,6 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class SalesOrderConfirmation extends Mailable
 {
@@ -30,6 +31,8 @@ class SalesOrderConfirmation extends Mailable
     {
         $this->salesOrder = $salesOrder;
         $this->brandingData = $salesOrder->getBrandingDate();
+
+        App::setLocale($salesOrder->language ?: 'en');
 
         $this->emailSubject = __('order_confirm_subject');
         $this->emailFromEmail = 'info@vendora.se';

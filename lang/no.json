@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Bestillingen din er mottatt!",
+    "order_confirm_title": "Hei :name, takk for bestillingen!",
+    "order_confirm_text_1": "Så snart bestillingen din er bekreftet og sendt, hører du fra oss igjen.",
+    "order_confirm_text_2": "Vi håper du likte å handle hos oss!",
+    "order_confirm_items": "Produkter",
+    "order_confirm_quantity": "Antall",
+    "order_confirm_shipping_address": "Leveringsadresse",
+    "order_confirm_sub_total": "Delsum",
+    "order_confirm_total": "Totalt",
+    "order_confirm_details": "Ordredetaljer",
+    "order_confirm_date": "Dato",
+    "order_confirm_number": "Ordrenummer",
+    "order_confirm_pay_method": "Betalingsmetode",
+    "order_confirm_billing_address": "Fakturaadresse",
+    "order_confirm_distributor": "Offisiell distributør for",
+    "order_confirm_email": "E-post",
+    "order_confirm_org_nr": "Organisasjonsnummer",
+    "order_confirm_vat_nr": "MVA-nummer",
+    "order_confirm_hq": "Hovedkontor"
+}

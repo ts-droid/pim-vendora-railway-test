@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Tilauksesi on vastaanotettu!",
+    "order_confirm_title": "Hei :name, kiitos tilauksestasi!",
+    "order_confirm_text_1": "Heti kun tilauksesi on vahvistettu ja lähetetty, otamme sinuun uudelleen yhteyttä.",
+    "order_confirm_text_2": "Toivomme, että nautit ostoksista kanssamme!",
+    "order_confirm_items": "Tuotteet",
+    "order_confirm_quantity": "Määrä",
+    "order_confirm_shipping_address": "Toimitusosoite",
+    "order_confirm_sub_total": "Välisumma",
+    "order_confirm_total": "Yhteensä",
+    "order_confirm_details": "Tilaustiedot",
+    "order_confirm_date": "Päivämäärä",
+    "order_confirm_number": "Tilausnumero",
+    "order_confirm_pay_method": "Maksutapa",
+    "order_confirm_billing_address": "Laskutusosoite",
+    "order_confirm_distributor": "Virallinen jakelija",
+    "order_confirm_email": "Sähköposti",
+    "order_confirm_org_nr": "Y-tunnus",
+    "order_confirm_vat_nr": "ALV-numero",
+    "order_confirm_hq": "Pääkonttori"
+}

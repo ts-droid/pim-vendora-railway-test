@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Din ordre er modtaget!",
+    "order_confirm_title": "Hej :name, tak for din ordre!",
+    "order_confirm_text_1": "Så snart din ordre er blevet bekræftet og afsendt, hører du fra os igen.",
+    "order_confirm_text_2": "Vi håber, du har haft en god oplevelse med at handle hos os!",
+    "order_confirm_items": "Produkter",
+    "order_confirm_quantity": "Antal",
+    "order_confirm_shipping_address": "Leveringsadresse",
+    "order_confirm_sub_total": "Subtotal",
+    "order_confirm_total": "Total",
+    "order_confirm_details": "Ordredetaljer",
+    "order_confirm_date": "Dato",
+    "order_confirm_number": "Ordrenummer",
+    "order_confirm_pay_method": "Betalingsmetode",
+    "order_confirm_billing_address": "Faktureringsadresse",
+    "order_confirm_distributor": "Officiel distributør for",
+    "order_confirm_email": "E-mail",
+    "order_confirm_org_nr": "CVR-nummer",
+    "order_confirm_vat_nr": "Momsnummer",
+    "order_confirm_hq": "Hovedkontor"
+}

@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Jūsų užsakymas gautas!",
+    "order_confirm_title": "Sveiki, :name! Ačiū už užsakymą!",
+    "order_confirm_text_1": "Kai tik jūsų užsakymas bus patvirtintas ir išsiųstas, mes su jumis vėl susisieksime.",
+    "order_confirm_text_2": "Tikimės, kad apsipirkimas pas mus jums patiko!",
+    "order_confirm_items": "Produktai",
+    "order_confirm_quantity": "Kiekis",
+    "order_confirm_shipping_address": "Pristatymo adresas",
+    "order_confirm_sub_total": "Tarpinė suma",
+    "order_confirm_total": "Iš viso",
+    "order_confirm_details": "Užsakymo informacija",
+    "order_confirm_date": "Data",
+    "order_confirm_number": "Užsakymo numeris",
+    "order_confirm_pay_method": "Apmokėjimo būdas",
+    "order_confirm_billing_address": "Sąskaitos adresas",
+    "order_confirm_distributor": "Oficialus platintojas",
+    "order_confirm_email": "El. paštas",
+    "order_confirm_org_nr": "Įmonės kodas",
+    "order_confirm_vat_nr": "PVM kodas",
+    "order_confirm_hq": "Pagrindinė būstinė"
+}

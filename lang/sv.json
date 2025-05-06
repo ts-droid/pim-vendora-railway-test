@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Din beställning har mottagits!",
+    "order_confirm_title": "Hej :name, tack för din beställning!",
+    "order_confirm_text_1": "Så snart din beställning har bekräftats och skickats kommer du att höra från oss igen.",
+    "order_confirm_text_2": "Vi hoppas att du gillade att handla hos oss!",
+    "order_confirm_items": "Produkter",
+    "order_confirm_quantity": "Antal",
+    "order_confirm_shipping_address": "Leveransadress",
+    "order_confirm_sub_total": "Delsumma",
+    "order_confirm_total": "Totalt",
+    "order_confirm_details": "Orderdetaljer",
+    "order_confirm_date": "Datum",
+    "order_confirm_number": "Ordernummer",
+    "order_confirm_pay_method": "Betalningsmetod",
+    "order_confirm_billing_address": "Fakturaadress",
+    "order_confirm_distributor": "Officiell distributör för",
+    "order_confirm_email": "E-post",
+    "order_confirm_org_nr": "Organisationsnummer",
+    "order_confirm_vat_nr": "Momsregistreringsnummer",
+    "order_confirm_hq": "Huvudkontor"
+}

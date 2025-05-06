@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Jūsu pasūtījums ir saņemts!",
+    "order_confirm_title": "Sveiki, :name! Paldies par pasūtījumu!",
+    "order_confirm_text_1": "Tiklīdz jūsu pasūtījums būs apstiprināts un nosūtīts, mēs ar jums sazināsimies vēlreiz.",
+    "order_confirm_text_2": "Ceram, ka jums patika iepirkties pie mums!",
+    "order_confirm_items": "Produkti",
+    "order_confirm_quantity": "Daudzums",
+    "order_confirm_shipping_address": "Piegādes adrese",
+    "order_confirm_sub_total": "Starpsumma",
+    "order_confirm_total": "Kopā",
+    "order_confirm_details": "Pasūtījuma informācija",
+    "order_confirm_date": "Datums",
+    "order_confirm_number": "Pasūtījuma numurs",
+    "order_confirm_pay_method": "Apmaksas veids",
+    "order_confirm_billing_address": "Rēķina adrese",
+    "order_confirm_distributor": "Oficiālais izplatītājs priekš",
+    "order_confirm_email": "E-pasts",
+    "order_confirm_org_nr": "Reģistrācijas numurs",
+    "order_confirm_vat_nr": "PVN numurs",
+    "order_confirm_hq": "Galvenais birojs"
+}

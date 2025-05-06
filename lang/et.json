@@ -1,0 +1,21 @@
+{
+    "order_confirm_subject": "Teie tellimus on vastu võetud!",
+    "order_confirm_title": "Tere, :name! Täname teid tellimuse eest!",
+    "order_confirm_text_1": "Niipea kui teie tellimus on kinnitatud ja saadetud, anname teile sellest teada.",
+    "order_confirm_text_2": "Loodame, et teile meeldis meie juures ostelda!",
+    "order_confirm_items": "Tooted",
+    "order_confirm_quantity": "Kogus",
+    "order_confirm_shipping_address": "Tarneaadress",
+    "order_confirm_sub_total": "Vahesumma",
+    "order_confirm_total": "Kokku",
+    "order_confirm_details": "Tellimuse üksikasjad",
+    "order_confirm_date": "Kuupäev",
+    "order_confirm_number": "Tellimuse number",
+    "order_confirm_pay_method": "Makseviis",
+    "order_confirm_billing_address": "Arve aadress",
+    "order_confirm_distributor": "Ametlik turustaja ettevõttele",
+    "order_confirm_email": "E-post",
+    "order_confirm_org_nr": "Registrikood",
+    "order_confirm_vat_nr": "KMKR number",
+    "order_confirm_hq": "Peakontor"
+}
