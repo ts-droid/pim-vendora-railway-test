@@ -117,6 +117,9 @@ class SalesOrderService
         if (isset($data['currency'])) {
             $orderData['currency'] = (string) $data['currency'];
         }
+        if (isset($data['language'])) {
+            $orderData['language'] = (string) $data['language'];
+        }
         if (isset($data['exchange_rate'])) {
             $orderData['exchange_rate'] = (float) $data['exchange_rate'];
         }
