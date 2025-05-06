@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class VismaNetApiService
 {
     protected string $baseUrl;
+    protected string $baseUrlV3;
 
     protected string $clientId;
     protected string $clientSecret;
@@ -26,6 +27,7 @@ class VismaNetApiService
     public function __construct()
     {
         $this->baseUrl = 'https://integration.visma.net';
+        $this->baseUrlV3 = 'https://salesorder.visma.net/api';
 
         $this->clientId = env('VISMA_CLIENT_ID', '');
         $this->clientSecret = env('VISMA_CLIENT_SECRET', '');
@@ -80,7 +82,12 @@ class VismaNetApiService
             $url = $endpoint;
         }
         else {
-            $url = $this->baseUrl . '/API/controller/api' . $endpoint;
+            if (strpos($endpoint, '/v3/') === 0) {
+                $url = $this->baseUrlV3 . $endpoint;
+            }
+            else {
+                $url = $this->baseUrl . '/API/controller/api' . $endpoint;
+            }
         }
 
         switch (strtoupper($method)) {
