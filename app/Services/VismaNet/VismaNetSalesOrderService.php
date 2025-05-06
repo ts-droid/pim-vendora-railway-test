@@ -69,8 +69,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         // Update the order line numbers in the database
-        $linesResponse = $this->callAPI('GET', '/v2/salesorders/' . $salesOrder->order_type . '/' . $salesOrder->order_number . '/lines');
-        $remoteLines = $linesResponse['response']['value'] ?? null;
+        $linesResponse = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
+        $remoteLines = $linesResponse['response']['lines'] ?? null;
 
         if (!$remoteLines) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net. Post request was successful, but fetching the order lines failed.');
@@ -78,8 +78,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         foreach ($remoteLines as $line) {
-            $lineNumber = $line['lineId'];
-            $articleNumber = $line['inventory']['id'];
+            $lineNumber = $line['lineNbr'];
+            $articleNumber = $line['inventory']['number'];
             $quantity = $line['quantity'];
 
             SalesOrderLine::where('sales_order_id', $salesOrder->id)
