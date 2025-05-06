@@ -254,7 +254,7 @@ class SalesOrderService
 
         $skipDispatch = $data['skip_dispatch'] ?? false;
         if (!$skipDispatch) {
-            // (new DispatchOrderCreated())->execute($salesOrder);
+            (new DispatchOrderCreated())->execute($salesOrder);
         }
 
         $skipEmail = $data['skip_email'] ?? false;
