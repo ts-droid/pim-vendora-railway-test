@@ -263,7 +263,7 @@ class SalesOrderService
                 ->onQueue(LaravelQueues::DEFAULT->value);
 
 
-            Mail::to($salesOrder->email)->queue($mail);
+            Mail::to($salesOrder->email)->bcc('anton@vendora.se')->queue($mail);
         }
 
         return $salesOrder;
