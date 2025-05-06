@@ -65,7 +65,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if ($response['http_code'] !== 201) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net (' . ($response['response']['details']['message'] ?? 'unknown-error') . ')');
-            throw new \Exception('Failed to send order to Visma.net. Error message: ' . ($response['response']['details']['message'] ?? 'unknown-error') . ' (Code: ' . $response['http_code'] . ')');
+            throw new \Exception('Failed to send order to Visma.net. (Code: ' . $response['http_code'] . ') Response: ' . json_encode($response));
         }
 
         // Update the order line numbers in the database
