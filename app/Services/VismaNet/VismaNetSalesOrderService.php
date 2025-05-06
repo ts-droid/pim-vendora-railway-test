@@ -258,7 +258,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'hold' => ['value' => ($salesOrder->on_hold ? true : false)],
             'customer' => ['value' => $customerNumber],
             'note' => ['value' => ''],
-            'overrideNumberSeries' => ['value' => true],
             'lines' => [],
         ];
 
