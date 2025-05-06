@@ -32,14 +32,20 @@ class SalesOrderConfirmation extends Mailable
         $this->salesOrder = $salesOrder;
         $this->brandingData = $salesOrder->getBrandingDate();
 
+        $this->brandingData = [
+            'brand_name' => 'Satechi',
+            'logo_url' => 'https://satechi.se/storage/1708969694satechilogo.webp',
+            'logo_path' => null
+        ];
+
         App::setLocale($salesOrder->language ?: 'en');
 
         $this->emailSubject = __('order_confirm_subject');
         $this->emailFromEmail = 'info@vendora.se';
         $this->emailFromName = $this->brandingData['brand_name'];
 
-        $salesOrderService = new SalesOrderService();
-        $salesOrderService->createLog($this->salesOrder->id, 'Sent order confirmation email.');
+        /*$salesOrderService = new SalesOrderService();
+        $salesOrderService->createLog($this->salesOrder->id, 'Sent order confirmation email.');*/
     }
 
     /**

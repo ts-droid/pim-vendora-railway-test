@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Http\Controllers\SupplierController;
+use App\Services\EmailImageService;
 use App\Services\LanguageFieldTranslator;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -68,6 +69,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('articles:classify')->dailyAt('02:00');
         $schedule->command('purchase-order:generate-weights')->dailyAt('03:00');
         $schedule->command('purchase-orders:generate')->dailyAt('13:00');
+
+        $schedule->call(function () {
+            EmailImageService::cleanupOldImages();
+        })->daily();
     }
 
     /**
