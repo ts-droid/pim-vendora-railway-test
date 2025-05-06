@@ -61,7 +61,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $orderData = $this->getOrderData($salesOrder, $customerNumber);
 
-        $response = $this->callAPI('POST', '/v3/salesorders/', $orderData);
+        $response = $this->callAPI('POST', '/v3/salesorders', $orderData);
 
         if ($response['http_code'] !== 201) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net (' . ($response['response']['details']['message'] ?? 'unknown-error') . ')');

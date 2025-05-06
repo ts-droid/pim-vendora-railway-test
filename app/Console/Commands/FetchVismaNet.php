@@ -98,8 +98,8 @@ class FetchVismaNet extends Command
                 break;
 
             case 'shipments':
-                /*$vismaNetShipmentService = new VismaNetShipmentService();
-                $vismaNetShipmentService->fetchShipments();*/
+                $vismaNetShipmentService = new VismaNetShipmentService();
+                $vismaNetShipmentService->fetchShipments();
                 break;
 
             case 'daily':

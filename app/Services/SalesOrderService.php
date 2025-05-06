@@ -161,7 +161,7 @@ class SalesOrderService
 
         $skipDispatch = $data['skip_dispatch'] ?? false;
         if (!$skipDispatch) {
-            (new DispatchOrderUpdated())->execute($salesOrder);
+            //(new DispatchOrderUpdated())->execute($salesOrder);
         }
 
         return $salesOrder;
