@@ -212,7 +212,7 @@ class SalesOrderService
             'date' => (string) (($data['date'] ?? '') ?: date('Y-m-d')),
             'customer' => $customer->customer_number ?? '',
             'currency' => $data['currency'],
-            'language' => empty($data['currency']) ? 'en' : $data['currency'],
+            'language' => empty($data['language']) ? 'en' : $data['language'],
             'order_total' => 0,
             'order_total_quantity' => 0,
             'exchange_rate' => (float) ($data['exchange_rate'] ?? $currencyRate),
