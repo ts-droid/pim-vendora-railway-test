@@ -76,7 +76,7 @@ class Shipment extends Model
             return $defaultBranding;
         }
 
-        $salesOrder = SalesOrder::where('number', $orderNumber)->first();
+        $salesOrder = SalesOrder::where('order_number', $orderNumber)->first();
         if (!$salesOrder) {
             return $defaultBranding;
         }
