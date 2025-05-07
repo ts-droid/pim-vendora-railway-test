@@ -81,7 +81,8 @@ class SalesOrder extends Model
                     return [
                         'brand_name' => $brandName,
                         'logo_url' => 'https://' . $domain . '/storage/' . $logoPath,
-                        'logo_path' => null
+                        'logo_path' => null,
+                        'language_code' => $this->language,
                     ];
                 }
             }
@@ -90,7 +91,8 @@ class SalesOrder extends Model
         return [
             'brand_name' => 'Vendora Nordic AB',
             'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
-            'logo_path' => public_path('/assets/img/logos/logo_vendora.png')
+            'logo_path' => public_path('/assets/img/logos/logo_vendora.png'),
+            'language_code' => $this->language,
         ];
     }
 }

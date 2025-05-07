@@ -68,7 +68,8 @@ class Shipment extends Model
         $defaultBranding = [
             'brand_name' => 'Vendora Nordic AB',
             'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
-            'logo_path' => public_path('/assets/img/logos/logo_vendora.png')
+            'logo_path' => public_path('/assets/img/logos/logo_vendora.png'),
+            'language_code' => 'en'
         ];
 
         $orderNumber = $this->order_numbers[0] ?? null;
