@@ -3,6 +3,56 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('get_country_name')) {
+    function get_country_name(string $countryCode, string $languageCode)
+    {
+        if (!$countryCode || !$languageCode) {
+            return '';
+        }
+
+        return Symfony\Component\Intl\Countries::getName($countryCode, $languageCode);
+    }
+}
+
+if (!function_exists('get_image_base_64')) {
+    function get_image_base_64(string $path): ?string
+    {
+        // Handle URL
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            try {
+                $data = file_get_contents($path);
+                $type = pathinfo(parse_url($path, PHP_URL_PATH), PATHINFO_EXTENSION);
+
+                if ($data === false) {
+                    return null;
+                }
+
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+            } catch (\Exception $e) {
+                return null;
+            }
+        }
+
+        // Handle local file
+        if (!file_exists($path)) {
+            $publicPath = public_path($path);
+            if (!file_exists($publicPath)) {
+                return null;
+            }
+            $path = $publicPath;
+        }
+
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = @file_get_contents($path);
+
+        if ($data === false) {
+            return null;
+        }
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+    }
+}
+
 if (!function_exists('get_article_image')) {
     function get_article_image(string $articleNumber)
     {

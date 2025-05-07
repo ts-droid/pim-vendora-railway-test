@@ -23,6 +23,7 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "symfony/intl": "^7.2",
         "thiagoalessio/tesseract_ocr": "^2.13"
     },
     "require-dev": {

@@ -62,4 +62,25 @@ class Shipment extends Model
                 ->exists();
         });
     }
+
+    public function getBrandingData(): array
+    {
+        $defaultBranding = [
+            'brand_name' => 'Vendora Nordic AB',
+            'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
+            'logo_path' => public_path('/assets/img/logos/logo_vendora.png')
+        ];
+
+        $orderNumber = $this->order_numbers[0] ?? null;
+        if (!$orderNumber) {
+            return $defaultBranding;
+        }
+
+        $salesOrder = SalesOrder::where('number', $orderNumber)->first();
+        if (!$salesOrder) {
+            return $defaultBranding;
+        }
+
+        return $salesOrder->getBrandingDate();
+    }
 }

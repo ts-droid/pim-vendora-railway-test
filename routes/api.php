@@ -31,6 +31,7 @@ use App\Http\Controllers\Reports\TopCustomersController;
 use App\Http\Controllers\Reports\TopSalesPersonsController;
 use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\SalesPersonController;
+use App\Http\Controllers\ShipmentApiController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\StockKeepController;
@@ -72,6 +73,10 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [SalesOrderApiController::class, 'store'])->name('salesOrder.store');
         Route::get('/{salesOrder}', [SalesOrderApiController::class, 'show'])->name('salesOrder.show');
         Route::put('/{salesOrder}', [SalesOrderApiController::class, 'update'])->name('salesOrder.update');
+    });
+
+    Route::prefix('/shipment')->group(function() {
+        Route::get('/{shipment}/receipt', [ShipmentApiController::class, 'receipt'])->name('shipment.receipt');
     });
 
     Route::prefix('/wms')->group(function() {
