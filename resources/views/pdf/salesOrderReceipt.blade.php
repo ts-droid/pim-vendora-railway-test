@@ -91,7 +91,11 @@
                 <br><br>
 
                 <div class="bold">{{ __('receipt_delivery_address') }}:</div>
-                {{ $shipment->address->full_name ?? '' }}<br>
+                @if($shipment->name)
+                    {{ $shipment->name }}<br>
+                @else
+                    {{ $shipment->address->full_name ?? '' }}<br>
+                @endif
                 @if($shipment->attention)
                     ATT: {{ $shipment->attention }}<br>
                 @endif
