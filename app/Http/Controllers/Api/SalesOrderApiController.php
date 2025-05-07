@@ -117,7 +117,6 @@ class SalesOrderApiController
             'note' => 'sometimes|string',
             'internal_note' => 'sometimes|string',
             'store_note' => 'sometimes|string',
-            'source' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|max:255',
             'billing_email' => 'sometimes|string|max:255',

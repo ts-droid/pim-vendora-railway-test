@@ -135,9 +135,6 @@ class SalesOrderService
         if (isset($data['on_hold'])) {
             $orderData['on_hold'] = (int) $data['on_hold'];
         }
-        if (isset($data['source'])) {
-            $orderData['source'] = (string) $data['source'];
-        }
         if (isset($data['phone'])) {
             $orderData['phone'] = (string) $data['phone'];
         }
