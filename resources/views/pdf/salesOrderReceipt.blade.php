@@ -170,11 +170,11 @@
                 <table>
                     <tr>
                         <td width="50%">{{ __('receipt_total_quantity') }}:</td>
-                        <td width="50%" class="text-end">--</td>
+                        <td width="50%" class="text-end">{{ $shipment->calculateTotalQuantity() }}</td>
                     </tr>
                     <tr>
                         <td width="50%">{{ __('receipt_total_weight') }}:</td>
-                        <td width="50%" class="text-end">--</td>
+                        <td width="50%" class="text-end">{{ $shipment->calculateTotalWeight() }}</td>
                     </tr>
                 </table>
             </td>

@@ -63,6 +63,25 @@ class Shipment extends Model
         });
     }
 
+    public function calculateTotalQuantity()
+    {
+        return $this->lines->sum('picked_quantity');
+    }
+
+    public function calculateTotalWeight()
+    {
+        $totalWeight = 0;
+
+        foreach ($this->lines as $line) {
+            $qty = $line->picked_quantity;
+            $weight = $line->article->weight ?? 0;
+
+            $totalWeight += ($qty * $weight);
+        }
+
+        return $totalWeight;
+    }
+
     public function getBrandingData(): array
     {
         $defaultBranding = [
