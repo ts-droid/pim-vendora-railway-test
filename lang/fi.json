@@ -57,5 +57,12 @@
     "company_headquarter": "Yrityksen pääkonttori: Lomma",
     "company_org_nr": "556843-5456",
     "company_vat_nr": "SE556843545601",
-    "company_vat_type": "Corporate VAT"
+    "company_vat_type": "Corporate VAT",
+
+
+    "tracking_number_subject": "Tilauksesi on matkalla!",
+    "tracking_number_title": "Hei :name,",
+    "tracking_number_text_1": "Olemme iloisia voidessamme ilmoittaa, että tilauksesi on lähetetty ja se on matkalla sinulle.",
+    "tracking_number_sub_title": "Seurantanumero",
+    "tracking_number_text_2": "Jos sinulla on kysyttävää tai huolenaiheita tilaukseesi liittyen, ota yhteyttä meihin."
 }

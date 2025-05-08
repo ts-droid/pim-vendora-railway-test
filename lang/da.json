@@ -57,5 +57,12 @@
     "company_headquarter": "Virksomhedens hovedkontor: Lomma",
     "company_org_nr": "556843-5456",
     "company_vat_nr": "SE556843545601",
-    "company_vat_type": "Corporate VAT"
+    "company_vat_type": "Corporate VAT",
+
+
+    "tracking_number_subject": "Din ordre er på vej!",
+    "tracking_number_title": "Hej :name,",
+    "tracking_number_text_1": "Vi er glade for at kunne fortælle, at din ordre er blevet afsendt og er på vej til dig.",
+    "tracking_number_sub_title": "Sporingsnummer",
+    "tracking_number_text_2": "Hvis du har spørgsmål eller bekymringer vedrørende din ordre, er du velkommen til at kontakte os."
 }

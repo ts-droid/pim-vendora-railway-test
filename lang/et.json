@@ -57,5 +57,12 @@
     "company_headquarter": "Ettevõtte peakorter: Lomma",
     "company_org_nr": "556843-5456",
     "company_vat_nr": "SE556843545601",
-    "company_vat_type": "Corporate VAT"
+    "company_vat_type": "Corporate VAT",
+
+
+    "tracking_number_subject": "Teie tellimus on teel!",
+    "tracking_number_title": "Tere :name,",
+    "tracking_number_text_1": "Meil on hea meel teatada, et teie tellimus on saadetud ja on teel teie poole.",
+    "tracking_number_sub_title": "Jälgimisnumber",
+    "tracking_number_text_2": "Kui teil on küsimusi või muresid oma tellimuse kohta, võtke meiega ühendust."
 }

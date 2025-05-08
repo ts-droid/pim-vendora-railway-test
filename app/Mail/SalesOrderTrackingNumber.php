@@ -7,18 +7,20 @@ use App\Services\SalesOrderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
-class SalesOrderConfirmation extends Mailable
+class SalesOrderTrackingNumber extends Mailable
 {
     use Queueable, SerializesModels;
 
     public SalesOrder $salesOrder;
     public array $brandingData;
+
+    public string $trackingNumber;
 
     public string $emailSubject;
     public string $emailFromEmail;
@@ -27,19 +29,21 @@ class SalesOrderConfirmation extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(SalesOrder $salesOrder)
+    public function __construct(SalesOrder $salesOrder, string $trackingNumber)
     {
+        $this->trackingNumber = $trackingNumber;
+
         $this->salesOrder = $salesOrder;
         $this->brandingData = $salesOrder->getBrandingDate();
 
         App::setLocale($salesOrder->language ?: 'en');
 
-        $this->emailSubject = __('order_confirm_subject');
+        $this->emailSubject = __('tracking_number_subject');
         $this->emailFromEmail = 'info@vendora.se';
         $this->emailFromName = $this->brandingData['brand_name'];
 
         $salesOrderService = new SalesOrderService();
-        $salesOrderService->createLog($this->salesOrder->id, 'Sent order confirmation email.');
+        $salesOrderService->createLog($this->salesOrder->id, 'Sent tracking email to customer.');
     }
 
     /**
@@ -59,7 +63,7 @@ class SalesOrderConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.salesOrder.confirmation',
+            view: 'emails.salesOrder.trackingNumber',
         );
     }
 

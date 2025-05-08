@@ -57,5 +57,12 @@
     "company_headquarter": "Uzņēmuma galvenā mītne: Lomma",
     "company_org_nr": "556843-5456",
     "company_vat_nr": "SE556843545601",
-    "company_vat_type": "Corporate VAT"
+    "company_vat_type": "Corporate VAT",
+
+
+    "tracking_number_subject": "Jūsu pasūtījums ir ceļā!",
+    "tracking_number_title": "Sveiki :name,",
+    "tracking_number_text_1": "Mēs esam priecīgi paziņot, ka jūsu pasūtījums ir nosūtīts un ir ceļā pie jums.",
+    "tracking_number_sub_title": "Izsekošanas numurs",
+    "tracking_number_text_2": "Ja jums ir kādi jautājumi vai bažas par jūsu pasūtījumu, lūdzu, sazinieties ar mums."
 }

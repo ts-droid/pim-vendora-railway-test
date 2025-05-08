@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,6 +13,10 @@ class EmailImageService
 
     public static function prepareImageForEmail(string $url): ?string
     {
+        if (App::environment('local')) {
+            return $url;
+        }
+
         try {
             $hash = md5($url);
             $filename = self::$directory . '/' . $hash . '.png';

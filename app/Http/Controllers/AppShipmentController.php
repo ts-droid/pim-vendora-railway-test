@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LaravelQueues;
 use App\Enums\ShipmentInternalStatus;
 use App\Jobs\CompleteWgrOrder;
+use App\Mail\SalesOrderTrackingNumber;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
@@ -18,6 +20,7 @@ use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AppShipmentController extends Controller
 {
@@ -350,6 +353,7 @@ class AppShipmentController extends Controller
         Log::channel('shipments')->info('Completed shipment in Visma.net', ['shipmentNumber' => $shipment->number]);
 
         $trackingNumber = (string) $request->input('tracking_number', '');
+        $trackingNumberOld = $shipment->tracking_number;
 
         // Update internal status
         $shipment->update([
@@ -360,13 +364,15 @@ class AppShipmentController extends Controller
             'ping_at' => 0
         ]);
 
-        // Send tracking number to WGR
-        $this->sendToWGR($shipment, $trackingNumber);
+        // Send/notify tracking number to customer
+        if ($trackingNumber != $trackingNumberOld) {
+            $this->notifyTrackingNumber($shipment, $trackingNumber);
+        }
 
         return ApiResponseController::success();
     }
 
-    public function sendToWGR(Shipment $shipment, $trackingNumber)
+    public function notifyTrackingNumber(Shipment $shipment, $trackingNumber)
     {
         if (!$trackingNumber || !$shipment->order_numbers) {
             Log::channel('shipments')->warning('Shipment has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
@@ -379,22 +385,33 @@ class AppShipmentController extends Controller
         }
 
         foreach ($shipment->order_numbers as $orderNumber) {
-            $wgrOrderID = SalesOrder::select('customer_ref_no')
-                ->where('order_number', $orderNumber)
-                ->pluck('customer_ref_no')
-                ->first();
-
-            if (!$wgrOrderID) {
-                Log::channel('shipments')->warning('Could not queue CompleteWgrOrder for shipment. Missing WGR Order ID.', ['shipmentNumber' => $shipment->number]);
+            $salesOrder = SalesOrder::where('order_number', $orderNumber)->first();
+            if (!$salesOrder) {
+                Log::channel('shipments')->warning('Failed to notify tracking number for shipment {shipmentNumber}. Order number {orderNumber} not found.', [
+                    'shipmentNumber' => $shipment->number,
+                    'orderNumber' => $orderNumber,
+                ]);
                 continue;
             }
 
-            CompleteWgrOrder::dispatch([
-                'wgr_order_id' => $wgrOrderID,
-                'tracking_number' => $trackingNumber
-            ])->onQueue('main');
+            if ($salesOrder->customer_ref_no) {
+                // Notify through WGR
+                CompleteWgrOrder::dispatch([
+                    'wgr_order_id' => $salesOrder->customer_ref_no,
+                    'tracking_number' => $trackingNumber
+                ])->onQueue('main');
 
-            Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
+                Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
+            }
+            elseif ($salesOrder->email) {
+                // Use our own notification
+                $mail = (new SalesOrderTrackingNumber($salesOrder, $trackingNumber))
+                    ->onQueue(LaravelQueues::DEFAULT->value);
+
+                Mail::to($salesOrder->email)->bcc('anton@vendora.se')->queue($mail);
+
+                Log::channel('shipments')->info('Queued tracking number email for shipment {shipmentNumber}.', ['shipmentNumber' => $shipment->number]);
+            }
         }
     }
 
