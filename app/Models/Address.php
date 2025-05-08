@@ -13,6 +13,7 @@ class Address extends Model
         'full_name',
         'first_name',
         'last_name',
+        'attention',
         'street_line_1',
         'street_line_2',
         'postal_code',

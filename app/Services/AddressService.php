@@ -12,6 +12,7 @@ class AddressService
             'full_name' => $data['full_name'] ?? null,
             'first_name' => $data['first_name'] ?? null,
             'last_name' => $data['last_name'] ?? null,
+            'attention' => $data['attention'] ?? null,
             'street_line_1' => $data['street_line_1'] ?? null,
             'street_line_2' => $data['street_line_2'] ?? null,
             'postal_code' => $data['postal_code'] ?? null,
@@ -32,6 +33,9 @@ class AddressService
         }
         if (isset($data['last_name'])) {
             $updateData['last_name'] = $data['last_name'];
+        }
+        if (isset($data['attention'])) {
+            $updateData['attention'] = $data['attention'];
         }
         if (isset($data['street_line_1'])) {
             $updateData['street_line_1'] = $data['street_line_1'];

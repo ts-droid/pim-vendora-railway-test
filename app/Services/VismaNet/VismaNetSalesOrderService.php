@@ -295,6 +295,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 ]
             ];
 
+            if ($salesOrder->shippingAddress->attention) {
+                $orderData['soShippingContact']['value']['attention']['value'] = $salesOrder->shippingAddress->attention;
+            }
+
             $orderData['soShippingAddress'] = [
                 'value' => [
                     'overrideAddress' => ['value' => true],

@@ -67,6 +67,7 @@ class SalesOrderApiController
             'billing_country_code' => 'required|string|max:255',
 
             'shipping_full_name' => 'required|string|max:255',
+            'shipping_attention' => 'sometimes|string|max:255',
             'shipping_first_name' => 'required|string|max:255',
             'shipping_last_name' => 'required|string|max:255',
             'shipping_street_line_1' => 'required|string|max:255',
@@ -134,6 +135,7 @@ class SalesOrderApiController
             'shipping_full_name' => 'sometimes|string|max:255',
             'shipping_first_name' => 'sometimes|string|max:255',
             'shipping_last_name' => 'sometimes|string|max:255',
+            'shipping_attention' => 'sometimes|string|max:255',
             'shipping_street_line_1' => 'sometimes|string|max:255',
             'shipping_street_line_2' => 'sometimes|string|max:255',
             'shipping_postal_code' => 'sometimes|string|max:255',
