@@ -20,7 +20,8 @@
     "order_confirm_hq": "Hovedkontor",
 
 
-    "receipt_title": "Kvittering / Pakkseddel",
+    "receipt_title_1": "Kvittering",
+    "receipt_title_2": "Pakkseddel",
     "receipt_shipment_nbr": "Forsendelsesnr.",
     "receipt_date": "Dato",
     "receipt_customer_nbr": "Kundenr.",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB-punkt",
     "receipt_shipping_terms": "Leveringsvilkår",
     "receipt_shipping_method": "Fraktmetode",
-    "receipt_delivery_address": "Leveringsadresse",
+    "receipt_delivery_address": "Kundens leveringsadresse",
     "receipt_line_pos": "Pos.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Beskrivelse",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Batch/SN",
     "receipt_total_quantity": "Totalt antall",
     "receipt_total_weight": "Total vekt",
+    "through": "Gjennom",
+    "web_customer": "Nettkunde",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Sverige",
-    "company_contact": "Kontakt: Viktorija Stulpiniene",
+    "company_contact": "Kontakt: Kundeservice",
     "company_phone": "Telefon: +4620103210",
     "company_email": "E-post: info@vendora.se",
     "company_headquarter": "Selskapets hovedkontor: Lomma",

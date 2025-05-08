@@ -20,7 +20,8 @@
     "order_confirm_hq": "Headquarters",
 
 
-    "receipt_title": "Receipt / Packing Slip",
+    "receipt_title_1": "Receipt",
+    "receipt_title_2": "Packing Slip",
     "receipt_shipment_nbr": "Shipment No.",
     "receipt_date": "Date",
     "receipt_customer_nbr": "Customer No.",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB Point",
     "receipt_shipping_terms": "Shipping Terms",
     "receipt_shipping_method": "Shipping Method",
-    "receipt_delivery_address": "Delivery Address",
+    "receipt_delivery_address": "Customer Delivery Address",
     "receipt_line_pos": "Pos.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Description",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Batch/SN",
     "receipt_total_quantity": "Total Quantity",
     "receipt_total_weight": "Total Weight",
+    "through": "Through",
+    "web_customer": "Web customer",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Sweden",
-    "company_contact": "Contact: Viktorija Stulpiniene",
+    "company_contact": "Contact: Customer service",
     "company_phone": "Phone: +4620103210",
     "company_email": "E-mail: info@vendora.se",
     "company_headquarter": "Company headquarter: Lomma",

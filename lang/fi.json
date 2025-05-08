@@ -20,7 +20,8 @@
     "order_confirm_hq": "Pääkonttori",
 
 
-    "receipt_title": "Kuitti / Lähetyslista",
+    "receipt_title_1": "Kuitti",
+    "receipt_title_2": "Lähetyslista",
     "receipt_shipment_nbr": "Lähetysnro.",
     "receipt_date": "Päivämäärä",
     "receipt_customer_nbr": "Asiakasnro.",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB-piste",
     "receipt_shipping_terms": "Toimitusehdot",
     "receipt_shipping_method": "Toimitustapa",
-    "receipt_delivery_address": "Toimitusosoite",
+    "receipt_delivery_address": "Asiakkaan toimitusosoite",
     "receipt_line_pos": "Sij.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Kuvaus",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Erä/SN",
     "receipt_total_quantity": "Kokonaismäärä",
     "receipt_total_weight": "Kokonaispaino",
+    "through": "Kautta",
+    "web_customer": "Verkkoasiakas",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Ruotsi",
-    "company_contact": "Yhteystiedot: Viktorija Stulpiniene",
+    "company_contact": "Yhteystiedot: Asiakaspalvelu",
     "company_phone": "Puhelin: +4620103210",
     "company_email": "Sähköposti: info@vendora.se",
     "company_headquarter": "Yrityksen pääkonttori: Lomma",

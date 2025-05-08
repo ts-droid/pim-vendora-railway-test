@@ -20,7 +20,8 @@
     "order_confirm_hq": "Pagrindinė būstinė",
 
 
-    "receipt_title": "Kvitas / Siuntos lapas",
+    "receipt_title_1": "Kvitas",
+    "receipt_title_2": "Siuntos lapas",
     "receipt_shipment_nbr": "Siuntos nr.",
     "receipt_date": "Data",
     "receipt_customer_nbr": "Kliento nr.",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB punktas",
     "receipt_shipping_terms": "Pristatymo sąlygos",
     "receipt_shipping_method": "Pristatymo būdas",
-    "receipt_delivery_address": "Pristatymo adresas",
+    "receipt_delivery_address": "Kliento pristatymo adresas",
     "receipt_line_pos": "Poz.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Aprašymas",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Partija/SN",
     "receipt_total_quantity": "Visas kiekis",
     "receipt_total_weight": "Bendras svoris",
+    "through": "Per",
+    "web_customer": "Tīmekļa klients",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Švedija",
-    "company_contact": "Kontaktai: Viktorija Stulpiniene",
+    "company_contact": "Kontaktai: Klientų aptarnavimas",
     "company_phone": "Telefonas: +4620103210",
     "company_email": "El. paštas: info@vendora.se",
     "company_headquarter": "Įmonės būstinė: Lomma",

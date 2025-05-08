@@ -3,6 +3,15 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('is_web_customer')) {
+    function is_web_customer(string $customerNumber): ?bool
+    {
+        return true;
+
+        return in_array($customerNumber, ['10460', '10461', '10462', '10463', '10464']);
+    }
+}
+
 if (!function_exists('get_country_name')) {
     function get_country_name(string $countryCode, string $languageCode)
     {

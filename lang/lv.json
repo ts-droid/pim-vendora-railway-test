@@ -20,7 +20,8 @@
     "order_confirm_hq": "Galvenais birojs",
 
 
-    "receipt_title": "Kvīts / Pavadzīme",
+    "receipt_title_1": "Kvīts",
+    "receipt_title_2": "Pavadzīme",
     "receipt_shipment_nbr": "Sūtījuma nr.",
     "receipt_date": "Datums",
     "receipt_customer_nbr": "Klienta nr.",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB punkts",
     "receipt_shipping_terms": "Piegādes nosacījumi",
     "receipt_shipping_method": "Piegādes metode",
-    "receipt_delivery_address": "Piegādes adrese",
+    "receipt_delivery_address": "Klienta piegādes adrese",
     "receipt_line_pos": "Poz.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Apraksts",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Partija/SN",
     "receipt_total_quantity": "Kopējais daudzums",
     "receipt_total_weight": "Kopējais svars",
+    "through": "Caur",
+    "web_customer": "Internetinis klientas",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Zviedrija",
-    "company_contact": "Kontakti: Viktorija Stulpiniene",
+    "company_contact": "Kontakti: Klientu apkalpošana",
     "company_phone": "Tālrunis: +4620103210",
     "company_email": "E-pasts: info@vendora.se",
     "company_headquarter": "Uzņēmuma galvenā mītne: Lomma",

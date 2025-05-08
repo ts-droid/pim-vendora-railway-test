@@ -51,15 +51,27 @@
                 <div>
                     <img src="{{ get_image_base_64($brandingData['logo_path'] ?: $brandingData['logo_url']) }}" style="height: 25px" />
                 </div>
-                <br>
-                <div class="small"><b>{{ __('company_name') }}</b></div>
+                @if($brandingData['brand_name'] != 'Vendora Nordic AB')
+                    <br>
+                    <div class="small"><b>{{ __('through') }} {{ __('company_name') }}</b></div>
+                @endif
             </td>
             <td width="50%">
-                <div class="title">{{ __('receipt_title') }}</div>
+                <div class="title">
+                    @if($brandingData['brand_name'] === 'Vendora Nordic AB')
+                        {{ __('receipt_title_2') }}
+                    @else
+                        {{ __('receipt_title_1') }} / {{ __('receipt_title_2') }}
+                    @endif
+                </div>
                 <table>
                     <tr class="bold">
-                        <td width="50%">{{ __('receipt_shipment_nbr') }}:</td>
-                        <td width="50%" class="text-end">{{ $shipment->number }}</td>
+                        <td width="50%">{{ __('receipt_order_nbr') }}:</td>
+                        <td width="50%" class="text-end">
+                            @if($shipment->order_numbers && is_array($shipment->order_numbers))
+                                {{ implode(', ', $shipment->order_numbers) }}
+                            @endif
+                        </td>
                     </tr>
                     <tr class="bold">
                         <td width="50%">{{ __('receipt_date') }}:</td>
@@ -67,7 +79,13 @@
                     </tr>
                     <tr class="bold">
                         <td width="50%">{{ __('receipt_customer_nbr') }}:</td>
-                        <td width="50%" class="text-end">{{ $shipment->customer_number }}</td>
+                        <td width="50%" class="text-end">
+                            @if(is_web_customer((string) $shipment->customer_number))
+                                {{ __('web_customer') }}
+                            @else
+                                {{ $shipment->customer_number }}
+                            @endif
+                        </td>
                     </tr>
                 </table>
             </td>
@@ -106,14 +124,6 @@
 
             <td width="50%">
                 <table>
-                    <tr class="bold">
-                        <td width="50%">{{ __('receipt_order_nbr') }}:</td>
-                        <td width="50%" class="text-end">
-                            @if($shipment->order_numbers && is_array($shipment->order_numbers))
-                                {{ implode(', ', $shipment->order_numbers) }}
-                            @endif
-                        </td>
-                    </tr>
                     <tr class="bold">
                         <td width="50%">{{ __('receipt_delivery_date') }}:</td>
                         <td width="50%" class="text-end">{{ $shipment->date }}</td>
@@ -174,7 +184,7 @@
                     </tr>
                     <tr>x
                         <td width="50%">{{ __('receipt_total_weight') }}:</td>
-                        <td width="50%" class="text-end">{{ $shipment->calculateTotalWeight() }}</td>
+                        <td width="50%" class="text-end">{{ round($shipment->calculateTotalWeight() / 1000, 2) }} KG</td>
                     </tr>
                 </table>
             </td>
@@ -188,6 +198,7 @@
     <table>
         <tr>
             <td width="40%">
+                {{ __('company_name') }}<br>
                 {{ __('company_address') }}<br>
                 {{ __('company_zip') }} {{ __('company_city') }}<br>
                 {{ __('company_country') }}<br>

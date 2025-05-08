@@ -20,11 +20,12 @@
     "order_confirm_hq": "Huvudkontor",
 
 
-    "receipt_title": "Kvitto / Följesedel",
+    "receipt_title_1": "Kvitto",
+    "receipt_title_2": "Följesedel",
     "receipt_shipment_nbr": "Fraktnr",
     "receipt_date": "Datum",
     "receipt_customer_nbr": "Kundnr",
-    "receipt_shipping_from": "Levererar från adress",
+    "receipt_shipping_from": "Levereras från",
     "receipt_org_nr": "Organisationsnr",
     "receipt_vat_nr": "Moms reg. nr",
     "receipt_vat_type": "Skattetyp",
@@ -34,7 +35,7 @@
     "receipt_fob": "FOB-punkt",
     "receipt_shipping_terms": "Leveransvillkor",
     "receipt_shipping_method": "Fraktmetod",
-    "receipt_delivery_address": "Leveransadress",
+    "receipt_delivery_address": "Kundens leveransadress",
     "receipt_line_pos": "Pos.",
     "receipt_line_sku": "SKU",
     "receipt_line_description": "Beskrivning",
@@ -44,6 +45,8 @@
     "receipt_line_batch": "Batch/SN",
     "receipt_total_quantity": "Totalt antal",
     "receipt_total_weight": "Total vikt",
+    "through": "Via",
+    "web_customer": "Webbkund",
 
 
     "company_name": "Vendora Nordic AB",
@@ -51,7 +54,7 @@
     "company_zip": "234 35",
     "company_city": "Lomma",
     "company_country": "Sverige",
-    "company_contact": "Kontakt: Viktorija Stulpiniene",
+    "company_contact": "Kontakt: Kundtjänst",
     "company_phone": "Telefon: +4620103210",
     "company_email": "E-post: info@vendora.se",
     "company_headquarter": "Företagets huvudkontor: Lomma",

@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleSyncController;
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\MonitorDashboardController;
+use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
@@ -32,6 +33,10 @@ Route::get('/', function () {
 
 Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
 Route::get('/sync-all-article', [ArticleSyncController::class, 'syncAllArticles']);
+
+Route::prefix('/preview')->group(function () {
+    Route::get('/sales-order-receipt', [PreviewController::class, 'salesOrderReceipt']);
+});
 
 Route::prefix('/visma')->group(function() {
     Route::get('/status', function() {
