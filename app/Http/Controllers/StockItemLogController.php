@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockItemLog;
+use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 
 class StockItemLogController extends Controller
@@ -12,11 +13,23 @@ class StockItemLogController extends Controller
         $stockLogs = [];
 
         $articleNumber = $request->input('article_number');
+        $identifier = $request->input('identifier');
 
         if ($articleNumber) {
-            $stockLogs = StockItemLog::where('article_number', $articleNumber)
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $stockLogsQuery = StockItemLog::where('article_number', $articleNumber);
+
+            if ($identifier) {
+                $stockPlaceService = new StockPlaceService();
+                $stockPlaceCompartment = $stockPlaceService->getCompartmentByIdentifier($identifier);
+
+                if ($stockPlaceCompartment) {
+                    $stockLogsQuery->where('stock_place_compartment_id', $stockPlaceCompartment->id);
+                }
+            }
+
+            $stockLogsQuery->orderBy('created_at', 'desc');
+
+            $stockLogs = $stockLogsQuery->get();
         }
 
         return view('stockItemLogs.index', compact('stockLogs'));

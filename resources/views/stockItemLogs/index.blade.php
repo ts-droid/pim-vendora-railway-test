@@ -52,7 +52,8 @@
     <h1>Stock logs</h1>
 
     <form method="GET" action="">
-        <input type="text" name="article_number" placeholder="Article number" value="{{ request('article_number') }}">
+        <input type="text" name="article_number" placeholder="Article number" value="{{ request('article_number') }}"><br>
+        <input type="text" name="identifier" placeholder="Stock place identifier" value="{{ request('identifier') }}">
         <button type="submit">Search</button>
     </form>
 
