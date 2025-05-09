@@ -15,4 +15,9 @@ class StockItemLog extends Model
         'quantity',
         'signature',
     ];
+
+    public function stockPlaceCompartment()
+    {
+        return $this->belongsTo(StockPlaceCompartment::class);
+    }
 }

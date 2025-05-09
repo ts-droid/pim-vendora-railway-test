@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
 use App\Http\Controllers\PurchaseOrderPriceController;
 use App\Http\Controllers\StatusCheckController;
+use App\Http\Controllers\StockItemLogController;
 use App\Http\Controllers\VismaNetTestController;;
 
 use App\Jobs\UpdateArticleJob;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
 Route::get('/', function () {
     return response()->json([]);
 });
+
+Route::get('/stock-logs', [StockItemLogController::class, 'index']);
 
 Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
 Route::get('/sync-all-article', [ArticleSyncController::class, 'syncAllArticles']);
