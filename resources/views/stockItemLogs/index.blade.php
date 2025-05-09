@@ -64,8 +64,14 @@
             <tr>
                 <th class="text-start">Stock Place</th>
                 <th class="text-start">User</th>
-                <th class="text-end">Change</th>
+                <th class="text-end">Quantity</th>
                 <th class="text-end">Time</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td class="text-end"><b>{{ $sumQuantity }}</b></td>
+                <td></td>
             </tr>
             @foreach($stockLogs as $stockLog)
                 <tr>
