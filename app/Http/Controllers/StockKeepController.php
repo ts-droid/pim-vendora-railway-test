@@ -181,9 +181,7 @@ class StockKeepController extends Controller
                     ->limit(abs($diff))
                     ->get();
 
-                foreach ($stockItems as $stockItem) {
-                    $stockItemService->removeStockItem($stockItem, $signature);
-                }
+                $stockItemService->removeStockItems($stockItems, $signature);
             }
         }
 
@@ -263,9 +261,7 @@ class StockKeepController extends Controller
                         ->limit(abs($diff))
                         ->get();
 
-                    foreach ($stockItems as $stockItem) {
-                        $stockItemService->removeStockItem($stockItem, $signature);
-                    }
+                    $stockItemService->removeStockItems($stockItems, $signature);
                 }
 
 
@@ -306,9 +302,7 @@ class StockKeepController extends Controller
                 ->limit($stock)
                 ->get();
 
-            foreach ($stockItems as $stockItem) {
-                $stockItemService->removeStockItem($stockItem, $signature);
-            }
+            $stockItemService->removeStockItems($stockItems, $signature);
 
             StockKeepService::makeTransaction(
                 $articleNumber,

@@ -214,9 +214,7 @@ class AppWarehouseController extends Controller
                     return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
                 }
 
-                foreach ($stockItems as $stockItem) {
-                    $response = $stockItemService->removeStockItem($stockItem, $signature);
-                }
+                $response = $stockItemService->removeStockItems($stockItems, $signature);
             }
         }
 

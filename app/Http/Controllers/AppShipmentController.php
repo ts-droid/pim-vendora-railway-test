@@ -240,9 +240,7 @@ class AppShipmentController extends Controller
                         continue;
                     }
 
-                    foreach ($stockItems as $stockItem) {
-                        $stockItemService->removeStockItem($stockItem, $displayName);
-                    }
+                    $stockItemService->removeStockItems($stockItems, $displayName);
 
                     $quantity -= $stockItems->count();
                 }

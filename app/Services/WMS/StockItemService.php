@@ -110,23 +110,47 @@ class StockItemService
         }
     }
 
-    public function removeStockItem(StockItem $stockItem, string $signature = ''): array
+    public function removeStockItems($stockItems, string $signature = ''): array
     {
         DB::beginTransaction();
 
         try {
-            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature);
+            $totalRemoved = [];
+            $stockPlaceCompartments = [];
 
-            $stockItem->delete();
+            foreach ($stockItems as $stockItem) {
+                $stockItem->delete();
+
+
+                if (!isset($totalRemoved[$stockItem->article_number])) {
+                    $totalRemoved[$stockItem->article_number] = [];
+
+                    if (!isset($totalRemoved[$stockItem->article_number][$stockItem->stock_place_compartment_id])) {
+                        $totalRemoved[$stockItem->article_number][$stockItem->stock_place_compartment_id] = 0;
+                    }
+                }
+
+                $totalRemoved[$stockItem->article_number][$stockItem->stock_place_compartment_id] += 1;
+            }
+
+            foreach ($totalRemoved as $articleNumber => $groups) {
+                foreach ($groups as $stockPlaceCompartmentId => $quantity) {
+                    $this->logChange($articleNumber, $stockPlaceCompartmentId, (-1 * $quantity), $signature);
+
+                    if (!isset($stockPlaceCompartments[$stockPlaceCompartmentId])) {
+                        $stockPlaceCompartments[$stockPlaceCompartmentId] = StockPlaceCompartment::find($stockPlaceCompartmentId);
+                    }
+                }
+            }
 
             DB::commit();
 
-            $stockPlaceCompartment = StockPlaceCompartment::find($stockItem->stock_place_compartment_id);
-            $this->updateStockMovements([$stockPlaceCompartment]);
+            $stockPlaceCompartments = array_values($stockPlaceCompartments);
+            $this->updateStockMovements($stockPlaceCompartments);
 
             return [
                 'success' => true,
-                'message' => 'Stock item removed',
+                'message' => 'Stock items removed',
             ];
         } catch (\Exception $e) {
             DB::rollBack();

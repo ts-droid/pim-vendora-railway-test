@@ -553,9 +553,7 @@ class ArticleController extends Controller
                     ->limit(abs($diff))
                     ->get();
 
-                foreach ($stockItems as $stockItem) {
-                    $stockItemService->removeStockItem($stockItem, $signature);
-                }
+                $stockItemService->removeStockItems($stockItems, $signature);
             }
         }
 
