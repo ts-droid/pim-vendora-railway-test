@@ -32,7 +32,10 @@ class StockItemLogController extends Controller
             $stockLogs = $stockLogsQuery->get();
         }
 
-        $sumQuantity = $stockLogs->sum('quantity');
+        $sumQuantity = 0;
+        if ($stockLogs) {
+            $sumQuantity = $stockLogs->sum('quantity');
+        }
 
         return view('stockItemLogs.index', compact('stockLogs', 'sumQuantity'));
     }
