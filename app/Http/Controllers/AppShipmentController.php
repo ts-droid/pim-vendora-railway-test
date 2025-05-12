@@ -401,7 +401,7 @@ class AppShipmentController extends Controller
 
                 Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
             }
-            elseif ($salesOrder->email) {
+            elseif ($salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
                 // Use our own notification
                 $mail = (new SalesOrderTrackingNumber($salesOrder, $trackingNumber))
                     ->onQueue(LaravelQueues::DEFAULT->value);

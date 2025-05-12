@@ -257,7 +257,7 @@ class SalesOrderService
         }
 
         $skipEmail = $data['skip_email'] ?? false;
-        if (!$skipEmail && $salesOrder->email) {
+        if (!$skipEmail && $salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
             $mail = (new SalesOrderConfirmation($salesOrder))
                 ->onQueue(LaravelQueues::DEFAULT->value);
 
