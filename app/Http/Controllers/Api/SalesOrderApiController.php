@@ -82,7 +82,7 @@ class SalesOrderApiController
             'lines.*.quantity' => 'required|integer|min:1',
             'lines.*.quantity_on_shipments' => 'nullable|integer|min:0',
             'lines.*.quantity_open' => 'nullable|integer|min:0',
-            'lines.*.unit_price' => 'required|numeric|min:0',
+            'lines.*.unit_price' => 'required|numeric',
             'lines.*.description' => 'nullable|string|max:255',
         ]);
 
@@ -148,7 +148,7 @@ class SalesOrderApiController
             'lines.*.quantity' => 'required|integer|min:1',
             'lines.*.quantity_on_shipments' => 'nullable|integer|min:0',
             'lines.*.quantity_open' => 'nullable|integer|min:0',
-            'lines.*.unit_price' => 'required|numeric|min:0',
+            'lines.*.unit_price' => 'required|numeric',
             'lines.*.description' => 'nullable|string|max:255',
         ]);
 
