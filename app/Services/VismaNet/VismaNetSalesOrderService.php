@@ -122,6 +122,22 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService->createLog($salesOrder->id, 'This order was updated in Visma.net');
     }
 
+    public function fetchSalesOrder(string $orderNumber): array
+    {
+        $response = $this->callAPI('GET', '/v2/salesorder/' . $orderNumber);
+
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'message' => 'Failed to fetch sales order from visma'
+            ];
+        }
+
+        $salesOrder = $response['response'] ?? null;
+
+        return $this->importOrder($salesOrder);
+    }
+
     public function fetchSalesOrders(string $updatedAfter = ''): void
     {
         $fetchTime = date('Y-m-d H:i:s');
@@ -155,10 +171,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
     }
 
-    private function importOrder(array $order): void
+    private function importOrder(array $order): array
     {
         if (empty($order['orderType']) || empty($order['orderNo'])) {
-            return;
+            return [
+                'success' => false,
+                'message' => 'Missing order type or order number.'
+            ];
         }
 
         $orderData = [
@@ -247,6 +266,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!$response['success']) {
             Log::error($response['error_message']);
         }
+
+        return [
+            'success' => $response['success'],
+            'message' => ($response['error_message'] ?? ''),
+        ];
     }
 
     private function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $isUpdate = false): array

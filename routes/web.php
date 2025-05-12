@@ -14,6 +14,7 @@ use App\Http\Controllers\VismaNetTestController;;
 
 use App\Jobs\UpdateArticleJob;
 use App\Models\SalesOrder;
+use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -36,6 +37,17 @@ Route::get('/stock-logs', [StockItemLogController::class, 'index']);
 
 Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
 Route::get('/sync-all-article', [ArticleSyncController::class, 'syncAllArticles']);
+
+Route::get('/fetch-sales-order', function() {
+    $orderNumber = request('order_number');
+
+    if ($orderNumber) {
+        $vismaNetSalesOrderService = new VismaNetSalesOrderService();
+        $response = $vismaNetSalesOrderService->fetchSalesOrder($orderNumber);
+
+        dd($response);
+    }
+});
 
 Route::prefix('/preview')->group(function () {
     Route::get('/sales-order-receipt', [PreviewController::class, 'salesOrderReceipt']);
