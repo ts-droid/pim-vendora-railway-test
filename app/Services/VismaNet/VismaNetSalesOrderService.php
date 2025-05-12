@@ -202,7 +202,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'billing_full_name' => (string) ($order['soBillingContact']['name'] ?? ''),
             'billing_first_name' => $this->getFirstNameFromFullName($order['soBillingContact']['name'] ?? ''),
             'billing_last_name' => $this->getLastNameFromFullName($order['soBillingContact']['name'] ?? ''),
-            'billing_street_line_1' => (string) ($order['soBillingAddress']['addressLine1'] ?? ''),
+            'billing_street_line_1' => (string) (($order['soBillingAddress']['addressLine1'] ?? '') ?: 'Ladugårdsvägen 1'),
             'billing_street_line_2' => (string) ($order['soBillingAddress']['addressLine2'] ?? ''),
             'billing_postal_code' => (string) ($order['soBillingAddress']['postalCode'] ?? ''),
             'billing_city' => (string) ($order['soBillingAddress']['city'] ?? ''),
