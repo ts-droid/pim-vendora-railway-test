@@ -37,6 +37,7 @@ class SalesOrder extends Model
         'email',
         'billing_email',
         'pay_method',
+        'vat_number'
     ];
 
     public function lines(): HasMany

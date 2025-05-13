@@ -56,6 +56,7 @@ class SalesOrderApiController
             'email' => 'sometimes|string|max:255',
             'billing_email' => 'sometimes|string|max:255',
             'pay_method' => 'required|string|max:255',
+            'vat_number' => 'sometimes|string|max:255',
 
             'billing_full_name' => 'required|string|max:255',
             'billing_first_name' => 'required|string|max:255',
@@ -122,6 +123,7 @@ class SalesOrderApiController
             'email' => 'sometimes|string|max:255',
             'billing_email' => 'sometimes|string|max:255',
             'pay_method' => 'sometimes|string|max:255',
+            'vat_number' => 'sometimes|string|max:255',
 
             'billing_full_name' => 'sometimes|string|max:255',
             'billing_first_name' => 'sometimes|string|max:255',

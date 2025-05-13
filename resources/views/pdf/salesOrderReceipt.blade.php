@@ -133,6 +133,9 @@
                 <br>
                 <br>
 
+                @if($shipment->salesOrder() && $shipment->salesOrder()->vat_number)
+                    {{ __('receipt_vat_number') }}: {{ $shipment->salesOrder()->vat_number }}<br>
+                @endif
                 {{ __('receipt_customer_order_nbr') }}: <br>
                 {{ __('receipt_fob') }}: <br>
                 {{ __('receipt_shipping_terms') }}: <br>
