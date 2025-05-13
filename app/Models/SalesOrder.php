@@ -65,11 +65,6 @@ class SalesOrder extends Model
         return $this->hasMany(SalesOrderLog::class, 'sales_order_id', 'id');
     }
 
-    public function shipments(): HasMany
-    {
-        return $this->hasMany(Shipment::class, 'order_numbers')->whereJsonContains('order_numbers', $this->order_number);
-    }
-
     public function getBrandingDate(): array
     {
         if ($this->source) {

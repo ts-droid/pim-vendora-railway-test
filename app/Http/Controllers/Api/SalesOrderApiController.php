@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ApiResponseController;
+use App\Models\Shipment;
 use App\Services\SalesOrderService;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
@@ -103,7 +104,9 @@ class SalesOrderApiController
 
     public function show(SalesOrder $salesOrder)
     {
-        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs', 'shipments');
+        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs');
+
+        $salesOrder->shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
 
         return ApiResponseController::success($salesOrder->toArray());
     }
