@@ -14,4 +14,9 @@ class SalesOrderLog extends Model
         'description',
         'email_id'
     ];
+
+    public function email()
+    {
+        return $this->belongsTo(Email::class, 'email_id', 'id');
+    }
 }
