@@ -273,6 +273,7 @@ class SalesOrderService
         SalesOrderLog::create([
             'sales_order_id' => $salesOrderID,
             'description' => $description,
+            'email_id' => $emailID,
         ]);
     }
 

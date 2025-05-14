@@ -11,6 +11,7 @@ class SalesOrderLog extends Model
 
     protected $fillable = [
         'sales_order_id',
-        'description'
+        'description',
+        'email_id'
     ];
 }
