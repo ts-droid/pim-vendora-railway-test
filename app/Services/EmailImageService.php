@@ -22,7 +22,7 @@ class EmailImageService
             $filename = self::$directory . '/' . $hash . '.png';
 
             if (Storage::disk('public')->exists($filename)) {
-                return Storage::url($filename);
+                return config('app.url') . Storage::url($filename);
             }
 
             $response = Http::timeout(10)->get($url);
@@ -53,7 +53,7 @@ class EmailImageService
 
             Storage::disk('public')->put($filename, $flattenedPng);
 
-            return Storage::url($filename);
+            return config('app.url') . Storage::url($filename);
         } catch (\Throwable $e) {
             return null;
         }
