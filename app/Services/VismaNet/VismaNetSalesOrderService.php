@@ -222,6 +222,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'lines' => []
         ];
 
+        $vatRate = 0;
+        if (!empty($order['vatTaxableTotal']) && !empty($order['orderTotal'])) {
+            $vatRate = round((($order['orderTotal'] / $order['vatTaxableTotal']) - 1) * 100);
+        }
+
         foreach (($order['lines'] ?? []) as $line) {
             $articleNumber = $line['inventory']['number'] ?? '';
             $lineNumber = $line['lineNbr'] ?? '';
@@ -243,6 +248,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 'unbilled_amount' => (float) ($line['unbilledAmount'] ?? 0),
                 'description' => (string) ($line['lineDescription'] ?? ''),
                 'is_completed' => (int) ($line['completed'] ?? 0),
+                'vat_rate' => (float) $vatRate,
             ];
 
             trigger_stock_sync($articleNumber);

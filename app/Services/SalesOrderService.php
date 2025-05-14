@@ -324,7 +324,8 @@ class SalesOrderService
             'unit_price' => (float) ($line['unit_price'] ?? 0),
             'description' => (string) $line['description'] ?? '',
             'unbilled_amount' => (float) ($line['unbilled_amount'] ?? 0),
-            'is_completed' => (int) ($line['is_completed'] ?? 0)
+            'is_completed' => (int) ($line['is_completed'] ?? 0),
+            'vat_rate' => (float) ($line['vat_rate'] ?? 25)
         ]);
     }
 
