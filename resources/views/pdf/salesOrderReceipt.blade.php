@@ -58,11 +58,7 @@
             </td>
             <td width="50%">
                 <div class="title">
-                    @if($brandingData['brand_name'] === 'Vendora Nordic AB')
-                        {{ __('receipt_title_2') }}
-                    @else
-                        {{ __('receipt_title_1') }} / {{ __('receipt_title_2') }}
-                    @endif
+                    {{ __('receipt_title_2') }}
                 </div>
                 <table>
                     <tr class="bold">
