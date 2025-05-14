@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Organisasjonsnummer",
     "order_confirm_vat_nr": "MVA-nummer",
     "order_confirm_hq": "Hovedkontor",
+    "order_confirm_vat_total": "MVA",
 
 
     "receipt_title_1": "Kvittering",

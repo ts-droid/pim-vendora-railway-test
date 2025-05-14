@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Y-tunnus",
     "order_confirm_vat_nr": "ALV-numero",
     "order_confirm_hq": "Pääkonttori",
+    "order_confirm_vat_total": "ALV",
 
 
     "receipt_title_1": "Kuitti",

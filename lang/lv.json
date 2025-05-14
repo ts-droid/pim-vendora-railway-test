@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Reģistrācijas numurs",
     "order_confirm_vat_nr": "PVN numurs",
     "order_confirm_hq": "Galvenais birojs",
+    "order_confirm_vat_total": "PVN",
 
 
     "receipt_title_1": "Kvīts",

@@ -3,6 +3,13 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('add_vat')) {
+    function add_vat(float $amount, float|int $vatRate)
+    {
+        return round($amount * (1 + ($vatRate / 100)), 2);
+    }
+}
+
 if (!function_exists('is_web_customer')) {
     function is_web_customer(string $customerNumber): ?bool
     {

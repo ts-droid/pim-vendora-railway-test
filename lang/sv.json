@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Organisationsnummer",
     "order_confirm_vat_nr": "Momsregistreringsnummer",
     "order_confirm_hq": "Huvudkontor",
+    "order_confirm_vat_total": "Varav moms",
 
 
     "receipt_title_1": "Kvitto",

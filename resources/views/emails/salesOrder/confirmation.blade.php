@@ -51,7 +51,7 @@
                                                 {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
                                             </td>
                                             <td style="vertical-align: top;text-align: end;padding-top: 8px;">
-                                                {{ number_format(($salesOrderLine->unit_price * $salesOrderLine->quantity), 2, '.', ' ') }} {{ $salesOrder->currency }}
+                                                {{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -86,11 +86,15 @@
                                 </tr>
                                 <tr>
                                     <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_sub_total') }}</td>
-                                    <td align="right" style="padding-bottom: 4px;">{{ number_format($salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                    <td align="right" style="padding-bottom: 4px;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
                                 <tr>
-                                    <td align="left" style="font-weight:bold;">{{ __('order_confirm_total') }}</td>
-                                    <td align="right" style="font-weight:bold;">{{ number_format($salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                    <td align="left" style="padding-bottom: 4px;font-weight:bold;">{{ __('order_confirm_total') }}</td>
+                                    <td align="right" style="padding-bottom: 4px;font-weight:bold;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                </tr>
+                                <tr>
+                                    <td align="left">{{ __('order_confirm_vat_total') }}</td>
+                                    <td align="right">{{ number_format($salesOrder->getOrderTotalWithVat() - $salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
                             </table>
                         </td>

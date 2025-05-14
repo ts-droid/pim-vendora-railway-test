@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Registrikood",
     "order_confirm_vat_nr": "KMKR number",
     "order_confirm_hq": "Peakontor",
+    "order_confirm_vat_total": "KM",
 
 
     "receipt_title_1": "Kviitung",

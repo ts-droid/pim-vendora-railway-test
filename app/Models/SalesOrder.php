@@ -65,6 +65,19 @@ class SalesOrder extends Model
         return $this->hasMany(SalesOrderLog::class, 'sales_order_id', 'id');
     }
 
+    public function getOrderTotalWithVat(): float
+    {
+        $total = 0;
+
+        if ($this->lines) {
+            foreach ($this->lines as $salesOrderLine) {
+                $total += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
+            }
+        }
+
+        return $total;
+    }
+
     public function getBrandingDate(): array
     {
         if ($this->source) {

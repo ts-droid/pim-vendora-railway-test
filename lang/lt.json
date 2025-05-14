@@ -18,6 +18,7 @@
     "order_confirm_org_nr": "Įmonės kodas",
     "order_confirm_vat_nr": "PVM kodas",
     "order_confirm_hq": "Pagrindinė būstinė",
+    "order_confirm_vat_total": "PVM",
 
 
     "receipt_title_1": "Kvitas",
