@@ -22,5 +22,6 @@ class SalesOrderLine extends Model
         'unit_price',
         'description',
         'is_completed',
+        'vat_rate'
     ];
 }
