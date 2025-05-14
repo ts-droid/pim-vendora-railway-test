@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleSyncController;
+use App\Http\Controllers\EmailViewController;
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\MonitorDashboardController;
@@ -48,6 +49,8 @@ Route::get('/fetch-sales-order', function() {
         dd($response);
     }
 });
+
+Route::get('/view-email/{email}', [EmailViewController::class, 'viewEmail']);
 
 Route::prefix('/preview')->group(function () {
     Route::get('/sales-order-receipt', [PreviewController::class, 'salesOrderReceipt']);

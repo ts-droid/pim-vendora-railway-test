@@ -104,7 +104,7 @@ class SalesOrderApiController
 
     public function show(SalesOrder $salesOrder)
     {
-        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs', 'logs.email');
+        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs');
 
         $salesOrder->shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
 
