@@ -2,44 +2,32 @@
 
 namespace App\Mail;
 
-use App\Models\SalesOrder;
-use App\Services\SalesOrderService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
 
-class SalesOrderConfirmation extends Mailable
+class RawMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public SalesOrder $salesOrder;
-    public array $brandingData;
-
     public string $emailSubject;
+    public string $emailBody;
     public string $emailFromEmail;
     public string $emailFromName;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(SalesOrder $salesOrder)
+    public function __construct(string $subject, string $body, string $fromEmail = '', string $fromName = '')
     {
-        $this->salesOrder = $salesOrder;
-        $this->brandingData = $salesOrder->getBrandingDate();
-
-        App::setLocale($salesOrder->language ?: 'en');
-
-        $this->emailSubject = __('order_confirm_subject');
-        $this->emailFromEmail = 'info@vendora.se';
-        $this->emailFromName = $this->brandingData['brand_name'];
-
-        $salesOrderService = new SalesOrderService();
-        $salesOrderService->createLog($this->salesOrder->id, 'Sent order confirmation email.');
+        $this->emailSubject = $subject;
+        $this->emailBody = $body;
+        $this->emailFromEmail = $fromEmail ?: config('mail.from.address');
+        $this->emailFromName = $fromName ?: config('mail.from.name');
     }
 
     /**
@@ -59,7 +47,7 @@ class SalesOrderConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.salesOrder.confirmation',
+            view: 'emails.raw',
         );
     }
 

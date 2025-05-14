@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Mail\SendSalesOrderTrackingNumber;
 use App\Enums\LaravelQueues;
 use App\Enums\ShipmentInternalStatus;
 use App\Jobs\CompleteWgrOrder;
-use App\Mail\SalesOrderTrackingNumber;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
@@ -403,10 +403,7 @@ class AppShipmentController extends Controller
             }
             elseif ($salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
                 // Use our own notification
-                $mail = (new SalesOrderTrackingNumber($salesOrder, $trackingNumber))
-                    ->onQueue(LaravelQueues::DEFAULT->value);
-
-                Mail::to($salesOrder->email)->bcc('anton@vendora.se')->queue($mail);
+                (new SendSalesOrderTrackingNumber)->execute($salesOrder, $trackingNumber);
 
                 Log::channel('shipments')->info('Queued tracking number email for shipment {shipmentNumber}.', ['shipmentNumber' => $shipment->number]);
             }

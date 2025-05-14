@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Actions\DispatchOrderCreated;
 use App\Actions\DispatchOrderUpdated;
+use App\Actions\Mail\SendSalesOrderConfirmation;
 use App\Enums\LaravelQueues;
 use App\Http\Controllers\CurrencyConvertController;
-use App\Mail\SalesOrderConfirmation;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\SalesOrder;
@@ -262,17 +262,13 @@ class SalesOrderService
 
         $skipEmail = $data['skip_email'] ?? false;
         if (!$skipEmail && $salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
-            $mail = (new SalesOrderConfirmation($salesOrder))
-                ->onQueue(LaravelQueues::DEFAULT->value);
-
-
-            Mail::to($salesOrder->email)->bcc('anton@vendora.se')->queue($mail);
+            (new SendSalesOrderConfirmation)->execute($salesOrder);
         }
 
         return $salesOrder;
     }
 
-    public function createLog(int $salesOrderID, string $description)
+    public function createLog(int $salesOrderID, string $description, ?int $emailID = null)
     {
         SalesOrderLog::create([
             'sales_order_id' => $salesOrderID,
