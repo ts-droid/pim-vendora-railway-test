@@ -162,7 +162,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     continue;
                 }
 
-                $this->importOrder($order);
+                $importResult = $this->importOrder($order);
+
+                if (!$importResult['success']) {
+                    Log::channel('vismanet')->warning('Failed to import sales order. Error message: ' . $importResult['message']);
+                }
             }
         }
 

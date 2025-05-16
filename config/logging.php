@@ -80,6 +80,13 @@ return [
             'level' => 'info',
         ],
 
+        'vismanet' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/vismanet.log'),
+            'days' => 30,
+            'level' => 'debug',
+        ],
+
         'requestlog' => [
             'driver' => 'daily',
             'path' => storage_path('logs/request.log'),
