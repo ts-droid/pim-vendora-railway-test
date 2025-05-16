@@ -47,7 +47,7 @@ class SalesOrder extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'customer', 'customer_number');
+        return $this->belongsTo(Customer::class, 'customer', 'external_id');
     }
 
     public function billingAddress(): BelongsTo
