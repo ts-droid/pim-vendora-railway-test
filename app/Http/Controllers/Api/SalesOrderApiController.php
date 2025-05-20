@@ -24,7 +24,7 @@ class SalesOrderApiController
         $perPage = $request->get('per_page', 30);
 
         $salesOrders = SalesOrder::query()
-            ->with('customer', 'billingAddress')
+            ->with('customer', 'billingAddress', 'shippingAddress')
             ->latest()
             ->paginate($perPage);
 
