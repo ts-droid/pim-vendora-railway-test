@@ -53,8 +53,12 @@
                                                 @endif
                                             </td>
                                             <td style="vertical-align: top;padding-top: 8px;">
-                                                {{ $salesOrderLine->description }}<br>
-                                                {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
+                                                @if($salesOrderLine->article_number === 'SHIP25')
+                                                    {{ $salesOrderLine->description }}
+                                                @else
+                                                    {{ $salesOrderLine->description }}<br>
+                                                    {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
+                                                @endif
                                             </td>
                                             <td style="vertical-align: top;text-align: end;padding-top: 8px;">
                                                 {{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}
@@ -88,7 +92,7 @@
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:16px;">
                                 <tr>
                                     <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_items') }}</td>
-                                    <td align="right" style="padding-bottom: 4px;">{{ $salesOrder->lines ? $salesOrder->lines->sum('quantity') : 0 }}</td>
+                                    <td align="right" style="padding-bottom: 4px;">{{ $salesOrder->lines ? ($salesOrder->lines->sum('quantity') - ($hasShipping ? 1 : 0)) : 0 }}</td>
                                 </tr>
                                 <tr>
                                     <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_sub_total') }}</td>

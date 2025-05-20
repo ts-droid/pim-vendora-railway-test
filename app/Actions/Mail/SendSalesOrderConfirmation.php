@@ -23,12 +23,15 @@ class SendSalesOrderConfirmation
         $emailFromName = $brandingData['brand_name'];
         $emailBCC = 'anton@vendora.se';
 
+        $hasShipping = $salesOrder->orderHasShipping();
+
         $emailBody = view('emails.salesOrder.confirmation', [
             'salesOrder' => $salesOrder,
             'brandingData' => $brandingData,
             'emailSubject' => $emailSubject,
             'emailFromEmail' => $emailFromEmail,
-            'emailFromName' => $emailFromName
+            'emailFromName' => $emailFromName,
+            'hasShipping' => $hasShipping
         ])->render();
 
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))

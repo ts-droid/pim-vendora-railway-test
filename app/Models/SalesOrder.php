@@ -79,6 +79,19 @@ class SalesOrder extends Model
         return $total;
     }
 
+    public function orderHasShipping()
+    {
+        if ($this->lines) {
+            foreach ($this->lines as $salesOrderLine) {
+                if ($salesOrderLine->article_number === 'SHIP25') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function getBrandingDate(): array
     {
         if ($this->source) {
