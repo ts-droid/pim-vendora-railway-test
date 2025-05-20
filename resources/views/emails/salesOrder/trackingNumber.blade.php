@@ -24,7 +24,13 @@
                     <!-- Information -->
                     <tr>
                         <td align="center">
-                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">{{ __('tracking_number_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}</h1>
+                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">
+                                @if($salesOrder->is_company)
+                                    {{ __('tracking_number_title', ['name' => $salesOrder->billingAddress->full_name ?? '']) }}
+                                @else
+                                    {{ __('tracking_number_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}
+                                @endif
+                            </h1>
                             <p style="margin:0 0 20px 0;">{{ __('tracking_number_text_1') }}</p>
 
                             <p style="margin:0 0 4px 0;font-weight: bold;">{{ __('tracking_number_sub_title') }}:</p>

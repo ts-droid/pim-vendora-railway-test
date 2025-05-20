@@ -25,7 +25,13 @@
                     <!-- Greeting -->
                     <tr>
                         <td align="center">
-                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">{{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}</h1>
+                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">
+                                @if($salesOrder->is_company)
+                                    {{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->full_name ?? '']) }}
+                                @else
+                                    {{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}
+                                @endif
+                            </h1>
                             <p style="margin:0 0 10px 0;">{{ __('order_confirm_text_1') }}</p>
                             <p style="margin:0 0 10px 0;">{{ __('order_confirm_text_2') }}</p>
                         </td>

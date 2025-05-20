@@ -151,6 +151,9 @@ class SalesOrderService
         if (isset($data['vat_number'])) {
             $orderData['vat_number'] = (string) $data['vat_number'];
         }
+        if (isset($data['is_company'])) {
+            $orderData['is_company'] = (int) $data['is_company'];
+        }
 
         $salesOrder->update($orderData);
 
@@ -233,6 +236,7 @@ class SalesOrderService
             'billing_email' => $data['billing_email'] ?? '',
             'pay_method' => $data['pay_method'],
             'vat_number' => $data['vat_number'] ?? '',
+            'is_company' => (int) ($data['is_company'] ?? 0)
         ]);
 
         // Create the sales order lines
