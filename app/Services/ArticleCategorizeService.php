@@ -14,7 +14,7 @@ class ArticleCategorizeService
         $path = storage_path('google_product_categories.txt');
         $googleCategories = file_get_contents($path);
 
-        $system = 'Product description:' . PHP_EOL . ($article->shop_description_en ?? '' . PHP_EOL . PHP_EOL . 'Google Product Categories:' . PHP_EOL . $googleCategories);
+        $system = 'Product description:' . PHP_EOL . ($article->shop_description_en ?? '') . PHP_EOL . PHP_EOL . 'Google Product Categories:' . PHP_EOL . $googleCategories;
 
         $message = 'You are a e-commerce assistant. Read through the product description and give me the most relevant Google Product Category.
         Respond only with the category id.';
