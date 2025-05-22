@@ -6,6 +6,8 @@ use App\Enums\LaravelQueues;
 use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GenerateMissingArticleFaqs extends Command
 {
@@ -33,6 +35,10 @@ class GenerateMissingArticleFaqs extends Command
         $articles = Article::where('status', '=', 'Active')
             ->where('shop_title_en', '!=', '')
             ->whereNotNull('shop_title_en')
+            ->where(function ($query) {
+                $query->whereNull('last_faq_generation')
+                    ->orWhere('last_faq_generation', '<', Carbon::now()->subDays(30));
+            })
             ->doesntHave('faqEntries')
             ->limit(self::BATCH_SIZE)
             ->get();
@@ -43,6 +49,10 @@ class GenerateMissingArticleFaqs extends Command
 
         foreach ($articles as $article) {
             GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+
+            DB::table('articles')
+                ->where('id', $article->id)
+                ->update(['last_faq_generation' => Carbon::now()]);
         }
     }
 }
