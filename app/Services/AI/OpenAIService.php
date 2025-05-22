@@ -23,9 +23,9 @@ class OpenAIService implements AIInterface
         }
     }
 
-    public function chatCompletion(string $system, string $message): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
-        $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message));
+        $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature));
 
         $chatResponse = '';
 
@@ -87,9 +87,9 @@ class OpenAIService implements AIInterface
         ];
     }
 
-    private function getChatCompletionBody(string $system, string $message): array
+    private function getChatCompletionBody(string $system, string $message, ?float $temperature = null): array
     {
-        return [
+        $body = [
             'model' => $this->model,
             'messages' => [
                 [
@@ -102,5 +102,11 @@ class OpenAIService implements AIInterface
                 ]
             ],
         ];
+
+        if ($temperature !== null) {
+            $body['temperature'] = $temperature;
+        }
+
+        return $body;
     }
 }

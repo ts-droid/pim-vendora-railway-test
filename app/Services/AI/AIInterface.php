@@ -4,7 +4,7 @@ namespace App\Services\AI;
 
 interface AIInterface
 {
-    public function chatCompletion(string $system, string $message): string;
+    public function chatCompletion(string $system, string $message, ?float $temperature = null): string;
 
     public function streamChatCompletion(string $system, string $message): array;
 }

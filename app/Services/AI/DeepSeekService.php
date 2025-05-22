@@ -22,7 +22,7 @@ class DeepSeekService implements AIInterface
         }
     }
 
-    public function chatCompletion(string $system, string $message): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
         $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message));
 

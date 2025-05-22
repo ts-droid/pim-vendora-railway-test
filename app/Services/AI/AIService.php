@@ -27,9 +27,9 @@ class AIService
         }
     }
 
-    public function chatCompletion(string $system, string $message): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
-        return $this->aiService->chatCompletion($system, $message);
+        return $this->aiService->chatCompletion($system, $message, $temperature);
     }
 
     public function streamChatCompletion(string $system, string $message): array
