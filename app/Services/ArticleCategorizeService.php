@@ -7,7 +7,7 @@ use App\Services\AI\AIService;
 
 class ArticleCategorizeService
 {
-    const MODEL = 'gpt-4.1-nano-2025-04-14';
+    const MODEL = 'gpt-4o';
 
     public function categorizeArticle(Article $article)
     {
