@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class GenerateMissingArticleFaqs extends Command
 {
-    const BATCH_SIZE = 3;
+    const BATCH_SIZE = 50;
 
     /**
      * The name and signature of the console command.
