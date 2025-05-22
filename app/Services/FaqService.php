@@ -47,8 +47,6 @@ class FaqService
             return;
         }
 
-        dd($response);
-
         if (!$response
             || !isset($response['questions'])
             || !is_array($response['questions'])
