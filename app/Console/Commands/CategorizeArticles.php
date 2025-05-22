@@ -3,13 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Enums\LaravelQueues;
-use App\Jobs\GenerateFaqForArticle;
+use App\Jobs\CategorizeArticle;
 use App\Models\Article;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class GenerateMissingArticleFaqs extends Command
+class CategorizeArticles extends Command
 {
     const BATCH_SIZE = 50;
 
@@ -18,14 +18,14 @@ class GenerateMissingArticleFaqs extends Command
      *
      * @var string
      */
-    protected $signature = 'faq:generate-missing';
+    protected $signature = 'articles:categorize';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Generate FAQ for articles that are missing FAQ entries';
+    protected $description = 'Command description';
 
     /**
      * Execute the console command.
@@ -36,10 +36,9 @@ class GenerateMissingArticleFaqs extends Command
             ->where('shop_description_en', '!=', '')
             ->whereNotNull('shop_description_en')
             ->where(function ($query) {
-                $query->whereNull('last_faq_generation')
-                    ->orWhere('last_faq_generation', '<', Carbon::now()->subDays(30));
+                $query->whereNull('last_categorize')
+                    ->orWhere('last_categorize', '<', Carbon::now()->subDays(30));
             })
-            ->doesntHave('faqEntries')
             ->limit(self::BATCH_SIZE)
             ->get();
 
@@ -48,11 +47,11 @@ class GenerateMissingArticleFaqs extends Command
         }
 
         foreach ($articles as $article) {
-            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+            CategorizeArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
 
             DB::table('articles')
                 ->where('id', $article->id)
-                ->update(['last_faq_generation' => Carbon::now()]);
+                ->update(['last_categorize' => Carbon::now()]);
         }
     }
 }
