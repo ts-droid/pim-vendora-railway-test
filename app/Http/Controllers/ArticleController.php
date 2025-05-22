@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\DispatchArticleUpdate;
 use App\Actions\UploadArticlePackageImage;
 use App\Models\Article;
+use App\Models\ArticleFaqEntry;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Models\ArticleReview;
@@ -788,10 +789,15 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get();
 
+        $faqEntries = ArticleFaqEntry::where('article_id', $article->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
         return ApiResponseController::success([
             'images' => $images->toArray(),
             'files' => $files->toArray(),
             'reviews' => $reviews->toArray(),
+            'faq_entries' => $faqEntries->toArray()
         ]);
     }
 
