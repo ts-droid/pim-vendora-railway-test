@@ -23,6 +23,16 @@ class OpenAIService implements AIInterface
         }
     }
 
+    public function getEmbedding(string $text): array
+    {
+        $response = $this->callAPI('POST', '/embeddings', [
+            'input' => $text,
+            'model' => $this->model
+        ]);
+
+        return $response['data'][0]['embedding'] ?? [];
+    }
+
     public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
         $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature));
