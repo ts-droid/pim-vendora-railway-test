@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('wgr:fetch')->everyTenMinutes();
 
-            // $schedule->command('faq:generate-missing')->hourly();
+            $schedule->command('faq:generate-missing')->hourly();
 
             $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
             $schedule->command('customers:calculate-sales')->dailyAt('08:00');
