@@ -46,10 +46,7 @@ class ArticleCategorizeService
             return $item['id'] . ' - ' . $item['name'];
         })->implode(PHP_EOL);
 
-
-        $system = 'Product description: ' . PHP_EOL . ($article->shop_description_en ?? '') . PHP_EOL . PHP_EOL . 'Possible Google Product Categories:' . PHP_EOL . $relevantCategories;
-
-        $message = 'You are a product classification expert.
+        $system = 'You are a product classification expert.
 
         You will receive a product description and a short list of candidate Google Product Categories. Your task is to select the **single most accurate and specific** category from this list.
 
@@ -58,6 +55,8 @@ class ArticleCategorizeService
         Choose the category that best fits the product **based on its use, function, or type**, not just based on keywords.
 
         Respond with only the category ID (number only). Do not include any other text.';
+
+        $message = 'Product description: ' . PHP_EOL . ($article->shop_description_en ?? '') . PHP_EOL . PHP_EOL . 'Candidate Google Product Categories:' . PHP_EOL . $relevantCategories . PHP_EOL . PHP_EOL . 'Which category best matches the product?';
 
         $AIService = new AiService(self::COMPLETION_MODEL);
         $response = $AIService->chatCompletion($system, $message, 0);
