@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\TranslationController;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
 use App\Services\AI\AIService;
@@ -9,6 +11,8 @@ use App\Services\AI\OpenAIService;
 
 class FaqService
 {
+    const FAQ_MODEL = 'gpt-4o';
+
     public function generateArticleFAQ(Article $article, int $numberOfQuestions = 3)
     {
         $system = 'Product description:' . PHP_EOL . ($article->shop_description_en ?? '');
@@ -34,7 +38,7 @@ class FaqService
             ]
         }';
 
-        $AIService = new AIService('gpt-4o');
+        $AIService = new AIService(self::FAQ_MODEL);
         $rawResponse = $AIService->chatCompletion($system, $message);
 
         if (!$rawResponse) {
@@ -54,6 +58,10 @@ class FaqService
             return;
         }
 
+        $languages = (new LanguageController())->getAllLanguages();
+
+        $translationController = new TranslationController();
+
         for ($i = 0;$i < $numberOfQuestions;$i++) {
             $question = $response['questions'][$i]['question'] ?? '';
             $answer = $response['questions'][$i]['answer'] ?? '';
@@ -62,11 +70,22 @@ class FaqService
                 continue;
             }
 
-            ArticleFaqEntry::create([
+            $data = [
                 'article_id' => $article->id,
-                'question' => $question,
-                'answer' => $answer,
-            ]);
+                'question_en' => $question,
+                'answer_en' => $answer,
+            ];
+
+            foreach ($languages as $locale) {
+                if ($locale->language_code === 'en') continue;
+
+                $translations = $translationController->translate([$question, $answer], 'en', $locale->language_code, false);
+
+                $data['question_' . $locale->language_code] = $translations[0] ?? '';
+                $data['answer_' . $locale->language_code] = $translations[1] ?? '';
+            }
+
+            ArticleFaqEntry::create($data);
         }
     }
 }

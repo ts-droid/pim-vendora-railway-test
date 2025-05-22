@@ -9,10 +9,10 @@ class ArticleFaqEntry extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'article_id',
-        'question',
-        'answer',
+    protected $guarded = [
+        'id',
+        'updated_at',
+        'created_at',
     ];
 
     public function article()
