@@ -119,6 +119,11 @@ class Article extends Model
         return $this->hasMany(StockLog::class, 'article_number', 'article_number');
     }
 
+    public function faqEntries()
+    {
+        return $this->hasMany(ArticleFaqEntry::class, 'article_id', 'id');
+    }
+
     public function getAttribute($key)
     {
         // Get the original attribute value

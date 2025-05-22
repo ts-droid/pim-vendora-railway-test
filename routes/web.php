@@ -34,6 +34,13 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function() {
+    $article = App\Models\Article::where('article_number', 'ST-CMAM')->first();
+
+    $faqService = new App\Services\FaqService();
+    $faqService->generateArticleFAQ($article);
+});
+
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
 
 Route::get('/sync-article', [ArticleSyncController::class, 'syncArticle']);
