@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Article;
 use App\Services\AI\AIService;
 use App\Services\AI\OpenAIService;
+use Illuminate\Support\Facades\DB;
 
 class ArticleCategorizeService
 {
@@ -61,7 +62,15 @@ class ArticleCategorizeService
         $AIService = new AiService(self::COMPLETION_MODEL);
         $response = $AIService->chatCompletion($system, $message, 0);
 
-        dd($response);
+        $categoryID = (int) $response;
+
+        if (!$categoryID) {
+            return;
+        }
+
+        DB::table('articles')
+            ->where('id', $article->id)
+            ->update(['google_product_category' => $categoryID]);
     }
 
     private function cosineSimilarity(array $vec1, array $vec2): float
