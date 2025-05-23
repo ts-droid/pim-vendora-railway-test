@@ -50,9 +50,9 @@ class OpenAIService implements AIInterface
         return $response['data'][0]['embedding'] ?? [];
     }
 
-    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null, ?string $imageURL = ''): string
     {
-        $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature));
+        $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature, $imageURL));
 
         $chatResponse = '';
 
@@ -114,8 +114,24 @@ class OpenAIService implements AIInterface
         ];
     }
 
-    private function getChatCompletionBody(string $system, string $message, ?float $temperature = null): array
+    private function getChatCompletionBody(string $system, string $message, ?float $temperature = null, ?string $imageURL = ''): array
     {
+        $userContent = [];
+
+        $userContent[] = [
+            'type' => 'text',
+            'text' => $message,
+        ];
+
+        if (!empty($imageURL)) {
+            $userContent[] = [
+                'type' => 'image_url',
+                'image_url' => [
+                    'url' => $imageURL
+                ]
+            ];
+        }
+
         $body = [
             'model' => $this->model,
             'messages' => [
@@ -125,7 +141,7 @@ class OpenAIService implements AIInterface
                 ],
                 [
                     'role' => 'user',
-                    'content' => $message,
+                    'content' => $userContent,
                 ]
             ],
         ];
