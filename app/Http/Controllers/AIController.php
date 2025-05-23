@@ -93,13 +93,16 @@ class AIController extends Controller
     {
         $productDescription = (string) $request->input('product_description', '');
         $imageUrl = (string) $request->input('image_url', '');
+        $descriptionPrompt = (string) $request->input('description_prompt', '');
+        $settingPrompt = (string) $request->input('setting_prompt', '');
+        $generationPrompt = (string) $request->input('generation_prompt', '');
 
-        if (!$productDescription || !$imageUrl) {
-            return ApiResponseController::error('Missing required parameter "product_description" or "image_url".');
+        if (!$productDescription || !$imageUrl || !$descriptionPrompt || !$settingPrompt || !$generationPrompt) {
+            return ApiResponseController::error('Missing required parameter "product_description", "image_url", "description_prompt", "setting_prompt" and/or "generation_prompt".');
         }
 
         $productImageGenerator = new ProductImageGenerator();
-        $imageBase64 = $productImageGenerator->generateLifestyleImage($productDescription, $imageUrl);
+        $imageBase64 = $productImageGenerator->generateLifestyleImage($productDescription, $imageUrl, $descriptionPrompt, $settingPrompt, $generationPrompt);
 
         if (!$imageBase64) {
             return ApiResponseController::error('Failed to generate image. Please try again.');

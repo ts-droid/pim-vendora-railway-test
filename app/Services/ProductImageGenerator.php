@@ -9,9 +9,6 @@ class ProductImageGenerator
 {
     const MODEL = 'gpt-4o';
 
-    const PROMPT_MODEL = 'gpt-4o';
-    const IMAGE_MODEl = 'gpt-4o';
-
     public function generateLifestyleImage(
         string $productDescription,
         string $productImageURL,
@@ -20,15 +17,6 @@ class ProductImageGenerator
         string $imageGenerationPrompt = ''
     ): ?string
     {
-        $imageDescriptionPrompt = 'Describe this image.';
-
-        $imageSettingsPrompt = 'Jag ska göra en bild av den här produkten. Jag har produktbilden, men jag vill ha den i olika
-        situationer, till exempel på ett skrivbord eller i hallen eller vad det nu än må vara. Läs igenom texten
-        nedan och gör en anpassa bild-prompt för att skapa en bild av produkten i en miljö som är relevant för produkten.';
-
-        $imageGenerationPrompt = 'Skapa ett professionellt foto i utseende som man gör i en annons, fotostudio med proffskamera, perfekt ljussättning.';
-
-
         $openAiService = new OpenAIService(self::MODEL);
 
 
