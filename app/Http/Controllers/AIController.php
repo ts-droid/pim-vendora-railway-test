@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AI\AIService;
+use App\Services\ProductImageGenerator;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -86,5 +87,26 @@ class AIController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
+    }
+
+    public function generateLifestyleImage(Request $request)
+    {
+        $productDescription = (string) $request->input('product_description', '');
+        $imageUrl = (string) $request->input('image_url', '');
+
+        if (!$productDescription || !$imageUrl) {
+            return ApiResponseController::error('Missing required parameter "product_description" or "image_url".');
+        }
+
+        $productImageGenerator = new ProductImageGenerator();
+        $imageBase64 = $productImageGenerator->generateLifestyleImage($productDescription, $imageUrl);
+
+        if (!$imageBase64) {
+            return ApiResponseController::error('Failed to generate image. Please try again.');
+        }
+
+        return ApiResponseController::success([
+            'image_base_64' => $imageBase64
+        ]);
     }
 }

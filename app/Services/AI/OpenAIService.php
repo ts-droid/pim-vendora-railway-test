@@ -23,6 +23,23 @@ class OpenAIService implements AIInterface
         }
     }
 
+    public function generateImage(string $prompt, string $imageBase64): array
+    {
+        return $this->callAPI('POST', '/responses', [
+            'model' => $this->model,
+            'input' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        ['type' => 'input_text', 'text' => $prompt],
+                        ['type' => 'input_image', 'image_url' => $imageBase64]
+                    ]
+                ]
+            ],
+            'tools' => [['type' => 'image_generation']]
+        ]);
+    }
+
     public function getEmbedding(string $text): array
     {
         $response = $this->callAPI('POST', '/embeddings', [

@@ -169,6 +169,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/ai')->group(function() {
         Route::post('/stream', [AIController::class, 'stream']);
+        Route::get('/generate-lifestyle-image', [AiController::class, 'generateLifestyleImage']);
     });
 
     Route::prefix('/marketing-content')->group(function() {
