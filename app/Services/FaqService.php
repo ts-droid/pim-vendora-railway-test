@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\PromptController;
 use App\Http\Controllers\TranslationController;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
@@ -15,31 +16,19 @@ class FaqService
 
     public function generateArticleFAQ(Article $article, int $numberOfQuestions = 3)
     {
-        $system = 'Product description:' . PHP_EOL . ($article->shop_description_en ?? '');
+        $promptController = new PromptController();
 
-        $message = 'You are a e-commerce assistant. Read through the product description and generate exactly ' . $numberOfQuestions . ' FAQ questions and answers.
-        The questions should be relevant to the product and the answers should be informative and concise. The questions must be in English.
-        Max length of each question is 90 characters and max length of each answer is 200 characters.
-        Respond only with a JSON-formatted string with the following structure:
-        {
-            "questions": [
-                {
-                    "question": "Question 1",
-                    "answer": "Answer 1"
-                },
-                {
-                    "question": "Question 2",
-                    "answer": "Answer 2"
-                },
-                {
-                    "question": "Question 3",
-                    "answer": "Answer 3"
-                }
-            ]
-        }';
+        $prompt = $promptController->getBySystemCode('article_faq');
 
-        $AIService = new AIService(self::FAQ_MODEL);
-        $rawResponse = $AIService->chatCompletion($system, $message);
+        $rawResponse = $promptController->execute(
+            $prompt->id,
+            [
+                'product_description' => ($article->shop_description_en ?? ''),
+                'number_of_questions' => $numberOfQuestions,
+            ],
+            '',
+            self::FAQ_MODEL
+        );
 
         if (!$rawResponse) {
             return;
