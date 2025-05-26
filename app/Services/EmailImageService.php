@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\DoSpacesController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -21,8 +22,8 @@ class EmailImageService
             $hash = md5($url);
             $filename = self::$directory . '/' . $hash . '.png';
 
-            if (Storage::disk('public')->exists($filename)) {
-                return config('app.url') . Storage::url($filename);
+            if (DoSpacesController::getContent($filename)) {
+                return DoSpacesController::getURL($filename);
             }
 
             $response = Http::timeout(10)->get($url);
@@ -51,9 +52,9 @@ class EmailImageService
             imagedestroy($srcImage);
             imagedestroy($dstImage);
 
-            Storage::disk('public')->put($filename, $flattenedPng);
+            DoSpacesController::store($filename, $flattenedPng, true);
 
-            return config('app.url') . Storage::url($filename);
+            return DoSpacesController::getURL($filename);
         } catch (\Throwable $e) {
             return null;
         }
