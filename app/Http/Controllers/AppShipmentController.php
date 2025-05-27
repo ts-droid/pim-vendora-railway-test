@@ -70,8 +70,8 @@ class AppShipmentController extends Controller
 
             $locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity);
 
-            $this->picking_locations = $locations['locations'];
-            $this->picking_quantities = $locations['quantity'];
+            $line->picking_locations = $locations['locations'];
+            $line->picking_quantities = $locations['quantity'];
         }
 
         $shipment->is_backorder = $shipment->isBackorder();
