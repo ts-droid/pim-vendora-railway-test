@@ -94,6 +94,19 @@ class WarehouseHelper
 
     }
 
+    public static function getUnmanagedStock(string $articleNumber): int
+    {
+        $locations = self::getArticleLocationsWithStock($articleNumber);
+
+        foreach ($locations as $location) {
+            if ($location['identifier'] == '--') {
+                return $location['stock'];
+            }
+        }
+
+        return 0;
+    }
+
     public static function getArticleLocationsWithStock(string $articleNumber): array
     {
         $locations = [];
@@ -154,7 +167,10 @@ class WarehouseHelper
             ->first();
 
         if (!$articleData) {
-            return [];
+            return [
+                'locations' => [],
+                'quantity' => []
+            ];
         }
 
         $masterBox = $articleData->master_box ?: 1;
@@ -206,11 +222,17 @@ class WarehouseHelper
         foreach ($articleLocations as $location) {
             if ($location['class'] === 'A') {
                 if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
-                    return [$location['identifier']];
+                    return [
+                        'locations' => [$location['identifier']],
+                        'quantity' => [$quantity]
+                    ];
                 }
             } else {
                 if ($quantity <= $location['stock']) {
-                    return [$location['identifier']];
+                    return [
+                        'locations' => [$location['identifier']],
+                        'quantity' => [$quantity]
+                    ];
                 }
             }
         }
@@ -218,17 +240,23 @@ class WarehouseHelper
         // If multiple compartments are needed, aggregate stock
         $collectedStock = 0;
         $identifiers = [];
+        $quantities = [];
 
         foreach (array_reverse($articleLocations) as $location) {
             $collectedStock += $location['stock'];
+
             $identifiers[] = $location['identifier'];
+            $quantities[] = $location['stock'];
 
             if ($collectedStock >= $quantity) {
                 break;
             }
         }
 
-        return $identifiers;
+        return [
+            'locations' => $identifiers,
+            'quantity' => $quantities
+        ];
     }
 
     public static function lastInventoryDate(string $articleNumber, string $identifier): string

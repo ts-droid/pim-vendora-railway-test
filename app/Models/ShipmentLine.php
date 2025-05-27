@@ -24,6 +24,7 @@ class ShipmentLine extends Model
         'investigation_sound_url',
         'serial_number',
         'picking_location',
+        'picking_location_quantity',
         'is_picked',
     ];
 

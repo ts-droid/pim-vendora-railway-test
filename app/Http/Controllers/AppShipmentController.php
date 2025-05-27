@@ -67,7 +67,11 @@ class AppShipmentController extends Controller
 
         foreach ($shipment->lines as &$line) {
             $line->order_quantity = $line->orderQuantity();
-            $line->picking_locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity);
+
+            $locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity);
+
+            $this->picking_locations = $locations['locations'];
+            $this->picking_quantities = $locations['quantity'];
         }
 
         $shipment->is_backorder = $shipment->isBackorder();
@@ -180,6 +184,7 @@ class AppShipmentController extends Controller
                 $lineID = $line['id'] ?? 0;
                 $quantity = $line['quantity'] ?? 0;
                 $pickingLocations = $line['picking_locations'] ?? ['--'];
+                $pickingLocationQuantity = $line['picking_location_quantity'] ?? [];
 
                 $serialNumbers = $line['serial_numbers'] ?? '';
                 $serialNumbers = explode(',', $serialNumbers);
@@ -206,7 +211,8 @@ class AppShipmentController extends Controller
                 $shipmentLine->update([
                     'picked_quantity' => $quantity,
                     'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : '',
-                    'picking_location' => json_encode($pickingLocations)
+                    'picking_location' => json_encode($pickingLocations),
+                    'picking_location_quantity' => json_encode($pickingLocationQuantity),
                 ]);
             }
         }
@@ -221,28 +227,29 @@ class AppShipmentController extends Controller
 
         if ($shipmentLines) {
             foreach ($shipmentLines as $shipmentLine) {
-                $quantity = $shipmentLine->picked_quantity;
                 $pickingLocations = json_decode($shipmentLine->picking_location, true);
+                $pickingLocationQuantity = json_decode($shipmentLine->picking_location_quantity, true);
 
                 if ($shipmentLine->shipped_quantity != $shipmentLine->picked_quantity) {
                     $markForInvestigation = true;
                 }
 
-                foreach ($pickingLocations as $pickingLocation) {
+                for ($i = 0;$i < count($pickingLocations);$i++) {
+                    $pickingLocation = $pickingLocations[$i];
+                    $pickingLocationQuantity = $pickingLocationQuantity[$i] ?? 0;
+
                     if ($pickingLocation == '--') {
                         continue;
                     }
 
                     $compartment = $stockPlaceService->getCompartmentByIdentifier($pickingLocation);
 
-                    $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $quantity);
+                    $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $pickingLocationQuantity);
                     if ($stockItems->count() == 0) {
                         continue;
                     }
 
                     $stockItemService->removeStockItems($stockItems, $displayName);
-
-                    $quantity -= $stockItems->count();
                 }
             }
         }
