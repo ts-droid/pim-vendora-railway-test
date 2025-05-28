@@ -431,6 +431,15 @@ class ArticleController extends Controller
         return ApiResponseController::success($reviews->toArray());
     }
 
+    public function getFAQ(Request $request, Article $article)
+    {
+        $faqEntries = ArticleFaqEntry::where('article_id', $article->id)
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($faqEntries->toArray());
+    }
+
     public function getArticleWmsData(Article $article)
     {
         $articleData = DB::table('articles')
