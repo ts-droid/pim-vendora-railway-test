@@ -1481,6 +1481,9 @@ class ArticleController extends Controller
             if (array_key_exists('meta_description_' . $locale->language_code, $data)) {
                 $data['meta_description_' . $locale->language_code] = (string) $data['meta_description_' . $locale->language_code];
             }
+            if (array_key_exists('announcement_' . $locale->language_code, $data)) {
+                $data['announcement_' . $locale->language_code] = (string) $data['announcement_' . $locale->language_code];
+            }
         }
 
         foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
