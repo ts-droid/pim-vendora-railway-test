@@ -25,7 +25,8 @@ class ProductImageGenerator
 
 
         // Generate the text that describes how the image should look
-        $imageSettingsPrompt .= PHP_EOL . PHP_EOL . $productDescription;
+        $imageSettingsPrompt .= PHP_EOL . PHP_EOL . 'Product description:' . PHP_EOL . $productDescription;
+        $imageSettingsPrompt .= PHP_EOL . PHP_EOL . 'Information about the product image:' . PHP_EOL . $imageDescription;
 
         $imageSetting = $openAiService->chatCompletion('', $imageSettingsPrompt);
 
