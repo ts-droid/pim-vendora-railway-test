@@ -388,7 +388,7 @@ class AppShipmentController extends Controller
         ]);
 
         // Send/notify tracking number to customer
-        if ($trackingNumber != $trackingNumberOld) {
+        if ($trackingNumber != $trackingNumberOld || !$trackingNumberOld) {
             $this->notifyTrackingNumber($shipment, $trackingNumber);
         }
 
@@ -397,10 +397,9 @@ class AppShipmentController extends Controller
 
     public function notifyTrackingNumber(Shipment $shipment, $trackingNumber)
     {
-        if (!$trackingNumber || !$shipment->order_numbers) {
-            Log::channel('shipments')->warning('Shipment has no tracking number or order numbers. (Tracking Number: {trackingNumber}) (Order numbers: {orderNumbersCount})', [
+        if (!$shipment->order_numbers) {
+            Log::channel('shipments')->warning('Shipment has no order numbers. (Order numbers: {orderNumbersCount})', [
                 'shipmentNumber' => $shipment->number,
-                'trackingNumber' => $trackingNumber,
                 'orderNumbersCount' => count($shipment->order_numbers)
             ]);
 
@@ -426,7 +425,7 @@ class AppShipmentController extends Controller
 
                 Log::channel('shipments')->info('Queued CompleteWgrOrder for shipment', ['shipmentNumber' => $shipment->number]);
             }
-            elseif ($salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
+            elseif ($trackingNumber && $salesOrder->email && filter_var($salesOrder->email, FILTER_VALIDATE_EMAIL)) {
                 // Use our own notification
                 (new SendSalesOrderTrackingNumber)->execute($salesOrder, $trackingNumber);
 
