@@ -23,7 +23,7 @@ class StockPlaceController extends Controller
         $data = Cache::remember('stock_place_controller:get_unplaced_articles', 60, function () {
             $result = [];
 
-            $articles = DB::table('article')
+            $articles = DB::table('articles')
                 ->where('stock_manageable', '>', 0)
                 ->select('article_number', 'stock_manageable')
                 ->get();
