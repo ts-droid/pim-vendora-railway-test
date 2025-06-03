@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\CompartmentSection;
 use App\Models\CompartmentsTemplate;
 use App\Models\StockItem;
@@ -12,10 +13,39 @@ use App\Models\StockPlaceGroup;
 use App\Services\WMS\StockPlaceService;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class StockPlaceController extends Controller
 {
+    public function getUnplacedArticles()
+    {
+        $data = Cache::remember('stock_place_controller:get_unplaced_articles', 60, function () {
+            $result = [];
+
+            $articles = DB::table('article')
+                ->where('stock_manageable', '>', 0)
+                ->select('article_number', 'stock_manageable')
+                ->get();
+
+            foreach ($articles as $article) {
+                $managedStock = DB::table('stock_items')->where('article_number', $article->article_number)->count();
+                $unmanagedStock = $article->stock_manageable - $managedStock;
+
+                if ($unmanagedStock > 0) {
+                    $result[] = [
+                        'article_number' => $article->article_number,
+                        'unmanaged_stock' => $unmanagedStock,
+                    ];
+                }
+            }
+
+            return $result;
+        });
+
+        return ApiResponseController::success($data);
+    }
+
     public function getStockPlaces(Request $request)
     {
         $stockPlaces = StockPlace::with('compartments', 'compartments.sections')->get();
