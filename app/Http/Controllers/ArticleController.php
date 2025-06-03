@@ -1116,6 +1116,8 @@ class ArticleController extends Controller
 
         $article->update($allowedUpdates);
 
+        trigger_stock_sync($article->article_number);
+
         if ($alternatives !== null) {
             $this->updateAlternatives($article, $alternatives);
         }
