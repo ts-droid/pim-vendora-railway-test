@@ -243,10 +243,12 @@ class WarehouseHelper
         $quantities = [];
 
         foreach (array_reverse($articleLocations) as $location) {
-            $collectedStock += $location['stock'];
+            $remaining = $quantity - $collectedStock;
+            $take = min($location['stock'], $remaining);
 
+            $collectedStock += $take;
             $identifiers[] = $location['identifier'];
-            $quantities[] = $location['stock'];
+            $quantities[] = $take;
 
             if ($collectedStock >= $quantity) {
                 break;
