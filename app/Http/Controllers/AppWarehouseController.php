@@ -386,7 +386,7 @@ class AppWarehouseController extends Controller
                     ->where('purchase_orders.date', '>=', '2023-01-01')
                     ->first();
 
-                $article->reserved_stock = WarehouseHelper::getReservedStock($article->article_number);
+                $article->reserved_stock = WarehouseHelper::getPickedStock($article->article_number);
                 $article->incoming_stock = $purchaseData->incoming_quantity ?? 0;
                 $article->oldest_purchase_date = $purchaseData->oldest_purchase_date ?? '';
 

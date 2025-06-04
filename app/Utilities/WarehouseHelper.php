@@ -2,6 +2,7 @@
 
 namespace App\Utilities;
 
+use App\Enums\ShipmentInternalStatus;
 use App\Models\StockItem;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
@@ -9,6 +10,36 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseHelper
 {
+    public static function getPickedStock(string $articleNumber): int
+    {
+        $lines = DB::table('shipment_lines')
+            ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
+            ->select('picking_location', 'picking_location_quantity')
+            ->where('shipment_lines.article_number', $articleNumber)
+            ->where('shipments.status', 'Open')
+            ->where('shipments.operation', 'Issue')
+            ->where('internal_status', '!=', ShipmentInternalStatus::OPEN->value)
+            ->where('picking_location', 'LIKE', '%"--"%')
+            ->get();
+
+        $pickedQty = 0;
+
+        foreach ($lines as $line) {
+            $locations = json_decode($line->picking_location);
+            $quantities = json_decode($line->picking_location_quantity);
+
+            for ($i = 0;$i < count($locations);$i++) {
+                if ($locations[$i] !== '--') {
+                    continue;
+                }
+
+                $pickedQty += ($quantities[$i] ?? 0);
+            }
+        }
+
+        return $pickedQty;
+    }
+
     public static function getReservedStock(string $articleNumber): int
     {
         return (int) DB::table('shipment_lines')
@@ -155,6 +186,8 @@ class WarehouseHelper
     {
         $compartmentMaxPick = 0.5; // TODO: Make this a setting
 
+        $pickedStock = self::getPickedStock($articleNumber);
+
         $colors = [
             self::classToColor('A'),
             self::classToColor('B'),
@@ -209,7 +242,8 @@ class WarehouseHelper
         }
 
         // Add unmanaged stock
-        $unmanagedStock = $articleData->stock_manageable - $managedStock;
+        $unmanagedStock = $articleData->stock_manageable - $managedStock - $pickedStock;
+
         if ($unmanagedStock > 0) {
             $articleLocations[] = [
                 'identifier' => '--',

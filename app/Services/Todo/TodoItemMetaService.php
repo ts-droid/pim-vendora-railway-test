@@ -61,7 +61,7 @@ class TodoItemMetaService
             'package_image_back' => $article->package_image_back,
             'package_image_back_url' => $article->package_image_back_url,
             'total_stock' => $article->stock_manageable,
-            'reserved_stock' => WarehouseHelper::getReservedStock($article->article_number),
+            'reserved_stock' => WarehouseHelper::getPickedStock($article->article_number),
             'incoming_stock' => $purchaseData->incoming_quantity ?? 0,
             'oldest_purchase_date' => $purchaseData->oldest_purchase_date ?? '',
             'serial_number_management' => $article->serial_number_management ? 'Active' : 'Inactive',
