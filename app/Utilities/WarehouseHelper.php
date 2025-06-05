@@ -12,32 +12,14 @@ class WarehouseHelper
 {
     public static function getPickedStock(string $articleNumber): int
     {
-        $lines = DB::table('shipment_lines')
+        return (int) DB::table('shipment_lines')
             ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
-            ->select('picking_location', 'picking_location_quantity')
+            ->select('shipment_lines.picked_quantity')
             ->where('shipment_lines.article_number', $articleNumber)
             ->where('shipments.status', 'Open')
             ->where('shipments.operation', 'Issue')
             ->where('internal_status', '!=', ShipmentInternalStatus::OPEN->value)
-            ->where('picking_location', 'LIKE', '%"--"%')
-            ->get();
-
-        $pickedQty = 0;
-
-        foreach ($lines as $line) {
-            $locations = json_decode($line->picking_location);
-            $quantities = json_decode($line->picking_location_quantity);
-
-            for ($i = 0;$i < count($locations);$i++) {
-                if ($locations[$i] !== '--') {
-                    continue;
-                }
-
-                $pickedQty += ($quantities[$i] ?? 0);
-            }
-        }
-
-        return $pickedQty;
+            ->sum('shipment_lines.picked_quantity');
     }
 
     public static function getReservedStock(string $articleNumber): int
