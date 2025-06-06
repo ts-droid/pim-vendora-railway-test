@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TranslationController extends Controller
 {
-    const API_KEY = '5cedf04c-eeb6-ae4b-df39-59bec172476b';
-
     /**
      * @var Translator
      */
@@ -22,7 +20,7 @@ class TranslationController extends Controller
 
     function __construct()
     {
-        $this->translator = new Translator(self::API_KEY);
+        $this->translator = new Translator(config('services.deepl.api_keu'));
     }
 
     public function getEngines() {
