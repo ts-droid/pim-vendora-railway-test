@@ -8,6 +8,7 @@ use App\Services\TranslationServiceManager;
 use DeepL\Translator;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TranslationController extends Controller
@@ -101,6 +102,14 @@ class TranslationController extends Controller
      */
     public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
     {
+        Log::channel('deepl')->warning(json_encode([
+            'strings' => $strings,
+            'sourceLang' => $sourceLang,
+            'targetLang' => $targetLang,
+            'isHTML' => $isHTML,
+            'excludes' => $excludes
+        ]));
+
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);

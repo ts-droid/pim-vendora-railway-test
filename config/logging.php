@@ -87,6 +87,13 @@ return [
             'level' => 'debug',
         ],
 
+        'deepl' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/deepl.log'),
+            'days' => 30,
+            'level' => 'debug',
+        ],
+
         'requestlog' => [
             'driver' => 'daily',
             'path' => storage_path('logs/request.log'),
