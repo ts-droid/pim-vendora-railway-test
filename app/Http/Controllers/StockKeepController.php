@@ -439,6 +439,10 @@ class StockKeepController extends Controller
                 }
             }
 
+            if (!$unmanagedStock) {
+                continue;
+            }
+
             $result[] = [
                 'article_number' => $articleNumber,
                 'unmanaged_stock' => $unmanagedStock,
