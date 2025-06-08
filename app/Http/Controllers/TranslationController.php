@@ -100,13 +100,13 @@ class TranslationController extends Controller
      */
     public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
     {
-        Log::channel('deepl')->info(json_encode([
+        /*Log::channel('deepl')->info(json_encode([
             'strings' => $strings,
             'sourceLang' => $sourceLang,
             'targetLang' => $targetLang,
             'isHTML' => $isHTML,
             'excludes' => $excludes
-        ]));
+        ]));*/
 
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
