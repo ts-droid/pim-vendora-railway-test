@@ -137,14 +137,14 @@ class TranslationController extends Controller
 			$string = preg_replace( '/\r|\n/', '', $string);
 
             try {
-                /*$translation = (string) $this->translator->translateText(
+                $translation = (string) $this->translator->translateText(
                     $string,
                     $this->formatLanguageCode($sourceLang),
                     $this->formatLanguageCode($targetLang, true),
                     $options
                 );
 
-                $translations[] = $translation;*/
+                $translations[] = $translation;
 
                 $translations[] = '';
             } catch (Exception $e) {
