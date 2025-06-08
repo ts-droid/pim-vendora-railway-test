@@ -20,7 +20,7 @@ class TranslationController extends Controller
 
     function __construct()
     {
-        $this->translator = new Translator(config('services.deepl.api_keu'));
+        $this->translator = new Translator(config('services.deepl.api_key'));
     }
 
     public function getEngines() {
