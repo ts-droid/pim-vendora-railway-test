@@ -143,6 +143,9 @@ class FetchVismaNet extends Command
                 break;
 
             case 'quick':
+                $this->info('Fetching inventory adjustments...');
+                Process::timeout(300)->run('php artisan visma:fetch inventory-adjustments');
+
                 $this->info('Fetching purchase orders...');
                 Process::timeout(300)->run('php artisan visma:fetch purchase-orders');
 

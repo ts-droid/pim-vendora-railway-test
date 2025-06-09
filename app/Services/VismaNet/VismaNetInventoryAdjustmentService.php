@@ -78,7 +78,7 @@ class VismaNetInventoryAdjustmentService extends VismaNetApiService
 
             InventoryAdjustmentLine::create($lineData);
 
-            // trigger_stock_sync($articleNumber);
+            trigger_stock_sync($articleNumber);
         }
     }
 }
