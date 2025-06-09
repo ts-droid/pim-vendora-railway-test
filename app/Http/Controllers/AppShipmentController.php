@@ -41,7 +41,7 @@ class AppShipmentController extends Controller
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
 
-            $shipment->has_notes = $shipment->internal_note ? true : false;
+            $shipment->has_notes = $shipment->note ? true : false;
 
             $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
             if ($salesOrders) {
@@ -69,7 +69,7 @@ class AppShipmentController extends Controller
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
 
-            $shipment->has_notes = $shipment->internal_note ? true : false;
+            $shipment->has_notes = $shipment->note ? true : false;
 
             $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
             if ($salesOrders) {
