@@ -94,6 +94,7 @@ class AppShipmentController extends Controller
         }
 
         $shipment->internal_note = implode((PHP_EOL . PHP_EOL), $orderNotes);
+        $shipment->internal_note = preg_replace('/^\s*[\r\n]+|[\r\n]+\s*$/', '', $shipment->internal_note);
 
         // Load open siblings
         if (!in_array($shipment->customer_number, self::GROUP_CUSTOMER_EXCLUDES)) {
