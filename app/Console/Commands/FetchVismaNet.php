@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Services\CustomerCreditService;
 use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetCustomerPaymentService;
+use App\Services\VismaNet\VismaNetInventoryAdjustmentService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\VismaNet\VismaNetTransactionService;
@@ -41,6 +42,11 @@ class FetchVismaNet extends Command
         $vismaNetController = new VismaNetController();
 
         switch ($type) {
+            case 'inventory-adjustments':
+                $inventoryAdjustmentService = new VismaNetInventoryAdjustmentService();
+                $inventoryAdjustmentService->fetchInventoryAdjustments();
+                break;
+
             case 'customers':
                 $vismaNetController->fetchCustomers();
                 break;
