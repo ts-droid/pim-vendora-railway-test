@@ -9,6 +9,8 @@ use App\Services\CustomerCreditService;
 use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetInventoryAdjustmentService;
+use App\Services\VismaNet\VismaNetInventoryIssueService;
+use App\Services\VismaNet\VismaNetInventoryTransferService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\VismaNet\VismaNetTransactionService;
@@ -45,6 +47,16 @@ class FetchVismaNet extends Command
             case 'inventory-adjustments':
                 $inventoryAdjustmentService = new VismaNetInventoryAdjustmentService();
                 $inventoryAdjustmentService->fetchInventoryAdjustments();
+                break;
+
+            case 'inventory-issues':
+                $inventoryIssueService = new VismaNetInventoryIssueService();
+                $inventoryIssueService->fetchInventoryIssues();
+                break;
+
+            case 'inventory-transfers':
+                $inventoryTransferService = new VismaNetInventoryTransferService();
+                $inventoryTransferService->fetchInventoryTransfers();
                 break;
 
             case 'customers':
@@ -145,6 +157,12 @@ class FetchVismaNet extends Command
             case 'quick':
                 $this->info('Fetching inventory adjustments...');
                 Process::timeout(300)->run('php artisan visma:fetch inventory-adjustments');
+
+                $this->info('Fetching inventory issues...');
+                Process::timeout(300)->run('php artisan visma:fetch inventory-issues');
+
+                $this->info('Fetching inventory transfers...');
+                Process::timeout(300)->run('php artisan visma:fetch inventory-transfers');
 
                 $this->info('Fetching purchase orders...');
                 Process::timeout(300)->run('php artisan visma:fetch purchase-orders');
