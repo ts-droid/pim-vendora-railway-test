@@ -31,6 +31,7 @@ class Shipment extends Model
         'completed_at',
         'pick_signature',
         'pack_signature',
+        'note'
     ];
 
     protected $casts = [

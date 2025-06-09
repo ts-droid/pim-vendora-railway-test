@@ -313,6 +313,15 @@ class AppShipmentController extends Controller
         }
     }
 
+    public function updateNote(Request $request, Shipment $shipment)
+    {
+        $shipment->update([
+            'note' => (string) $request->input('note', ''),
+        ]);
+
+        return ApiResponseController::success();
+    }
+
     public function update(Request $request, Shipment $shipment)
     {
         Log::channel('shipments')->info('Received request to update shipment', ['shipmentNumber' => $shipment->number]);
