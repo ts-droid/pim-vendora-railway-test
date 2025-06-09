@@ -30,7 +30,7 @@ class VismaNetInventoryAdjustmentService extends VismaNetApiService
                     continue;
                 }
 
-                $adjustment = true;
+                $fetchedData = true;
 
                 $this->importAdjustment($adjustment);
             }
