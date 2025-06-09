@@ -82,9 +82,15 @@ class AppShipmentController extends Controller
 
         $orderNotes = [];
         foreach ($salesOrders as $salesOrder) {
-            if (!$salesOrder->internal_note) continue;
-
-            $orderNotes[] = (string) $salesOrder->internal_note;
+            if ($salesOrder->note) {
+                $orderNotes[] = (string) $salesOrder->note;
+            }
+            if ($salesOrder->internal_note) {
+                $orderNotes[] = (string) $salesOrder->internal_note;
+            }
+            if ($salesOrder->store_note) {
+                $orderNotes[] = (string) $salesOrder->store_note;
+            }
         }
 
         $shipment->internal_note = implode((PHP_EOL . PHP_EOL), $orderNotes);
