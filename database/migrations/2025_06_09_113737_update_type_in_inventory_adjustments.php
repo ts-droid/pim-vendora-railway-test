@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('inventory_adjustments', function (Blueprint $table) {
-            $table->float('total_cost')->default(0)->change()
-            $table->float('control_cost')->default(0)->change()
+            $table->float('total_cost')->default(0)->change();
+            $table->float('control_cost')->default(0)->change();
         });
     }
 };
