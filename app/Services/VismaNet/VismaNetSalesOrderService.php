@@ -309,14 +309,20 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $orderData['salesPerson']['value'] = $salesOrder->sales_person;
         }
 
+        $orderData['note']['value'] = '';
+
         if ($salesOrder->note) {
-            $orderData['note']['values'] = $salesOrder->note;
+            $orderData['note']['value'] = $salesOrder->note;
         }
         if ($salesOrder->internal_note) {
-            $orderData['note']['values'] = ($orderData['note']['values'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->internal_note;
+            $orderData['note']['value'] = ($orderData['note']['value'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->internal_note;
         }
         if ($salesOrder->store_note) {
-            $orderData['note']['values'] = ($orderData['note']['values'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->store_note;
+            $orderData['note']['value'] = ($orderData['note']['value'] ? PHP_EOL . PHP_EOL : '') . $salesOrder->store_note;
+        }
+
+        if (!$orderData['note']['value']) {
+            unset($orderData['note']['value']);
         }
 
         if ($salesOrder->shipping_address_id && $salesOrder->shippingAddress) {
