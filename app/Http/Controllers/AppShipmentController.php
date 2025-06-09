@@ -40,6 +40,17 @@ class AppShipmentController extends Controller
 
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
+
+            $shipment->has_notes = $shipment->internal_note ? true : false;
+
+            $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
+            if ($salesOrders) {
+                foreach ($salesOrders as $salesOrder) {
+                    if ($salesOrder->note || $salesOrder->internal_note || $salesOrder->store_note) {
+                        $shipment->has_notes = true;
+                    }
+                }
+            }
         }
 
         return ApiResponseController::success($shipments->toArray());
@@ -57,6 +68,17 @@ class AppShipmentController extends Controller
 
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
+
+            $shipment->has_notes = $shipment->internal_note ? true : false;
+
+            $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
+            if ($salesOrders) {
+                foreach ($salesOrders as $salesOrder) {
+                    if ($salesOrder->note || $salesOrder->internal_note || $salesOrder->store_note) {
+                        $shipment->has_notes = true;
+                    }
+                }
+            }
         }
 
         return ApiResponseController::success($shipments->toArray());
