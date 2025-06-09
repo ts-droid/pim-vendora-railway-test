@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('inventory_adjustment_lines', function (Blueprint $table) {
-            $table->decimal('unit_cost', 15, 2)->default(0);
-            $table->decimal('ext_cost', 15, 2)->default(0);
+            $table->decimal('unit_cost', 15, 2)->default(0)->change();
+            $table->decimal('ext_cost', 15, 2)->default(0)->change();
         });
     }
 
