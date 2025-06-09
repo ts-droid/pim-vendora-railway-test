@@ -102,8 +102,14 @@ class AppShipmentController extends Controller
         // Load order comments
         $salesOrders = SalesOrder::whereIn('order_number', $shipment->order_numbers)->get();
 
+        $shipment->order_source = '';
+
         $orderNotes = [];
         foreach ($salesOrders as $salesOrder) {
+            if (!$shipment->order_source) {
+                $shipment->order_source = $salesOrder->source;
+            }
+
             if ($salesOrder->note) {
                 $orderNotes[] = (string) $salesOrder->note;
             }
