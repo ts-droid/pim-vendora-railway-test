@@ -35,6 +35,8 @@ class GenerateArticleImageData implements ShouldQueue
      */
     public function handle(): void
     {
+        return;
+
         $languages = (new LanguageController())->getAllLanguages();
 
         // Load the image
