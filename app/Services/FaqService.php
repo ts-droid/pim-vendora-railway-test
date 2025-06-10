@@ -38,7 +38,11 @@ class FaqService
         }
 
         try {
-            $response = json_decode($rawResponse, true);
+            $json = $rawResponse;
+            $json = str_replace('```json', '', $json);
+            $json = str_replace('```', '', $json);
+
+            $response = json_decode($json, true);
         } catch (\Exception $e) {
             return [
                 'success' => false,
