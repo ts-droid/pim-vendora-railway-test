@@ -53,6 +53,7 @@ class FaqService
             return [
                 'success' => false,
                 'error_message' => 'Invalid response format from AI service.',
+                'meta' => $response,
             ];
         }
 
