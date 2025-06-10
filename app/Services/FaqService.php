@@ -14,7 +14,7 @@ class FaqService
 {
     const FAQ_MODEL = 'gpt-4o';
 
-    public function generateArticleFAQ(Article $article, int $numberOfQuestions = 3)
+    public function generateArticleFAQ(Article $article, int $numberOfQuestions = 3): array
     {
         $promptController = new PromptController();
 
@@ -31,20 +31,29 @@ class FaqService
         );
 
         if (!$rawResponse) {
-            return;
+            return [
+                'success' => false,
+                'error_message' => 'No response from AI service.',
+            ];
         }
 
         try {
             $response = json_decode($rawResponse, true);
         } catch (\Exception $e) {
-            return;
+            return [
+                'success' => false,
+                'error_message' => 'Failed to decode JSON: ' . $e->getMessage(),
+            ];
         }
 
         if (!$response
             || !isset($response['questions'])
             || !is_array($response['questions'])
             || count($response['questions']) !== $numberOfQuestions) {
-            return;
+            return [
+                'success' => false,
+                'error_message' => 'Invalid response format from AI service.',
+            ];
         }
 
         $languages = (new LanguageController())->getAllLanguages();
@@ -76,5 +85,10 @@ class FaqService
 
             ArticleFaqEntry::create($data);
         }
+
+        return [
+            'success' => true,
+            'error_message' => null,
+        ];
     }
 }
