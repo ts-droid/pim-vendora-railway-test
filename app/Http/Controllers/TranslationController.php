@@ -145,8 +145,6 @@ class TranslationController extends Controller
                 );
 
                 $translations[] = $translation;
-
-                $translations[] = '';
             } catch (Exception $e) {
                 $translations[] = '';
             }
