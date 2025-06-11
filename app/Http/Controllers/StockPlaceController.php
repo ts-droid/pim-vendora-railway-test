@@ -347,10 +347,6 @@ class StockPlaceController extends Controller
 
     public function deleteStockPlaceCompartment(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
-        if ($stockPlaceCompartment->template_id) {
-            return ApiResponseController::error('Cannot delete compartment with template');
-        }
-
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->deleteStockPlaceCompartment($stockPlaceCompartment);
 
