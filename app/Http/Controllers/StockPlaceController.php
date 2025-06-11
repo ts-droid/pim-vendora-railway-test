@@ -281,6 +281,8 @@ class StockPlaceController extends Controller
 
         $compartmentsData = [];
 
+        $compartmentsLevel = 1;
+
         $templateID = $request->input('template_id');
         if ($templateID) {
             $template = CompartmentsTemplate::find($templateID);
@@ -289,6 +291,13 @@ class StockPlaceController extends Controller
             }
 
             $templateGroup = ((int) StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->max('template_group')) + 1;
+
+            if (str_contains($template->name, 'LVL2')) {
+                $compartmentsLevel = 2;
+            }
+            if (str_contains($template->name, 'LVL3')) {
+                $compartmentsLevel = 3;
+            }
 
             foreach ($template->data as $templateData) {
                 $compartmentsData[] = [
@@ -319,7 +328,7 @@ class StockPlaceController extends Controller
         }
 
         foreach ($compartmentsData as $data) {
-            $stockPlaceService->createStockPlaceCompartment($stockPlace, $data);
+            $stockPlaceService->createStockPlaceCompartment($stockPlace, $data, $compartmentsLevel);
         }
 
         return ApiResponseController::success();

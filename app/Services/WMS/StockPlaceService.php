@@ -94,22 +94,38 @@ class StockPlaceService
         return ['success' => true];
     }
 
-    public function createStockPlaceCompartment(StockPlace $stockPlace, array $data): array
+    public function createStockPlaceCompartment(StockPlace $stockPlace, array $data, int $compartmentsLevel = 1): array
     {
-        // Calculate new identifier
-        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->get();
-        if ($compartments->count() > 0) {
-            $maxIdentifier = 0;
-            foreach ($compartments as $compartment) {
-                if ($compartment->identifier > $maxIdentifier) {
-                    $maxIdentifier = $compartment->identifier;
-                }
-            }
+        $minIdentifier = 1;
+        $maxIdentifier = 19;
 
-            $identifier = $maxIdentifier + 1;
+        if ($compartmentsLevel >= 2) {
+            $minIdentifier = $compartmentsLevel * 10;
+            $maxIdentifier = ($compartmentsLevel * 10) + 9;
         }
-        else {
-            $identifier = 1;
+
+        // Fetch existing compartments for this stock place
+        $compartments = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)->get();
+
+        // Filter only compartments within the valid range
+        $validCompartments = $compartments->filter(function ($compartment) use ($minIdentifier, $maxIdentifier) {
+            return $compartment->identifier >= $minIdentifier && $compartment->identifier <= $maxIdentifier;
+        });
+
+        // Calculate the next available identifier within the range
+        if ($validCompartments->count() > 0) {
+            $maxExistingIdentifier = $validCompartments->max('identifier');
+            $identifier = $maxExistingIdentifier + 1;
+
+            // If identifier goes out of bounds, throw an error or handle overflow
+            if ($identifier > $maxIdentifier) {
+                return [
+                    'success' => false,
+                    'message' => 'Maximum number of compartments reached for this level.'
+                ];
+            }
+        } else {
+            $identifier = $minIdentifier;
         }
 
         $stockPlaceCompartment = StockPlaceCompartment::create([
@@ -127,7 +143,10 @@ class StockPlaceService
             'template_group' => (int) ($data['template_group'] ?? 0),
         ]);
 
-        return array('success' => true, 'stockPlaceCompartment' => $stockPlaceCompartment);
+        return [
+            'success' => true,
+            'stockPlaceCompartment' => $stockPlaceCompartment
+        ];
     }
 
     public function updateStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment, array $data): StockPlaceCompartment
