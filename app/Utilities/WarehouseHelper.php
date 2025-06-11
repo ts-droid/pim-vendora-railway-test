@@ -3,6 +3,7 @@
 namespace App\Utilities;
 
 use App\Enums\ShipmentInternalStatus;
+use App\Models\CompartmentsTemplate;
 use App\Models\StockItem;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
@@ -211,12 +212,27 @@ class WarehouseHelper
             foreach ($stockPlace->compartments as $compartment) {
                 $stockItemsCount = $compartment->stockItems->count();
 
+                $layer = 1;
+
+                if ($compartment->template_id) {
+                    $template = CompartmentsTemplate::find($compartment->template_id);
+
+                    if ($template) {
+                        if (str_contains($template->name, 'LVL2')) {
+                            $layer = 2;
+                        } elseif (str_contains($template->name, 'LVL3')) {
+                            $layer = 3;
+                        }
+                    }
+                }
+
                 if ($stockItemsCount > 0) {
                     $identifier = $stockPlace->identifier . ':' . $compartment->identifier;
                     $articleLocations[] = [
                         'identifier' => $identifier,
                         'stock' => $stockItemsCount,
-                        'class' => self::colorToClass($stockPlace->color)
+                        'class' => self::colorToClass($stockPlace->color),
+                        'layer' => $layer
                     ];
                     $managedStock += $stockItemsCount;
                 }
@@ -230,9 +246,21 @@ class WarehouseHelper
             $articleLocations[] = [
                 'identifier' => '--',
                 'stock' => $unmanagedStock,
-                'class' => 'C'
+                'class' => 'C',
+                'layer' => 1
             ];
         }
+
+        // Sort locations: prioritize layer 1, then layer 2/3 if needed
+        usort($articleLocations, function ($a, $b) {
+            if ($a['layer'] !== $b['layer']) {
+                return $a['layer'] - $b['layer']; // Lower layer number comes first (1 before 2 and 3)
+            }
+
+            // Tie-breaker: use class priority A > B > C
+            $classPriority = ['A' => 0, 'B' => 1, 'C' => 2];
+            return $classPriority[$a['class']] <=> $classPriority[$b['class']];
+        });
 
         // Check if a single compartment is sufficient
         foreach ($articleLocations as $location) {
@@ -253,12 +281,14 @@ class WarehouseHelper
             }
         }
 
-        // If multiple compartments are needed, aggregate stock
+        // First, try to fulfill quantity using only Layer 1
+        $layer1Locations = array_filter($articleLocations, fn($loc) => $loc['layer'] === 1);
+
         $collectedStock = 0;
         $identifiers = [];
         $quantities = [];
 
-        foreach (array_reverse($articleLocations) as $location) {
+        foreach ($layer1Locations as $location) {
             $remaining = $quantity - $collectedStock;
             $take = min($location['stock'], $remaining);
 
@@ -268,6 +298,24 @@ class WarehouseHelper
 
             if ($collectedStock >= $quantity) {
                 break;
+            }
+        }
+
+        // If Layer 1 was not enough, include other layers
+        if ($collectedStock < $quantity) {
+            $otherLayers = array_filter($articleLocations, fn($loc) => $loc['layer'] !== 1);
+
+            foreach ($otherLayers as $location) {
+                $remaining = $quantity - $collectedStock;
+                $take = min($location['stock'], $remaining);
+
+                $collectedStock += $take;
+                $identifiers[] = $location['identifier'];
+                $quantities[] = $take;
+
+                if ($collectedStock >= $quantity) {
+                    break;
+                }
             }
         }
 
