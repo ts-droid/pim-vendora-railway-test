@@ -32,7 +32,7 @@ class CategorizeArticles extends Command
      */
     public function handle()
     {
-        $articles = Article::where('status', '=', 'Active')
+        $articles = Article::where('status', '!=', 'Inactive')
             ->where('shop_description_en', '!=', '')
             ->whereNotNull('shop_description_en')
             ->where(function ($query) {
