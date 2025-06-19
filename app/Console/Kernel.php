@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('wgr:fetch')->everyTenMinutes();
 
             $schedule->command('faq:generate-missing')->everyFifteenMinutes();
-            $schedule->command('article:generate-missing-short-descriptions')->everyFiveMinutes();
+            //$schedule->command('article:generate-missing-short-descriptions')->everyFiveMinutes();
             $schedule->command('articles:categorize')->hourly();
 
             $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
