@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class GenerateMissingShortDescriptions extends Command
 {
-    const BATCH_SIZE = 1;
+    const BATCH_SIZE = 50;
 
     /**
      * The name and signature of the console command.
