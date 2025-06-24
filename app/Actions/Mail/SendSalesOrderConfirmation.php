@@ -21,7 +21,7 @@ class SendSalesOrderConfirmation
         $emailSubject = __('order_confirm_subject');
         $emailFromEmail = 'info@vendora.se';
         $emailFromName = $brandingData['brand_name'];
-        $emailBCC = 'anton@vendora.se';
+        $emailBCC = ['anton@vendora.se', 'ah@vendora.se'];
 
         $hasShipping = $salesOrder->orderHasShipping();
 

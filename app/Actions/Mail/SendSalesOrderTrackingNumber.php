@@ -21,7 +21,7 @@ class SendSalesOrderTrackingNumber
         $emailSubject = __('tracking_number_subject');
         $emailFromEmail = 'info@vendora.se';
         $emailFromName = $brandingData['brand_name'];
-        $emailBCC = 'anton@vendora.se';
+        $emailBCC = ['anton@vendora.se', 'ah@vendora.se'];
 
         $emailBody = view('emails.salesOrder.trackingNumber', [
             'salesOrder' => $salesOrder,
