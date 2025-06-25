@@ -37,6 +37,7 @@ class SalesOrder extends Model
         'email',
         'billing_email',
         'pay_method',
+        'store_pay_method',
         'vat_number',
         'is_company'
     ];
