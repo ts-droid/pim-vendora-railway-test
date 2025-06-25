@@ -21,6 +21,30 @@ class NewsletterController extends Controller
         return ApiResponseController::success($subscribers->toArray());
     }
 
+    public function exists(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string',
+            'source' => 'string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $email = mb_strtolower($request->input('email'));
+        $source = mb_strtolower($request->input('source'));
+
+        $existingSubscriber = NewsletterSubscriber::where('email', $email)
+            ->where('source', $request->input('source', $source))
+            ->first();
+
+        return [
+            'exists' => $existingSubscriber ? 1 : 0
+        ];
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
