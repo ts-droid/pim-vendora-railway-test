@@ -40,9 +40,9 @@ class NewsletterController extends Controller
             ->where('source', $request->input('source', $source))
             ->first();
 
-        return [
+        return ApiResponseController::success([
             'exists' => $existingSubscriber ? 1 : 0
-        ];
+        ]);
     }
 
     public function store(Request $request)
