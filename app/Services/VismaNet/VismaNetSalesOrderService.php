@@ -39,6 +39,34 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService->createLog($salesOrder->id, 'Created shipment in Visma.net for this order.');
     }
 
+    public function resetSalesOrder(SalesOrder $salesOrder): bool
+    {
+        $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
+        if (empty($response['response']['orderNo'])) {
+            // Order not found in Visma.net, no need to reset
+            return true;
+        }
+
+        $orderType = $response['response']['orderType'];
+
+        $cancelResponse = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/cancelSalesOrder', [
+            'orderType' => $orderType,
+        ]);
+
+        $cancelSuccess = $cancelResponse['success'] ?? false;
+
+        $salesOrderService = new SalesOrderService();
+
+        if (!$cancelSuccess) {
+            $salesOrderService->createLog($salesOrder->id, 'Failed to reset order sync state to Visma.net.');
+            return false;
+        }
+        else {
+            $salesOrderService->createLog($salesOrder->id, 'Reset order sync state to Visma.net.');
+            return true;
+        }
+    }
+
     public function sendSalesOrder(SalesOrder $salesOrder): void
     {
         // Check if order already exists in Visma.net

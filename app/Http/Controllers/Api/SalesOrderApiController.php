@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\LaravelQueues;
 use App\Http\Controllers\ApiResponseController;
+use App\Jobs\OrderCreatedJob;
 use App\Models\Shipment;
 use App\Services\SalesOrderService;
+use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Validator;
@@ -169,5 +172,24 @@ class SalesOrderApiController
         $salesOrder = $this->orderService->updateSalesOrder($salesOrder, $request->all());
 
         return ApiResponseController::success($salesOrder->toArray());
+    }
+
+    public function resetSync(SalesOrder $salesOrder)
+    {
+        $vismaNetSalesOrderService = new VismaNetSalesOrderService();
+        $success = $vismaNetSalesOrderService->resetSalesOrder($salesOrder);
+
+        if (!$success) {
+            return ApiResponseController::error('Failed to reset sales order sync.');
+        }
+
+        $salesOrder->update([
+            'order_number' => $salesOrder->order_number . '1'
+        ]);
+
+        OrderCreatedJob::dispatch($salesOrder)
+            ->onQueue(LaravelQueues::DEFAULT->value);
+
+        return ApiResponseController::success();
     }
 }
