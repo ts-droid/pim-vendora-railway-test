@@ -28,7 +28,7 @@ class SalesOrderApiController
 
         $salesOrders = SalesOrder::query()
             ->with('customer', 'billingAddress', 'shippingAddress')
-            ->orderBy('has_sync_error')
+            ->orderBy('has_sync_error', 'DESC')
             ->latest()
             ->paginate($perPage);
 
