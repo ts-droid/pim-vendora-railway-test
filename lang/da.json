@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "Momsnummer",
     "order_confirm_hq": "Hovedkontor",
     "order_confirm_vat_total": "Moms",
+    "order_confirm_shipping": "Fragt",
+    "order_confirm_discount": "Rabat",
 
 
     "receipt_title_1": "Kvittering",

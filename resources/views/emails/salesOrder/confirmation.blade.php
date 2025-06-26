@@ -1,3 +1,20 @@
+@php
+$shipping = 0;
+$discount = 0;
+
+if ($salesOrder->lines ?? false) {
+    foreach ($salesOrder->lines as $salesOrderLine) {
+        if ($salesOrderLine->article_number == 'SHIP25') {
+            $shipping += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
+        }
+        if ($salesOrderLine->article_number == 'DISCOUNT25') {
+            $discount += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
+        }
+    }
+}
+
+@endphp
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -46,19 +63,15 @@
                                 </tr>
                                 @if($salesOrder->lines ?? false)
                                     @foreach($salesOrder->lines as $salesOrderLine)
+                                        @continue($salesOrderLine->article_number !== 'SHIP25' || $salesOrderLine->article_number !== 'DISCOUNT25')
+
                                         <tr>
                                             <td style="vertical-align: top;width: 90px;padding-top: 8px;">
-                                                @if($salesOrderLine->article_number !== 'SHIP25')
-                                                    <img src="{{ get_article_image($salesOrderLine->article_number) }}" style="background-color: #F5F5F5;height: 75px;width: 75px;" height="75" width="75" />
-                                                @endif
+                                                <img src="{{ get_article_image($salesOrderLine->article_number) }}" style="background-color: #F5F5F5;height: 75px;width: 75px;" height="75" width="75" />
                                             </td>
                                             <td style="vertical-align: top;padding-top: 8px;">
-                                                @if($salesOrderLine->article_number === 'SHIP25')
-                                                    {{ $salesOrderLine->description }}
-                                                @else
-                                                    {{ $salesOrderLine->description }}<br>
-                                                    {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
-                                                @endif
+                                                {{ $salesOrderLine->description }}<br>
+                                                {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
                                             </td>
                                             <td style="vertical-align: top;text-align: end;padding-top: 8px;">
                                                 {{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}
@@ -98,6 +111,21 @@
                                     <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_sub_total') }}</td>
                                     <td align="right" style="padding-bottom: 4px;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
+
+                                @if($shipping !== 0)
+                                    <tr>
+                                        <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_shipping') }}</td>
+                                        <td align="right" style="padding-bottom: 4px;">{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                    </tr>
+                                @endif
+
+                                @if($discount !== 0)
+                                    <tr>
+                                        <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_discount') }}</td>
+                                        <td align="right" style="padding-bottom: 4px;">{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                    </tr>
+                                @endif
+
                                 <tr>
                                     <td align="left" style="padding-bottom: 4px;font-weight:bold;">{{ __('order_confirm_total') }}</td>
                                     <td align="right" style="padding-bottom: 4px;font-weight:bold;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>

@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "ALV-numero",
     "order_confirm_hq": "Pääkonttori",
     "order_confirm_vat_total": "ALV",
+    "order_confirm_shipping": "Toimitus",
+    "order_confirm_discount": "Alennus",
 
 
     "receipt_title_1": "Kuitti",

@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "Momsregistreringsnummer",
     "order_confirm_hq": "Huvudkontor",
     "order_confirm_vat_total": "Varav moms",
+    "order_confirm_shipping": "Frakt",
+    "order_confirm_discount": "Rabatt",
 
 
     "receipt_title_1": "Kvitto",

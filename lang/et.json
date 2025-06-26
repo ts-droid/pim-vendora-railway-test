@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "KMKR number",
     "order_confirm_hq": "Peakontor",
     "order_confirm_vat_total": "KM",
+    "order_confirm_shipping": "Kohaletoimetamine",
+    "order_confirm_discount": "Soodustus",
 
 
     "receipt_title_1": "Kviitung",

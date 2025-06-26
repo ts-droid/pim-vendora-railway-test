@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "PVM kodas",
     "order_confirm_hq": "Pagrindinė būstinė",
     "order_confirm_vat_total": "PVM",
+    "order_confirm_shipping": "Pristatymas",
+    "order_confirm_discount": "Nuolaida",
 
 
     "receipt_title_1": "Kvitas",

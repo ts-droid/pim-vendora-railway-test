@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "PVN numurs",
     "order_confirm_hq": "Galvenais birojs",
     "order_confirm_vat_total": "PVN",
+    "order_confirm_shipping": "Piegāde",
+    "order_confirm_discount": "Atlaide",
 
 
     "receipt_title_1": "Kvīts",

@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "VAT number",
     "order_confirm_hq": "Headquarters",
     "order_confirm_vat_total": "VAT",
+    "order_confirm_shipping": "Shipping",
+    "order_confirm_discount": "Discount",
 
 
     "receipt_title_1": "Receipt",

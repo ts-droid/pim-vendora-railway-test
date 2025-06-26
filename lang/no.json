@@ -19,6 +19,8 @@
     "order_confirm_vat_nr": "MVA-nummer",
     "order_confirm_hq": "Hovedkontor",
     "order_confirm_vat_total": "MVA",
+    "order_confirm_shipping": "Frakt",
+    "order_confirm_discount": "Rabatt",
 
 
     "receipt_title_1": "Kvittering",
