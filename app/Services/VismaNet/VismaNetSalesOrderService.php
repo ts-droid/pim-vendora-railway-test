@@ -32,7 +32,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $response = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/createShipment', $postData);
 
         if (!$response['success']) {
+            $salesOrder->update(['has_sync_error' => 1]);
+
             $salesOrderService->createLog($salesOrder->id, 'Failed to create shipment in Visma.net for this order.');
+
             throw new \Exception('Failed to create shipment in Visma.net. ' . json_encode($response));
         }
 
@@ -83,7 +86,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $customer = $this->getCustomer($customerNumber);
 
         if (!$customer) {
+            $salesOrder->update(['has_sync_error' => 1]);
+
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net. Customer ' . $customerNumber . ' not found.');
+
             throw new \Exception('Failed to send order to Visma.net. Customer ' . $customerNumber . ' not found.');
         }
 
@@ -92,7 +98,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $response = $this->callAPI('POST', '/v2/salesorder', $orderData);
 
         if ($response['http_code'] !== 201) {
+            $salesOrder->update(['has_sync_error' => 1]);
+
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net (' . ($response['response']['message'] ?? 'unknown-error') . ')');
+
             throw new \Exception('Failed to send order to Visma.net. (Code: ' . $response['http_code'] . ') Response: ' . json_encode($response));
         }
 
@@ -101,7 +110,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $remoteLines = $linesResponse['response']['lines'] ?? null;
 
         if (!$remoteLines) {
+            $salesOrder->update(['has_sync_error' => 1]);
+
             $salesOrderService->createLog($salesOrder->id, 'Failed to send this order to Visma.net. Post request was successful, but fetching the order lines failed.');
+
             throw new \Exception('Failed to send order to Visma.net. Post request was successful, but fetching the order lines failed.');
         }
 

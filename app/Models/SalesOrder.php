@@ -39,7 +39,8 @@ class SalesOrder extends Model
         'pay_method',
         'store_pay_method',
         'vat_number',
-        'is_company'
+        'is_company',
+        'has_sync_error'
     ];
 
     public function lines(): HasMany
