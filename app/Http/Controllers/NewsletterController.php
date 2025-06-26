@@ -49,7 +49,8 @@ class NewsletterController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string',
-            'source' => 'string',
+            'source' => 'sometimes|string',
+            'tag' => 'sometimes|string',
         ]);
 
         if ($validator->fails()) {
@@ -74,6 +75,7 @@ class NewsletterController extends Controller
             'source' => $source,
             'first_name' => $request->input('first_name', ''),
             'last_name' => $request->input('last_name', ''),
+            'tag' => $request->input('tag', 'form'),
         ]);
 
         return ApiResponseController::success($newsletterSubscriber->toArray());
