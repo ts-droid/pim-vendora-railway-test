@@ -110,11 +110,15 @@ class SalesOrderApiController
 
     public function show(SalesOrder $salesOrder)
     {
-        $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs');
+         try {
+             $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs');
 
-        $salesOrder->shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
+             $salesOrder->shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
 
-        return ApiResponseController::success($salesOrder->toArray());
+             return ApiResponseController::success($salesOrder->toArray());
+         } catch (\Throwable $e) {
+                return ApiResponseController::error($e->getMessage());
+         }
     }
 
     public function update(Request $request, SalesOrder $salesOrder)
