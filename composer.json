@@ -14,6 +14,7 @@
         "deeplcom/deepl-php": "^1.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
+        "laravel/nightwatch": "^1.9",
         "laravel/pulse": "*",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
