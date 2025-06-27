@@ -23,6 +23,13 @@
     "order_confirm_discount": "Soodustus",
 
 
+    "brand_page_discount_code_title": ":discount% allahindlust sulle!",
+    "brand_page_discount_code_subject": "Saa :discount% allahindlust oma esimeselt tellimuselt!",
+    "brand_page_discount_code_text_1": "Kasuta allolevat koodi kassas, et saada :discount% allahindlust oma esimeselt tellimuselt.",
+    "brand_page_discount_code_text_2": "Pane tähele, et kood kehtib vaid 5 päeva, nii et ära oota liiga kaua!",
+    "brand_page_discount_code_button": "Telli kohe ja saa :discount% allahindlust",
+
+
     "receipt_title_1": "Kviitung",
     "receipt_title_2": "Saateleht",
     "receipt_shipment_nbr": "Saadetise nr.",

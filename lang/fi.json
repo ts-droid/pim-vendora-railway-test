@@ -23,6 +23,13 @@
     "order_confirm_discount": "Alennus",
 
 
+    "brand_page_discount_code_title": ":discount% alennus sinulle!",
+    "brand_page_discount_code_subject": "Saat :discount% alennuksen ensimmäisestä tilauksestasi!",
+    "brand_page_discount_code_text_1": "Käytä alla olevaa koodia kassalla saadaksesi :discount% alennuksen ensimmäisestä tilauksestasi.",
+    "brand_page_discount_code_text_2": "Huomaa, että koodi on voimassa vain 5 päivää, joten älä odota liian kauan!",
+    "brand_page_discount_code_button": "Tilaa nyt ja säästä :discount%",
+
+
     "receipt_title_1": "Kuitti",
     "receipt_title_2": "Lähetyslista",
     "receipt_shipment_nbr": "Lähetysnro.",

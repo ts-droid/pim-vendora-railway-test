@@ -23,6 +23,13 @@
     "order_confirm_discount": "Atlaide",
 
 
+    "brand_page_discount_code_title": ":discount% atlaide tev!",
+    "brand_page_discount_code_subject": "Saņem :discount% atlaidi savam pirmajam pasūtījumam!",
+    "brand_page_discount_code_text_1": "Izmanto zemāk redzamo kodu pie kases, lai saņemtu :discount% atlaidi savam pirmajam pasūtījumam.",
+    "brand_page_discount_code_text_2": "Ņem vērā, ka kods ir derīgs tikai 5 dienas, tāpēc nesteidzies pārāk ilgi!",
+    "brand_page_discount_code_button": "Pasūti tagad un saņem :discount% atlaidi",
+
+
     "receipt_title_1": "Kvīts",
     "receipt_title_2": "Pavadzīme",
     "receipt_shipment_nbr": "Sūtījuma nr.",

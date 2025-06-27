@@ -23,6 +23,13 @@
     "order_confirm_discount": "Nuolaida",
 
 
+    "brand_page_discount_code_title": ":discount% nuolaida tau!",
+    "brand_page_discount_code_subject": "Gauk :discount% nuolaidą pirmajam užsakymui!",
+    "brand_page_discount_code_text_1": "Naudok žemiau pateiktą kodą atsiskaitymo metu ir gauk :discount% nuolaidą savo pirmajam užsakymui.",
+    "brand_page_discount_code_text_2": "Atkreipk dėmesį, kad kodas galioja tik 5 dienas, tad neskubėk delsti!",
+    "brand_page_discount_code_button": "Užsisakyk dabar su :discount% nuolaida",
+
+
     "receipt_title_1": "Kvitas",
     "receipt_title_2": "Siuntos lapas",
     "receipt_shipment_nbr": "Siuntos nr.",

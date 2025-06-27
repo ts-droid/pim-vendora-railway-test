@@ -23,6 +23,13 @@
     "order_confirm_discount": "Discount",
 
 
+    "brand_page_discount_code_title": ":discount% off just for you!",
+    "brand_page_discount_code_subject": "Get :discount% off your first order!",
+    "brand_page_discount_code_text_1": "Use the code below at checkout to get :discount% off your first order.",
+    "brand_page_discount_code_text_2": "Please note that the code is only valid for 5 days, so don’t wait too long!",
+    "brand_page_discount_code_button": "Order now with :discount% off",
+
+
     "receipt_title_1": "Receipt",
     "receipt_title_2": "Packing Slip",
     "receipt_shipment_nbr": "Shipment No.",

@@ -23,6 +23,13 @@
     "order_confirm_discount": "Rabatt",
 
 
+    "brand_page_discount_code_title": ":discount% rabatt til deg!",
+    "brand_page_discount_code_subject": "Få :discount% rabatt på din første bestilling!",
+    "brand_page_discount_code_text_1": "Bruk koden nedenfor i kassen for å få :discount% rabatt på din første bestilling.",
+    "brand_page_discount_code_text_2": "Vær oppmerksom på at koden kun er gyldig i 5 dager, så ikke vent for lenge!",
+    "brand_page_discount_code_button": "Bestill nå med :discount% rabatt",
+
+
     "receipt_title_1": "Kvittering",
     "receipt_title_2": "Pakkseddel",
     "receipt_shipment_nbr": "Forsendelsesnr.",
