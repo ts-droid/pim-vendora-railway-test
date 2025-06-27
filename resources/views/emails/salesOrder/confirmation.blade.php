@@ -63,7 +63,7 @@ if ($salesOrder->lines ?? false) {
                                 </tr>
                                 @if($salesOrder->lines ?? false)
                                     @foreach($salesOrder->lines as $salesOrderLine)
-                                        @continue($salesOrderLine->article_number !== 'SHIP25' || $salesOrderLine->article_number !== 'DISCOUNT25')
+                                        @continue($salesOrderLine->article_number === 'SHIP25' || $salesOrderLine->article_number === 'DISCOUNT25')
 
                                         <tr>
                                             <td style="vertical-align: top;width: 90px;padding-top: 8px;">
