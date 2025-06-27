@@ -13,7 +13,7 @@ class SalesOrder extends Model
 {
     use HasFactory;
 
-    protected $appends = 'order_total_incl_vat';
+    protected $appends = ['order_total_incl_vat'];
 
     protected $fillable = [
         'order_type',
