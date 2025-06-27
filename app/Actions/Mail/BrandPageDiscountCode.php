@@ -40,6 +40,7 @@ class BrandPageDiscountCode
         $emailBCC = ['anton@vendora.se', 'ah@vendora.se'];
 
         $emailBody = view('emails.brandPages.discountCode', [
+            'brandingData' => $brandingData,
             'emailSubject' => $emailSubject,
             'discountPercent' => $discountPercent,
             'discountCode' => $discountCode
