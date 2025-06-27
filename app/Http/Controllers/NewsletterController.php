@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Mail\BrandPageDiscountCode;
 use App\Models\NewsletterSubscriber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -51,6 +52,8 @@ class NewsletterController extends Controller
             'email' => 'required|string',
             'source' => 'sometimes|string',
             'tag' => 'sometimes|string',
+            'discount_code' => 'sometimes|string',
+            'locale' => 'sometimes|string',
         ]);
 
         if ($validator->fails()) {
@@ -77,6 +80,13 @@ class NewsletterController extends Controller
             'last_name' => $request->input('last_name', ''),
             'tag' => $request->input('tag', 'form'),
         ]);
+
+        $discountCode = $request->input('discount_code', null);
+        $locale = $request->input('locale', 'en');
+
+        if ($discountCode) {
+            (new BrandPageDiscountCode)->execute($source, $locale, $email, $discountCode);
+        }
 
         return ApiResponseController::success($newsletterSubscriber->toArray());
     }

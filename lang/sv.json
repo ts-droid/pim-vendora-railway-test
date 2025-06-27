@@ -23,6 +23,13 @@
     "order_confirm_discount": "Rabatt",
 
 
+    "brand_page_discount_code_title": ":discount% rabatt för dig!",
+    "brand_page_discount_code_subject": "Få :discount% rabatt på din första beställning!",
+    "brand_page_discount_code_text_1": "Använd koden nedan i kassan för att få :discount% rabatt på din första beställning.",
+    "brand_page_discount_code_text_2": "Observera att koden är giltig endast i 5 dagar, så vänta inte för länge!",
+    "brand_page_discount_code_button": "Beställ nu med :discount% rabatt",
+
+
     "receipt_title_1": "Kvitto",
     "receipt_title_2": "Följesedel",
     "receipt_shipment_nbr": "Fraktnr",
