@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\BrandPageService;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SalesOrder extends Model
 {
     use HasFactory;
+
+    protected $appends = 'order_total_incl_vat';
 
     protected $fillable = [
         'order_type',
@@ -66,6 +69,15 @@ class SalesOrder extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(SalesOrderLog::class, 'sales_order_id', 'id');
+    }
+
+    public function orderTotalInclVat(): Attribute
+    {
+        return Attribute::get(function () {
+            return $this->lines->sum(function ($line) {
+                return $line->unit_price * $line->quantity * (1 + ($line->vat_rate / 100));
+            });
+        });
     }
 
     public function getOrderTotalWithVat(): float

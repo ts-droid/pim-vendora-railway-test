@@ -114,11 +114,6 @@ class SalesOrderApiController
 
         $salesOrder->shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
 
-        $salesOrder->order_total_incl_vat = 0;
-        foreach ($salesOrder->lines as $line) {
-            $salesOrder->order_total_incl_vat += ($line->unit_price * $line->quantity) * (1 + ($line->vat_rate / 100));
-        }
-
         return ApiResponseController::success($salesOrder->toArray());
     }
 
