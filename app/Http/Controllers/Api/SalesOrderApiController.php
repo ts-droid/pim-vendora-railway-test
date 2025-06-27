@@ -10,6 +10,7 @@ use App\Services\SalesOrderService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class SalesOrderApiController
@@ -25,12 +26,17 @@ class SalesOrderApiController
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 30);
+        $page = $request->get('page', 1);
 
-        $salesOrders = SalesOrder::query()
-            ->with('customer', 'billingAddress', 'shippingAddress')
-            ->orderBy('has_sync_error', 'DESC')
-            ->latest()
-            ->paginate($perPage);
+        $cacheKey = 'sales_orders_page_' . $page . '_per_page_' . $perPage;
+
+        $salesOrders = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($perPage) {
+            return SalesOrder::query()
+                ->with('customer', 'billingAddress', 'shippingAddress')
+                ->orderBy('has_sync_error', 'DESC')
+                ->latest()
+                ->paginate($perPage);
+        });
 
         return ApiResponseController::success([
             'orders' => $salesOrders->items(),
