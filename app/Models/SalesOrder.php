@@ -74,6 +74,8 @@ class SalesOrder extends Model
     public function orderTotalInclVat(): Attribute
     {
         return Attribute::get(function () {
+            $this->loadMissing('lines');
+
             return $this->lines->sum(function ($line) {
                 return $line->unit_price * $line->quantity * (1 + ($line->vat_rate / 100));
             });
