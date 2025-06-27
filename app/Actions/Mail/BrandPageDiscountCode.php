@@ -37,7 +37,6 @@ class BrandPageDiscountCode
         $emailSubject = __('brand_page_discount_code_subject', ['discount' => $discountPercent]);
         $emailFromEmail = 'info@vendora.se';
         $emailFromName = $brandingData['brand_name'];
-        $emailBCC = ['anton@vendora.se', 'ah@vendora.se'];
 
         $emailBody = view('emails.brandPages.discountCode', [
             'brandingData' => $brandingData,
@@ -49,6 +48,6 @@ class BrandPageDiscountCode
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
             ->onQueue(LaravelQueues::DEFAULT->value);
 
-        Mail::to($email)->bcc($emailBCC)->queue($mail);
+        Mail::to($email)->queue($mail);
     }
 }
