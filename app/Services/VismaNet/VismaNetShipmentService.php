@@ -246,6 +246,32 @@ class VismaNetShipmentService extends VismaNetApiService
         ];
     }
 
+    public function cancelShipment(Shipment $shipment)
+    {
+        $fetchResponse = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);
+
+        if (empty($fetchResponse['response']['shipmentNumber'])) {
+            return [
+                'success' => false,
+                'message' => 'Shipment not found in Visma.net.'
+            ];
+        }
+
+        $cancelResponse = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/cancelShipment');
+
+        if (!($cancelResponse['success'] ?? false)) {
+            return [
+                'success' => false,
+                'message' => 'Failed to cancel shipment in Visma.net'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => '',
+        ];
+    }
+
     public function deleteIfDeleted(Shipment $shipment)
     {
         $response = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);

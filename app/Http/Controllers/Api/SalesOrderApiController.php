@@ -185,6 +185,18 @@ class SalesOrderApiController
         return ApiResponseController::success($salesOrder->toArray());
     }
 
+    public function cancel(SalesOrder $salesOrder)
+    {
+        $salesOrderService = new SalesOrderService();
+        $response = $salesOrderService->cancelSalesOrder($salesOrder);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function resetSync(SalesOrder $salesOrder)
     {
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();

@@ -73,6 +73,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [SalesOrderApiController::class, 'store'])->name('salesOrder.store');
         Route::get('/{salesOrder}', [SalesOrderApiController::class, 'show'])->name('salesOrder.show');
         Route::put('/{salesOrder}', [SalesOrderApiController::class, 'update'])->name('salesOrder.update');
+        Route::post('/{salesOrder}/cancel', [SalesOrderApiController::class, 'cancel'])->name('salesOrder.cancel');
         Route::post('/{salesOrder}/reset-sync', [SalesOrderApiController::class, 'resetSync'])->name('salesOrder.resetSync');
     });
 

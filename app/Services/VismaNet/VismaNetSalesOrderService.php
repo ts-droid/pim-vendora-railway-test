@@ -49,19 +49,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function resetSalesOrder(SalesOrder $salesOrder): bool
     {
-        $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
-        if (empty($response['response']['orderNo'])) {
-            // Order not found in Visma.net, no need to reset
-            return true;
-        }
-
-        $orderType = $response['response']['orderType'];
-
-        $cancelResponse = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/cancelSalesOrder', [
-            'orderType' => $orderType,
-        ]);
-
-        $cancelSuccess = $cancelResponse['success'] ?? false;
+        $cancelResponse = $this->cancelSalesOrder($salesOrder);
+        $cancelSuccess = $cancelResponse['success'];
 
         $salesOrderService = new SalesOrderService();
 
@@ -69,10 +58,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $salesOrderService->createLog($salesOrder->id, 'Failed to reset order sync state to Visma.net.');
             return false;
         }
-        else {
-            $salesOrderService->createLog($salesOrder->id, 'Reset order sync state to Visma.net.');
-            return true;
-        }
+
+        $salesOrderService->createLog($salesOrder->id, 'Reset order sync state to Visma.net.');
+        return true;
     }
 
     public function sendSalesOrder(SalesOrder $salesOrder): void
@@ -170,6 +158,35 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         $salesOrderService->createLog($salesOrder->id, 'This order was updated in Visma.net');
+    }
+
+    public function cancelSalesOrder(SalesOrder $salesOrder): array
+    {
+        $fetchResponse = $this->callAPI('GET', '/v2/salesorder/', $salesOrder->order_number);
+        if (empty($fetchResponse['response']['orderNo'])) {
+            return [
+                'success' => false,
+                'message' => 'Order not found in Visma.net.'
+            ];
+        }
+
+        $orderType = $fetchResponse['response']['orderType'];
+
+        $cancelResponse = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/cancelSalesOrder', [
+            'orderType' => $orderType,
+        ]);
+
+        if (!($cancelResponse['success'] ?? false)) {
+            return [
+                'success' => false,
+                'message' => 'Failed to cancel sales order in Visma.net'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Order canceled successfully.'
+        ];
     }
 
     public function fetchSalesOrder(string $orderNumber): array

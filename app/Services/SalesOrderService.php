@@ -12,7 +12,10 @@ use App\Models\Customer;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\SalesOrderLog;
+use App\Models\Shipment;
 use App\Models\SupplierArticlePrice;
+use App\Services\VismaNet\VismaNetSalesOrderService;
+use App\Services\VismaNet\VismaNetShipmentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -274,6 +277,50 @@ class SalesOrderService
         }
 
         return $salesOrder;
+    }
+
+    public function cancelSalesOrder(SalesOrder $salesOrder): array
+    {
+        $salesOrderService = new SalesOrderService();
+
+        if ($salesOrder->status_shipment_sent) {
+            return [
+                'success' => false,
+                'message' => 'Cannot cancel order with shipments sent.'
+            ];
+        }
+
+        // Cancel all related shipments
+        $shipments = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number)->get();
+        if ($shipments) {
+            foreach ($shipments as $shipment) {
+
+                $vismaNetShipmentService = new VismaNetShipmentService();
+                $response = $vismaNetShipmentService->cancelShipment($shipment);
+
+                if (!$response['success']) {
+                    $salesOrderService->createLog($salesOrder->id, 'Failed to cancel shipments for sales order: ' . $response['message']);
+                    return $response;
+                }
+
+            }
+        }
+
+        // Cancel the sales order
+        $vismaNewSalesOrderService = new VismaNetSalesOrderService();
+        $response = $vismaNewSalesOrderService->cancelSalesOrder($salesOrder);
+
+        if (!$response['success']) {
+            $salesOrderService->createLog($salesOrder->id, 'Failed to cancel sales order: ' . $response['message']);
+            return $response;
+        }
+
+        $salesOrderService->createLog($salesOrder->id, 'This sales order was canceled.');
+
+        return [
+            'success' => true,
+            'message' => ''
+        ];
     }
 
     public function createLog(int $salesOrderID, string $description, ?int $emailID = null)
