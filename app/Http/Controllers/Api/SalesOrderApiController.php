@@ -25,7 +25,7 @@ class SalesOrderApiController
 
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 30);
+        $perPage = $request->get('per_page', 20);
         $page = $request->get('page', 1);
 
         $cacheKey = 'sales_orders_page_' . $page . '_per_page_' . $perPage;
