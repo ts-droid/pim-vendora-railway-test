@@ -313,6 +313,17 @@ class AppShipmentController extends Controller
 
             $shipment->load('address', 'lines', 'lines.article');
 
+            // Update order status
+            if ($shipment->order_numbers) {
+                foreach ($shipment->order_numbers as $orderNumber) {
+                    $salesOrder = SalesOrder::where('order_number', '=', $orderNumber)->first();
+
+                    if (!$salesOrder) continue;
+
+                    $salesOrder->update(['status_shipment_picked' => 1,]);
+                }
+            }
+
             return ApiResponseController::success($shipment->toArray());
         } finally {
             $lock->release();
@@ -434,6 +445,17 @@ class AppShipmentController extends Controller
         // Send/notify tracking number to customer
         if ($trackingNumber != $trackingNumberOld || !$trackingNumberOld) {
             $this->notifyTrackingNumber($shipment, $trackingNumber);
+        }
+
+        // Update order status
+        if ($shipment->order_numbers) {
+            foreach ($shipment->order_numbers as $orderNumber) {
+                $salesOrder = SalesOrder::where('order_number', '=', $orderNumber)->first();
+
+                if (!$salesOrder) continue;
+
+                $salesOrder->update(['status_shipment_picked' => 1,]);
+            }
         }
 
         return ApiResponseController::success();

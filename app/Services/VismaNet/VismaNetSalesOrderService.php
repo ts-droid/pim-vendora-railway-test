@@ -39,7 +39,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
             throw new \Exception('Failed to create shipment in Visma.net. ' . json_encode($response));
         }
 
-        $salesOrder->update(['has_sync_error' => 0]);
+        $salesOrder->update([
+            'status_shipment_created' => 1,
+            'has_sync_error' => 0
+        ]);
+
         $salesOrderService->createLog($salesOrder->id, 'Created shipment in Visma.net for this order.');
     }
 
@@ -129,7 +133,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 ->update(['line_number' => $lineNumber]);
         }
 
-        $salesOrder->update(['has_sync_error' => 0]);
+        $salesOrder->update([
+            'status_sent_external' => 1,
+            'has_sync_error' => 0
+        ]);
 
         $salesOrderService->createLog($salesOrder->id, 'This order was sent to Visma.net');
     }
