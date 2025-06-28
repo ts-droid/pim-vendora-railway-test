@@ -104,10 +104,6 @@ if ($salesOrder->lines ?? false) {
                         <td style="padding:20px 0;">
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:16px;">
                                 <tr>
-                                    <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_items') }}</td>
-                                    <td align="right" style="padding-bottom: 4px;">{{ $salesOrder->lines ? ($salesOrder->lines->sum('quantity') - ($hasShipping ? 1 : 0)) : 0 }}</td>
-                                </tr>
-                                <tr>
                                     <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_sub_total') }}</td>
                                     <td align="right" style="padding-bottom: 4px;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
