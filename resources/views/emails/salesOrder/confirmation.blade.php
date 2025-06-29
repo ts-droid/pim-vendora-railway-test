@@ -7,7 +7,7 @@ if ($salesOrder->lines ?? false) {
         if ($salesOrderLine->article_number == 'SHIP25') {
             $shipping += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
         }
-        if ($salesOrderLine->article_number == 'DISCOUNT25') {
+        if ($salesOrderLine->article_number == 'DISC25') {
             $discount += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
         }
     }
@@ -63,7 +63,7 @@ if ($salesOrder->lines ?? false) {
                                 </tr>
                                 @if($salesOrder->lines ?? false)
                                     @foreach($salesOrder->lines as $salesOrderLine)
-                                        @continue($salesOrderLine->article_number === 'SHIP25' || $salesOrderLine->article_number === 'DISCOUNT25')
+                                        @continue($salesOrderLine->article_number === 'SHIP25' || $salesOrderLine->article_number === 'DISC25')
 
                                         <tr>
                                             <td style="vertical-align: top;width: 90px;padding-top: 8px;">
