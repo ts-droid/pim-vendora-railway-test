@@ -22,7 +22,6 @@ class SalesOrderApiController
         $this->orderService = $orderService;
     }
 
-
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 20);
