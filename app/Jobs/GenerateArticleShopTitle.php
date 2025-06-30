@@ -73,7 +73,7 @@ class GenerateArticleShopTitle implements ShouldQueue
             $translations = $translationController->translate([$response['title'], $response['short_description']], 'en', $locale->language_code, false);
 
             $updateData['shop_title_' . $locale->language_code] = ($translations[0] ?? '');
-            $updateData['shop_marketing_description_sv' . $locale->language_code] = ($translations[1] ?? '');
+            $updateData['shop_marketing_description_' . $locale->language_code] = ($translations[1] ?? '');
         }
 
         DB::table('articles')
