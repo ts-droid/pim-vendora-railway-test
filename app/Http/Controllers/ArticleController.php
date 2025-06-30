@@ -1477,6 +1477,12 @@ class ArticleController extends Controller
             if (array_key_exists('shop_description_' . $locale->language_code, $data)) {
                 $data['shop_description_' . $locale->language_code] = (string) $data['shop_description_' . $locale->language_code];
             }
+            if (array_key_exists('short_description_' . $locale->language_code, $data)) {
+                $data['short_description_' . $locale->language_code] = (string) $data['short_description_' . $locale->language_code];
+            }
+            if (array_key_exists('shop_marketing_description_' . $locale->language_code, $data)) {
+                $data['shop_marketing_description_' . $locale->language_code] = (string) $data['shop_marketing_description_' . $locale->language_code];
+            }
             if (array_key_exists('meta_title_' . $locale->language_code, $data)) {
                 $data['meta_title_' . $locale->language_code] = (string) $data['meta_title_' . $locale->language_code];
             }
