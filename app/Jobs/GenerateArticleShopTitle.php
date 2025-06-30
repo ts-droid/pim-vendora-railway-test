@@ -70,7 +70,7 @@ class GenerateArticleShopTitle implements ShouldQueue
         foreach ($languages as $locale) {
             if ($locale->language_code == 'sv') continue;
 
-            $translations = $translationController->translate([$response['title'], $response['short_description']], 'en', $locale->language_code, false);
+            $translations = $translationController->translate([$response['title'], $response['short_description']], 'sv', $locale->language_code, false);
 
             $updateData['shop_title_' . $locale->language_code] = ($translations[0] ?? '');
             $updateData['shop_marketing_description_' . $locale->language_code] = ($translations[1] ?? '');
