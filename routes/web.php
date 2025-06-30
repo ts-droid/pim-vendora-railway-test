@@ -14,7 +14,9 @@ use App\Http\Controllers\StockItemLogController;
 use App\Http\Controllers\VismaNetTestController;;
 
 use App\Jobs\UpdateArticleJob;
+use App\Models\Article;
 use App\Models\SalesOrder;
+use App\Services\AI\AIService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +34,43 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
+});
+
+Route::get('/test', function() {
+    $article = Article::where('article_number', 'ST-CMAM')->first();
+
+    $productData = json_encode($article->toArray());
+
+    $prompt = 'Du är en e-commerce-specialist, Skriv och översätt allt till perfekt svenska.
+
+   1. Läsa denna produktdata som är i JSON-format:
+   ' . $productData . '
+
+   2. Levererar följande förbättringsförslag:
+   - Rekommenderad produkttitel (max 150 tecken, ingen keyword-stuffling, viktigaste sökfraserna först, skriv på perfekt svenska)
+   - Rekommenderad kort beskrivning (1-2 meningar, policy-clean, skriv på perfekt svenska)
+
+   3. Outpout format:
+   Svara ENBART med an JSON-formatterad sträng med följande struktur:
+   {
+    "title": "Rekommenderad produkttitel",
+    "short_description": "Rekommenderad kort beskrivning"
+   }';
+
+    $service = new AiService('gpt-4o');
+    $rawResponse = $service->chatCompletion('', $prompt);
+
+    $json = $rawResponse;
+    $json = str_replace('```json', '', $json);
+    $json = str_replace('```', '', $json);
+
+    $response = json_decode($json, true);
+
+    if (empty($response['title']) || empty($response['short_description'])) {
+        dd('Invalid response format from AI service.');
+    }
+
+    dd($response);
 });
 
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
