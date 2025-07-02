@@ -242,11 +242,11 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/images/setListOrder', [ArticleController::class, 'setImageListOrder'])->name('articles.setImageListOrder');
 
         Route::post('/update-many', [ArticleController::class, 'updateMany'])->name('articles.updateMany');
+        Route::get('/generate-categories', [ArticleController::class, 'generateCategories'])->name('articles.generateCategories');
         Route::get('/{article}', [ArticleController::class, 'getArticle'])->name('articles.getArticle');
         Route::post('/{article}', [ArticleController::class, 'update'])->name('articles.update');
         Route::get('/{article}/retailers', [ArticleController::class, 'getRetailers'])->name('articles.getRetailers');
         Route::get('/{article}/categories', [ArticleController::class, 'getCategories'])->name('articles.getCategories');
-        Route::get('/{article}/categories/generate', [ArticleController::class, 'generateCategories'])->name('articles.generateCategories');
         Route::get('/{article}/reviews', [ArticleController::class, 'getReviews'])->name('articles.getReviews');
         Route::get('/{article}/faq', [ArticleController::class, 'getFAQ'])->name('articles.getFAQ');
 
