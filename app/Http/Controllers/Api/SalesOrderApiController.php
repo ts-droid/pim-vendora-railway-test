@@ -69,6 +69,7 @@ class SalesOrderApiController
             'store_pay_method' => 'sometimes|string|max:255',
             'vat_number' => 'sometimes|string|max:255',
             'is_company' => 'sometimes|integer|min:0|max:1',
+            'payment_reference' => 'sometimes|string|max:255',
 
             'billing_full_name' => 'sometimes|string|max:255',
             'billing_first_name' => 'sometimes|string|max:255',
@@ -144,6 +145,7 @@ class SalesOrderApiController
             'store_pay_method' => 'sometimes|string|max:255',
             'vat_number' => 'sometimes|string|max:255',
             'is_company' => 'sometimes|integer|min:0|max:1',
+            'payment_reference' => 'sometimes|string|max:255',
 
             'billing_full_name' => 'sometimes|string|max:255',
             'billing_first_name' => 'sometimes|string|max:255',

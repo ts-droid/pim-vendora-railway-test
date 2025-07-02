@@ -160,6 +160,9 @@ class SalesOrderService
         if (isset($data['is_company'])) {
             $orderData['is_company'] = (int) $data['is_company'];
         }
+        if (isset($data['payment_reference'])) {
+            $orderData['payment_reference'] = (string) $data['payment_reference'];
+        }
 
         $salesOrder->update($orderData);
 
@@ -243,7 +246,8 @@ class SalesOrderService
             'pay_method' => $data['pay_method'],
             'store_pay_method' => $data['store_pay_method'] ?? '',
             'vat_number' => $data['vat_number'] ?? '',
-            'is_company' => (int) ($data['is_company'] ?? 0)
+            'is_company' => (int) ($data['is_company'] ?? 0),
+            'payment_reference' => (string) ($data['payment_reference'] ?? '')
         ]);
 
         // Create the sales order lines

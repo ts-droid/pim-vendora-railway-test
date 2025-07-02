@@ -47,7 +47,8 @@ class SalesOrder extends Model
         'status_sent_external',
         'status_shipment_created',
         'status_shipment_picked',
-        'status_shipment_sent'
+        'status_shipment_sent',
+        'payment_reference'
     ];
 
     public function lines(): HasMany
