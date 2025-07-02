@@ -608,6 +608,32 @@ class ArticleController extends Controller
         return ApiResponseController::success($categories);
     }
 
+    public function generateCategories(Request $request)
+    {
+        $categories = $request->get('categories', '');
+        $categories = explode(',', $categories);
+        $categories = array_filter($categories);
+
+        $suggestions = (int) $request->get('suggeastions', 5);
+
+        $languages = (new LanguageController())->getAllLanguages();
+
+        $response = ['suggestions' => []];
+
+        for ($i = 0;$i < $suggestions;$i++) {
+            $suggestion = [];
+
+            foreach ($languages as $locale) {
+                $suggestion[$locale->language_code] = 'suggestion ' . $i . ' for ' . $locale->language_code;
+            }
+
+            $response['suggestions'][] = $suggestion;
+        }
+
+
+        return ApiResponseController::success($response);
+    }
+
     public function get(Request $request)
     {
         $filter = $this->getModelFilter(Article::class, $request);
