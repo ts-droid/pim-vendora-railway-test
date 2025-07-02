@@ -614,7 +614,7 @@ class ArticleController extends Controller
         $categories = explode(',', $categories);
         $categories = array_filter($categories);
 
-        $suggestions = (int) $request->get('suggeastions', 5);
+        $suggestions = (int) $request->get('suggestions', 5);
 
         $languages = (new LanguageController())->getAllLanguages();
 
