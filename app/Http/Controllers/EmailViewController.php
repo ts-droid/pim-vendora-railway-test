@@ -25,10 +25,6 @@ class EmailViewController extends Controller
         $bcc = explode(',', $email->bcc);
         $bcc = array_filter($bcc);
 
-        $to = ['anton@scriptsector.se'];
-        $cc = [];
-        $bcc = [];
-
         Mail::to($to)
             ->cc($cc)
             ->bcc($bcc)
@@ -38,7 +34,7 @@ class EmailViewController extends Controller
                 $email->attachments ?: []
             ));
 
-        echo('Email sent successfully!');
+        echo('Email queued successfully!');
         die();
     }
 }
