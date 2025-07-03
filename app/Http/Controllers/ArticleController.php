@@ -618,6 +618,8 @@ class ArticleController extends Controller
 
         $languages = (new LanguageController())->getAllLanguages();
 
+        $translationController = new TranslationController();
+
         $response = ['suggestions' => []];
 
         $promptController = new PromptController();
@@ -647,7 +649,9 @@ class ArticleController extends Controller
             foreach ($languages as $locale) {
                 if ($locale->language_code == 'sv') continue;
 
-                $suggestion[$locale->language_code] = ''; // TODO: Add translation logic here
+                $translations = $translationController->translate([$suggestion['sv']], 'sv', $locale->language_code, false);
+
+                $suggestion[$locale->language_code] = $translations[0] ?? '';
             }
 
             $response['suggestions'][] = $suggestion;
