@@ -48,10 +48,6 @@ class CategorizeArticles extends Command
 
         foreach ($articles as $article) {
             CategorizeArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
-
-            DB::table('articles')
-                ->where('id', $article->id)
-                ->update(['last_categorize' => Carbon::now()]);
         }
     }
 }

@@ -49,10 +49,6 @@ class GenerateMissingArticleFaqs extends Command
 
         foreach ($articles as $article) {
             GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
-
-            DB::table('articles')
-                ->where('id', $article->id)
-                ->update(['last_faq_generation' => Carbon::now()]);
         }
     }
 }

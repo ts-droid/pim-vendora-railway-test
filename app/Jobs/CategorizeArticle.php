@@ -9,6 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CategorizeArticle implements ShouldQueue
 {
@@ -30,5 +32,9 @@ class CategorizeArticle implements ShouldQueue
 
         $articleCategorizeService = new ArticleCategorizeService();
         $articleCategorizeService->categorizeArticle($this->article);
+
+        DB::table('articles')
+            ->where('id', $this->article->id)
+            ->update(['last_categorize' => Carbon::now()]);
     }
 }

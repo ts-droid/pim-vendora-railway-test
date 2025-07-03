@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Actions\DispatchArticleUpdate;
 use App\Actions\UploadArticlePackageImage;
+use App\Enums\LaravelQueues;
+use App\Jobs\CategorizeArticle;
+use App\Jobs\GenerateArticleShopTitle;
+use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
 use App\Models\ArticleFile;
@@ -1193,6 +1197,22 @@ class ArticleController extends Controller
         // Log the stock
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
+
+
+        if ($request->input('google_product_category_queue', 0)) {
+            CategorizeArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+        }
+
+        if ($request->input('shop_title_queue', 0) || $request->input('shop_marketing_description_queue', 0)) {
+            GenerateArticleShopTitle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+        }
+
+        if ($request->input('faq_queue', 0)) {
+            ArticleFaqEntry::where('article_id', $article->id)->delete();
+
+            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+        }
+
 
         return ApiResponseController::success([$article->toArray()]);
     }

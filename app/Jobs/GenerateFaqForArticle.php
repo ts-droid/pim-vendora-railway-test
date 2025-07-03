@@ -9,6 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class GenerateFaqForArticle implements ShouldQueue
 {
@@ -30,5 +32,9 @@ class GenerateFaqForArticle implements ShouldQueue
 
         $faqService = new FaqService();
         $faqService->generateArticleFAQ($this->article);
+
+        DB::table('articles')
+            ->where('id', $this->article->id)
+            ->update(['last_faq_generation' => Carbon::now()]);
     }
 }
