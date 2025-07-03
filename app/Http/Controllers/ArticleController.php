@@ -614,7 +614,7 @@ class ArticleController extends Controller
         $categories = explode(',', $categories);
         $categories = array_filter($categories);
 
-        $suggestions = (int) $request->get('suggestions', 5);
+        $numSuggestions = (int) $request->get('suggestions', 5);
 
         $languages = (new LanguageController())->getAllLanguages();
 
@@ -627,7 +627,7 @@ class ArticleController extends Controller
             $prompt->id,
             [
                 'existingCategories' => implode(PHP_EOL, $categories),
-                'numSuggestions' => $suggestions
+                'numSuggestions' => $numSuggestions
             ],
             '',
             'gpt-4o'
@@ -639,7 +639,7 @@ class ArticleController extends Controller
 
         $suggestions = json_decode($aiResponse, true);
 
-        for ($i = 0;$i < $suggestions;$i++) {
+        for ($i = 0;$i < $numSuggestions;$i++) {
             $suggestion = [
                 'sv' => $suggestions[$i + 1] ?? ''
             ];
