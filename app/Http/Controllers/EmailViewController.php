@@ -32,7 +32,7 @@ class EmailViewController extends Controller
         Mail::to($to)
             ->cc($cc)
             ->bcc($bcc)
-            ->send(new ResendEmail(
+            ->queue(new ResendEmail(
                 $email->subject,
                 $email->body,
                 $email->attachments ?: []
