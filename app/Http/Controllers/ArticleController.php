@@ -633,11 +633,11 @@ class ArticleController extends Controller
             'gpt-4o'
         );
 
-        $response = str_replace('```json', '', $rawResponse);
-        $response = str_replace('```', '', $response);
-        $response = trim($response);
+        $aiResponse = str_replace('```json', '', $rawResponse);
+        $aiResponse = str_replace('```', '', $aiResponse);
+        $aiResponse = trim($aiResponse);
 
-        $suggestions = json_decode($response, true);
+        $suggestions = json_decode($aiResponse, true);
 
         for ($i = 0;$i < $suggestions;$i++) {
             $suggestion = [
