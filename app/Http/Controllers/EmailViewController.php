@@ -35,7 +35,7 @@ class EmailViewController extends Controller
             ->send(new ResendEmail(
                 $email->subject,
                 $email->body,
-                $email->attachments
+                $email->attachments ?: []
             ));
 
         echo('Email sent successfully!');
