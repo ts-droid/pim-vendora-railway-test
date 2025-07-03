@@ -620,11 +620,34 @@ class ArticleController extends Controller
 
         $response = ['suggestions' => []];
 
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode('generate_category_suggestions');
+
+        $rawResponse = $promptController->execute(
+            $prompt->id,
+            [
+                'existingCategories' => implode(PHP_EOL, $categories),
+                'numSuggestions' => $suggestions
+            ],
+            '',
+            'gpt-4o'
+        );
+
+        $response = str_replace('```json', '', $rawResponse);
+        $response = str_replace('```', '', $response);
+        $response = trim($response);
+
+        $suggestions = json_decode($response, true);
+
         for ($i = 0;$i < $suggestions;$i++) {
-            $suggestion = [];
+            $suggestion = [
+                'sv' => $suggestions[$i + 1] ?? ''
+            ];
 
             foreach ($languages as $locale) {
-                $suggestion[$locale->language_code] = 'suggestion ' . $i . ' for ' . $locale->language_code;
+                if ($locale->language_code == 'sv') continue;
+
+                $suggestion[$locale->language_code] = ''; // TODO: Add translation logic here
             }
 
             $response['suggestions'][] = $suggestion;
