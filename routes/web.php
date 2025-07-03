@@ -90,6 +90,7 @@ Route::get('/fetch-sales-order', function() {
 });
 
 Route::get('/view-email/{email}', [EmailViewController::class, 'viewEmail']);
+Route::get('/send-email/{email}', [EmailViewController::class, 'sendEmail']);
 
 Route::prefix('/preview')->group(function () {
     Route::get('/sales-order-receipt', [PreviewController::class, 'salesOrderReceipt']);
