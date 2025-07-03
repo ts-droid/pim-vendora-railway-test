@@ -641,7 +641,7 @@ class ArticleController extends Controller
 
         for ($i = 0;$i < $numSuggestions;$i++) {
             $suggestion = [
-                'sv' => $suggestions[$i + 1] ?? ''
+                'sv' => $suggestions['suggestion_' . ($i + 1)] ?? ''
             ];
 
             foreach ($languages as $locale) {
