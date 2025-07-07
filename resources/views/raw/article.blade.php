@@ -18,7 +18,7 @@
     <section id="faq">
         @foreach($faqEntries as $faqEntry)
             <div>
-                <h3>{{ $faqEntry->question_av }}</h3>
+                <h3>{{ $faqEntry->question_sv }}</h3>
                 <p>{{ $faqEntry->answer_sv }}</p>
             </div>
         @endforeach
