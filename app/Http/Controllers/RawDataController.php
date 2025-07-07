@@ -10,7 +10,7 @@ class RawDataController extends Controller
 {
     public function article(Request $request)
     {
-        $articleNumber = $request->input('articleNumber', '');
+        $articleNumber = $request->input('article_number', '');
 
         $article = Article::where('article_number', $articleNumber)->first();
         if (!$article) {
