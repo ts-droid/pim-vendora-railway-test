@@ -11,14 +11,14 @@
 <h1>{{ $article->shop_title_sv }}</h1>
 
 <section id="description">
-    {{ $article->shop_description_sv }}
+    {!! $article->shop_description_sv !!}
 </section>
 
 @if($faqEntries)
     <section id="faq">
         @foreach($faqEntries as $faqEntry)
             <div>
-                <h3>{{ $faqEntry->queation_av }}</h3>
+                <h3>{{ $faqEntry->question_av }}</h3>
                 <p>{{ $faqEntry->answer_sv }}</p>
             </div>
         @endforeach
