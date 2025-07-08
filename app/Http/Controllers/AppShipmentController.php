@@ -454,7 +454,7 @@ class AppShipmentController extends Controller
 
                 if (!$salesOrder) continue;
 
-                $salesOrder->update(['status_shipment_picked' => 1,]);
+                $salesOrder->update(['status_shipment_sent' => 1,]);
             }
         }
 
