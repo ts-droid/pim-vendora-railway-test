@@ -11,6 +11,7 @@ use App\Models\CustomerInvoice;
 use App\Models\InventoryReceipt;
 use App\Models\PurchaseOrder;
 use App\Models\SalesPerson;
+use App\Models\StockItem;
 use App\Models\Supplier;
 use App\Services\ApiLogger;
 use App\Services\CreditNoteService;
@@ -511,6 +512,17 @@ class VismaNetController extends Controller
                         if ($stockLocationName === '1') {
                             $updateData['stock_manageable'] += ($stock['onHand'] ?? 0);
                             break;
+                        }
+                    }
+
+                    // Remove all stock items, if no manageable stock is found.
+                    // This must be an invalid difference, so we remove all stock items to avoid problems.
+                    if ($updateData['stock_manageable'] === 0) {
+                        $stockItems = StockItem::where('article_number', '=', $updateData['article_number'])->get();
+
+                        if ($stockItems && $stockItems->count() > 0) {
+                            $stockItemService = new StockItemService();
+                            $stockItemService->removeStockItems($stockItems, 'Visma.net stock sync');
                         }
                     }
 

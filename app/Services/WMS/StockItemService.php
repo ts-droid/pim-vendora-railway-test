@@ -119,9 +119,6 @@ class StockItemService
             $stockPlaceCompartments = [];
 
             foreach ($stockItems as $stockItem) {
-                $stockItem->delete();
-
-
                 if (!isset($totalRemoved[$stockItem->article_number])) {
                     $totalRemoved[$stockItem->article_number] = [];
 
@@ -131,6 +128,8 @@ class StockItemService
                 }
 
                 $totalRemoved[$stockItem->article_number][$stockItem->stock_place_compartment_id] += 1;
+
+                $stockItem->delete();
             }
 
             foreach ($totalRemoved as $articleNumber => $groups) {
