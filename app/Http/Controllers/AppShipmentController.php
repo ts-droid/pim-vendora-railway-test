@@ -121,6 +121,7 @@ class AppShipmentController extends Controller
             }
         }
 
+        $orderNotes = array_unique($orderNotes);
         $shipment->internal_note = implode((PHP_EOL . PHP_EOL), $orderNotes);
         $shipment->internal_note = preg_replace('/^\s*[\r\n]+|[\r\n]+\s*$/', '', $shipment->internal_note);
 
