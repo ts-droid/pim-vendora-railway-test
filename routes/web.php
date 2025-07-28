@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleSyncController;
+use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\EmailViewController;
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
@@ -108,6 +109,10 @@ Route::prefix('/e-sign')->group(function() {
     Route::post('/document/{document}/{secret}/sign', [EsignRecipientController::class, 'signDocument'])->name('esign.document.sign');
     Route::get('/document/{document}/{secret}/download', [EsignRecipientController::class, 'downloadDocument'])->name('esign.document.download');
 });
+
+Route::get('/customer-review', [CustomerreviewController::class, 'index'])->name('customer.review');
+Route::post('/customer-review', [CustomerreviewController::class, 'submit'])->name('customer.review.submit');
+Route::get('/customer-review/done', [CustomerreviewController::class, 'done'])->name('customer.review.done');
 
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
 

@@ -306,4 +306,13 @@ class Article extends Model
 
         return true;
     }
+
+    public function getMainImage(): string
+    {
+        $articleImage = ArticleImage::where('article_id', $this->id)
+            ->orderBy('list_order', 'ASC')
+            ->first();
+
+        return ($articleImage->path_url ?? '');
+    }
 }

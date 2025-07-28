@@ -77,5 +77,16 @@
     "tracking_number_title": "Hi :name,",
     "tracking_number_text_1": "We’re excited to let you know that your order has been shipped and is on its way to you.",
     "tracking_number_sub_title": "Tracking Number",
-    "tracking_number_text_2": "If you have any questions or concerns regarding your order, feel free to reach out to us."
+    "tracking_number_text_2": "If you have any questions or concerns regarding your order, feel free to reach out to us.",
+
+    "request_review_subject": "How do you like your products?",
+    "request_review_text": "We're checking in again to make sure you're happy. If you could share with us how you like your products that would be great! Simply click the stars below. Thank you!",
+    "request_review_title": "How do you like your products?",
+    "request_review_name_label": "Display name",
+    "request_review_review_label": "Review (optional)",
+    "request_review_review_placeholder": "Your honest feedback is most helpful for us and other customers",
+    "request_review_review_button": "Submit Review",
+    "request_review_done_title": "Thank you for your review!",
+    "request_review_done_heading": "Review submitted",
+    "request_review_done_text": "Thank you for your review"
 }

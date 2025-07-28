@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SalesOrderLine extends Model
 {
@@ -24,4 +25,9 @@ class SalesOrderLine extends Model
         'is_completed',
         'vat_rate'
     ];
+
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
 }

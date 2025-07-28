@@ -6,6 +6,7 @@ use App\Actions\Mail\SendSalesOrderTrackingNumber;
 use App\Enums\LaravelQueues;
 use App\Enums\ShipmentInternalStatus;
 use App\Jobs\CompleteWgrOrder;
+use App\Jobs\SendSalesOrderReviewRequest;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\ShipmentLine;
@@ -498,6 +499,9 @@ class AppShipmentController extends Controller
 
                 Log::channel('shipments')->info('Queued tracking number email for shipment {shipmentNumber}.', ['shipmentNumber' => $shipment->number]);
             }
+
+            // Queue job to send review request
+            SendSalesOrderReviewRequest::dispatch($salesOrder)->delay(now()->addDays(7));
         }
     }
 

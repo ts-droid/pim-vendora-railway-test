@@ -15,6 +15,7 @@ use App\Models\ArticleImage;
 use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\CustomerReview;
 use App\Models\StockItem;
 use App\Models\StockKeepTodo;
 use App\Models\StockKeepTransaction;
@@ -1215,6 +1216,13 @@ class ArticleController extends Controller
 
 
         return ApiResponseController::success([$article->toArray()]);
+    }
+
+    public function customerReviews()
+    {
+        $customerReviews = CustomerReview::all();
+
+        return ApiResponseController::success($customerReviews->toArray());
     }
 
     public function getArticle(Request $request, Article $article)

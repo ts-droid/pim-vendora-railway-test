@@ -61,6 +61,8 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/articles')->group(function() {
         Route::post('/', [ArticleController::class, 'storeV2'])->name('articles.store.v2');
         Route::post('/{article}', [ArticleController::class, 'updateV2'])->name('articles.update.v2');
+
+        Route::get('/customer-reviews', [ArticleController::class, 'customerReviews'])->name('articles.customerReviews');
     });
 });
 
