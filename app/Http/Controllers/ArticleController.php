@@ -1220,7 +1220,7 @@ class ArticleController extends Controller
 
     public function customerReviews()
     {
-        $customerReviews = CustomerReview::all();
+        $customerReviews = CustomerReview::query()->orderBy('created_at', 'DESC')->get();
 
         return ApiResponseController::success($customerReviews->toArray());
     }
