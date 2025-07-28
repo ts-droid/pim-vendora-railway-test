@@ -61,6 +61,8 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/articles')->group(function() {
         Route::get('/customer-reviews', [ArticleController::class, 'customerReviews'])->name('articles.customerReviews');
         Route::post('/customer-reviews', [ArticleController::class, 'customerReviewsStore'])->name('articles.customerReviews.store');
+        Route::post('/customer-reviews/{customerReview}', [ArticleController::class, 'customerReviewsUpdate'])->name('articles.customerReviews.update');
+        Route::post('/customer-reviews/{customerReview}/delete', [ArticleController::class, 'customerReviewsDelete'])->name('articles.customerReviews.delete');
 
         Route::post('/', [ArticleController::class, 'storeV2'])->name('articles.store.v2');
         Route::post('/{article}', [ArticleController::class, 'updateV2'])->name('articles.update.v2');
