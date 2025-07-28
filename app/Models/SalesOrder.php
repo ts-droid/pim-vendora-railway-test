@@ -113,6 +113,27 @@ class SalesOrder extends Model
         return false;
     }
 
+    public function isBrandPageOrder(): bool
+    {
+        if (!$this->source) return false;
+
+        $brandPageService = new BrandPageService();
+        $response = $brandPageService->callAPI('GET', '/v1/pages/site/get-by-domain', [
+            'domain' => $this->source
+        ]);
+
+        if (!$response['success']) {
+            return false;
+        }
+
+        $domain = $response['data']['domain'] ?? '';
+        if (!$domain) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function getBrandingDate(): array
     {
         if ($this->source) {

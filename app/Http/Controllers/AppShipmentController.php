@@ -501,7 +501,9 @@ class AppShipmentController extends Controller
             }
 
             // Queue job to send review request
-            SendSalesOrderReviewRequest::dispatch($salesOrder)->delay(now()->addDays(7));
+            if ($salesOrder->isBrandPageOrder()) {
+                SendSalesOrderReviewRequest::dispatch($salesOrder)->delay(now()->addDays(7));
+            }
         }
     }
 
