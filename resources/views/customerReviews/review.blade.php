@@ -126,7 +126,7 @@
 
         <div class="input">
             <label>{{ __('request_review_review_label') }}</label>
-            <textarea id="review" name="review" rows="4" placeholder="{{ __('request_review_review_placeholder') }}" required></textarea>
+            <textarea id="review" name="review" rows="4" placeholder="{{ __('request_review_review_placeholder') }}"></textarea>
         </div>
 
         <button type="submit">{{ __('request_review_review_button') }}</button>

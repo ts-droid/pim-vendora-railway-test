@@ -30,8 +30,12 @@ class CustomerReviewController extends Controller
         $article = Article::findOrFail($articleID);
 
         $rating = (int) $request->input('rating', 5);
-        $name = (string) $request->input('name', '');
-        $review = (string) $request->input('review', '');
+        $name = trim((string) $request->input('name', ''));
+        $review = trim((string) $request->input('review', ''));
+
+        if (!$rating || !$name) {
+            return redirect()->back();
+        }
 
         CustomerReview::create([
             'article_number' => $article->article_number,
