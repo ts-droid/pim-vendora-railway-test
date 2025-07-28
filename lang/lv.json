@@ -77,5 +77,16 @@
     "tracking_number_title": "Sveiki :name,",
     "tracking_number_text_1": "Mēs esam priecīgi paziņot, ka jūsu pasūtījums ir nosūtīts un ir ceļā pie jums.",
     "tracking_number_sub_title": "Izsekošanas numurs",
-    "tracking_number_text_2": "Ja jums ir kādi jautājumi vai bažas par jūsu pasūtījumu, lūdzu, sazinieties ar mums."
+    "tracking_number_text_2": "Ja jums ir kādi jautājumi vai bažas par jūsu pasūtījumu, lūdzu, sazinieties ar mums.",
+
+    "request_review_subject": "Kā tev patīk tavi produkti?",
+    "request_review_text": "Mēs atkal pārbaudām, vai viss ir kārtībā. Ja vari dalīties savā viedoklī par produktiem, tas būtu lieliski! Vienkārši noklikšķini uz zvaigznēm zemāk. Paldies!",
+    "request_review_title": "Kā tev patīk tavi produkti?",
+    "request_review_name_label": "Parādāmais vārds",
+    "request_review_review_label": "Atsauksme (pēc izvēles)",
+    "request_review_review_placeholder": "Tava godīgā atsauksme ir ļoti noderīga mums un citiem klientiem",
+    "request_review_review_button": "Iesniegt atsauksmi",
+    "request_review_done_title": "Paldies par atsauksmi!",
+    "request_review_done_heading": "Atsauksme iesniegta",
+    "request_review_done_text": "Paldies par atsauksmi"
 }

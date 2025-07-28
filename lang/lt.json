@@ -77,5 +77,16 @@
     "tracking_number_title": "Sveiki :name,",
     "tracking_number_text_1": "Mes džiaugiamės galėdami pranešti, kad jūsų užsakymas buvo išsiųstas ir yra pakeliui pas jus.",
     "tracking_number_sub_title": "Sekimo numeris",
-    "tracking_number_text_2": "Jei turite klausimų ar rūpesčių dėl savo užsakymo, nedvejodami susisiekite su mumis."
+    "tracking_number_text_2": "Jei turite klausimų ar rūpesčių dėl savo užsakymo, nedvejodami susisiekite su mumis.",
+
+    "request_review_subject": "Kaip jums patinka jūsų produktai?",
+    "request_review_text": "Dar kartą pasitikriname, ar viskas gerai. Būtų puiku, jei pasidalintumėte savo nuomone apie produktus! Tiesiog spustelėkite žemiau esančias žvaigždutes. Ačiū!",
+    "request_review_title": "Kaip jums patinka jūsų produktai?",
+    "request_review_name_label": "Rodomas vardas",
+    "request_review_review_label": "Atsiliepimas (pasirinktinai)",
+    "request_review_review_placeholder": "Jūsų nuoširdus atsiliepimas mums ir kitiems klientams yra labai svarbus",
+    "request_review_review_button": "Pateikti atsiliepimą",
+    "request_review_done_title": "Ačiū už jūsų atsiliepimą!",
+    "request_review_done_heading": "Atsiliepimas pateiktas",
+    "request_review_done_text": "Ačiū už jūsų atsiliepimą"
 }

@@ -77,5 +77,16 @@
     "tracking_number_title": "Tere :name,",
     "tracking_number_text_1": "Meil on hea meel teatada, et teie tellimus on saadetud ja on teel teie poole.",
     "tracking_number_sub_title": "Jälgimisnumber",
-    "tracking_number_text_2": "Kui teil on küsimusi või muresid oma tellimuse kohta, võtke meiega ühendust."
+    "tracking_number_text_2": "Kui teil on küsimusi või muresid oma tellimuse kohta, võtke meiega ühendust.",
+
+    "request_review_subject": "Kuidas sulle sinu tooted meeldivad?",
+    "request_review_text": "Kontrollime üle, et kõik oleks korras. Kui saaksid jagada oma arvamust toodete kohta, oleksime väga tänulikud! Lihtsalt klõpsa all olevatel tähtedel. Aitäh!",
+    "request_review_title": "Kuidas sulle sinu tooted meeldivad?",
+    "request_review_name_label": "Kuvatud nimi",
+    "request_review_review_label": "Arvustus (valikuline)",
+    "request_review_review_placeholder": "Sinu aus tagasiside on meile ja teistele klientidele väga kasulik",
+    "request_review_review_button": "Esita arvustus",
+    "request_review_done_title": "Aitäh arvustuse eest!",
+    "request_review_done_heading": "Arvustus esitatud",
+    "request_review_done_text": "Aitäh arvustuse eest"
 }

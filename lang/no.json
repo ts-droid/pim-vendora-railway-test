@@ -77,5 +77,16 @@
     "tracking_number_title": "Hei :name,",
     "tracking_number_text_1": "Vi er glade for å kunne informere deg om at din bestilling er sendt og er på vei til deg.",
     "tracking_number_sub_title": "Sporingsnummer",
-    "tracking_number_text_2": "Hvis du har spørsmål eller bekymringer angående bestillingen din, ta gjerne kontakt med oss."
+    "tracking_number_text_2": "Hvis du har spørsmål eller bekymringer angående bestillingen din, ta gjerne kontakt med oss.",
+
+    "request_review_subject": "Hva synes du om produktene dine?",
+    "request_review_text": "Vi sjekker inn igjen for å sikre at du er fornøyd. Del gjerne hva du synes om produktene dine! Klikk bare på stjernene nedenfor. Takk!",
+    "request_review_title": "Hva synes du om produktene dine?",
+    "request_review_name_label": "Visningsnavn",
+    "request_review_review_label": "Omtale (valgfritt)",
+    "request_review_review_placeholder": "Din ærlige tilbakemelding er veldig hjelpsom for oss og andre kunder",
+    "request_review_review_button": "Send omtale",
+    "request_review_done_title": "Takk for omtalen din!",
+    "request_review_done_heading": "Omtale sendt",
+    "request_review_done_text": "Takk for omtalen din"
 }

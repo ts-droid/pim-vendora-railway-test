@@ -77,5 +77,16 @@
     "tracking_number_title": "Hei :name,",
     "tracking_number_text_1": "Olemme iloisia voidessamme ilmoittaa, että tilauksesi on lähetetty ja se on matkalla sinulle.",
     "tracking_number_sub_title": "Seurantanumero",
-    "tracking_number_text_2": "Jos sinulla on kysyttävää tai huolenaiheita tilaukseesi liittyen, ota yhteyttä meihin."
+    "tracking_number_text_2": "Jos sinulla on kysyttävää tai huolenaiheita tilaukseesi liittyen, ota yhteyttä meihin.",
+
+    "request_review_subject": "Pidätkö tuotteistasi?",
+    "request_review_text": "Tarkistamme, että olet tyytyväinen. Jos voisit kertoa, mitä pidät tuotteistamme, se olisi hienoa! Napsauta vain alla olevia tähtiä. Kiitos!",
+    "request_review_title": "Pidätkö tuotteistasi?",
+    "request_review_name_label": "Näyttönimi",
+    "request_review_review_label": "Arvostelu (valinnainen)",
+    "request_review_review_placeholder": "Rehellinen palautteesi on erittäin hyödyllistä meille ja muille asiakkaille",
+    "request_review_review_button": "Lähetä arvostelu",
+    "request_review_done_title": "Kiitos arvostelustasi!",
+    "request_review_done_heading": "Arvostelu lähetetty",
+    "request_review_done_text": "Kiitos arvostelustasi"
 }
