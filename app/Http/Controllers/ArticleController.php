@@ -1225,6 +1225,18 @@ class ArticleController extends Controller
         return ApiResponseController::success($customerReviews->toArray());
     }
 
+    public function customerReviewsStore(Request $request)
+    {
+        CustomerReview::create([
+            'article_number' => (string) $request->input('article_number'),
+            'rating' => (int) $request->input('rating'),
+            'name' => (string) $request->input('name'),
+            'review' => (string) $request->input('review'),
+        ]);
+
+        return ApiResponseController::success();
+    }
+
     public function getArticle(Request $request, Article $article)
     {
         return ApiResponseController::success($article->toArray());
