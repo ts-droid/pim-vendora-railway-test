@@ -86,20 +86,10 @@ class SupplierController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        $supplier = Supplier::create([
-            'external_id' => $request->external_id,
-            'number' => $request->number,
-            'vat_number' => ($request->vat_number ?? ''),
-            'org_number' => ($request->org_number ?? ''),
-            'name' => $request->name,
-            'brand_name' => ($request->brand_name ?? ''),
-            'class_description' => ($request->class_description ?? ''),
-            'credit_terms_description' => ($request->credit_terms_description ?? ''),
-            'currency' => ($request->currency ?? ''),
-            'language' => ($request->language ?? ''),
-            'is_supplier' => (int) ($request->is_supplier ?? 0),
-            'access_key' => Str::random(32)
-        ]);
+        $data = $request->all();
+        $data['access_key'] = Str::random(32);
+
+        $supplier = Supplier::create($data);
 
         return ApiResponseController::success([$supplier->toArray()]);
     }
