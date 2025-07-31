@@ -56,5 +56,20 @@ class Supplier extends Model
         'supplier_contact_email',
         'supplier_contact_phone1',
         'supplier_contact_phone2',
+        'limit',
+        'manufacturer_information',
+        'eu_representative',
+        'general_delivery_time',
+        'purchase_min_value',
+        'purchase_min_quantity',
+        'shipping_instructions',
+        'po_contact_name',
+        'po_contact_attention',
+        'po_contact_email',
+        'po_contact_phone1',
+        'po_contact_phone2',
+        'po_address_line',
+        'po_address_city',
+        'po_address_country'
     ];
 }
