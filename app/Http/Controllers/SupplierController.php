@@ -107,7 +107,7 @@ class SupplierController extends Controller
 
         foreach ($request->all() as $key => $value) {
             if (in_array($key, $fillables)) {
-                $updateData[$key] = $value;
+                $updateData[$key] = is_null($value) ? '' : $value;
             }
         }
 
