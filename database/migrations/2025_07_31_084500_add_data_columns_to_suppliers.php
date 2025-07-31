@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('general_delivery_time')->default(0);
             $table->integer('purchase_min_value')->default(0);
             $table->integer('purchase_min_quantity')->default(0);
-            $table->text('shipping_instructions')->default('[]');
+            $table->text('shipping_instructions')->nullable()->default(null);
 
             $table->string('po_contact_name')->default('');
             $table->string('po_contact_attention')->default('');
