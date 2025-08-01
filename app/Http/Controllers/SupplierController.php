@@ -195,7 +195,7 @@ class SupplierController extends Controller
         return APiResponseController::success($contact->toArray());
     }
 
-    public function updateContact(Request $request, SupplierContact $supplierContact)
+    public function updateContact(Request $request, Supplier $supplier, SupplierContact $supplierContact)
     {
         $data = $request->all();
 
