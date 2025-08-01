@@ -197,7 +197,15 @@ class SupplierController extends Controller
 
     public function updateContact(Request $request, SupplierContact $supplierContact)
     {
-        $supplierContact->update($request->all());
+        $data = $request->all();
+
+        foreach ($data as $key => $value) {
+            if (is_null($value)) {
+                $data[$key] = '';
+            }
+        }
+
+        $supplierContact->update($data);
 
         return ApiResponseController::success($supplierContact->toArray());
     }
