@@ -210,7 +210,7 @@ class SupplierController extends Controller
         return ApiResponseController::success($supplierContact->toArray());
     }
 
-    public function deleteContact(Request $request, SupplierContact $supplierContact)
+    public function deleteContact(Request $request, Supplier $supplier, SupplierContact $supplierContact)
     {
         $supplierContact->delete();
 
