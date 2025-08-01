@@ -202,6 +202,9 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
         Route::get('/{supplier}', [SupplierController::class, 'getSupplier'])->name('suppliers.getSupplier');
         Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+        Route::post('/{supplier}/contacts', [SupplierController::class, 'storeContact'])->name('suppliers.contacts.store');
+        Route::post('/{supplier}/contacts/{supplierContact}', [SupplierController::class, 'updateContact'])->name('suppliers.contacts.update');
+        Route::post('/{supplier}/contacts/{supplierContact}/delete', [SupplierController::class, 'deleteContact'])->name('suppliers.contacts.delete');
     });
 
     Route::prefix('/supplier-prices')->group(function() {

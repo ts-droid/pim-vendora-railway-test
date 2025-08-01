@@ -134,4 +134,9 @@ class Supplier extends Model
         'po_address_city' => 'string',
         'po_address_country' => 'string'
     ];
+
+    public function contacts()
+    {
+        return $this->hasMany(SupplierContact::class, 'supplier_id', 'id');
+    }
 }

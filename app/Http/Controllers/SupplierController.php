@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Supplier;
+use App\Models\SupplierContact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -96,6 +97,8 @@ class SupplierController extends Controller
 
     public function getSupplier(Supplier $supplier)
     {
+        $supplier->load('contacts');
+
         return ApiResponseController::success($supplier->toArray());
     }
 
@@ -173,5 +176,36 @@ class SupplierController extends Controller
 
             $this->update(new Request(['is_supplier' => $isSupplier]), $supplier);
         }
+    }
+
+    public function storeContact(Request $request, Supplier $supplier)
+    {
+        $contact = SupplierContact::create([
+            'supplier_id' => $supplier->id,
+            'name' => (string) $request->input('name'),
+            'attention' => (string) $request->input('attention'),
+            'email' => (string) $request->input('email'),
+            'phone1' => (string) $request->input('phone1'),
+            'phone2' => (string) $request->input('phone2'),
+            'address_line' => (string) $request->input('address_line'),
+            'address_city' => (string) $request->input('address_city'),
+            'address_country' => (string) $request->input('address_country')
+        ]);
+
+        return APiResponseController::success($contact->toArray());
+    }
+
+    public function updateContact(Request $request, SupplierContact $supplierContact)
+    {
+        $supplierContact->update($request->all());
+
+        return ApiResponseController::success($supplierContact->toArray());
+    }
+
+    public function deleteContact(Request $request, SupplierContact $supplierContact)
+    {
+        $supplierContact->delete();
+
+        return ApiResponseController::success();
     }
 }
