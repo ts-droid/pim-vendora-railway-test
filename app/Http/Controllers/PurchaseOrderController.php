@@ -91,11 +91,17 @@ class PurchaseOrderController extends Controller
 
     public function get(Request $request)
     {
+        $loadRelations = $request->get('load_relations', '1');
+
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);
 
         $query = $this->getQueryWithFilter(PurchaseOrder::class, $filter);
 
-        $orders = $query->with('supplier', 'lines', 'lines.article')->orderBy('id', 'DESC')->get();
+        if ($loadRelations) {
+            $query->with('supplier', 'lines', 'lines.article');
+        }
+
+        $orders = $query->orderBy('id', 'DESC')->get();
         $orders = $orders->toArray();
 
         // Convert results to requested currency
