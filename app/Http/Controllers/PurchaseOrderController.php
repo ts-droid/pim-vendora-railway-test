@@ -84,8 +84,23 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
-    public function getOrder(PurchaseOrder $purchaseOrder)
+    public function getOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $loadRelations = $request->input('load_relations', '0');
+
+        if ($loadRelations) {
+            $purchaseOrder->load('supplier', 'lines', 'lines.article');
+
+            if ($purchaseOrder['lines']) {
+                foreach ($purchaseOrder['lines'] as &$orderLine) {
+                    $orderLine['incoming_quantity'] = ArticleQuantityCalculator::getIncoming($orderLine['article_number']);
+                    $orderLine['incoming_by_date'] = ArticleQuantityCalculator::getIncomingByDate($orderLine['article_number']);
+                    $orderLine['on_order_quantity'] = ArticleQuantityCalculator::getOnOrder($orderLine['article_number']);
+                    $orderLine['on_order_by_date'] = ArticleQuantityCalculator::getOnOrderByDate($orderLine['article_number']);
+                }
+            }
+        }
+
         return ApiResponseController::success($purchaseOrder->toArray());
     }
 
