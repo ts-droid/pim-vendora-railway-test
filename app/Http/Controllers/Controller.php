@@ -50,7 +50,11 @@ class Controller extends BaseController
                             $value = $value . '%';
                         }
 
-                        $filter[] = [$attribute, 'LIKE', $value];
+                        if (str_starts_with($value, '!!')) {
+                            $filter[] = [$attribute, 'NOT LIKE', $value];
+                        } else {
+                            $filter[] = [$attribute, 'LIKE', $value];
+                        }
                     }
                 }
             }
