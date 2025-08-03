@@ -51,6 +51,7 @@ class Controller extends BaseController
                         }
 
                         if (str_starts_with($value, '!!')) {
+                            $value = substr($value, 2);
                             $filter[] = [$attribute, 'NOT LIKE', $value];
                         } else {
                             $filter[] = [$attribute, 'LIKE', $value];
