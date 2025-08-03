@@ -110,8 +110,6 @@ class PurchaseOrderController extends Controller
 
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);
 
-        return ApiResponseController::success($filter);
-
         $query = $this->getQueryWithFilter(PurchaseOrder::class, $filter);
 
         if ($loadRelations) {
