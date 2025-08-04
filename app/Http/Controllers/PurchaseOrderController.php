@@ -203,8 +203,12 @@ class PurchaseOrderController extends Controller
         }
 
         $purchaseOrders = PurchaseOrder::where('id', $search)
-            ->orWhere('supplier.name', 'LIKE', '%' . $search . '%')
-            ->orWhere('lines.article_number', 'LIKE', $search)
+            ->orWhereHas('supplier', function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            })
+            ->orWhereHas('lines', function ($q) use ($search) {
+                $q->where('article_number', 'LIKE', $search);
+            })
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
 
