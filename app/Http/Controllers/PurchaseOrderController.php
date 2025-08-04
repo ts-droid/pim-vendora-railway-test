@@ -202,12 +202,15 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error('No search provided');
         }
 
-        $purchaseOrders = PurchaseOrder::where('id', $search)
-            ->orWhereHas('supplier', function ($q) use ($search) {
-                $q->where('name', 'LIKE', '%' . $search . '%');
-            })
-            ->orWhereHas('lines', function ($q) use ($search) {
-                $q->where('article_number', 'LIKE', $search);
+        $purchaseOrders = PurchaseOrder::where('is_po_system', 1)
+            ->where(function($query) use ($search) {
+                $query->where('id', $search)
+                    ->orWhereHas('supplier', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', '%' . $search . '%');
+                    })
+                    ->orWhereHas('lines', function ($q) use ($search) {
+                        $q->where('article_number', 'LIKE', $search);
+                    });
             })
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
