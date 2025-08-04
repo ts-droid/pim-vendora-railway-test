@@ -193,6 +193,24 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
+    public function search(Request $request)
+    {
+        $perPage = $request->get('per_page', 30);
+        $search = $request->get('search', '');
+
+        if (!$search) {
+            return ApiResponseController::error('No search provided');
+        }
+
+        $purchaseOrders = PurchaseOrder::where('id', $search)
+            ->orWhere('supplier.name', 'LIKE', '%' . $search . '%')
+            ->orWhere('lines.article_number', 'LIKE', $search)
+            ->orderBy('id', 'DESC')
+            ->paginate($perPage);
+
+        return ApiResponseController::success($purchaseOrders->toArray());
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
