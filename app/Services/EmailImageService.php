@@ -67,10 +67,11 @@ class EmailImageService
         }
 
         try {
-            $imageData = base64_decode(substr($base64, strpos($base64, ',') + 1));
-            if ($imageData === false) {
-                return null;
-            }
+            $data = explode(',', $base64, 2);
+            if (count($data) !== 2) return null;
+
+            $imageData = base64_decode($data[1]);
+            if ($imageData === false) return null;
 
             $hash = md5($imageData);
             $filename = self::$directory . '/' . $hash . '.png';
@@ -79,25 +80,12 @@ class EmailImageService
                 return DoSpacesController::getURL($filename);
             }
 
-            $srcImage = @imagecreatefromstring($imageData);
-            if (!$srcImage) {
-                return null;
-            }
+            $imagick = new \Imagick();
+            $imagick->readImageBlob($imageData);
+            $imagick->setImageFormat('png');
 
-            $width = imagesx($srcImage);
-            $height = imagesy($srcImage);
-
-            $dstImage = imagecreatetruecolor($width, $height);
-            $white = imagecolorallocate($dstImage, 255, 255, 255);
-            imagefilledrectangle($dstImage, 0, 0, $width, $height, $white);
-            imagecopy($dstImage, $srcImage, 0, 0, 0, 0, $width, $height);
-
-            ob_start();
-            imagepng($dstImage);
-            $flattenedPng = ob_get_clean();
-
-            imagedestroy($srcImage);
-            imagedestroy($dstImage);
+            $flattenedPng = $imagick->getImageBlob();
+            $imagick->destroy();
 
             DoSpacesController::store($filename, $flattenedPng, true);
 
