@@ -173,7 +173,7 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
 
-        $purchaseOrders = PurchaseOrder::whereNotIn('status', ['Draft', 'Open'])
+        $purchaseOrders = PurchaseOrder::where('status', 'Open')
             ->where('is_po_system', 1)
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
@@ -185,7 +185,7 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
 
-        $purchaseOrders = PurchaseOrder::where('status', 'Open')
+        $purchaseOrders = PurchaseOrder::whereNotIn('status', ['Draft', 'Open'])
             ->where('is_po_system', 1)
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
