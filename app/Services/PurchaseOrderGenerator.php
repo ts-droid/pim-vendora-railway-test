@@ -293,6 +293,15 @@ class PurchaseOrderGenerator
 
         $purchaseOrder->refresh();
 
+        // Update the total amount of the purchase order
+        $totalAmount = $purchaseOrder->lines->sum(function ($line) {
+            return $line->unit_cost * $line->quantity;
+        });
+
+        $purchaseOrder->update([
+            'amount' => $totalAmount,
+        ]);
+
         // Create a task
         if ($isNewOrder) {
             $taskService = new VendoraAdminTaskService();

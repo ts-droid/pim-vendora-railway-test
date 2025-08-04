@@ -162,6 +162,7 @@ class PurchaseOrderController extends Controller
         $perPage = $request->get('per_page', 30);
 
         $purchaseOrders = PurchaseOrder::where('status', 'Draft')
+            ->where('is_draft', 1)
             ->where('is_sent', 0)
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
