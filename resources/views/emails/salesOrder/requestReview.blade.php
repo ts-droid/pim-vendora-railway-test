@@ -34,11 +34,13 @@
                     <tr>
                         <td align="center">
                             <img src="{{ \App\Services\EmailImageService::prepareImageForEmail($line->article->getMainImage() ?? '') }}" style="height: 65px;width: 65px;">
-                            @for($rating = 1;$rating <=5;$rating++)
-                                <a href="{{ route('customer.review', ['article_id' => $line->article->id, 'lang' => app()->getLocale(), 'rating' => $rating]) }}" style="text-decoration: none !important;color: #000000 !important;margin-right: 6px;display: inline-block;">
-                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktc3RhciIgdmlld0JveD0iMCAwIDE2IDE2IiBzdHlsZT0ibWFyZ2luLWJvdHRvbTogMTZweDsiPgogICAgPHBhdGggZD0iTTIuODY2IDE0Ljg1Yy0uMDc4LjQ0NC4zNi43OTEuNzQ2LjU5M2w0LjM5LTIuMjU2IDQuMzg5IDIuMjU2Yy4zODYuMTk4LjgyNC0uMTQ5Ljc0Ni0uNTkybC0uODMtNC43MyAzLjUyMi0zLjM1NmMuMzMtLjMxNC4xNi0uODg4LS4yODItLjk1bC00Ljg5OC0uNjk2TDguNDY1Ljc5MmEuNTEzLjUxMyAwIDAgMC0uOTI3IDBMNS4zNTQgNS4xMmwtNC44OTguNjk2Yy0uNDQxLjA2Mi0uNjEyLjYzNi0uMjgzLjk1bDMuNTIzIDMuMzU2LS44MyA0Ljczem00LjkwNS0yLjc2Ny0zLjY4NiAxLjg5NC42OTQtMy45NTdhLjU2LjU2IDAgMCAwLS4xNjMtLjUwNUwxLjcxIDYuNzQ1bDQuMDUyLS41NzZhLjUzLjUzIDAgMCAwIC4zOTMtLjI4OEw4IDIuMjIzbDEuODQ3IDMuNjU4YS41My41MyAwIDAgMCAuMzkzLjI4OGw0LjA1Mi41NzUtMi45MDYgMi43N2EuNTYuNTYgMCAwIDAtLjE2My41MDZsLjY5NCAzLjk1Ny0zLjY4Ni0xLjg5NGEuNS41IDAgMCAwLS40NjEgMHoiLz4KPC9zdmc+Cg==" width="22" height="22" style="margin-bottom: 16px;">
-                                </a>
-                            @endfor
+                            <div>
+                                @for($rating = 1;$rating <=5;$rating++)
+                                    <a href="{{ route('customer.review', ['article_id' => $line->article->id, 'lang' => app()->getLocale(), 'rating' => $rating]) }}" style="text-decoration: none !important;color: #000000 !important;margin-right: 6px;display: inline-block;">
+                                        <img src="{{ \App\Services\EmailImageService::prepareBase64ImageForEmail('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktc3RhciIgdmlld0JveD0iMCAwIDE2IDE2IiBzdHlsZT0ibWFyZ2luLWJvdHRvbTogMTZweDsiPgogICAgPHBhdGggZD0iTTIuODY2IDE0Ljg1Yy0uMDc4LjQ0NC4zNi43OTEuNzQ2LjU5M2w0LjM5LTIuMjU2IDQuMzg5IDIuMjU2Yy4zODYuMTk4LjgyNC0uMTQ5Ljc0Ni0uNTkybC0uODMtNC43MyAzLjUyMi0zLjM1NmMuMzMtLjMxNC4xNi0uODg4LS4yODItLjk1bC00Ljg5OC0uNjk2TDguNDY1Ljc5MmEuNTEzLjUxMyAwIDAgMC0uOTI3IDBMNS4zNTQgNS4xMmwtNC44OTguNjk2Yy0uNDQxLjA2Mi0uNjEyLjYzNi0uMjgzLjk1bDMuNTIzIDMuMzU2LS44MyA0Ljczem00LjkwNS0yLjc2Ny0zLjY4NiAxLjg5NC42OTQtMy45NTdhLjU2LjU2IDAgMCAwLS4xNjMtLjUwNUwxLjcxIDYuNzQ1bDQuMDUyLS41NzZhLjUzLjUzIDAgMCAwIC4zOTMtLjI4OEw4IDIuMjIzbDEuODQ3IDMuNjU4YS41My41MyAwIDAgMCAuMzkzLjI4OGw0LjA1Mi41NzUtMi45MDYgMi43N2EuNTYuNTYgMCAwIDAtLjE2My41MDZsLjY5NCAzLjk1Ny0zLjY4Ni0xLjg5NGEuNS41IDAgMCAwLS40NjEgMHoiLz4KPC9zdmc+Cg==') }}" width="22" height="22" style="margin-bottom: 16px;">
+                                    </a>
+                                @endfor
+                            </div>
                         </td>
                     </tr>
                 @endforeach

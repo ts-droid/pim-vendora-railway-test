@@ -60,6 +60,57 @@ class EmailImageService
         }
     }
 
+    public static function prepareBase64ImageForEmail(string $base64): ?string
+    {
+        if (App::environment('local')) {
+            return $base64;
+        }
+
+        try {
+            if (!preg_match('/^data:image\/(\w+);base64,/', $base64, $matches)) {
+                return null; // Not a valid base64 image
+            }
+
+            $imageData = base64_decode(substr($base64, strpos($base64, ',') + 1));
+            if ($imageData === false) {
+                return null;
+            }
+
+            $hash = md5($imageData);
+            $filename = self::$directory . '/' . $hash . '.png';
+
+            if (DoSpacesController::getContent($filename)) {
+                return DoSpacesController::getURL($filename);
+            }
+
+            $srcImage = @imagecreatefromstring($imageData);
+            if (!$srcImage) {
+                return null;
+            }
+
+            $width = imagesx($srcImage);
+            $height = imagesy($srcImage);
+
+            $dstImage = imagecreatetruecolor($width, $height);
+            $white = imagecolorallocate($dstImage, 255, 255, 255);
+            imagefilledrectangle($dstImage, 0, 0, $width, $height, $white);
+            imagecopy($dstImage, $srcImage, 0, 0, 0, 0, $width, $height);
+
+            ob_start();
+            imagepng($dstImage);
+            $flattenedPng = ob_get_clean();
+
+            imagedestroy($srcImage);
+            imagedestroy($dstImage);
+
+            DoSpacesController::store($filename, $flattenedPng, true);
+
+            return DoSpacesController::getURL($filename);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     public static function cleanupOldImages(int $olderThanMinutes = 1440): void
     {
         $files = Storage::disk('public')->files(self::$directory);
