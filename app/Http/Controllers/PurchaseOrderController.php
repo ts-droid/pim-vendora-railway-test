@@ -30,7 +30,7 @@ class PurchaseOrderController extends Controller
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
                 'purchase_orders.order_number',
-                'suppliers.email_reminder as email'
+                'suppliers.po_contact_email as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
@@ -56,7 +56,7 @@ class PurchaseOrderController extends Controller
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
                 'purchase_orders.order_number',
-                'suppliers.email_reminder as email'
+                'suppliers.po_contact_email as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
