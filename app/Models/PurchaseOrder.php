@@ -41,6 +41,10 @@ class PurchaseOrder extends Model
         'is_confirmed',
         'is_po_system',
         'viewed_at',
+        'status_sent_to_supplier',
+        'status_confirmed_by_supplier',
+        'status_shipping_details',
+        'status_received'
     ];
 
     public function supplier()
