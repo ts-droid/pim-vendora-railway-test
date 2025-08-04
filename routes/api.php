@@ -310,6 +310,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [PurchaseOrderController::class, 'get'])->name('purchaseOrders.get');
         Route::post('/', [PurchaseOrderController::class, 'store'])->name('purchaseOrders.store');
 
+        Route::get('/open', [PurchaseOrderController::class, 'getOpen'])->name('purchaseOrders.getPending');
         Route::get('/pending', [PurchaseOrderController::class, 'getPending'])->name('purchaseOrders.getPending');
 
         Route::get('/ongoing', [PurchaseOrderController::class, 'getOngoing'])->name('purchaseOrders.getOngoing');

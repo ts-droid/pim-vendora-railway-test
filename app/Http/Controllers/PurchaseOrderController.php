@@ -157,6 +157,18 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($orders);
     }
 
+    public function getOpen(Request $request)
+    {
+        $perPage = $request->get('per_page', 30);
+
+        $purchaseOrders = PurchaseOrder::where('status', 'Draft')
+            ->where('is_sent', 0)
+            ->orderBy('id', 'DESC')
+            ->paginate($perPage);
+
+        return ApiResponseController::success($purchaseOrders->toArray());
+    }
+
     public function getPending(Request $request)
     {
         $perPage = $request->get('per_page', 30);
