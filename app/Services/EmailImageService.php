@@ -67,10 +67,6 @@ class EmailImageService
         }
 
         try {
-            if (!preg_match('/^data:image\/(\w+);base64,/', $base64, $matches)) {
-                return null; // Not a valid base64 image
-            }
-
             $imageData = base64_decode(substr($base64, strpos($base64, ',') + 1));
             if ($imageData === false) {
                 return null;
