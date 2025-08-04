@@ -54,9 +54,6 @@ class SendSalesOrderReviewRequest implements ShouldQueue
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
             ->onQueue(LaravelQueues::DEFAULT->value);
 
-        Mail::to('anton@scriptsector.se')->queue($mail);
-        return;
-
         Mail::to($this->salesOrder->email)->bcc($emailBCC)->queue($mail);
 
         $emailLog = EmailLogger::log(
