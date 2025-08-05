@@ -52,6 +52,12 @@ class PurchaseOrderConfirmController extends Controller
             ]);
         }
 
+        // Update order status
+        $purchaseOrder->update([
+            'status_confirmed_by_supplier' => 1,
+            'status_shipping_details' => 1,
+        ]);
+
         return response()->json([
             'success' => true
         ]);

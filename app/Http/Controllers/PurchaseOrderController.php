@@ -463,7 +463,7 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
-        // Send the order
+        // Send the order to external system
         $publisher = new PurchaseOrderPublisher();
         $response = $publisher->send($purchaseOrder);
 
@@ -486,6 +486,11 @@ class PurchaseOrderController extends Controller
         if ($request->get('generate_new_order')) {
             Artisan::call('purchase-orders:generate', ['supplierID' => $purchaseOrder->supplier->id]);
         }
+
+        $purchaseOrder->update([
+            'is_sent' => 1,
+            'status_sent_to_supplier' => 1,
+        ]);
 
         return ApiResponseController::success();
     }
