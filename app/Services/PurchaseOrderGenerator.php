@@ -217,6 +217,19 @@ class PurchaseOrderGenerator
             if ($orderLines->isEmpty()) {
                 return ['success' => false];
             }
+
+            // Make sure minimum order quantity and value is met
+            $totalQuantity = 0;
+            $totalValue = 0;
+
+            foreach ($orderLines as $orderLine) {
+                $totalQuantity += $orderLine['quantity'];
+                $totalValue += $orderLine['amount'];
+            }
+
+            if ($totalQuantity < $supplier->purchase_min_quantity || $totalValue < $supplier->purchase_min_value) {
+                return ['success' => false];
+            }
         }
 
         // Check if we have a draft purchase order for this supplier
