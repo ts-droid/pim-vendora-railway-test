@@ -37,6 +37,11 @@ class PurchaseOrderLine extends Model
         'invoice_id',
     ];
 
+    public function purchaseOrder()
+    {
+        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id', 'id');
+    }
+
     public function article()
     {
         return $this->belongsTo(Article::class, 'article_number', 'article_number');
@@ -49,8 +54,10 @@ class PurchaseOrderLine extends Model
 
     public function getShippingDate()
     {
+        $shippingDateBuffer = 0 ?: PurchaseOrderPublisher::SHIPPING_DATE_BUFFER;
+
         if ($this->promised_date) {
-            return date('Y-m-d', strtotime($this->promised_date) - (86400 * PurchaseOrderPublisher::SHIPPING_DATE_BUFFER));
+            return date('Y-m-d', strtotime($this->promised_date) - (86400 * $shippingDateBuffer));
         }
 
         return '';

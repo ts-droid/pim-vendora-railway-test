@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('limit')->default(0);
             $table->text('manufacturer_information')->nullable()->default(null);
             $table->text('eu_representative')->nullable()->default(null);
-            $table->integer('general_delivery_time')->default(0);
+            $table->integer('general_delivery_time')->default(5);
             $table->integer('purchase_min_value')->default(0);
             $table->integer('purchase_min_quantity')->default(0);
             $table->text('shipping_instructions')->nullable()->default(null);

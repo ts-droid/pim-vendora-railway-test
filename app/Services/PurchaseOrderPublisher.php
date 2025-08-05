@@ -166,7 +166,8 @@ class PurchaseOrderPublisher
             }
 
             // Set the shipping date
-            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * self::SHIPPING_DATE_BUFFER))); // Add 5 days to the promised date
+            $shippingDateBuffer = ($purchaseOrder->supplier->general_delivery_time ?? 0) ?: self::SHIPPING_DATE_BUFFER;
+            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * $shippingDateBuffer)));
 
             if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
                 $orderPromisedDate = $shippingDate;
