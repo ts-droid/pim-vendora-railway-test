@@ -54,7 +54,7 @@ class PurchaseOrderLine extends Model
 
     public function getShippingDate()
     {
-        $shippingDateBuffer = 0 ?: PurchaseOrderPublisher::SHIPPING_DATE_BUFFER;
+        $shippingDateBuffer = ($this->purchaseOrder->supplier->general_delivery_time) ?: PurchaseOrderPublisher::SHIPPING_DATE_BUFFER;
 
         if ($this->promised_date) {
             return date('Y-m-d', strtotime($this->promised_date) - (86400 * $shippingDateBuffer));
