@@ -45,6 +45,7 @@ class PurchaseOrder extends Model
         'status_sent_external',
         'status_confirmed_by_supplier',
         'status_shipping_details',
+        'status_invoice_uploaded',
         'status_received'
     ];
 

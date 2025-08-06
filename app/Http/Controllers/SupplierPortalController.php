@@ -15,31 +15,20 @@ class SupplierPortalController extends Controller
         $supplier = SupplierPortalAccessService::getActiveSupplier();
 
         // Fetch purchase orders
-        $purchaseOrders = [];
+        $openOrders = $this->callAPI(PurchaseOrderController::class, 'getOpen', [new Request()])['data'];
+        $pendingOrders = $this->callAPI(PurchaseOrderController::class, 'getPending', [new Request()])['data'];
 
-        $purchaseOrders['unconfirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
-            ->where('is_po_system', '=', 1)
-            ->whereNull('published_at')
-            ->orderBy('date', 'desc')
-            ->get();
+        $purchaseOrders = [
+            'open' => array_merge($openOrders, $pendingOrders),
+            'closed' => $this->callAPI(PurchaseOrderController::class, 'getClosed', [new Request()])['data'],
+        ];
 
-        $purchaseOrders['confirmed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
-            ->where('is_po_system', '=', 1)
-            ->whereNotNull('published_at')
-            ->whereHas('lines', function ($query) {
-                $query->where('is_completed', '=', 0);
-            })
-            ->orderBy('date', 'desc')
-            ->get();
-
-        $purchaseOrders['closed'] = PurchaseOrder::where('supplier_id', $supplier->external_id)
-            ->where('is_po_system', '=', 1)
-            ->whereNotNull('published_at')
-            ->whereDoesntHave('lines', function ($query) {
-                $query->where('is_completed', '=', 0);
-            })
-            ->orderBy('date', 'desc')
-            ->get();
+        // Filter only supplier purchase orders
+        foreach ($purchaseOrders as $key => $items) {
+            $purchaseOrders[$key] = array_filter($items, function ($order) use ($supplier) {
+                return $order['supplier_number'] === $supplier->number;
+            });
+        }
 
         $breadcrumbs = [
             'Purchase Orders' => ''
@@ -48,9 +37,10 @@ class SupplierPortalController extends Controller
         return view('supplierPortal.pages.index', compact('breadcrumbs', 'purchaseOrders'));
     }
 
-    public function order(PurchaseOrder $purchaseOrder, string $hash)
+    public function order(PurchaseOrder $purchaseOrder)
     {
-        if ($purchaseOrder->getHash() !== $hash) {
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
+        if ($supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
         }
 
@@ -58,31 +48,52 @@ class SupplierPortalController extends Controller
 
         $breadcrumbs = [
             'Purchase Orders' => route('supplierPortal.purchaseOrders.index'),
-            'Order ' . $purchaseOrder->order_number => '',
+            'Order #' . $purchaseOrder->id => '',
         ];
 
         return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder'));
     }
 
-    public function postOrder(Request $request, PurchaseOrder $purchaseOrder, string $hash)
+    public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
-        if ($purchaseOrder->getHash() !== $hash) {
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
+        if ($supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
         }
 
         switch ($purchaseOrder->getPortalStatus()) {
             case PurchaseOrder::PORTAL_STATUS_UNCONFIRMED:
-                return $this->publishOrder($request, $purchaseOrder);
+                $response = $this->publishOrder($request, $purchaseOrder);
+                break;
 
             case PurchaseOrder::PORTAL_STATUS_OPEN:
-                return $this->updateOrder($request, $purchaseOrder);
+                $response = $this->updateOrder($request, $purchaseOrder);
+                break;
+
+            default:
+                return response()->json(['success' => false, 'message' => 'Invalid order status.']);
+                break;
         }
 
-        return response()->json(['success' => false, 'message' => 'Invalid order status.']);
+
+        if ($response['success']) {
+            $this->setPurchaseOrderStatus($purchaseOrder);
+
+            $purchaseOrder->update([
+                'status_confirmed_by_supplier' => 1
+            ]);
+        }
+
+        return response()->json($response);
     }
 
-    public function uploadInvoice(Request $request, PurchaseOrder $purchaseOrder, string $hash)
+    public function uploadInvoice(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
+        if ($supplier->number !== $purchaseOrder->supplier_number) {
+            abort(404);
+        }
+
         $request->validate([
             'invoice' => 'required|file|mimes:pdf'
         ]);
@@ -99,22 +110,53 @@ class SupplierPortalController extends Controller
             );
         }
 
-        return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $hash]);
+        $this->setPurchaseOrderStatus($purchaseOrder);
+
+        return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
     }
 
     private function publishOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $publisher = new PurchaseOrderPublisher();
-        $response = $publisher->publishOrder($purchaseOrder, $request->input('items'));
-
-        return response()->json($response);
+        return $publisher->publishOrder($purchaseOrder, $request->input('items'));
     }
 
     private function updateOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $publisher = new PurchaseOrderPublisher();
-        $response = $publisher->updateOrder($purchaseOrder, $request->input('items'));
+        return $publisher->updateOrder($purchaseOrder, $request->input('items'));
+    }
 
-        return response()->json($response);
+    private function setPurchaseOrderStatus(PurchaseOrder $purchaseOrder)
+    {
+        $providedShippingDetails = 1;
+        $uploadedInvoice = 1;
+
+        foreach ($purchaseOrder->lines as $line) {
+            if (!$line->promised_date || !$line->tracking_number) {
+                // Missing shipping details
+                $providedShippingDetails = 0;
+            }
+
+            if (!$line->invoice_id) {
+                // Missing invoice
+                $uploadedInvoice = 0;
+            }
+        }
+
+        $purchaseOrder->update([
+            'status_shipping_details' => $providedShippingDetails,
+            'status_invoice_uploaded' => $uploadedInvoice
+        ]);
+    }
+
+    private function callAPI($controller, $method, $params = [])
+    {
+        $instance = new $controller();
+        $response = call_user_func_array([$instance, $method], $params);
+
+        $response = json_decode($response->getContent(), true);
+
+        return $response['data'] ?? [];
     }
 }

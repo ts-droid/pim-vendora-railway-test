@@ -34,6 +34,7 @@ class PurchaseOrderLine extends Model
         'is_canceled',
         'is_locked',
         'reminder_sent_at',
+        'tracking_number',
         'invoice_id',
     ];
 

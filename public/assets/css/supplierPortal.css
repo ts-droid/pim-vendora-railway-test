@@ -107,3 +107,35 @@ table td {
     background-color: #ffffff;
     border: 1px solid #ced4da !important;
 }
+
+
+.order-status-bar {
+    display: inline-flex;
+    flex-wrap: wrap;
+    border: 1px solid #000000;
+    background-color: #000000;
+    gap: 1px;
+}
+.order-status-bar div {
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    border-right: none;
+}
+.order-status-bar div.red {
+    background-color: red;
+}
+.order-status-bar div.green {
+    background-color: green;
+}
+.order-status-bar__small div {
+    flex: 0 0 15px;
+    width: 15px;
+    height: 15px;
+}
+
+
+.btn-table {
+    padding: 3px 12px;
+    font-size: 14px;
+}

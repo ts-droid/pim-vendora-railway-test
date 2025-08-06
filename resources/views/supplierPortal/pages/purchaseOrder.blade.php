@@ -13,10 +13,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="h4 mb-2">
-                    <b>Vendora Order no:</b> <span id="order-number">{{ $purchaseOrder->order_number }}</span> <span class="copy-btn" onclick="copyToClipboard('#order-number')"><i class="bi bi-copy"></i></span>
+                    <b>Vendora Order no:</b> <span id="order-number">{{ $purchaseOrder->id }}</span> <span class="copy-btn" onclick="copyToClipboard('#order-number')"><i class="bi bi-copy"></i></span>
                 </div>
                 <div><b>Order date:</b> {{ $purchaseOrder->date }}</div>
-                <div><b>Status:</b> {{ $portalStatus }}</div>
             </div>
             <div class="col-md-6">
                 <div class="d-flex align-items-center">
@@ -36,102 +35,114 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
         <div class="row">
             <div class="col-md-12">
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped po-view-table">
-                        <thead>
-                        <tr>
-                            <th colspan="2">Article number</th>
-                            <th>Description</th>
-                            <th class="text-end">Unit price</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Total</th>
-                            <th class="text-end">Shipping date</th>
-                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                <th class="text-end">Tracking number</th>
-                            @endif
-                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
-                                <th class="text-end">Status</th>
-                            @endif
-                        </tr>
-                        </thead>
-                        <tbody id="order-table-body">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Order Content</h5>
+                            @include('supplierPortal.partials.purchaseOrderStatus', ['purchaseOrder' => $purchaseOrder->toArray()])
+                        </div>
 
-                        @php($total = 0)
-                        @php($totalQuantity = 0)
+                        <div class="table-responsive">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped po-view-table">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2">Article number</th>
+                                        <th>Description</th>
+                                        <th class="text-end">Unit price</th>
+                                        <th class="text-end">Quantity</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-end">Shipping date</th>
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                            <th class="text-end">Tracking number</th>
+                                        @endif
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                            <th class="text-end">Status</th>
+                                        @endif
+                                    </tr>
+                                    </thead>
+                                    <tbody id="order-table-body">
 
-                        @foreach($purchaseOrder->lines as $line)
+                                    @php($total = 0)
+                                    @php($totalQuantity = 0)
 
-                            @php($total += ($line->quantity * $line->unit_cost))
-                            @php($totalQuantity += $line->quantity)
+                                    @foreach($purchaseOrder->lines as $line)
 
-                            <tr class="js-item-row" data-id="{{ $line->id }}">
-                                <td class="no-wrap" style="width: 1px;"><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
-                                <td>
-                                    <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
-                                </td>
-                                <td>{{ $line->description }}</td>
-                                <td style="width: 150px;">
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
-                                        <span class="input-group-text">{{ $purchaseOrder->currency }}</span>
-                                    </div>
-                                </td>
-                                <td style="width: 100px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}"
-                                        data-default="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
-                                </td>
-                                <td style="width: 100px;" class="text-end no-wrap">
-                                    <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
-                                </td>
-                                <td style="width: 150px;">
-                                    <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
-                                </td>
-                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                    <td style="width: 250px;">
-                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
-                                    </td>
-                                @endif
-                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
-                                    <td style="width: 150px;">
-                                        <select class="form-select form-select-sm" name="status_{{ $line->id }}">
-                                            <option value="">-----</option>
-                                            <option value="confirm">Confirm</option>
-                                            <option value="decline">Decline</option>
-                                            <option value="eol">End of Life</option>
-                                        </select>
-                                    </td>
-                                @endif
-                            </tr>
-                        @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-end fw-bold js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
-                                <td class="text-end fw-bold no-wrap js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
-                                <td></td>
-                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                    <td></td>
-                                @endif
-                                @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
-                                    <td></td>
-                                @endif
-                            </tr>
-                        </tfoot>
-                    </table>
+                                        @php($total += ($line->quantity * $line->unit_cost))
+                                        @php($totalQuantity += $line->quantity)
+
+                                        <tr class="js-item-row" data-id="{{ $line->id }}">
+                                            <td class="no-wrap" style="width: 1px;"><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
+                                            <td>
+                                                <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
+                                            </td>
+                                            <td>{{ $line->description }}</td>
+                                            <td style="width: 150px;">
+                                                <div class="input-group input-group-sm">
+                                                    <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>
+                                                    <span class="input-group-text">{{ $purchaseOrder->currency }}</span>
+                                                </div>
+                                            </td>
+                                            <td style="width: 100px;">
+                                                <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}"
+                                                       data-default="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
+                                            </td>
+                                            <td style="width: 100px;" class="text-end no-wrap">
+                                                <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
+                                            </td>
+                                            <td style="width: 150px;">
+                                                <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
+                                            </td>
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                                <td style="width: 250px;">
+                                                    <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
+                                                </td>
+                                            @endif
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                                <td style="width: 150px;">
+                                                    <select class="form-select form-select-sm" name="status_{{ $line->id }}">
+                                                        <option value="">-----</option>
+                                                        <option value="confirm">Confirm</option>
+                                                        <option value="eol">End of Life</option>
+                                                    </select>
+                                                </td>
+                                            @endif
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="text-end fw-bold js-total-quantity">{{ number_format($totalQuantity, 0, '.', '') }}</td>
+                                        <td class="text-end fw-bold no-wrap js-total-price">{{ number_format($total, 2, '.', ' ') }} {{ $purchaseOrder->currency }}</td>
+                                        <td></td>
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                            <td></td>
+                                        @endif
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                            <td></td>
+                                        @endif
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="text-end">
-                    @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_CLOSED)
-                        <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
-                            <span class="spinner-border spinner-border-sm d-none"></span>
-                            Save
-                        </button>
-                    @endif
-                </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_CLOSED)
+                    <button class="btn btn-primary js-confirm-button" onclick="confirmOrder()">
+                        <span class="spinner-border spinner-border-sm d-none"></span>
+                        Save
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -171,7 +182,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
     <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form method="POST" action="{{ route('supplierPortal.purchaseOrders.order.uploadInvoice', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}" class="js-invoice-form" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('supplierPortal.purchaseOrders.order.uploadInvoice', ['purchaseOrder' => $purchaseOrder->id]) }}" class="js-invoice-form" enctype="multipart/form-data">
                     @csrf
 
                     <div class="modal-header">
@@ -388,7 +399,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             }
 
             // Post data
-            fetch('{{ route('supplierPortal.purchaseOrders.order.post', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) }}', {
+            fetch('{{ route('supplierPortal.purchaseOrders.order.post', ['purchaseOrder' => $purchaseOrder->id]) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

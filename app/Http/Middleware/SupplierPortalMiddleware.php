@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Supplier;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 class SupplierPortalMiddleware
@@ -24,6 +26,12 @@ class SupplierPortalMiddleware
             $request->merge(['supplier_access_key' => $accessKey]);
 
             // Create the cookie and add it to the response for future requests
+            $cookie = cookie('supplier_access_key', $accessKey, 360);
+        }
+        else if (App::environment('local')) {
+            $accessKey = Supplier::query()->first()->access_key;
+
+            $request->merge(['supplier_access_key' => $accessKey]);
             $cookie = cookie('supplier_access_key', $accessKey, 360);
         }
         else {
