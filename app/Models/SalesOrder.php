@@ -149,9 +149,11 @@ class SalesOrder extends Model
 
                 if ($domain && $brandName && $logoPath) {
                     return [
+                        'is_brand' => true,
                         'brand_name' => $brandName,
                         'logo_url' => 'https://' . $domain . '/storage/' . $logoPath,
                         'logo_path' => null,
+                        'customer_review_url' => 'https://' . $domain . '/{lang}/customer-review?sku={sku}&rating={rating}',
                         'language_code' => $this->language,
                     ];
                 }
@@ -159,9 +161,11 @@ class SalesOrder extends Model
         }
 
         return [
+            'is_brand' => false,
             'brand_name' => 'Vendora Nordic AB',
             'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
             'logo_path' => public_path('/assets/img/logos/logo_vendora.png'),
+            'customer_review_url' => route('customer.review', ['article_id' => '{article_id}', 'lang' => '{lang}', 'rating' => '{rating}']),
             'language_code' => $this->language,
         ];
     }

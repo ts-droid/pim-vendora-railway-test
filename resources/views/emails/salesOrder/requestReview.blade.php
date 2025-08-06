@@ -31,14 +31,37 @@
                 @foreach($salesOrder->lines as $line)
                     @continue($line->article_number === 'SHIP25' || $line->article_number === 'DISC25' || !$line->article)
 
+                    @php
+                        $ratingBaseURL = $brandingData['customer_review_url'] ?? '';
+                        $ratingBaseURL = str_replace('{lang}', app()->getLocale(), $ratingBaseURL);
+
+                        $imageRatingURL = str_replace('{rating}', 5, $ratingBaseURL);
+                        if ($brandingData['is_brand']) {
+                            $imageRatingURL = str_replace('{sku}', $line->article->article_number, $imageRatingURL);
+                        } else {
+                            $imageRatingURL = str_replace('{article_id}', $line->article->id, $imageRatingURL);
+                        }
+                    @endphp
+
                     <tr>
                         <td align="center">
-                            <a href="{{ route('customer.review', ['article_id' => $line->article->id, 'lang' => app()->getLocale(), 'rating' => 5]) }}">
+                            <a href="{{ $imageRatingURL }}">
                                 <img src="{{ \App\Services\EmailImageService::prepareImageForEmail($line->article->getMainImage() ?? '') }}" style="height: 65px;width: 65px;">
                             </a>
                             <div>
                                 @for($rating = 1;$rating <=5;$rating++)
-                                    <a href="{{ route('customer.review', ['article_id' => $line->article->id, 'lang' => app()->getLocale(), 'rating' => $rating]) }}" style="text-decoration: none !important;color: #000000 !important;margin-right: 6px;display: inline-block;">
+                                    @php
+                                    $ratingURL = str_replace('{rating}', $rating, $ratingBaseURL);
+
+                                    if ($brandingData['is_brand']) {
+                                        $ratingURL = str_replace('{sku}', $line->article->article_number, $ratingURL);
+                                    } else {
+                                        $ratingURL = str_replace('{article_id}', $line->article->id, $ratingURL);
+                                    }
+
+                                    @endphp
+
+                                    <a href="{{ $ratingURL }}" style="text-decoration: none !important;color: #000000 !important;margin-right: 6px;display: inline-block;">
                                         <img src="{{ \App\Services\EmailImageService::prepareBase64ImageForEmail('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABmJLR0QA/wD/AP+gvaeTAAABjUlEQVQ4ja3Uv0uVYRjG8c/xlCepqT/AxRwMc2pokBaJpv4ACWtQCTIIW5yiRof+g2hscYmGoKBIIaFmDaEfEpGBNEQiNOlxeO+Djw/p+6RecHPec9/X9T33e96Hl3L1Rh2rurCMj2geJ3gU7ajRkkCjwNNUbfs7wGcxiK3D7bir6wG8EtWO3pHUxAoWk94CPuHEUcBjqg1Hkt5I9MYOCjZiq16cy6offfiAy1luAZfwFZ/xJavvjbjoS0J/M9PjCKfqx2S2SE8yX4XZuLXF2LzkpORqRPZdsGY7g5loPHW4h9LEkxza0R1s4zla/wE9ibmA3t/PdEt18F/Y+5/tpxaexUJ368w3Av6gAPwwvDfzQdc/zJ3b2igA/wnvXAn4vOphLBWAl8I7UAK+EJ/LWf9qVA6GoYIlPMKv5Psw5u2+Nt/jWjJfj0ytXuJNAN8G7BsmMB7X7fixYbzGqxLwGjYjvIYpdCfzbtzGj/Bs4mcdtKU6Puu45+Cz3IPp8G7hVB38Is7UmRKdjswe7QAcxmBwClrF6QAAAABJRU5ErkJggg==') }}" width="22" height="22" style="margin-bottom: 16px;">
                                     </a>
                                 @endfor
