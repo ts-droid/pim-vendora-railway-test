@@ -39,6 +39,7 @@ class Supplier extends Model
         'purchase_min_value',
         'purchase_min_quantity',
         'shipping_instructions',
+        'calculated_growth',
 
         'main_contact_name',
         'main_contact_attention',
