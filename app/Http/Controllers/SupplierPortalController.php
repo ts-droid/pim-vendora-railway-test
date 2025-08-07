@@ -43,7 +43,7 @@ class SupplierPortalController extends Controller
     public function order(PurchaseOrder $purchaseOrder)
     {
         $supplier = SupplierPortalAccessService::getActiveSupplier();
-        if ($supplier->number !== $purchaseOrder->supplier_number) {
+        if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
         }
 
@@ -60,7 +60,7 @@ class SupplierPortalController extends Controller
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $supplier = SupplierPortalAccessService::getActiveSupplier();
-        if ($supplier->number !== $purchaseOrder->supplier_number) {
+        if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
         }
 
@@ -93,7 +93,7 @@ class SupplierPortalController extends Controller
     public function uploadInvoice(Request $request, PurchaseOrder $purchaseOrder)
     {
         $supplier = SupplierPortalAccessService::getActiveSupplier();
-        if ($supplier->number !== $purchaseOrder->supplier_number) {
+        if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
         }
 

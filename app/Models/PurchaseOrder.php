@@ -139,4 +139,19 @@ class PurchaseOrder extends Model
             return ['red', 'All information is missing'];
         }
     }
+
+    public function getNotShippedValue()
+    {
+        if (!$this->lines) {
+            return 0;
+        }
+
+        $total = 0;
+
+        foreach ($this->lines as $line) {
+            $total += $line->is_shipped ? ($line->quantity * $line->unit_cost) : 0;
+        }
+
+        return $total;
+    }
 }

@@ -67,15 +67,6 @@ class Supplier extends Model
         'supplier_address_line',
         'supplier_address_city',
         'supplier_address_country',
-
-        'po_contact_name',
-        'po_contact_attention',
-        'po_contact_email',
-        'po_contact_phone1',
-        'po_contact_phone2',
-        'po_address_line',
-        'po_address_city',
-        'po_address_country'
     ];
 
     protected $casts = [
@@ -125,15 +116,6 @@ class Supplier extends Model
         'supplier_address_line' => 'string',
         'supplier_address_city' => 'string',
         'supplier_address_country' => 'string',
-
-        'po_contact_name' => 'string',
-        'po_contact_attention' => 'string',
-        'po_contact_email' => 'string',
-        'po_contact_phone1' => 'string',
-        'po_contact_phone2' => 'string',
-        'po_address_line' => 'string',
-        'po_address_city' => 'string',
-        'po_address_country' => 'string'
     ];
 
     public function contacts()

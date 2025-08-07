@@ -36,6 +36,7 @@ class PurchaseOrderLine extends Model
         'reminder_sent_at',
         'tracking_number',
         'invoice_id',
+        'is_shipped',
     ];
 
     public function purchaseOrder()

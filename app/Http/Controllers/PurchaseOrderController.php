@@ -30,7 +30,7 @@ class PurchaseOrderController extends Controller
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
                 'purchase_orders.order_number',
-                'suppliers.po_contact_email as email'
+                'suppliers.supplier_contact_email as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
@@ -56,7 +56,7 @@ class PurchaseOrderController extends Controller
                 'purchase_orders.supplier_name',
                 'purchase_orders.date',
                 'purchase_orders.order_number',
-                'suppliers.po_contact_email as email'
+                'suppliers.supplier_contact_email as email'
             )
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
@@ -167,6 +167,12 @@ class PurchaseOrderController extends Controller
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
 
+        if ($purchaseOrders->count()) {
+            foreach ($purchaseOrders as &$purchaseOrder) {
+                $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
+            }
+        }
+
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
@@ -179,6 +185,12 @@ class PurchaseOrderController extends Controller
             ->where('is_po_system', 1)
             ->orderBy('id', 'DESC')
             ->paginate($perPage);
+
+        if ($purchaseOrders->count()) {
+            foreach ($purchaseOrders as &$purchaseOrder) {
+                $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
+            }
+        }
 
         return ApiResponseController::success($purchaseOrders->toArray());
     }

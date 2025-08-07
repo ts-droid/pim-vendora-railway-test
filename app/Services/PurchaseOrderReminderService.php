@@ -12,7 +12,7 @@ class PurchaseOrderReminderService
     public function remindETA(): void
     {
         // Load all open order lines
-        $orderLines = PurchaseOrderLine::select('purchase_order_lines.*', 'suppliers.po_contact_email as email')
+        $orderLines = PurchaseOrderLine::select('purchase_order_lines.*', 'suppliers.supplier_contact_email as email')
             ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
             ->leftJoin('suppliers', 'suppliers.external_id', '=', 'purchase_orders.supplier_id')
             ->where('purchase_orders.status', '=', 'Open')

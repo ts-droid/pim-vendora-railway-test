@@ -49,6 +49,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <tr>
                                         <th colspan="2">Article number</th>
                                         <th>Description</th>
+                                        <th class="text-center">Shipped</th>
+                                        <th class="text-center">Invoiced</th>
                                         <th class="text-end">Unit price</th>
                                         <th class="text-end">Quantity</th>
                                         <th class="text-end">Total</th>
@@ -77,6 +79,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                 <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
                                             </td>
                                             <td>{{ $line->description }}</td>
+                                            <td class="text-center" style="width: 90px;">
+                                                {!! ($line->is_shipped ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle-fill text-danger"></i>') !!}
+                                            </td>
+                                            <td class="text-center" style="width: 90px;">
+                                                {!! ($line->invoice_id ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle-fill text-danger"></i>') !!}
+                                            </td>
                                             <td style="width: 150px;">
                                                 <div class="input-group input-group-sm">
                                                     <input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_{{ $line->id }}" value="{{ $line->unit_cost }}" {{ $priceEditable ? '' : 'readonly' }}>

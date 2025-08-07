@@ -36,8 +36,8 @@ class SendPurchaseOrderReminder implements ShouldQueue
         if ($this->emailRecipient) {
             $recipients = $this->emailRecipient; // Use the provided email recipient
         }
-        elseif ($this->purchaseOrder->supplier->po_contact_email ?? null) {
-            $recipients = $this->purchaseOrder->supplier->po_contact_email; // Use the supplier's reminder email
+        elseif ($this->purchaseOrder->supplier->supplier_contact_email ?? null) {
+            $recipients = $this->purchaseOrder->supplier->supplier_contact_email; // Use the supplier's reminder email
         }
         elseif ($this->purchaseOrder->email) {
             $recipients = $this->purchaseOrder->email; // Use the purchase order's email

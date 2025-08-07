@@ -7,8 +7,10 @@ $completed = $completed ?? false;
         <thead>
         <tr>
             <th>Order</th>
+            <th>State</th>
             <th>Date</th>
             <th class="text-end">Total</th>
+            <th class="text-end">Not shipped</th>
             <th class="text-end">Status</th>
             @if(!$completed)
                 <th class="text-end">Manage</th>
@@ -20,8 +22,10 @@ $completed = $completed ?? false;
             @foreach($orders as $purchaseOrder)
                 <tr>
                     <td>#{{ $purchaseOrder['id'] }}</td>
+                    <td>{{ $purchaseOrder['published_at'] ? 'Confirmed' : 'Unconfirmed' }}</td>
                     <td>{{ date('d M Y', strtotime($purchaseOrder['date'])) }}</td>
                     <td class="text-end">{{ $purchaseOrder['amount'] }} {{ $purchaseOrder['currency'] }}</td>
+                    <td class="text-end">{{ ($purchaseOrder['not_shipped_value'] ?? 0) }} {{ $purchaseOrder['currency'] }}</td>
                     <td class="d-flex align-items-center justify-content-end">
                         @include('supplierPortal.partials.purchaseOrderStatus', ['purchaseOrder' => $purchaseOrder])
                     </td>
