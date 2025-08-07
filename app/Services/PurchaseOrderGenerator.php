@@ -90,15 +90,6 @@ class PurchaseOrderGenerator
             ];
         }
 
-        if ($purchaseOrder->regenerate_only_existing) {
-            $allowedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->pluck('article_number')
-                ->toArray();
-        }
-        else {
-            $allowedArticleNumbers = [];
-        }
-
         $lockedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
             ->where('is_locked', 1)
             ->pluck('article_number')
@@ -121,7 +112,7 @@ class PurchaseOrderGenerator
             $vipSalesOrders,
             $purchaseOrder->foresight_days,
             $purchaseOrder->id,
-            $allowedArticleNumbers,
+            [],
             $lockedArticleNumbers
         );
 

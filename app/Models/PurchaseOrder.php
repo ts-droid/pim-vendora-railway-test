@@ -29,7 +29,6 @@ class PurchaseOrder extends Model
         'is_vip',
         'foresight_days',
         'email',
-        'regenerate_only_existing',
         'is_generating',
         'reminder_sent_at',
         'should_delete',
