@@ -79,6 +79,10 @@ class PurchaseOrderPublisher
             }
         }
 
+        $purchaseOrder->update([
+            'date' => date('Y-m-d')
+        ]);
+
         // Update and un-park the order in Visma.net
         $purchaseOrderService = new VismaNetPurchaseOrderService();
         $updateResult = $purchaseOrderService->updatePurchaseOrder($purchaseOrder, false);
