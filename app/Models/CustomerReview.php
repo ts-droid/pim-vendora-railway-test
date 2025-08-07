@@ -15,4 +15,9 @@ class CustomerReview extends Model
         'name',
         'review',
     ];
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class, 'article_number', 'article_number');
+    }
 }

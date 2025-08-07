@@ -1222,6 +1222,12 @@ class ArticleController extends Controller
     {
         $customerReviews = CustomerReview::query()->orderBy('created_at', 'DESC')->get();
 
+        if ($customerReviews) {
+            foreach ($customerReviews as &$customerReview) {
+                $customerReview->brand = ($customerReview->article->supplier->brand_name ?? '');
+            }
+        }
+
         return ApiResponseController::success($customerReviews->toArray());
     }
 
