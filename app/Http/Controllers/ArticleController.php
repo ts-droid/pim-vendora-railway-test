@@ -1224,7 +1224,12 @@ class ArticleController extends Controller
 
         if ($customerReviews) {
             foreach ($customerReviews as &$customerReview) {
-                $customerReview->brand = ($customerReview->article->supplier->brand_name ?? '');
+                $customerReview->brand = '';
+
+                $article = Article::where('article_number', $customerReview->article_number)->first();
+                if ($article) {
+                    $customerReview->brand = ($article->supplier->brand_name ?? '');
+                }
             }
         }
 
