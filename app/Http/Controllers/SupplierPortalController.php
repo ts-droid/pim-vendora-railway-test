@@ -7,6 +7,7 @@ use App\Services\PurchaseOrderPublisher;
 use App\Services\SupplierInvoiceService;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class SupplierPortalController extends Controller
 {
@@ -24,10 +25,12 @@ class SupplierPortalController extends Controller
         ];
 
         // Filter only supplier purchase orders
-        foreach ($purchaseOrders as $key => $items) {
-            $purchaseOrders[$key] = array_filter($items, function ($order) use ($supplier) {
-                return $order['supplier_number'] === $supplier->number;
-            });
+        if (!App::environment('local')) {
+            foreach ($purchaseOrders as $key => $items) {
+                $purchaseOrders[$key] = array_filter($items, function ($order) use ($supplier) {
+                    return $order['supplier_number'] === $supplier->number;
+                });
+            }
         }
 
         $breadcrumbs = [
