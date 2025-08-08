@@ -264,7 +264,7 @@ class PurchaseOrderGenerator
                 }
 
                 // Create a new order line if it doesn't exist
-                $purchaseOrderLine['purchase_order_id'] = $existingPurchaseOrder->id;
+                $orderLine['purchase_order_id'] = $existingPurchaseOrder->id;
                 PurchaseOrderLine::create($orderLine);
             }
 
