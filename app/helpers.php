@@ -3,6 +3,26 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('has_hours_passed')) {
+    function has_hours_passed(string $timestamp, int $hours): bool
+    {
+        $start = \Carbon\Carbon::parse($timestamp);
+        $now = \Carbon\Carbon::now();
+
+        $target = $start->copy();
+        $remainingHours = $hours;
+
+        while ($remainingHours > 0) {
+            $target->addHour();
+            if (!$target->isWeekend()) {
+                $remainingHours--;
+            }
+        }
+
+        return $now->greaterThan($target);
+    }
+}
+
 if (!function_exists('add_vat')) {
     function add_vat(float $amount, float|int $vatRate)
     {

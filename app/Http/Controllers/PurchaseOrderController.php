@@ -511,6 +511,7 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->update([
             'is_sent' => 1,
             'status_sent_to_supplier' => 1,
+            'confirm_reminder_sent_at' => date('Y-m-d H:i:s')
         ]);
 
         return ApiResponseController::success();

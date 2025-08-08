@@ -46,7 +46,11 @@ class PurchaseOrder extends Model
         'status_shipping_details',
         'status_tracking_number',
         'status_invoice_uploaded',
-        'status_received'
+        'status_received',
+
+        'confirm_reminder_sent_at',
+        'shipping_reminder_sent_at',
+        'invoice_reminder_sent_at',
     ];
 
     public function supplier()

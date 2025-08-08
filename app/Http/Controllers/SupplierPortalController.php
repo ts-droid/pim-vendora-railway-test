@@ -83,7 +83,8 @@ class SupplierPortalController extends Controller
             $this->setPurchaseOrderStatus($purchaseOrder);
 
             $purchaseOrder->update([
-                'status_confirmed_by_supplier' => 1
+                'status_confirmed_by_supplier' => 1,
+                'shipping_reminder_sent_at' => date('Y-m-d H:i:s')
             ]);
         }
 
@@ -133,6 +134,7 @@ class SupplierPortalController extends Controller
     private function setPurchaseOrderStatus(PurchaseOrder $purchaseOrder)
     {
         $providedShippingDetails = 1;
+        $providedTrackingNumbers = 1;
         $uploadedInvoice = 1;
 
         foreach ($purchaseOrder->lines as $line) {
