@@ -71,7 +71,7 @@ class PurchaseOrderGenerator
         }
 
         foreach ($suppliers as $supplier) {
-            $orderCreated = $this->generateSupplierPurchaseOrder($supplier, $isEmpty);
+            $this->generateSupplierPurchaseOrder($supplier, $isEmpty);
         }
     }
 
@@ -140,34 +140,27 @@ class PurchaseOrderGenerator
      */
     public function generateSupplierPurchaseOrder(Supplier $supplier, int $isEmpty): bool
     {
+        $generatePurchaseOrder = true;
 
-        if ($isEmpty) {
-            $generatePurchaseOrder = true;
-            $vipSalesOrders = collect();
-        }
-        else {
+        // Check if the supplier has an open suggestion
+        $hasOpenSuggestion = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
+            ->where('status', '=', 'Draft')
+            ->where('is_po_system', '=', 1)
+            ->where('is_sent', '=', 0)
+            ->where('is_draft', '=', 1)
+            ->where('should_delete', '=', 0)
+            ->exists();
+
+        if ($isEmpty && $hasOpenSuggestion) {
             $generatePurchaseOrder = false;
+        }
 
+        if (!$hasOpenSuggestion && !$isEmpty) {
+            // Check if days have passed to generate a new order
             $lastPurchaseOrderTime = $this->getSupplierLastOrder($supplier);
 
-            // Check if the supplier has any "VIP orders"
-            /*$vipSalesOrders = $this->getVIPSalesOrders(
-                $supplier,
-                ($lastPurchaseOrderTime ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
-                date('Y-m-d H:i:s')
-            );
-
-            if ($vipSalesOrders->count()) {
-                $generatePurchaseOrder = true;
-            }*/
-
-            $vipSalesOrders = collect();
-
-            // Check when last we last tries to generate an order for this supplier
-            if (!$lastPurchaseOrderTime
-                || strtotime($lastPurchaseOrderTime) < strtotime('-' . $supplier->purchase_order_interval . ' day')
-            ) {
-                $generatePurchaseOrder = true;
+            if ($lastPurchaseOrderTime && strtotime($lastPurchaseOrderTime) >= strtotime('-' . $supplier->purchase_order_interval . ' day')) {
+                $generatePurchaseOrder = false;
             }
         }
 
@@ -175,7 +168,7 @@ class PurchaseOrderGenerator
             return false;
         }
 
-        $response = $this->createSupplierOrder($supplier, $vipSalesOrders, $isEmpty);
+        $response = $this->createSupplierOrder($supplier, collect(), $isEmpty);
 
         return $response['success'];
     }
@@ -194,15 +187,42 @@ class PurchaseOrderGenerator
             $vipSalesOrders = collect();
         }
 
+        // Check if we have a draft purchase order for this supplier
+        $existingPurchaseOrder = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
+            ->where('status', '=', 'Draft')
+            ->where('is_po_system', '=', 1)
+            ->where('is_sent', '=', 0)
+            ->where('is_draft', '=', 1)
+            ->where('should_delete', '=', 0)
+            ->first();
+
+        $excludeArticleNumbers = [];
+
+        if ($existingPurchaseOrder) {
+            // Remove existing non-locked order lines
+            foreach ($existingPurchaseOrder->lines as $orderLine) {
+                if ($orderLine->is_locked) {
+                    $excludeArticleNumbers[] = $orderLine->article_number;
+                } else {
+                    $orderLine->delete();
+                }
+            }
+
+            $existingPurchaseOrder->refresh();
+        }
+
+
         if ($isEmpty) {
             $orderLines = collect();
-        }
-        else {
+        } else {
             // Collect all articles that need to be ordered
             $orderLines = $this->getOrderLines(
                 $supplier,
                 $vipSalesOrders,
-                $this->settings['foresight_days']
+                $this->settings['foresight_days'],
+                0,
+                [],
+                $excludeArticleNumbers
             );
 
             if ($orderLines->isEmpty()) {
@@ -223,44 +243,32 @@ class PurchaseOrderGenerator
             }
         }
 
-        // Check if we have a draft purchase order for this supplier
-        $purchaseOrder = PurchaseOrder::where('supplier_id', '=', $supplier->external_id)
-            ->where('status', '=', 'Draft')
-            ->where('is_po_system', '=', 1)
-            ->where('is_sent', '=', 0)
-            ->where('is_draft', '=', 1)
-            ->where('should_delete', '=', 0)
-            ->first();
-
         $isNewOrder = true;
 
-        if ($purchaseOrder) {
+        if ($existingPurchaseOrder) {
             // Merge the existing order lines with the new ones
             $isNewOrder = false;
 
             foreach ($orderLines as $orderLine) {
-                foreach ($purchaseOrder->lines as $purchaseOrderLine) {
+                foreach ($existingPurchaseOrder->lines as $purchaseOrderLine) {
                     if ($purchaseOrderLine->article_number != $orderLine['article_number']) {
                         continue;
                     }
 
-                    $newQuantity = $purchaseOrderLine->quantity;
-                    if ($orderLine['quantity'] > $newQuantity) {
-                        $newQuantity = $orderLine['quantity'];
-                    }
-
                     $purchaseOrderLine->update([
-                        'quantity' => $newQuantity,
-                        'amount' => ($purchaseOrderLine->unit_cost * $newQuantity),
+                        'quantity' => $orderLine['quantity'],
+                        'amount' => ($purchaseOrderLine->unit_cost * $orderLine['quantity']),
                     ]);
 
                     continue 2;
                 }
 
                 // Create a new order line if it doesn't exist
-                $purchaseOrderLine['purchase_order_id'] = $purchaseOrder->id;
+                $purchaseOrderLine['purchase_order_id'] = $existingPurchaseOrder->id;
                 PurchaseOrderLine::create($orderLine);
             }
+
+            $purchaseOrder = $existingPurchaseOrder;
         }
         else {
             // Create a new purchase order
@@ -583,14 +591,14 @@ class PurchaseOrderGenerator
     private function getSupplierLastOrder(Supplier $supplier): ?string
     {
         $lastPurchaseOrder = PurchaseOrder::where('supplier_id', $supplier->external_id)
-            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
             ->first();
 
         if (!$lastPurchaseOrder) {
             return null;
         }
 
-        return $lastPurchaseOrder->date;
+        return $lastPurchaseOrder->created_at;
     }
 
     /**
