@@ -341,7 +341,7 @@ class PurchaseOrderGenerator
      * $param array $excludeArticleNumbers
      * @return Collection
      */
-    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
+    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
     {
         $articles = Article::where('supplier_number', $supplier->number)
             ->where('status', 'Active')
@@ -353,12 +353,7 @@ class PurchaseOrderGenerator
 
         $orderLines = collect();
 
-        if ($purchaseOrderID) {
-            $lineKey = ((int) PurchaseOrderLine::where('purchase_order_id', $purchaseOrderID)->max('line_key')) + 1;
-        }
-        else {
-            $lineKey = 0;
-        }
+        $lineKey = 0;
 
         $supplierPriceService = new SupplierArticlePriceService();
 
@@ -405,6 +400,21 @@ class PurchaseOrderGenerator
         }
 
         return $orderLines;
+    }
+
+    public function getQuantityToOrderV2(Article $article, int $foresightDays): array
+    {
+        // Fetch legacy article if it exists
+        $legacyArticle = null;
+        if ($article->predecessor) {
+            $legacyArticleQuery = Article::where('article_number', $article->predecessor);
+
+            if ($legacyArticleQuery->exists()) {
+                $legacyArticle = $legacyArticle->first();
+            }
+        }
+
+
     }
 
     /**
