@@ -341,7 +341,7 @@ class PurchaseOrderGenerator
      * $param array $excludeArticleNumbers
      * @return Collection
      */
-    private function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
+    public function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, int $purchaseOrderID = 0, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
     {
         $articles = Article::where('supplier_number', $supplier->number)
             ->where('status', 'Active')
