@@ -423,6 +423,15 @@ class PurchaseOrderController extends Controller
 
         $purchaseOrder->refresh();
 
+        // Calculate the total amount of the order
+        $totalAmount = $purchaseOrder->lines->sum(function ($line) {
+            return $line->unit_cost * $line->quantity;
+        });
+
+        $purchaseOrder->update([
+            'amount' => $totalAmount,
+        ]);
+
         return ApiResponseController::success([$purchaseOrder->toArray()]);
     }
 
