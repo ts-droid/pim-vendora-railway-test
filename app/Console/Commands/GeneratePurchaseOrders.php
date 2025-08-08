@@ -12,7 +12,7 @@ class GeneratePurchaseOrders extends Command
      *
      * @var string
      */
-    protected $signature = 'purchase-orders:generate {supplierID?} {isEmpty?}';
+    protected $signature = 'purchase-orders:generate {supplierID?} {isEmpty?} {runSync?}';
 
     /**
      * The console command description.
@@ -28,9 +28,15 @@ class GeneratePurchaseOrders extends Command
     {
         $supplierID = $this->argument('supplierID') ?? 0;
         $isEmpty = $this->argument('isEmpty') ?? 0;
+        $runSync = $this->argument('runSync') ?? 0;
 
-        \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID, $isEmpty)->onQueue('high');
-
-        $this->info('Generating purchase orders...');
+        if ($runSync) {
+            $job = new \App\Jobs\GeneratePurchaseOrders($supplierID, $isEmpty);
+            $job->handle();
+            $this->info('Purchase order generated');
+        } else {
+            \App\Jobs\GeneratePurchaseOrders::dispatch($supplierID, $isEmpty)->onQueue('high');
+            $this->info('Generating purchase orders...');
+        }
     }
 }
