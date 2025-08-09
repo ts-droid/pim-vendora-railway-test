@@ -469,7 +469,7 @@ class PurchaseOrderGenerator
 
         // Calculate box sizes
         $innerBoxQuantity = max(1, $article->inner_box);
-        $masterBoxQuantity = max(1, $article->master_box) * $innerBoxQuantity;
+        $masterBoxQuantity = max(1, $article->master_box);
 
         // Calculate exact suggestion
         $quantity = $suggestedStock - $currentStock;
