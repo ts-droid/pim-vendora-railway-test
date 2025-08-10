@@ -49,7 +49,6 @@ class PurchasePlanner
 
 		$stockOnHand = $this->getOnHandQty($articleCluster);
 		$incomingPOQty = $this->getIncomingQty($articleCluster, $today, $horizonEnd);
-		$incomingPOQty = 0; // TODO: Remove this after testing
 
 
 		/* ---------- 3. Outlier-filtering ---------- */

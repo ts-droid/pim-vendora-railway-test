@@ -329,6 +329,7 @@ class PurchaseOrderGenerator
         $lineKey = 0;
 
         $supplierPriceService = new SupplierArticlePriceService();
+        $purchasePlanner = new PurchasePlanner();
 
         $excludeArticles = array_merge($this->excludeArticles, $excludeArticleNumbers);
 
@@ -342,9 +343,28 @@ class PurchaseOrderGenerator
                 continue;
             }
 
-            list($quantity, $aiComment) = $this->getQuantityToOrder($article, $vipSalesOrders, $foresightDays);
+            $quantity = $purchasePlanner->getQuantityToOrder($article, $foresightDays);
 
-            if (!$quantity['quantity']) {
+            $quantityToPurchase = $quantity['quantity'];
+
+            if ($supplier->purchase_master_box && $supplier->purchase_inner_box) {
+                $innerDiff = abs($quantity['inner'] - $quantity['quantity']);
+                $masterDiff = abs($quantity['master'] - $quantity['quantity']);
+
+                if ($masterDiff <= $innerDiff) {
+                    $quantityToPurchase = $quantity['master'];
+                } else {
+                    $quantityToPurchase = $quantity['inner'];
+                }
+            }
+            elseif ($supplier->purchase_master_box) {
+                $quantityToPurchase = $quantity['master'];
+            }
+            elseif ($supplier->purchase_master_box) {
+                $quantityToPurchase = $quantity['inner'];
+            }
+
+            if (!$quantityToPurchase) {
                 continue;
             }
 
@@ -356,17 +376,17 @@ class PurchaseOrderGenerator
                 'line_key' => $lineKey++,
                 'article_number' => $article->article_number,
                 'description' => $article->description,
-                'quantity' => $quantity['quantity'],
-                'suggested_quantity' => $quantity['default'],
+                'quantity' => $quantityToPurchase,
+                'suggested_quantity' => $quantity['quantity'],
                 'suggested_quantity_master' => $quantity['master'],
                 'suggested_quantity_inner' => $quantity['inner'],
-                'suggested_quantity_month' => $quantity['month_default'],
-                'suggested_quantity_month_master' => $quantity['month_master'],
-                'suggested_quantity_month_inner' => $quantity['month_inner'],
+                'suggested_quantity_month' => 0,
+                'suggested_quantity_month_master' => 0,
+                'suggested_quantity_month_inner' => 0,
                 'unit_cost' => $unitCost,
-                'amount' => ($unitCost * $quantity['default']),
+                'amount' => ($unitCost * $quantityToPurchase),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
-                'ai_comment' => $aiComment,
+                'ai_comment' => '',
                 'promised_date' => '',
             ]);
         }
