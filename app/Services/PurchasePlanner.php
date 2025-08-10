@@ -623,7 +623,13 @@ class PurchasePlanner
     /* -------------- SUPPLIER SERVICE -------------- */
     public function getGrowthPct(Supplier $supplier): ?float // ex. 1.05 = +5 %
     {
-        return null;
+		$multiplier = 1;
+
+		if ($supplier->calculated_growth) {
+			$multiplier += $supplier->calculated_growth / 100;
+		}
+
+        return $multiplier;
     }
 
 
