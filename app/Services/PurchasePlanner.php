@@ -49,6 +49,7 @@ class PurchasePlanner
 
 		$stockOnHand = $this->getOnHandQty($articleCluster);
 		$incomingPOQty = $this->getIncomingQty($articleCluster, $today, $horizonEnd);
+		$incomingPOQty = 0;
 
 
 		/* ---------- 3. Outlier-filtering ---------- */
@@ -82,13 +83,13 @@ class PurchasePlanner
 		$finalNeed = max(0, $needPlusOrder - $availableSupply);
 
 
-		/* ---------- 8. Growth & Pack Size Adjustment ---------- */
+		/* ---------- 8. Growth & Box Size Adjustment ---------- */
 		$growthFactor = $this->getGrowthPct($article->supplier) ?? 1.0;
 		$finalNeed *= $growthFactor;
 
+		// TODO: Adjust for box size
 		$finalNeedInnerBox = $finalNeed;
 		$finalNeedMasterBox = $finalNeed;
-
 
 		return [
 			'quantity' => $finalNeed,
