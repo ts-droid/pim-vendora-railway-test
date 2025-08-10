@@ -353,7 +353,6 @@ class PurchaseOrderGenerator
             $unitCost = round($unitCost, 2);
 
             $orderLines->push([
-                'purchase_order_id' => $purchaseOrderID,
                 'line_key' => $lineKey++,
                 'article_number' => $article->article_number,
                 'description' => $article->description,
