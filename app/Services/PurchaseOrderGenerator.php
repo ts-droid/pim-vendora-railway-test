@@ -375,21 +375,6 @@ class PurchaseOrderGenerator
         return $orderLines;
     }
 
-    public function getQuantityToOrderV2(Article $article, int $foresightDays): array
-    {
-        // Fetch legacy article if it exists
-        $legacyArticle = null;
-        if ($article->predecessor) {
-            $legacyArticleQuery = Article::where('article_number', $article->predecessor);
-
-            if ($legacyArticleQuery->exists()) {
-                $legacyArticle = $legacyArticle->first();
-            }
-        }
-
-
-    }
-
     /**
      * Returns the quantity to order for a specific article.
      *
