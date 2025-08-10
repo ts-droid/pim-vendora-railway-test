@@ -20,6 +20,12 @@ class PurchaseOrderDeletionService
     {
         if ($purchaseOrder->is_draft) {
             // Only delete the order locally
+            if ($purchaseOrder->lines) {
+                foreach ($purchaseOrder->lines as $line) {
+                    $line->delete();
+                }
+            }
+
             $purchaseOrder->delete();
         }
         else {

@@ -237,7 +237,7 @@ class PurchaseOrderGenerator
                 }
 
                 // Create a new order line if it doesn't exist
-                $purchaseOrderLine['purchase_order_id'] = $existingPurchaseOrder->id;
+                $orderLine['purchase_order_id'] = $existingPurchaseOrder->id;
                 PurchaseOrderLine::create($orderLine);
             }
 
@@ -452,7 +452,7 @@ class PurchaseOrderGenerator
 
         // Calculate box sizes
         $innerBoxQuantity = max(1, $article->inner_box);
-        $masterBoxQuantity = max(1, $article->master_box) * $innerBoxQuantity;
+        $masterBoxQuantity = max(1, $article->master_box);
 
         // Calculate exact suggestion
         $quantity = $suggestedStock - $currentStock;
