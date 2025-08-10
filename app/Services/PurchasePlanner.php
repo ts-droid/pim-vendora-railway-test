@@ -44,7 +44,7 @@ class PurchasePlanner
 
 		// Planned sales orders within the foresight horizon
 		$plannedOrdersQty = $this->getPlannedOrderQty(
-			$articleCluster, $today, $horizonEnd, $daily
+			$articleCluster, $today, $horizonEnd
 		);
 
 		$stockOnHand = $this->getOnHandQty($articleCluster);
@@ -105,7 +105,7 @@ class PurchasePlanner
 		);
 
 		// Z-score-test
-		$values = array_column($filtered, 'qty');
+		$values = array_map(fn (DaySale $r) => $r->qty, $filtered);
 		$mean = array_sum($values) / max(count($values), 1);
 		$std = sqrt(array_sum(array_map(fn($v) => ($v - $mean) ** 2, $values)) / max(count($values), 1));
 
@@ -122,7 +122,7 @@ class PurchasePlanner
 		if (!$slice) return 0.0;
 
 		// Sort quantities
-		$values = array_values(array_column($slice, 'qty'));
+		$values = array_values(array_map(fn (DaySale $r) => $r->qty, $slice));
 		sort($values);
 
 		$cut = (int)floor(count($values) * self::TRIM_PERCENT);
@@ -169,7 +169,10 @@ class PurchasePlanner
 		$rows = SalesOrder::query()
 			->join('sales_order_lines as sol', 'sol.sales_order_id', '=', 'sales_orders.id')
 			->whereIn('sol.article_number', $articleNumbers)
-			->whereBetween('sales_orders.date', [$from, $to])
+			->whereBetween(DB::raw('DATE(sales_orders.date)'), [
+				(DateTimeImmutable::createFromInterface($from))->format('Y-m-d'),
+				(DateTimeImmutable::createFromInterface($to))->format('Y-m-d'),
+			])
 			->selectRaw('DATE(sales_orders.date) as day, SUM(sol.quantity) as total_qty')
 			->groupBy('day')
 			->orderBy('day')
@@ -180,7 +183,10 @@ class PurchasePlanner
 
 		$daySales = [];
 
-		for ($date = $from->copy(); $date->lte($to); $date->addDay()) {
+		$fromImm = DateTimeImmutable::createFromInterface($from);
+		$toImm = DateTimeImmutable::createFromInterface($to);
+
+		for ($date = $fromImm; $date <= $toImm; $date = $date->add(new DateInterval('P1D'))) {
 			$dateString = $date->format('Y-m-d');
 
 			$quantity = (int)($perDay[$dateString] ?? 0);
@@ -223,8 +229,7 @@ class PurchasePlanner
 			->select(DB::raw('SUM(quantity - quantity_received) as total'))
 			->where(function ($query) use ($to) {
 				$query->whereNull('promised_date')
-					->orWhereNull('promised_date', '')
-					->orWhere('promised_date', '<=', $to->format('Y-m-d'));
+					->orWhereDate('promised_date', '<=', $to->format('Y-m-d'));
 			})
 			->value('total');
 	}
@@ -307,7 +312,6 @@ class PurchasePlanner
 	{
 		$bounds = $this->getBounds($article);
 		if (!$bounds) return null;
-
 		[$minDt, $maxDt] = $bounds;
 
 		// Per-day totals (days with orders only)
@@ -319,97 +323,95 @@ class PurchasePlanner
 			->groupBy(DB::raw('DATE(sales_orders.date)'))
 			->get();
 
-		// Group per ISO week (o-ISO-year + W-week) and per ISO year
 		$perWeekQty = [];
 		$perIsoYearQty = [];
 		foreach ($dayRows as $r) {
-			$d = new DateTimeImmutable($r->d);
-			$yw = $d->format('o-\WW');
+			$d  = new DateTimeImmutable($r->d);
+			$yw = $d->format('o-\WW'); // e.g. 2025-W08
 			$oy = $d->format('o');
-			$q = (int)$r->qty;
-			$perWeekQty[$yw] = ($perWeekQty[$yw] ?? 0) + $q;
+			$q  = (int)$r->qty;
+			$perWeekQty[$yw]    = ($perWeekQty[$yw] ?? 0) + $q;
 			$perIsoYearQty[$oy] = ($perIsoYearQty[$oy] ?? 0) + $q;
 		}
 
-		// Build ISO-week buckets across [minDt..maxDt] with exact day counts
+		// Build ISO-week buckets across [min..max] with exact day counts
 		$min = new DateTimeImmutable($minDt);
 		$max = new DateTimeImmutable($maxDt);
 
-		// Start from Monday of the first week that intersects min
-		$cursor = $min->sub(new DateInterval('P'. $min->format('N') - 1 .'D'));
-		$perIsoYearDays = [];
-		$perYW = [];
+		$daysToMonday = (int)$min->format('N') - 1; // Mon=1 .. Sun=7
+		$cursor = $min->sub(new DateInterval('P'.$daysToMonday.'D'));
+
+		$perIsoYearDays = []; // 'YYYY' => days
+		$perYW = [];          // 'YYYY-WW' => ['days'=>..,'qty'=>..,'week'=>..,'year'=>..]
 
 		while ($cursor <= $max) {
 			$weekStart = $cursor;
-			$weekEnd = $cursor->add(new DateInterval('P6D'));
+			$weekEnd   = $cursor->add(new DateInterval('P6D'));
 
 			$realStart = $weekStart < $min ? $min : $weekStart;
-			$realEnd = $weekEnd > $max ? $max : $weekEnd;
-			if ($realEnd < $realStart) break;
+			$realEnd   = $weekEnd   > $max ? $max : $weekEnd;
+			if ($realEnd < $realStart) {
+				$cursor = $cursor->add(new DateInterval('P7D'));
+				continue;
+			}
 
-			$days = $realStart->diff($realEnd)->days + 1;
-
+			$days    = $realStart->diff($realEnd)->days + 1;
 			$isoYear = $weekStart->format('o');
 			$isoWeek = $weekStart->format('W');
-			$key = $isoYear.'-W'.$isoWeek;
+			$key     = $isoYear.'-W'.$isoWeek;
 
 			$qty = $perWeekQty[$key] ?? 0;
-			$perYW[$key] = ['days' => $days, 'qty' => $qty, 'week' => (int) $isoWeek, 'year' => $isoYear];
+			$perYW[$key] = ['days'=>$days,'qty'=>$qty,'week'=>(int)$isoWeek,'year'=>$isoYear];
 
 			$perIsoYearDays[$isoYear] = ($perIsoYearDays[$isoYear] ?? 0) + $days;
 
 			$cursor = $cursor->add(new DateInterval('P7D'));
-
-			$years = count($perIsoYearDays);
-			if ($years < 2) return null;
-
-			// Compute per-week index (within each ISO year), then average per week number
-			$perWeekIdx = [];
-			$perWeekIdx = []; // 1..53 => [idx...]
-			foreach ($perYW as $key => $info) {
-				$isoYear = $info['year'];
-				$w = $info['week'];
-				$days = $info['days'];
-				$qty = $info['qty'];
-
-				$yearDays = $perIsoYearDays[$isoYear] ?? 0;
-				$yearQty = $perIsoYearQty[$isoYear]  ?? 0;
-				if ($days <= 0 || $yearDays <= 0 || $yearQty <= 0) continue;
-
-				$weekRate = $qty / $days;
-				$yearRate = $yearQty / $yearDays;
-
-				$idx = $weekRate / $yearRate;
-				$perWeekIdx[$w][] = $idx;
-			}
-
-			// Build curve 1..53, fill gaps with 1.0, normalize mean of first 52 to 1.0
-			$curve = [];
-			for ($w = 1; $w <= 53; $w++) {
-				$vals = $perWeekIdx[$w] ?? [];
-				$curve[$w] = $vals ? array_sum($vals)/count($vals) : 1.0;
-			}
-			$mean52 = array_sum(array_slice($curve, 0, 52, true)) / 52.0 ?: 1.0;
-			foreach ($curve as $w => $v) {
-				$curve[$w] = $v / $mean52;
-			}
-
-			// Optional: require >=48 distinct weeks
-			$weeksPresent = count(array_filter(array_keys($curve), fn($w) => isset($perWeekIdx[$w])));
-			if ($weeksPresent < 48) return null;
-
-			return ['years' => $years, 'index' => $curve];
 		}
 
-		return [];
+		$years = count($perIsoYearDays);
+		if ($years < 2) return null;
+
+		// Compute per-week index (within each ISO year), then average per week number
+		$perWeekIdx = []; // 1..53 => [idx...]
+		foreach ($perYW as $info) {
+			$isoYear = $info['year'];
+			$w       = $info['week'];
+			$days    = $info['days'];
+			$qty     = $info['qty'];
+
+			$yearDays = $perIsoYearDays[$isoYear] ?? 0;
+			$yearQty  = $perIsoYearQty[$isoYear]  ?? 0;
+			if ($days <= 0 || $yearDays <= 0 || $yearQty <= 0) continue;
+
+			$weekRate = $qty / $days;
+			$yearRate = $yearQty / $yearDays;
+
+			$idx = $weekRate / $yearRate;
+			$perWeekIdx[$w][] = $idx;
+		}
+
+		// Build curve 1..53, fill gaps with 1.0, normalize mean of first 52 to 1.0
+		$curve = [];
+		for ($w = 1; $w <= 53; $w++) {
+			$vals = $perWeekIdx[$w] ?? [];
+			$curve[$w] = $vals ? array_sum($vals)/count($vals) : 1.0;
+		}
+		$mean52 = array_sum(array_slice($curve, 0, 52, true)) / 52.0 ?: 1.0;
+		foreach ($curve as $w => $v) {
+			$curve[$w] = $v / $mean52;
+		}
+
+		// Optional: require >=48 distinct weeks
+		$weeksPresent = count(array_filter(array_keys($curve), fn($w) => isset($perWeekIdx[$w])));
+		if ($weeksPresent < 48) return null;
+
+		return ['years' => $years, 'index' => $curve];
 	}
 
 	public function getMonthlyIndexForArticle(Article $article): ?array
 	{
 		$bounds = $this->getBounds($article);
 		if (!$bounds) return null;
-
 		[$minDt, $maxDt] = $bounds;
 
 		// Per-day totals only for the days that actually had orders
@@ -423,39 +425,41 @@ class PurchasePlanner
 
 		// Group per month (YYYY-MM) and per year (YYYY)
 		$perMonthQty = [];
-		$perYearQty = [];
-
+		$perYearQty  = [];
 		foreach ($dayRows as $r) {
-			$d = new DateTimeImmutable($r->d);
+			$d  = new DateTimeImmutable($r->d);
 			$ym = $d->format('Y-m');
-			$y = $d->format('Y');
-			$q = (int) $r->qty;
+			$y  = $d->format('Y');
+			$q  = (int) $r->qty;
 			$perMonthQty[$ym] = ($perMonthQty[$ym] ?? 0) + $q;
-			$perYearQty[$y] = ($perYearQty[$y] ?? 0) + $q;
+			$perYearQty[$y]   = ($perYearQty[$y]   ?? 0) + $q;
 		}
 
 		// Build month buckets across [minDt..maxDt] with exact day counts
-		$cursor = (new DateTimeImmutable(substr($minDt,0,7).'-01'));
-		$end = (new DateTimeImmutable(substr($minDt,0,7).'-01'));
-		$end = $end->add(new DateInterval('P1M'));
+		$cursor  = new DateTimeImmutable(substr($minDt, 0, 7) . '-01');
+		$end     = (new DateTimeImmutable(substr($maxDt, 0, 7) . '-01'))->add(new DateInterval('P1M'));
+		$minDate = new DateTimeImmutable($minDt);
+		$maxDate = new DateTimeImmutable($maxDt);
 
 		$perYearDays = [];
-		$perYM = [];
+		$perYM       = [];
 		while ($cursor < $end) {
-			$y = $cursor->format('Y');
+			$y  = $cursor->format('Y');
 			$ym = $cursor->format('Y-m');
 
 			$monthStart = $cursor;
-			$monthEnd = (new DateTimeImmutable($cursor->format('Y-m-01')))
+			$monthEnd   = (new DateTimeImmutable($cursor->format('Y-m-01')))
 				->add(new DateInterval('P1M'))
 				->sub(new DateInterval('P1D'));
 
-			$realStart = max($monthStart, new DateTimeImmutable($minDt));
-			$realEnd = min($monthEnd, new DateTimeImmutable($maxDt));
+			// clamp to bounds
+			$realStart = $monthStart < $minDate ? $minDate : $monthStart;
+			$realEnd   = $monthEnd   > $maxDate ? $maxDate : $monthEnd;
 			if ($realEnd < $realStart) {
 				$cursor = $cursor->add(new DateInterval('P1M'));
 				continue;
 			}
+
 			$days = $realStart->diff($realEnd)->days + 1;
 
 			$qty = $perMonthQty[$ym] ?? 0;
@@ -474,15 +478,14 @@ class PurchasePlanner
 		foreach ($perYM as $ym => $info) {
 			[$y, $m] = explode('-', $ym);
 			$days = $info['days'];
-			$qty = $info['qty'];
+			$qty  = $info['qty'];
 			if ($days <= 0 || ($perYearDays[$y] ?? 0) <= 0) continue;
 
 			$monthRate = $qty / $days;
-			$yearRate = ($perYearQty[$y] ?? 0) / $perYearDays[$y];
+			$yearRate  = ($perYearQty[$y] ?? 0) / $perYearDays[$y];
 			if ($yearRate <= 0) continue;
 
-			$idx = $monthRate / $yearRate;
-			$perMonthIdx[(int) substr($m, 0, 2)][] = $idx;
+			$perMonthIdx[(int)$m][] = $monthRate / $yearRate;
 		}
 
 		// Build curve 1..12, fill gaps with 1.0, normalize mean to 1.0
@@ -506,9 +509,9 @@ class PurchasePlanner
 	public function getBounds(Article $article): ?array
 	{
 		$b = DB::table('sales_orders')
-			->leftJoin('sales_orders_lines', 'sales_orders_lines.sales_order_id', '=', 'sales_orders.id')
-			->selectRaw('MIN(DATE(`sales_orders.date`)) as min_dt, MAX(DATE(`.sales_ordersdate`)) as max_dt')
-			->where('sales_orders_lines.article_number', $article->article_number)
+			->join('sales_order_lines', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
+			->selectRaw('MIN(DATE(sales_orders.date)) AS min_dt, MAX(DATE(sales_orders.date)) AS max_dt')
+			->where('sales_order_lines.article_number', $article->article_number)
 			->first();
 
 		if (!$b || !$b->min_dt || !$b->max_dt) return null;
@@ -520,7 +523,7 @@ class PurchasePlanner
 	{
 		if (!$curve) return false;
 
-		$years = (int) ($curve['year'] ?? 0);
+		$years = (int) ($curve['years'] ?? 0);
 		$cnt = is_array($curve['index'] ?? null) ? count($curve['index']) : 0;
 
 		// Heuristic: at least ~2 years and >=48 distinct weeks
