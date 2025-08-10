@@ -90,39 +90,13 @@ class PurchaseOrderGenerator
             ];
         }
 
-        $lockedArticleNumbers = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-            ->where('is_locked', 1)
-            ->pluck('article_number')
-            ->toArray();
-
-        // Remove the existing order lines
-        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-            ->where('is_locked', 0)
-            ->delete();
-
-        // Add new order lines
-        $vipSalesOrders = $this->getVIPSalesOrders(
-            $purchaseOrder->supplier,
-            ($this->getSupplierLastOrder($purchaseOrder->supplier) ?: date('Y-m-d H:i:s', strtotime('-7 days'))),
-            date('Y-m-d H:i:s')
-        );
-
-        $orderLines = $this->getOrderLines(
-            $purchaseOrder->supplier,
-            $vipSalesOrders,
-            $purchaseOrder->foresight_days,
-            $purchaseOrder->id,
-            [],
-            $lockedArticleNumbers
-        );
-
-        foreach ($orderLines as $orderLine) {
-            PurchaseOrderLine::create($orderLine);
+        $success = $this->generateSupplierPurchaseOrder($purchaseOrder->supplier, 0);
+        if (!$success) {
+            return [
+                'success' => false,
+                'message' => 'Failed to re-generate the purchase order.',
+            ];
         }
-
-        $purchaseOrder->update(['is_generating' => 0]);
-
-        $purchaseOrder->refresh();
 
         return [
             'success' => true,
@@ -220,7 +194,6 @@ class PurchaseOrderGenerator
                 $supplier,
                 $vipSalesOrders,
                 $this->settings['foresight_days'],
-                0,
                 [],
                 $excludeArticleNumbers
             );
