@@ -49,7 +49,7 @@ class PurchasePlanner
 
 		$stockOnHand = $this->getOnHandQty($articleCluster);
 		$incomingPOQty = $this->getIncomingQty($articleCluster, $today, $horizonEnd);
-		$incomingPOQty = 0;
+		$incomingPOQty = 0; // TODO: Remove this after testing
 
 
 		/* ---------- 3. Outlier-filtering ---------- */
@@ -86,10 +86,10 @@ class PurchasePlanner
 		/* ---------- 8. Growth & Box Size Adjustment ---------- */
 		$growthFactor = $this->getGrowthPct($article->supplier) ?? 1.0;
 		$finalNeed *= $growthFactor;
+		$finalNeed = round($finalNeed);
 
-		// TODO: Adjust for box size
-		$finalNeedInnerBox = $finalNeed;
-		$finalNeedMasterBox = $finalNeed;
+		$finalNeedInnerBox = round($finalNeed / $article->inner_box) * $article->inner_box;
+		$finalNeedMasterBox = round($finalNeed / $article->master_box) * $article->master_box;
 
 		return [
 			'quantity' => $finalNeed,
