@@ -87,8 +87,11 @@ class PurchasePlanner
 		$finalNeed *= $growthFactor;
 		$finalNeed = round($finalNeed);
 
-		$finalNeedInnerBox = round($finalNeed / $article->inner_box) * $article->inner_box;
-		$finalNeedMasterBox = round($finalNeed / $article->master_box) * $article->master_box;
+		$innerSize = max(1, $article->master_box);
+		$masterSize = max(1, $article->master_box);
+
+		$finalNeedInnerBox = round($finalNeed / $innerSize) * $innerSize;
+		$finalNeedMasterBox = round($finalNeed / $masterSize) * $masterSize;
 
 		return [
 			'quantity' => $finalNeed,
