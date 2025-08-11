@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderLine;
+use App\Models\PurchaseOrderShipment;
 use App\Services\PurchaseOrderPublisher;
 use App\Services\SupplierInvoiceService;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
@@ -40,7 +42,7 @@ class SupplierPortalController extends Controller
         return view('supplierPortal.pages.index', compact('breadcrumbs', 'purchaseOrders'));
     }
 
-    public function order(PurchaseOrder $purchaseOrder)
+    public function order(Request $request, PurchaseOrder $purchaseOrder)
     {
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
@@ -49,12 +51,24 @@ class SupplierPortalController extends Controller
 
         $purchaseOrder->update(['viewed_at' => date('Y-m-d H:i:s')]);
 
+        // Load all shipments for the purchase order
+        $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->get();
+
+        // Load selected shipment
+        $shipmentID = (int) $request->input('shipment_id', 0);
+        $shipmentQuery = PurchaseOrderShipment::where('id', $shipmentID);
+
+        $openShipment = null;
+        if ($shipmentID && $shipmentQuery->exists()) {
+            $openShipment = $shipmentQuery->first();
+        }
+
         $breadcrumbs = [
             'Purchase Orders' => route('supplierPortal.purchaseOrders.index'),
             'Order #' . $purchaseOrder->id => '',
         ];
 
-        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder'));
+        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder', 'shipments', 'openShipment'));
     }
 
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
@@ -78,15 +92,18 @@ class SupplierPortalController extends Controller
                 break;
         }
 
+        $updateData = [
+            'supplier_order_number' => (string) $request->input('supplier_order_number', '')
+        ];
 
         if ($response['success']) {
             $this->setPurchaseOrderStatus($purchaseOrder);
 
-            $purchaseOrder->update([
-                'status_confirmed_by_supplier' => 1,
-                'shipping_reminder_sent_at' => date('Y-m-d H:i:s')
-            ]);
+            $updateData['status_confirmed_by_supplier'] = 1;
+            $updateData['shipping_reminder_sent_at'] = date('Y-m-d H:i:s');
         }
+
+        $purchaseOrder->update($updateData);
 
         return response()->json($response);
     }
@@ -119,6 +136,59 @@ class SupplierPortalController extends Controller
         return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
     }
 
+    public function createShipment(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
+        if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
+            abort(404);
+        }
+
+        $request->validate([
+            'receipt' => 'required|file|mimes:pdf',
+            'tracking_number' => 'required|string|max:255',
+        ]);
+
+        $orderLines = $request->input('purchase_order_lines') ?: [];
+        $trackingNumber = $request->input('tracking_number');
+
+        // Make sure at least one line is selected
+        if (count($orderLines) === 0) {
+            return redirect()->back()->with('error', 'Please select at least one order line to ship.');
+        }
+
+        // Upload the receipt
+        $file = $request->file('receipt');
+
+        $spaceFilename = DoSpacesController::store(
+            time() . '_' . $file->getClientOriginalName(),
+            $file->getContent(),
+            false
+        );
+
+        // Store the shipment
+        $purchaseOrderShipment = PurchaseOrderShipment::create([
+            'purchase_order_id' => $purchaseOrder->id,
+            'receipt' => $spaceFilename
+        ]);
+
+        // Connect the order lines to the shipment
+        foreach ($orderLines as $lineID) {
+            $purchaseOrderLine = PurchaseOrderLine::find($lineID);
+
+            if (!$purchaseOrderLine) continue;
+
+            $purchaseOrderLine->update([
+                'is_shipped' => 1,
+                'tracking_number' => $trackingNumber,
+                'purchase_order_shipment_id' => $purchaseOrderShipment->id
+            ]);
+        }
+
+        $this->setPurchaseOrderStatus($purchaseOrder);
+
+        return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'shipment_id' => $purchaseOrderShipment->id]);
+    }
+
     private function publishOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $publisher = new PurchaseOrderPublisher();
@@ -138,9 +208,14 @@ class SupplierPortalController extends Controller
         $uploadedInvoice = 1;
 
         foreach ($purchaseOrder->lines as $line) {
-            if (!$line->promised_date || !$line->tracking_number) {
+            if (!$line->promised_date) {
                 // Missing shipping details
                 $providedShippingDetails = 0;
+            }
+
+            if (!$line->tracking_number || !$line->is_shipped) {
+                // Missing tracking number
+                $providedTrackingNumbers = 0;
             }
 
             if (!$line->invoice_id) {
@@ -151,6 +226,7 @@ class SupplierPortalController extends Controller
 
         $purchaseOrder->update([
             'status_shipping_details' => $providedShippingDetails,
+            'status_tracking_number' => $providedTrackingNumbers,
             'status_invoice_uploaded' => $uploadedInvoice
         ]);
     }

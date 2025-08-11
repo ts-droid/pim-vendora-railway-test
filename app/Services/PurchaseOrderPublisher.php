@@ -54,11 +54,6 @@ class PurchaseOrderPublisher
             return ['success' => false, 'message' => 'Order is already published.'];
         }
 
-        if (!$purchaseOrder->is_confirmed) {
-            // Order is not confirmed by admin
-            return ['success' => false, 'message' => 'Order is not confirmed by Vendora.'];
-        }
-
         // Process the items
         if ($items && count($items) > 0) {
             $response = $this->processItems($purchaseOrder, $items);

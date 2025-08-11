@@ -48,6 +48,8 @@ class PurchaseOrder extends Model
         'status_invoice_uploaded',
         'status_received',
 
+        'supplier_order_number',
+
         'confirm_reminder_sent_at',
         'shipping_reminder_sent_at',
         'invoice_reminder_sent_at',

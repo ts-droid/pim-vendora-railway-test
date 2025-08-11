@@ -37,6 +37,7 @@ class PurchaseOrderLine extends Model
         'tracking_number',
         'invoice_id',
         'is_shipped',
+        'purchase_order_shipment_id'
     ];
 
     public function purchaseOrder()

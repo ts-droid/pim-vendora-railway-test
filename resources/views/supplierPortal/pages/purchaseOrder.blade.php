@@ -1,6 +1,8 @@
 @php
 $portalStatus = $purchaseOrder->getPortalStatus();
 
+$portalStatus = \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN;
+
 $priceEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
 $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
 @endphp
@@ -25,10 +27,60 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
 
-        @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && !$purchaseOrder->isFullyInvoiced())
+        <div class="row">
+            <div class="col-md-6 d-flex align-items-center mb-3">
+                <label class="form-label fw-bold sm mb-1 me-2">Your order number:</label>
+                <input type="text" class="form-control form-control-sm" name="supplier_order_number" value="{{ $purchaseOrder['supplier_order_number'] }}" style="width: 250px;">
+            </div>
+            <div class="col-md-6 mb-4 text-end">
+                @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && !$purchaseOrder->isFullyInvoiced())
+                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#invoiceModal">Upload Invoice</button>
+                @endif
+
+                @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && (!$purchaseOrder->status_shipping_details || !$purchaseOrder->status_tracking_number))
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createShipmentModal">Create Shipment</button>
+                @endif
+            </div>
+        </div>
+
+        @if($shipments && $shipments->count() > 0)
             <div class="row">
-                <div class="col-md-12 mb-4">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#invoiceModal">Upload Invoice</button>
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Shipments</h5>
+                            </div>
+
+                            <div class="table-responsive">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped po-view-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Shipment</th>
+                                            <th class="text-end">Items</th>
+                                            <th class="text-end">Created</th>
+                                            <th class="text-end"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($shipments as $shipment)
+                                            <tr>
+                                                <td>#{{ $shipment->id }}</td>
+                                                <td class="text-end">{{ $shipment->lines->count() }}</td>
+                                                <td class="text-end">{{ date('d M Y', strtotime($shipment->created_at)) }}</td>
+                                                <td class="text-end">
+                                                    <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'shipment_id' => $shipment->id]) }}">Shipping instructions</a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         @endif
@@ -73,7 +125,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                         @php($total += ($line->quantity * $line->unit_cost))
                                         @php($totalQuantity += $line->quantity)
 
-                                        <tr class="js-item-row" data-id="{{ $line->id }}">
+                                        <tr class="js-item-row {{ ($line->is_shipped && $line->invoice_id && $line->tracking_number) ? 'opacity-50' : '' }}" data-id="{{ $line->id }}">
                                             <td class="no-wrap" style="width: 1px;"><span id="article-number-{{ $line->id }}">{{ $line->article_number }}</span></td>
                                             <td>
                                                 <span class="copy-btn" onclick="copyToClipboard('#article-number-{{ $line->id }}')"><i class="bi bi-copy"></i></span>
@@ -101,7 +153,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             <td style="width: 150px;">
                                                 <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                             </td>
-                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN && $line->is_shipped)
                                                 <td style="width: 250px;">
                                                     <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
                                                 </td>
@@ -186,6 +238,65 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
     </div>
 
 
+    <!-- Create Shipment Modal -->
+    <div class="modal fade" id="createShipmentModal" tabindex="-1" aria-labelledby="createShipmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('supplierPortal.purchaseOrders.order.createShipment', ['purchaseOrder' => $purchaseOrder->id]) }}" enctype="multipart/form-data">
+                    @csrf
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createShipmentModalLabel">Create Shipment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-5">
+                            <label class="form-label fw-bold small">1. Upload packing slip</label>
+                            <input type="file" class="form-control" name="receipt" id="receipt-file" accept="application/pdf" required>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label fw-bold small">2. Enter tracking number</label>
+                            <input type="text" class="form-control" name="tracking_number" required>
+                        </div>
+
+                        <label class="form-label fw-bold small">3. Select order lines</label>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th style="width: 1px;">
+                                        <input type="checkbox" class="form-check-input js-all-shipment-rows">
+                                    </th>
+                                    <th>Article</th>
+                                    <th>Quantity</th>
+                                </tr>
+                                @foreach($purchaseOrder->lines as $line)
+                                    <tr class="{{ $line->is_shipped ? 'opacity-50' : '' }}">
+                                        <td>
+                                            @if(!$line->is_shipped)
+                                                <input type="checkbox" class="form-check-input js-shipment-row" name="purchase_order_lines[]" value="{{ $line->id }}">
+                                            @endif
+                                        </td>
+                                        <td>{{ $line->article_number }}</td>
+                                        <td>{{ $line->quantity }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Create</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Upload Invoice Modal -->
     <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -217,9 +328,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <th>Quantity</th>
                                 </tr>
                                 @foreach($purchaseOrder->lines as $line)
-                                    <tr class="{{ $line->invoice_id ? 'opacity-50' : '' }}">
+                                    <tr class="{{ ($line->invoice_id || !$line->is_shipped) ? 'opacity-50' : '' }}">
                                         <td>
-                                            @if(!$line->invoice_id)
+                                            @if(!$line->invoice_id && $line->is_shipped)
                                                 <input type="checkbox" class="form-check-input js-invoice-row" name="purchase_order_lines[]" value="{{ $line->id }}">
                                             @endif
                                         </td>
@@ -238,6 +349,44 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
     </div>
+
+
+    @if($openShipment)
+        @php($qrData = [
+            'purchase_order_id' => $purchaseOrder->id,
+            'purchase_order_shipment_id' => $openShipment->id ?? 0,
+        ])
+
+        <div class="shipment-instructions">
+            <div class="shipment-instructions__content">
+                <h4 class="mb-4"><i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Important instructions</h4>
+
+                <div class="alert alert-warning small mb-4" role="alert">
+                    You <b>MUST</b> place the below QR-code on the package when shipping the order. This is required for us to be able to match the shipment with the order.<br>
+                    <br>
+                    If this is not done, a manual handling fee will be charged to you.
+                </div>
+
+                <div class="mb-5">
+                    <div class="row">
+                        <div class="col-md-4 d-grid">
+                            <a href="{{ route('supplierPortal.qrCode.copy', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary js-copy-image">Copy</a>
+                        </div>
+                        <div class="col-md-4 d-grid">
+                            <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
+                        </div>
+                        <div class="col-md-4 d-grid">
+                            <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <a class="btn btn-success" href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]) }}"><i class="bi bi-check-lg"></i> Complete</a>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @section('script')
@@ -261,6 +410,32 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
         $(function() {
             initDatepicker();
 
+            $(document).on('click', '.js-copy-image', async function(e) {
+                e.preventDefault();
+
+                try {
+                    const url = $(this).attr('href');
+
+                    const res = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'image/png'
+                        }
+                    });
+
+                    if (!res.ok) alert('Failed to generate QR code. Please try again.');
+
+                    const blob = await res.blob();
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ [blob.type]: blob })
+                    ]);
+
+                    alert('QR code copied to clipboard');
+                } catch (err) {
+                    alert('Failed to copy QR code to clipboard. Please try again.');
+                }
+            });
+
             $(document).on('change', '.js-unit-cost, .js-quantity', function() {
                 let $row = $(this).closest('.js-item-row');
 
@@ -281,6 +456,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             $(document).on('change', '.js-all-invoice-rows', function() {
                 let checked = $(this).prop('checked');
                 $('.js-invoice-row').prop('checked', checked);
+            });
+
+            $(document).on('change', '.js-all-shipment-rows', function() {
+                let checked = $(this).prop('checked');
+                $('.js-shipment-row').prop('checked', checked);
             });
 
             $(document).on('submit', '.js-invoice-form', function() {
@@ -352,6 +532,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
             // Collect post data
             let postData = {
+                supplier_order_number: $('input[name="supplier_order_number"]').val(),
                 items: []
             };
 

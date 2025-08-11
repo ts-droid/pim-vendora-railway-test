@@ -7,6 +7,7 @@ $completed = $completed ?? false;
         <thead>
         <tr>
             <th>Order</th>
+            <th>Your order nr.</th>
             <th>State</th>
             <th>Date</th>
             <th class="text-end">Total</th>
@@ -22,6 +23,7 @@ $completed = $completed ?? false;
             @foreach($orders as $purchaseOrder)
                 <tr>
                     <td>#{{ $purchaseOrder['id'] }}</td>
+                    <td>{{ $purchaseOrder['supplier_order_number'] }}</td>
                     <td>{{ $purchaseOrder['published_at'] ? 'Confirmed' : 'Unconfirmed' }}</td>
                     <td>{{ date('d M Y', strtotime($purchaseOrder['date'])) }}</td>
                     <td class="text-end">{{ $purchaseOrder['amount'] }} {{ $purchaseOrder['currency'] }}</td>
