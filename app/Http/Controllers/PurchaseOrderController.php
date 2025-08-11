@@ -232,6 +232,13 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
+    public function generatingIds()
+    {
+        $ids = PurchaseOrder::where('is_generating', 1)->pluck('id');
+
+        return ApiResponseController::success($ids->toArray());
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
