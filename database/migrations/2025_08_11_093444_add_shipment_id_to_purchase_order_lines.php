@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchase_order_lines', function (Blueprint $table) {
-            $table->unsignedInteger('purchase_order_shipment_id');
+            $table->unsignedInteger('purchase_order_shipment_id')->default(0);
         });
     }
 
