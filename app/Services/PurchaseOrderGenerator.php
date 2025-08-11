@@ -201,6 +201,11 @@ class PurchaseOrderGenerator
             );
 
             if ($orderLines->isEmpty()) {
+                if ($existingPurchaseOrder) {
+                    $deleteService = new PurchaseOrderDeletionService();
+                    $deleteService->delete($existingPurchaseOrder);
+                }
+
                 return ['success' => false];
             }
 
