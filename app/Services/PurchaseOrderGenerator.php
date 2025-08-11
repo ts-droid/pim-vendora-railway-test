@@ -201,7 +201,7 @@ class PurchaseOrderGenerator
             );
 
             if ($orderLines->isEmpty()) {
-                if ($existingPurchaseOrder) {
+                if ($existingPurchaseOrder && count($excludeArticleNumbers) === 0) {
                     $deleteService = new PurchaseOrderDeletionService();
                     $deleteService->delete($existingPurchaseOrder);
                 }
