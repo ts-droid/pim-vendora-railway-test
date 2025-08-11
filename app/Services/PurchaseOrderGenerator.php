@@ -182,6 +182,8 @@ class PurchaseOrderGenerator
                 }
             }
 
+            $existingPurchaseOrder->update(['is_generating' => 1]);
+
             $existingPurchaseOrder->refresh();
         }
 
@@ -284,6 +286,7 @@ class PurchaseOrderGenerator
         });
 
         $purchaseOrder->update([
+            'is_generating' => 0,
             'amount' => $totalAmount,
         ]);
 
