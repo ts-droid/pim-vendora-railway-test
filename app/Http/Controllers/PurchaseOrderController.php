@@ -100,6 +100,8 @@ class PurchaseOrderController extends Controller
                     $orderLine->on_order_by_date = ArticleQuantityCalculator::getOnOrderByDate($orderLine['article_number']);
                 }
             }
+
+            $purchaseOrder->shipments = [];
         }
 
         return ApiResponseController::success($purchaseOrder->toArray());
