@@ -11,15 +11,21 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PurchasePlanner
 {
+    private const LOG_DATA = true;
+    private const LOG_ARTICLES = ['PL2A-11-18'];
+
 	private const ZSCORE_LIMIT = 3.0;
 	private const TRIM_PERCENT = 0.1; // 10% over/under
 	private const SEASONALITY_DEFAULT = 1.0;
 	private const MIN_ARTICLE_DAYS = 365;
 	private const FALLBACK_MIN_DAYS = 10;
 	private const DEFAULT_TREND = 1.0;
+
+    private array $log = [];
 
 	public function getQuantityToOrder(Article $article, int $foresightDays): array
 	{
@@ -50,6 +56,10 @@ class PurchasePlanner
 		$stockOnHand = $this->getOnHandQty($articleCluster);
 		$incomingPOQty = $this->getIncomingQty($articleCluster, $today, $horizonEnd);
 
+        $this->addLog('$plannedOrdersQty = ' . $plannedOrdersQty);
+        $this->addLog('$stockOnHand = ' . $stockOnHand);
+        $this->addLog('$incomingPOQty = ' . $incomingPOQty);
+
 
 		/* ---------- 3. Outlier-filtering ---------- */
 		$cleanDaily = $this->removeOutliersAndFlags($daily);
@@ -65,14 +75,22 @@ class PurchasePlanner
 		$lyDaily = $this->getDailyTotals($articleCluster, $lyStart, $lyStart->add(new DateInterval('P90D')));
 		$avgLY90 = $this->trimmedMean($this->removeOutliersAndFlags($lyDaily), 90);
 
+        $this->addLog('$avg60 = ' . $avg60);
+        $this->addLog('$avg90 = ' . $avg90);
+        $this->addLog('$avg180 = ' . $avg180);
+        $this->addLog('$avgLY90 = ' . $avgLY90);
+
 
 		/* ---------- 5. Trend ---------- */
 		$articleAgeDays = (new DateTimeImmutable($article->publish_at ?: $article->created_at))->diff($today)->days;
 		$trend = $this->computeTrend($article, $articleAgeDays, $avg60, $avg90, $avg180, $avgLY90);
 
+        $this->addLog('$trend = ' . $trend);
 
 		/* ---------- 6. Season index ---------- */
 		$seasonIdx = $this->getWeightedIndex($article, $today, $foresightDays);
+
+        $this->addLog('$seasonIdx = ' . $seasonIdx);
 
 
 		/* ---------- 7. Needs formula ---------- */
@@ -81,17 +99,36 @@ class PurchasePlanner
 		$availableSupply = $stockOnHand + $incomingPOQty;
 		$finalNeed = max(0, $needPlusOrder - $availableSupply);
 
+        $this->addLog('$baseNeed = $avg60 * $foresightDays * $trend * $seasonIdx = ' . $baseNeed);
+        $this->addLog('$needPlusOrder = $baseNeed + $plannedOrdersQty = ' . $needPlusOrder);
+        $this->addLog('$availableSupply = $stockOnHand + $incomingPOQty = ' . $availableSupply);
+        $this->addLog('$finalNeed = $needPlusOrder - $availableSupply = ' . $finalNeed);
+
 
 		/* ---------- 8. Growth & Box Size Adjustment ---------- */
 		$growthFactor = $this->getGrowthPct($article->supplier) ?? 1.0;
+        $this->addLog('$growthFactor = ' . $growthFactor);
+
 		$finalNeed *= $growthFactor;
 		$finalNeed = round($finalNeed);
+
+        $this->addLog('$finalNeed = $finalNeed * $growthFactor ' . $finalNeed);
 
 		$innerSize = max(1, $article->master_box);
 		$masterSize = max(1, $article->master_box);
 
+        $this->addLog('$innerSize = ' . $innerSize);
+        $this->addLog('$masterSize = ' . $masterSize);
+
 		$finalNeedInnerBox = round($finalNeed / $innerSize) * $innerSize;
 		$finalNeedMasterBox = round($finalNeed / $masterSize) * $masterSize;
+
+        $this->addLog('$finalNeedInnerBox = ' . $finalNeedInnerBox);
+        $this->addLog('$finalNeedMasterBox = ' . $finalNeedMasterBox);
+
+        if (self::LOG_DATA && (!self::LOG_ARTICLES || in_array($article->article_number, self::LOG_ARTICLES))) {
+            $this->saveLog();
+        }
 
 		return [
 			'quantity' => $finalNeed,
@@ -665,6 +702,19 @@ class PurchasePlanner
 
 		return $articleNumbers;
 	}
+
+    private function addLog(string $message): void
+    {
+        $this->log[] = $message;
+    }
+
+    private function saveLog(): void
+    {
+        $jsonLog = json_encode($this->log, JSON_PRETTY_PRINT);
+
+        $filename = 'purchase_planner_log_' . rand(10000000, 99999999) . '_' . now()->format('Y-m-d_H-i-s') . '.json';
+        Storage::disk('local')->put('logs/' . $filename, $jsonLog);
+    }
 }
 
 
