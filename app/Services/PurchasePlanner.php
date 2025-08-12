@@ -244,14 +244,13 @@ class PurchasePlanner
 	{
 		$articleNumbers = $this->getArticleNumbers($articles);
 
-		return (int) SalesOrderLine::query()
-			->join('sales_orders', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
-			->whereIn('sales_order_lines.article_number', $articleNumbers)
-            ->where('sales_order_lines.is_completed', 0)
-            ->where('sales_order_lines.quantity_open', '>', 0)
-            ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Hold'])
-            ->whereIn('sales_orders.order_type', ['WO', 'SO'])
-			->sum('sales_order_lines.quantity_open');
+        $qty = 0;
+
+        foreach ($articleNumbers as $articleNumber) {
+            $qty += ArticleQuantityCalculator::getOnOrder($articleNumber);
+        }
+
+        return $qty;
 	}
 
 
@@ -269,15 +268,15 @@ class PurchasePlanner
 
 	public function getIncomingQty(array $articles, DateTimeInterface $from, DateTimeInterface $to): int
 	{
-		$articleNumbers = $this->getArticleNumbers($articles);
+        $articleNumbers = $this->getArticleNumbers($articles);
 
-		return (int)PurchaseOrderLine::whereIn('article_number', $articleNumbers)
-			->select(DB::raw('SUM(quantity - quantity_received) as total'))
-			->where(function ($query) use ($to) {
-				$query->whereNull('promised_date')
-					->orWhereDate('promised_date', '<=', $to->format('Y-m-d'));
-			})
-			->value('total');
+        $qty = 0;
+
+        foreach ($articleNumbers as $articleNumber) {
+            $qty += ArticleQuantityCalculator::getIncoming($articleNumber);
+        }
+
+        return $qty;
 	}
 
 
