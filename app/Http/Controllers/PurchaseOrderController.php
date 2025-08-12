@@ -336,7 +336,7 @@ class PurchaseOrderController extends Controller
         $unitCost = $supplierPriceService->getUnitCostForSupplier($article->article_number, $purchaseOrder->supplier);
 
         // Create the order line
-        PurchaseOrderLine::create([
+        $line = PurchaseOrderLine::create([
             'purchase_order_id' => $purchaseOrder->id,
             'line_key' => $lineKey,
             'article_number' => $article->article_number,
@@ -347,7 +347,7 @@ class PurchaseOrderController extends Controller
             'promised_date' => '',
         ]);
 
-        return ApiResponseController::success();
+        return ApiResponseController::success($line->toArray());
     }
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)
