@@ -131,6 +131,8 @@ class PurchasePlanner
             $this->saveLog();
         }
 
+        $this->clearLog();
+
 		return [
 			'quantity' => $finalNeed,
 			'inner' => $finalNeedInnerBox,
@@ -718,6 +720,11 @@ class PurchasePlanner
 
         File::ensureDirectoryExists($dir);
         File::put($dir . DIRECTORY_SEPARATOR . $filename, $jsonLog);
+    }
+
+    private function clearLog(): void
+    {
+        $this->log = [];
     }
 }
 
