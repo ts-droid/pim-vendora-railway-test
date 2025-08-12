@@ -157,6 +157,16 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($orders);
     }
 
+    public function getWarehouse(Request $request)
+    {
+        $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')
+            ->where('is_draft', 0)
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        return ApiResponseController::success($purchaseOrders->toArray());
+    }
+
     public function getOpen(Request $request)
     {
         $perPage = $request->get('per_page', 30);

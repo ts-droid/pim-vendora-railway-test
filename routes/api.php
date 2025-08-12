@@ -314,6 +314,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/pending', [PurchaseOrderController::class, 'getPending'])->name('purchaseOrders.getPending');
         Route::get('/closed', [PurchaseOrderController::class, 'getClosed'])->name('purchaseOrders.getClosed');
         Route::get('/search', [PurchaseOrderController::class, 'search'])->name('purchaseOrders.search');
+        Route::get('/warehouse', [PurchaseOrderController::class, 'getWarehouse'])->name('purchaseOrders.getWarehouse');
         Route::get('/generating-ids', [PurchaseOrderController::class, 'generatingIds'])->name('purchaseOrders.generatingIds');
 
         Route::get('/ongoing', [PurchaseOrderController::class, 'getOngoing'])->name('purchaseOrders.getOngoing');
