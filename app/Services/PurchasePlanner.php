@@ -113,7 +113,7 @@ class PurchasePlanner
 		$finalNeed *= $growthFactor;
 		$finalNeed = round($finalNeed);
 
-        $this->addLog('$finalNeed = $finalNeed * $growthFactor ' . $finalNeed);
+        $this->addLog('$finalNeed = $finalNeed * $growthFactor = ' . $finalNeed);
 
 		$innerSize = max(1, $article->master_box);
 		$masterSize = max(1, $article->master_box);
@@ -244,10 +244,13 @@ class PurchasePlanner
 	{
 		$articleNumbers = $this->getArticleNumbers($articles);
 
-		return (int)SalesOrderLine::query()
+		return (int) SalesOrderLine::query()
 			->join('sales_orders', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
 			->whereIn('sales_order_lines.article_number', $articleNumbers)
-			->where('sales_orders.status', '!=', 'Hold')
+            ->where('sales_order_lines.is_completed', 0)
+            ->where('sales_order_lines.quantity_open', '>', 0)
+            ->whereIn('sales_orders.status', ['Open', 'BackOrder', 'Hold'])
+            ->whereIn('sales_orders.order_type', ['WO', 'SO'])
 			->sum('sales_order_lines.quantity_open');
 	}
 
