@@ -92,12 +92,12 @@ class PurchaseOrderController extends Controller
         if ($loadRelations) {
             $purchaseOrder->load('supplier', 'lines', 'lines.article');
 
-            if ($purchaseOrder['lines']) {
-                foreach ($purchaseOrder['lines'] as &$orderLine) {
-                    $orderLine['incoming_quantity'] = ArticleQuantityCalculator::getIncoming($orderLine['article_number']);
-                    $orderLine['incoming_by_date'] = ArticleQuantityCalculator::getIncomingByDate($orderLine['article_number']);
-                    $orderLine['on_order_quantity'] = ArticleQuantityCalculator::getOnOrder($orderLine['article_number']);
-                    $orderLine['on_order_by_date'] = ArticleQuantityCalculator::getOnOrderByDate($orderLine['article_number']);
+            if ($purchaseOrder->lines) {
+                foreach ($purchaseOrder->lines as &$orderLine) {
+                    $orderLine->incoming_quantity = ArticleQuantityCalculator::getIncoming($orderLine['article_number']);
+                    $orderLine->incoming_by_date = ArticleQuantityCalculator::getIncomingByDate($orderLine['article_number']);
+                    $orderLine->on_order_quantity = ArticleQuantityCalculator::getOnOrder($orderLine['article_number']);
+                    $orderLine->on_order_by_date = ArticleQuantityCalculator::getOnOrderByDate($orderLine['article_number']);
                 }
             }
         }
