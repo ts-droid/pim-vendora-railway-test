@@ -161,6 +161,7 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')
             ->where('is_draft', 0)
+            ->where('is_po_system', 1)
             ->orderBy('id', 'DESC')
             ->get();
 
