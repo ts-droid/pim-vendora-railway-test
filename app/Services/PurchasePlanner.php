@@ -11,6 +11,7 @@ use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class PurchasePlanner
@@ -713,7 +714,10 @@ class PurchasePlanner
         $jsonLog = json_encode($this->log, JSON_PRETTY_PRINT);
 
         $filename = 'purchase_planner_log_' . rand(10000000, 99999999) . '_' . now()->format('Y-m-d_H-i-s') . '.json';
-        Storage::disk('local')->put('logs/' . $filename, $jsonLog);
+        $dir = storage_path('logs');
+
+        File::ensureDirectoryExists($dir);
+        File::put($dir . DIRECTORY_SEPARATOR . $filename, $jsonLog);
     }
 }
 
