@@ -6,6 +6,7 @@ use App\Jobs\RegeneratePurchaseOrder;
 use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Models\PurchaseOrderShipment;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderCancelService;
 use App\Services\PurchaseOrderDeletionService;
@@ -164,6 +165,10 @@ class PurchaseOrderController extends Controller
             ->where('is_po_system', 1)
             ->orderBy('id', 'DESC')
             ->get();
+
+        foreach ($purchaseOrders as &$purchaseOrder) {
+            $purchaseOrder->num_lines = $purchaseOrder->lines->count();
+        }
 
         return ApiResponseController::success($purchaseOrders->toArray());
     }
