@@ -172,11 +172,17 @@ class PurchaseOrderGenerator
 
         $excludeArticleNumbers = [];
 
+        $existingQty = 0;
+        $existingValue = 0;
+
         if ($existingPurchaseOrder) {
             // Remove existing non-locked order lines
             foreach ($existingPurchaseOrder->lines as $orderLine) {
                 if ($orderLine->is_locked) {
                     $excludeArticleNumbers[] = $orderLine->article_number;
+
+                    $existingQty += $orderLine->quantity;
+                    $existingValue += ($orderLine->quantity * $orderLine->unit_cost);
                 } else {
                     $orderLine->delete();
                 }
@@ -210,15 +216,15 @@ class PurchaseOrderGenerator
             }
 
             // Make sure minimum order quantity and value is met
-            $totalQuantity = 0;
-            $totalValue = 0;
+            $totalQuantity = $existingQty;
+            $totalValue = $existingValue;
 
             foreach ($orderLines as $orderLine) {
                 $totalQuantity += $orderLine['quantity'];
                 $totalValue += $orderLine['amount'];
             }
 
-            if ($totalQuantity < $supplier->purchase_min_quantity || $totalValue < $supplier->purchase_min_value) {
+            if (!$totalQuantity < $supplier->purchase_min_quantity || $totalValue < $supplier->purchase_min_value) {
                 return ['success' => false];
             }
         }
