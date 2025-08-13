@@ -210,9 +210,9 @@ class PurchaseOrderGenerator
                 if ($existingPurchaseOrder && count($excludeArticleNumbers) === 0) {
                     $deleteService = new PurchaseOrderDeletionService();
                     $deleteService->delete($existingPurchaseOrder);
-                }
 
-                return ['success' => false];
+                    return ['success' => false];
+                }
             }
 
             // Make sure minimum order quantity and value is met
