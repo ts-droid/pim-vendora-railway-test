@@ -327,6 +327,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/add-row', [PurchaseOrderController::class, 'addRow'])->name('purchaseOrders.addRow');
         Route::post('/{purchaseOrder}/regenerate', [PurchaseOrderController::class, 'regenerate'])->name('purchaseOrders.regenerate');
         Route::post('/{purchaseOrder}/send', [PurchaseOrderController::class, 'send'])->name('purchaseOrders.send');
+        Route::post('/{purchaseOrder}/send-v2', [PurchaseOrderController::class, 'sendV2'])->name('purchaseOrders.sendV2');
         Route::post('/{purchaseOrder}/publish', [PurchaseOrderController::class, 'publish'])->name('purchaseOrders.publish');
         Route::post('/{purchaseOrder}/delete', [PurchaseOrderController::class, 'delete'])->name('purchaseOrders.delete');
         Route::post('/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel'])->name('purchaseOrders.cancel');
