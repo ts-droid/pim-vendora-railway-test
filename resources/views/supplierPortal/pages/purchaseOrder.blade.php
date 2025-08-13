@@ -1,8 +1,6 @@
 @php
 $portalStatus = $purchaseOrder->getPortalStatus();
 
-$portalStatus = \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN;
-
 $priceEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
 $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED;
 @endphp
