@@ -225,6 +225,10 @@ class PurchaseOrderGenerator
             }
 
             if (!$totalQuantity < $supplier->purchase_min_quantity || $totalValue < $supplier->purchase_min_value) {
+                if ($existingPurchaseOrder) {
+                    $existingPurchaseOrder->update(['is_generating' => 0]);
+                }
+
                 return ['success' => false];
             }
         }
