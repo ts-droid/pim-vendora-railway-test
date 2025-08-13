@@ -336,6 +336,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/copy-line', [PurchaseOrderController::class, 'copyLine'])->name('purchaseOrders.copyLine');
 
         Route::get('/{purchaseOrder}/shipments/{purchaseOrderShipment}', [PurchaseOrderController::class, 'getShipment'])->name('purchaseOrders.getShipment');
+        Route::post('/{purchaseOrder}/shipments/{purchaseOrderShipment}/submit', [PurchaseOrderController::class, 'submitShipment'])->name('purchaseOrders.submitShipment');
     });
 
     Route::prefix('/inventory-receipts')->group(function() {

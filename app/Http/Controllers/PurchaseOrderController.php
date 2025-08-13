@@ -92,6 +92,11 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrderShipment->toArray());
     }
 
+    public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
+    {
+        return ApiResponseController::success([]);
+    }
+
     public function getOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $loadRelations = $request->input('load_relations', '0');
