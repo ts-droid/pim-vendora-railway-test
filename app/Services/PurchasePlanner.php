@@ -140,7 +140,7 @@ class PurchasePlanner
 		];
 	}
 
-	private function removeOutliersAndFlags(array $dailyTotals): array
+	public function removeOutliersAndFlags(array $dailyTotals): array
 	{
 		$filtered = array_filter(
 			$dailyTotals,
@@ -158,7 +158,7 @@ class PurchasePlanner
 		);
 	}
 
-	private function trimmedMean(array $dailyTotals, int $days): float
+	public function trimmedMean(array $dailyTotals, int $days): float
 	{
 		if ($days === 0) return 0.0;
 		$slice = array_slice($dailyTotals, -$days, $days, true);
@@ -174,7 +174,7 @@ class PurchasePlanner
 		return array_sum($trimmed) / max(count($trimmed), 1);
 	}
 
-	private function computeTrend(
+	public function computeTrend(
 		Article $article,
 		int     $articleAgeDays,
 		float   $avg60,
@@ -683,7 +683,7 @@ class PurchasePlanner
 
 
 
-    private function getLegacyArticles(Article $article): array
+    public function getLegacyArticles(Article $article): array
     {
         $articles = [];
 
@@ -698,7 +698,7 @@ class PurchasePlanner
         return $articles;
     }
 
-	private function getArticleNumbers(array $articles): array
+	public function getArticleNumbers(array $articles): array
 	{
 		$articleNumbers = [];
 		foreach ($articles as $article) {
@@ -708,12 +708,12 @@ class PurchasePlanner
 		return $articleNumbers;
 	}
 
-    private function addLog(string $message): void
+    public function addLog(string $message): void
     {
         $this->log[] = $message;
     }
 
-    private function saveLog(): void
+    public function saveLog(): void
     {
         $jsonLog = json_encode($this->log, JSON_PRETTY_PRINT);
 
@@ -724,7 +724,7 @@ class PurchasePlanner
         File::put($dir . DIRECTORY_SEPARATOR . $filename, $jsonLog);
     }
 
-    private function clearLog(): void
+    public function clearLog(): void
     {
         $this->log = [];
     }
