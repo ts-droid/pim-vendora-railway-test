@@ -200,6 +200,11 @@ class PurchasePlanner
 		// C) Weighted trend if configured
 		$trend = $this->applyWeighting($article, $trend);
 
+        // If trend is above 2.0 it's probably not correct, so use default trend and rely on growth factor
+        if ($trend > 2.0) {
+            $trend = self::DEFAULT_TREND;
+        }
+
 		return max($trend, 0.1); // Protect against negative trends
 	}
 
