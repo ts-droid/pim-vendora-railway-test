@@ -21,4 +21,4 @@ The invoice is associated with the following order lines:<br>
 
 <br><br>
 
-The invoice is attached to this email.
+Download the invoice here: <a href="{{ $fileUrl }}">{{ $fileUrl }}</a>

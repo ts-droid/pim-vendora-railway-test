@@ -19,8 +19,10 @@ class SupplierInvoiceService
         $spaceFilename = DoSpacesController::store(
             time() . '_' . $file->getClientOriginalName(),
             $file->getContent(),
-            false,
+            true,
         );
+
+        $fileUrl = DoSpacesController::getURL($spaceFilename);
 
         // Store the invoice
         $supplierInvoice = SupplierInvoice::create([
@@ -35,7 +37,7 @@ class SupplierInvoiceService
 
         // Send email to Vendora with the invoice
         Mail::to('invoice@vendora.se')->queue(
-            new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $file)
+            new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
         );
     }
 }

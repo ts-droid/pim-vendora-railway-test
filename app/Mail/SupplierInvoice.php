@@ -20,17 +20,13 @@ class SupplierInvoice extends Mailable
     public function __construct(
         public \App\Models\PurchaseOrder $purchaseOrder,
         public array $purchaseOrderLineIDs,
-        public \Illuminate\Http\UploadedFile $file,
+        public string $fileUrl,
     )
     {}
 
     public function build()
     {
         return $this->subject('Supplier Invoice Uploaded')
-            ->view('emails.supplierInvoice')
-            ->attach($this->file->path(), [
-                'as' => $this->file->getClientOriginalName(),
-                'mime' => $this->file->getClientMimeType(),
-            ]);
+            ->view('emails.supplierInvoice');
     }
 }
