@@ -544,6 +544,10 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($purchaseOrder->supplier->id == 202) {
+            return $this->sendV2($request, $purchaseOrder);
+        }
+
         // Send the order to external system
         $publisher = new PurchaseOrderPublisher();
         $response = $publisher->send($purchaseOrder);
