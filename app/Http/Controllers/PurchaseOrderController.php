@@ -85,16 +85,6 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrders->toArray());
     }
 
-    public function getShipments(Request $request, PurchaseOrder $purchaseOrder)
-    {
-        $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
-            ->with('lines')
-            ->orderBy('id', 'DESC')
-            ->get();
-
-        return ApiResponseController::success($shipments->toArray());
-    }
-
     public function getOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $loadRelations = $request->input('load_relations', '0');
@@ -111,7 +101,10 @@ class PurchaseOrderController extends Controller
                 }
             }
 
-            $purchaseOrder->shipments = [];
+            $purchaseOrder->shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
+                ->with('lines')
+                ->orderBy('id', 'DESC')
+                ->get();
         }
 
         return ApiResponseController::success($purchaseOrder->toArray());
