@@ -20,7 +20,7 @@ class PurchasePlanner
     private const LOG_ARTICLES = [];
 
 	private const ZSCORE_LIMIT = 3.0;
-	private const TRIM_PERCENT = 0.1; // 10% over/under
+	private const TRIM_PERCENT = 0.0; // 0.1 = 10% over/under
 	private const SEASONALITY_DEFAULT = 1.0;
 	private const MIN_ARTICLE_DAYS = 365;
 	private const FALLBACK_MIN_DAYS = 10;
@@ -165,7 +165,7 @@ class PurchasePlanner
 		if (!$slice) return 0.0;
 
 		// Sort quantities
-		$values = array_values(array_map(fn (DaySale $r) => $r->qty, $slice));
+		$values = array_values(array_map(fn ($r) => $r->qty, $slice));
 		sort($values);
 
 		$cut = (int)floor(count($values) * self::TRIM_PERCENT);
