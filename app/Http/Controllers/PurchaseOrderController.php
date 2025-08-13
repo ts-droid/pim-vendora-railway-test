@@ -510,12 +510,12 @@ class PurchaseOrderController extends Controller
     public function sendV2(Request $request, PurchaseOrder $purchaseOrder)
     {
         // Send the order to external system
-        /*$publisher = new PurchaseOrderPublisher();
+        $publisher = new PurchaseOrderPublisher();
         $response = $publisher->send($purchaseOrder);
 
         if (!$response['success']) {
             return ApiResponseController::error($response['message']);
-        }*/
+        }
 
         // Make sure the order is updated
         $purchaseOrder->refresh();
