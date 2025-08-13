@@ -155,8 +155,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                 <td style="width: 250px;">
                                                     <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
                                                 </td>
-                                            @endif
-                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                            @elseif($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                                 <td style="width: 150px;">
                                                     <select class="form-select form-select-sm" name="status_{{ $line->id }}">
                                                         <option value="">-----</option>
@@ -164,6 +163,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                         <option value="eol">End of Life</option>
                                                     </select>
                                                 </td>
+                                            @else
+                                                <td></td>
                                             @endif
                                         </tr>
                                     @endforeach
