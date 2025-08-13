@@ -334,6 +334,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/user-delete', [PurchaseOrderController::class, 'userDelete'])->name('purchaseOrders.userDelete');
         Route::post('/{purchaseOrder}/draft-reminder', [PurchaseOrderController::class, 'draftReminder'])->name('purchaseOrders.draftReminder');
         Route::post('/{purchaseOrder}/copy-line', [PurchaseOrderController::class, 'copyLine'])->name('purchaseOrders.copyLine');
+
+        Route::get('/{purchaseOrder}/shipment/{purchaseOrderShipment}', [PurchaseOrderController::class, 'getShipment'])->name('purchaseOrders.getShipment');
     });
 
     Route::prefix('/inventory-receipts')->group(function() {
