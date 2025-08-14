@@ -94,6 +94,10 @@ class PurchaseOrderController extends Controller
 
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
+        $quantities = $request->input('quantities', []);
+
+        log_data('quantities', $quantities);
+
         return ApiResponseController::success([]);
     }
 
