@@ -663,6 +663,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                         '<span class="copy-btn" onclick="copyToClipboard(\'#article-number-' + newLine.id + '\')"><i class="bi bi-copy"></i></span>' +
                         '</td>' +
                         '<td>' + newLine.description + '</td>' +
+                        '<td class="text-center" style="width: 90px;">' +
+                            '<i class="bi bi-x-circle-fill text-danger"></i>' +
+                        '</td>' +
+                        '<td class="text-center" style="width: 90px;">' +
+                            '<i class="bi bi-x-circle-fill text-danger"></i>' +
+                        '</td>' +
                         '<td style="width: 150px;">' +
                         '<div class="input-group input-group-sm">' +
                         '<input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_' + newLine.id + '" value="' + newLine.unit_cost + '" ' + (priceEditable ? '' : 'readonly') + '>' +
