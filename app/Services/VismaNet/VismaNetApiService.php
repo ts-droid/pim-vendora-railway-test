@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Http;
 
 class VismaNetApiService
 {
+    const WAREHOUSE_ID = 1; // 1 = Huvudlager
+    const RETAIL_CUSTOMER_NUMBER = 10460; // Retail customer in Visma.net
+
     protected string $baseUrl;
     protected string $baseUrlV3;
 

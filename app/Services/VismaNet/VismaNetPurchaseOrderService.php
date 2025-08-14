@@ -6,7 +6,9 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\VismaNetController;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Models\PurchaseOrderShipment;
 use Illuminate\Support\Facades\Http;
+use DateTime;
 
 class VismaNetPurchaseOrderService extends VismaNetApiService
 {
@@ -195,5 +197,52 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         // TODO: Move the called function this this service class
         $vismaNetController = new VismaNetController();
         $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
+    }
+
+
+    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
+    {
+        $postData = [
+            'receiptType' => ['value' => 'PoReceipt'],
+            'receiptNbr' => ['values' => (string) $purchaseOrderShipment->id],
+            'hold' => ['value' => false],
+            'date' => ['value' => (new DateTime())->format('Y-m-d H:i:s')],
+            'warehouseId' => ['value' => self::WAREHOUSE_ID],
+            'supplierId' => ['value' => $purchaseOrder->supplier->number],
+            'currency' => ['value' => $purchaseOrder->currency],
+            'lines' => [],
+        ];
+
+        $lines = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)->get();
+
+        $lineNbr = 1;
+        foreach ($lines as $line) {
+            $postData['lines'][] = [
+                'operation' => 'Insert',
+                'lineNbr' => ['value' => $lineNbr++],
+                'lineType' => ['value' => 'GoodsForInventory'],
+                'inventoryId' => ['value' => $line->article_number],
+                'warehouseId' => ['value' => self::WAREHOUSE_ID],
+                'transactionDescription' => ['value' => $line->description],
+                'receiptQty' => ['value' => (int) $line->quantity_received],
+                'unitCost' => ['value' => $line->unit_cost],
+                'amount' => ['value' => ($line->unit_cost * $line->quantity_received)],
+                'poOrderNbr' => ['value' => $purchaseOrder->order_number],
+                'poOrderLineNbr' => ['value' => $line->line_key],
+                'completePoLine' => ['value' => ($line->quantity == $line->quantity_received)],
+            ];
+        }
+
+        $response = $this->callAPI('POST', '/v1/PurchaseReceipt', $postData);
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'message' => 'Failed to create purchase order receipt: ' . ($response['response']['message'] ?? 'Unknown error'),
+            ];
+        }
+
+        $this->fetchPurchaseOrders('', $purchaseOrder->order_number);
+
+        return ['success' => true, 'message' => ''];
     }
 }

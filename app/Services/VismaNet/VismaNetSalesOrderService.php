@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Log;
 
 class VismaNetSalesOrderService extends VismaNetApiService
 {
-    const WAREHOUSE_ID = 1; // 1 = Huvudlager
-
-    const RETAIL_CUSTOMER_NUMBER = 10460; // Retail customer in Visma.net
-
     public function createShipment(SalesOrder $salesOrder)
     {
         $salesOrderService = new SalesOrderService();

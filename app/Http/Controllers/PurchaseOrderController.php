@@ -15,6 +15,9 @@ use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
 use App\Services\PurchaseOrderReminderService;
 use App\Services\SupplierArticlePriceService;
+use App\Services\VismaNet\VismaNetPurchaseOrderService;
+use App\Services\WMS\StockItemService;
+use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -120,6 +123,7 @@ class PurchaseOrderController extends Controller
 
             // Update the order line
             $orderLine->update([
+                'is_completed' => 1,
                 'quantity_received' => $qty,
             ]);
         }
@@ -134,6 +138,36 @@ class PurchaseOrderController extends Controller
         ]);
 
         DB::commit();
+
+        // Create a purchase order receipt in Visma.net
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt($purchaseOrder, $purchaseOrderShipment);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['message']);
+        }
+
+
+        // Add the items to in-delivery stock place
+        $stockPlaceService = new StockPlaceService();
+        $stockItemService = new StockItemService();
+
+        $indeliveryCompartment = $stockPlaceService->getCompartmentByIdentifier('INLEV:1');
+
+        foreach ($lineIDs as $lineID) {
+            $line = PurchaseOrderLine::find($lineID);
+
+            $stockItemService->addStockItem(
+                $line->article_number,
+                $line->quantity_received,
+                $indeliveryCompartment,
+                get_display_name()
+            );
+
+            DB::table('articles')
+                ->where('article_number', $line->article_number)
+                ->increment('stock_manageable', $line->quantity_received);
+        }
 
         return ApiResponseController::success([]);
     }
