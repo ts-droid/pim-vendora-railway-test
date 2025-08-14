@@ -651,6 +651,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 quantity: newQuantity
             }, function(response) {
                 if (!response.success) {
+                    console.log(response);
                     alert('Something went wrong when copying the row. Please try again.');
                     return;
                 }
