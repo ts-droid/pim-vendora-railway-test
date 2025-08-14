@@ -96,7 +96,7 @@ class PurchaseOrderController extends Controller
     {
         $quantities = $request->input('quantities', []);
 
-        log_data('quantities', $quantities);
+        log_data(json_encode($quantities));
 
         return ApiResponseController::success([]);
     }
