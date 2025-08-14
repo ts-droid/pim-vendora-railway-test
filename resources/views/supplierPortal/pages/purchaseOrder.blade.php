@@ -111,6 +111,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                         @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                             <th class="text-end">Status</th>
                                         @endif
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                            <th class="text-end"></th>
+                                        @endif
                                     </tr>
                                     </thead>
                                     <tbody id="order-table-body">
@@ -151,9 +154,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             <td style="width: 150px;">
                                                 <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                             </td>
-                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN && $line->is_shipped)
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                                 <td style="width: 250px;">
-                                                    <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
+                                                    @if($line->is_shipped)
+                                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
+                                                    @endif
                                                 </td>
                                             @elseif($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                                 <td style="width: 150px;">
@@ -166,11 +171,21 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             @else
                                                 <td></td>
                                             @endif
+
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                                <td class="text-end">
+                                                    @if(!$line->is_shipped && $line->quantity > 1)
+                                                        <span class="link js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}">Split</span>
+                                                    @endif
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                     </tbody>
                                     <tfoot>
                                     <tr>
+                                        <td></td>
+                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -182,6 +197,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             <td></td>
                                         @endif
                                         @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                            <td></td>
+                                        @endif
+                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                             <td></td>
                                         @endif
                                     </tr>
@@ -231,6 +249,36 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Split line Modal -->
+    <div class="modal fade" id="splitLineModal" tabindex="-1" aria-labelledby="splitLineModalLabel" aria-hidden="true">
+
+        <div class="d-none js-split-line-id"></div>
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <div>Move</div>
+                        <input type="text" class="form-control form-control-sm text-center mx-2 js-split-new-quantity" style="width: 80px;">
+                        <div> of <span class="fw-bold js-split-current-quantityt">0</span> pcs to a new line.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 d-grid">
+                            <button class="btn btn-secondary js-split-cancel">Cancel</button>
+                        </div>
+                        <div class="col-6 d-grid">
+                            <button class="btn btn-success js-split-submit">Split</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -433,6 +481,94 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 } catch (err) {
                     alert('Failed to copy QR code to clipboard. Please try again.');
                 }
+            });
+
+            $(document).on('click', '.js-split-line', function() {
+                const lineID = $(this).data('line');
+                const currentQty = $(this).data('qty');
+
+                $('.js-split-line-id').text(lineID);
+                $('.js-split-current-quantityt').text(currentQty);
+
+                $('#splitLineModal').modal('show');
+            });
+
+            $(document).on('click', '.js-split-cancel', function() {
+                $('#splitLineModal').modal('hide');
+            });
+
+            $(document).on('click', '.js-split-submit', function() {
+                const lineID = parseInt($('.js-split-line-id').text());
+                const qty = parseInt($('.js-split-new-quantity').val());
+                const currentQty = parseInt($('.js-split-current-quantityt').text());
+
+                if (isNaN(qty) || qty <= 0) {
+                    alert('Please enter a valid quantity to split.');
+                    return;
+                }
+
+                if (qty >= currentQty) {
+                    alert('You cannot split more than the current quantity.');
+                    return;
+                }
+
+                let currencyCode = '{{ $purchaseOrder->currency }}';
+                let priceEditable = {{ $priceEditable ? 'true' : 'false' }};
+                let quantityEditable = {{ $quantityEditable ? 'true' : 'false' }};
+                let portalStatus = '{{ $portalStatus }}';
+
+                $.post('{{ route('purchaseOrders.copyLine', ['purchaseOrder' => $purchaseOrder->id, 'api_key' => get_internal_api_key()]) }}', {
+                    line_id: lineID,
+                    quantity: qty
+                }, function(response) {
+                    if (!response.success) {
+                        console.log(response);
+                        alert(response.error_message || 'Something went wrong when splitting the row. Please try again.');
+                    } else {
+                        let newLine = response.data;
+
+                        let rowColumns = '<td class="no-warp"><span id="article-number-' + newLine.id + '">' + newLine.article_number + '</span></td>' +
+                            '<td>' +
+                            '<span class="copy-btn" onclick="copyToClipboard(\'#article-number-' + newLine.id + '\')"><i class="bi bi-copy"></i></span>' +
+                            '</td>' +
+                            '<td>' + newLine.description + '</td>' +
+                            '<td class="text-center" style="width: 90px;">' +
+                                '<i class="bi bi-x-circle-fill text-danger"></i>' +
+                            '</td>' +
+                            '<td class="text-center" style="width: 90px;">' +
+                                '<i class="bi bi-x-circle-fill text-danger"></i>' +
+                            '</td>' +
+                            '<td style="width: 150px;">' +
+                                '<div class="input-group input-group-sm">' +
+                                    '<input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_' + newLine.id + '" value="' + newLine.unit_cost + '" ' + (priceEditable ? '' : 'readonly') + '>' +
+                                    '<span class="input-group-text">' + currencyCode + '</span>' +
+                                '</div>' +
+                            '</td>' +
+                            '<td style="width: 100px">' +
+                                '<input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_' + newLine.id + '" value="' + newLine.quantity + '" data-default="' + newLine.quantity + '" ' + (quantityEditable ? '' : 'readonly') + '>' +
+                            '</td>' +
+                            '<td style="width: 100px;" class="text-end no-wrap">' +
+                                '<span class="js-price">' + formatCurrency(newLine.quantity * newLine.unit_cost) + '</span> ' + currencyCode +
+                            '</td>' +
+                            '<td>' +
+                                '<input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_' + newLine.id + '" value="">' +
+                            '</td>';
+
+                        if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
+                            rowColumns += '<td style="width: 250px;">' +
+                                                '<input type="text" class="form-control form-control-sm text-end" name="tracking_number_' + newLine.id + '" value="' + newLine.tracking_number + '" placeholder="ex. 12345678901">' +
+                                            '</td>';
+
+                            rowColumns += '<td>' +
+                                                '<span class="link js-split-line" data-line="' + newLine.id + '" data-qty="' + newLine.quantity + '">Split</span>' +
+                                            '</td>';
+                        }
+
+
+                    }
+                });
+
+
             });
 
             $(document).on('change', '.js-unit-cost, .js-quantity', function() {
@@ -670,19 +806,19 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             '<i class="bi bi-x-circle-fill text-danger"></i>' +
                         '</td>' +
                         '<td style="width: 150px;">' +
-                        '<div class="input-group input-group-sm">' +
-                        '<input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_' + newLine.id + '" value="' + newLine.unit_cost + '" ' + (priceEditable ? '' : 'readonly') + '>' +
-                        '<span class="input-group-text">' + currencyCode + '</span>' +
-                        '</div>' +
+                            '<div class="input-group input-group-sm">' +
+                                '<input type="text" class="form-control form-control-sm text-end js-unit-cost" name="unit_cost_' + newLine.id + '" value="' + newLine.unit_cost + '" ' + (priceEditable ? '' : 'readonly') + '>' +
+                                '<span class="input-group-text">' + currencyCode + '</span>' +
+                            '</div>' +
                         '</td>' +
                         '<td style="width: 100px">' +
-                        '<input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_' + newLine.id + '" value="' + newLine.quantity + '" data-default="' + newLine.quantity + '">' +
+                            '<input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_' + newLine.id + '" value="' + newLine.quantity + '" data-default="' + newLine.quantity + '">' +
                         '</td>' +
                         '<td style="width: 100px;" class="text-end no-wrap">' +
-                        '<span class="js-price">' + formatCurrency(newLine.quantity * newLine.unit_cost) + '</span> ' + currencyCode +
+                            '<span class="js-price">' + formatCurrency(newLine.quantity * newLine.unit_cost) + '</span> ' + currencyCode +
                         '</td>' +
                         '<td>' +
-                        '<input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_' + newLine.id + '" value="">' +
+                            '<input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_' + newLine.id + '" value="">' +
                         '</td>';
 
                     if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
@@ -700,6 +836,10 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             '<option value="eol">End of Life</option>' +
                             '</select>' +
                             '</td>';
+                    }
+
+                    if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
+                        rowColumns += '<td></td>';
                     }
 
                     // Add new row

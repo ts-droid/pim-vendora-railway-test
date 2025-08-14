@@ -739,6 +739,10 @@ class PurchaseOrderController extends Controller
 
         $originalLine = PurchaseOrderLine::find($lineID);
 
+        if ($originalLine->quantity == 1 || $originalLine->quantity <= $quantity) {
+            return ApiResponseController::error('Invalid quantity.');
+        }
+
         // Calculate new line_key
         $maxLineKey = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
             ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
