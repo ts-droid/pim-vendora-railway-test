@@ -117,7 +117,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         foreach ($remoteOrder['lines'] as $remoteLine) {
             $localLine = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-                ->where('article_number', $remoteLine['inventory']['number']) // TODO: Change this to match on "line_key"
+                ->where('line_key', $remoteLine['lineNbr'])
                 ->first();
 
             if (!$localLine) {
@@ -139,10 +139,6 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                     'amount' => ['value' => $localLine->amount],
                     'promised' => ['value' => $localLine->promised_date]
                 ];
-
-                $localLine->update([
-                    'line_key' => $remoteLine['lineNbr']
-                ]);
             }
 
             $processedLinesKeys[] = $remoteLine['lineNbr'];

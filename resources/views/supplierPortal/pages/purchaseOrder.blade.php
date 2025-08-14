@@ -717,8 +717,6 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
                     // Re-initiate datepicker
                     initDatepicker();
-
-                    // TODO: Make sure the new rows gets inserted into visma when saving
                 }
             });
         }

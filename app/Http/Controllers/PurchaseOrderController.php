@@ -757,16 +757,31 @@ class PurchaseOrderController extends Controller
             'line_key' => $newLineKey,
             'quantity' => $quantity,
             'quantity_received' => 0,
+            'suggested_quantity' => 0,
+            'suggested_quantity_master' => 0,
+            'suggested_quantity_month' => 0,
+            'suggested_quantity_month_master' => 0,
+            'suggested_quantity_month_inner' => 0,
+            'suggested_quantity_inner' => 0,
+            'amount' => round($quantity * $newLine->unit_cost, 2),
             'promised_date' => '',
+            'is_vip' => 0,
             'is_completed' => 0,
             'is_canceled' => 0,
             'reminder_sent_at' => null,
             'tracking_number' => null,
             'invoice_id' => 0,
+            'is_shipped' => 0,
+            'purchase_order_shipment_id' => 0
         ]);
 
         $newLine->save();
         $newLine->refresh();
+        $purchaseOrder->refresh();
+
+        // Send update to Visma.net
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
 
         return ApiResponseController::success($newLine->toArray());
     }
