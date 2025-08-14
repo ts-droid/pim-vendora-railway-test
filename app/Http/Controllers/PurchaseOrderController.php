@@ -95,8 +95,45 @@ class PurchaseOrderController extends Controller
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
         $quantities = $request->input('quantities', []);
+        if (!$quantities) {
+            return ApiResponseController::error('No quantities provided.');
+        }
 
-        log_data(json_encode($quantities));
+        $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+            ->pluck('id');
+
+        DB::beginTransaction();
+
+        foreach ($lineIDs as $lineID) {
+            $qty = (int) ($quantities[$lineID] ?? 0);
+            if (!$qty) {
+                DB::rollBack();
+                return ApiResponseController::error('Please provide quantities for all lines.');
+            }
+
+            $orderLine = PurchaseOrderLine::find($lineID);
+
+            if ($orderLine->quantity != $qty) {
+                DB::rollBack();
+                return ApiResponseController::error('Quantity mismatch for "' . $orderLine->article_number . '".');
+            }
+
+            // Update the order line
+            $orderLine->update([
+                'quantity_received' => $qty,
+            ]);
+        }
+
+        // Update the purchase order
+        $quantityOpen = (int) PurchaseOrderLine::select(DB::raw('SUM(quantity - quantity_received) AS quantity_open'))
+            ->where('purchase_order_id', 7603)
+            ->first()->quantity_open;
+
+        $purchaseOrder->update([
+            'status_received' => ($quantityOpen === 0) ? 1 : 0
+        ]);
+
+        DB::commit();
 
         return ApiResponseController::success([]);
     }
