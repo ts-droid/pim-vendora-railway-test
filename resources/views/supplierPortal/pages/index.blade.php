@@ -6,12 +6,36 @@
         <div class="row mb-5">
             <div class="col-md-12">
 
+                <div class="mb-4">
+                    <form method="GET" action="{{ route('supplierPortal.purchaseOrders.index') }}">
+
+                        <div style="width:300px;">
+                            <label for="search" class="small mb-1">Search order</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-sm" name="search" id="search" value="{{ request()->get('search') }}">
+                                <button class="btn btn-sm btn-primary" type="submit">Search</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="open-tab" data-bs-toggle="tab" data-bs-target="#open" type="button" role="tab" aria-controls="open" aria-selected="true">Open</button>
+                        <button class="nav-link active" id="open-tab" data-bs-toggle="tab" data-bs-target="#open" type="button" role="tab" aria-controls="open" aria-selected="true">
+                            Open
+                            @if(count($purchaseOrders['open'] ?? []))
+                                <span class="badge rounded-pill bg-danger">{{ count($purchaseOrders['open']) }}</span>
+                            @endif
+                        </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">Completed</button>
+                        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                            Completed
+                            @if(count($purchaseOrders['closed'] ?? []))
+                                <span class="badge rounded-pill bg-secondary">{{ count($purchaseOrders['closed']) }}</span>
+                            @endif
+                        </button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">

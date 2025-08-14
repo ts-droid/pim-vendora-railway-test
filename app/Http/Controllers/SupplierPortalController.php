@@ -15,6 +15,8 @@ class SupplierPortalController extends Controller
 {
     public function index(Request $request)
     {
+        $search = $request->input('search', '');
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
 
         // Fetch purchase orders
@@ -31,6 +33,16 @@ class SupplierPortalController extends Controller
             foreach ($purchaseOrders as $key => $items) {
                 $purchaseOrders[$key] = array_filter($items, function ($order) use ($supplier) {
                     return $order['supplier_number'] === $supplier->number;
+                });
+            }
+        }
+
+        // Filter by search term
+        if ($search) {
+            foreach ($purchaseOrders as $key => $items) {
+                $purchaseOrders[$key] = array_filter($items, function ($order) use ($search) {
+                    return (str_contains($order['id'], $search)
+                        || str_contains($order['supplier_order_number'], $search));
                 });
             }
         }
