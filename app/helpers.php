@@ -3,6 +3,14 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+if (!function_exists('get_internal_api_key')) {
+    function get_internal_api_key()
+    {
+        $key = DB::table('api_keys')->whereNull('expires_at')->first();
+        return $key->api_key ?? '';
+    }
+}
+
 if (!function_exists('has_hours_passed')) {
     function has_hours_passed(string $timestamp, int $hours): bool
     {

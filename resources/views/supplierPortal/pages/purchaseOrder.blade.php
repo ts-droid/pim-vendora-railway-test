@@ -646,7 +646,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             let portalStatus = '{{ $portalStatus }}';
 
             // Copy the row
-            $.post('{{ route('purchaseOrders.copyLine', [$purchaseOrder->id]) }}', {
+            $.post('{{ route('purchaseOrders.copyLine', ['purchaseOrder' => $purchaseOrder->id, 'api_key' => get_internal_api_key()]) }}', {
                 line_id: rowID,
                 quantity: newQuantity
             }, function(response) {
