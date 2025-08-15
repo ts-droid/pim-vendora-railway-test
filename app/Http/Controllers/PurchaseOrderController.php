@@ -95,6 +95,13 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success($purchaseOrderShipment->toArray());
     }
 
+    public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        // TODO: Handle manual shipment submission
+
+        return ApiResponseController::success($purchaseOrder->toArray());
+    }
+
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
         $quantities = $request->input('quantities', []);
