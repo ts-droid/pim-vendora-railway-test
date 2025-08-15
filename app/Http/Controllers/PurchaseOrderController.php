@@ -260,6 +260,7 @@ class PurchaseOrderController extends Controller
 
         foreach ($purchaseOrders as &$purchaseOrder) {
             $purchaseOrder->num_lines = $purchaseOrder->lines->count();
+            $purchaseOrder->tracking_numbers = $purchaseOrder->lines->pluck('tracking_number')->unique()->toArray();
         }
 
         return ApiResponseController::success($purchaseOrders->toArray());
