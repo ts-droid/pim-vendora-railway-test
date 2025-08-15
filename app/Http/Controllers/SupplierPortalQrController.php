@@ -5,29 +5,29 @@ namespace App\Http\Controllers;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Spatie\Browsershot\Browsershot;
 
 class SupplierPortalQrController extends Controller
 {
-    public function copy(Request $request)
-    {
-        $qrCode = $this->getQrPng($request);
-
-        return response($qrCode, 200)->header('Content-Type', 'image/png');
-    }
-
     public function print(Request $request)
     {
         $qrCode = $this->getQrSvg($request);
+        $metaData = $request->input('meta_data', []) ?: [];
+        $qrType = 'DELIVERY';
 
-        return view('supplierPortal.pages.qrCode.print', compact('qrCode'));
+        return view('supplierPortal.pages.qrCode.print', compact('qrCode', 'metaData', 'qrType'));
     }
 
     public function download(Request $request)
     {
         $qrCode = $this->getQrPng($request);
+        $metaData = $request->input('meta_data', []) ?: [];
+        $qrType = 'DELIVERY';
 
         $pdf = Pdf::loadView('supplierPortal.pages.qrCode.pdf', [
             'qrCode' => $qrCode,
+            'metaData' => $metaData,
+            'qrType' => $qrType,
         ])->setPaper('a4', 'portrait');
 
         $filename = 'qr-code-' . now()->format('Y-m-dH:i:s') . '.pdf';

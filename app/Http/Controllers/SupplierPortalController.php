@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
+use App\Models\SupplierInvoice;
 use App\Services\PurchaseOrderPublisher;
 use App\Services\SupplierInvoiceService;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
@@ -64,7 +65,10 @@ class SupplierPortalController extends Controller
         $purchaseOrder->update(['viewed_at' => date('Y-m-d H:i:s')]);
 
         // Load all shipments for the purchase order
-        $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->get();
+        $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->orderBy('id', 'DESC')->get();
+
+        // Load all invoices for the purchase order
+        $invoices = SupplierInvoice::where('purchase_order_id', $purchaseOrder->id)->orderBy('id', 'DESC')->get();
 
         // Load selected shipment
         $shipmentID = (int) $request->input('shipment_id', 0);
@@ -80,7 +84,7 @@ class SupplierPortalController extends Controller
             'Order #' . $purchaseOrder->id => '',
         ];
 
-        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder', 'shipments', 'openShipment'));
+        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder', 'shipments', 'invoices', 'openShipment'));
     }
 
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
@@ -148,6 +152,26 @@ class SupplierPortalController extends Controller
         return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
     }
 
+    public function deleteInvoice(Request $request, PurchaseOrder $purchaseOrder, SupplierInvoice $supplierInvoice)
+    {
+        $supplier = SupplierPortalAccessService::getActiveSupplier();
+        if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
+            abort(404);
+        }
+
+        if ($supplierInvoice->purchase_order_id !== $purchaseOrder->id) {
+            abort(404);
+        }
+
+        $supplierInvoiceService = new SupplierInvoiceService();
+        $supplierInvoiceService->deleteInvoice($supplierInvoice);
+
+        $this->setPurchaseOrderStatus($purchaseOrder);
+
+        return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
+    }
+
+
     public function createShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
         $supplier = SupplierPortalAccessService::getActiveSupplier();
@@ -180,7 +204,8 @@ class SupplierPortalController extends Controller
         // Store the shipment
         $purchaseOrderShipment = PurchaseOrderShipment::create([
             'purchase_order_id' => $purchaseOrder->id,
-            'receipt' => $spaceFilename
+            'receipt' => $spaceFilename,
+            'tracking_number' => $trackingNumber,
         ]);
 
         // Connect the order lines to the shipment

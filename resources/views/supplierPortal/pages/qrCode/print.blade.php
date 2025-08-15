@@ -9,6 +9,7 @@
         }
         .qrcode {
             margin-top: 50px;
+            margin-bottom: 35px;
         }
         .qrcode svg {
             width: 100%;
@@ -20,12 +21,26 @@
                 margin: 0;
             }
         }
+
+        .meta-data {
+            font-size: 22px;
+        }
+        .qr-type {
+            font-size: 46px;
+            margin-top: 25px;
+        }
     </style>
 </head>
 <body>
 <div class="qrcode">
     {!! $qrCode !!}
 </div>
+@if($metaData)
+    @foreach($metaData as $key => $value)
+        <div class="meta-data"><b>{{ $key }}:</b> {{ $value }}</div>
+    @endforeach
+@endif
+<div class="qr-type">{{ $qrType }}</div>
 
 <script>
     window.onload = function() {

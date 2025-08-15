@@ -12,5 +12,11 @@ class SupplierInvoice extends Model
     protected $fillable = [
         'purchase_order_id',
         'filename',
+        'client_filename'
     ];
+
+    public function lines()
+    {
+        return $this->hasMany(PurchaseOrderLine::class, 'invoice_id', 'id');
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\DoSpacesController;
 use App\Models\PurchaseOrder;
 use App\Models\SupplierInvoice;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
 class SupplierInvoiceService
@@ -28,6 +29,7 @@ class SupplierInvoiceService
         $supplierInvoice = SupplierInvoice::create([
             'purchase_order_id' => $purchaseOrder->id,
             'filename' => $spaceFilename,
+            'client_filename' => $file->getClientOriginalName()
         ]);
 
         // Connect the invoice to the purchase order lines
@@ -36,8 +38,26 @@ class SupplierInvoiceService
         ]);
 
         // Send email to Vendora with the invoice
-        Mail::to('invoice@vendora.se')->queue(
-            new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
-        );
+        if (App::isLocal()) {
+            Mail::to('anton@scriptsector.se')->send(
+                new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
+            );
+        } else {
+            Mail::to('invoice@vendora.se')->queue(
+                new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
+            );
+        }
+    }
+
+    public function deleteInvoice(SupplierInvoice $supplierInvoice)
+    {
+        // Delete the invoice file from storage
+        DoSpacesController::delete($supplierInvoice->filename);
+
+        // Disconnect the invoice from the purchase order lines
+        $supplierInvoice->lines()->update(['invoice_id' => 0]);
+
+        // Delete the invoice record
+        $supplierInvoice->delete();
     }
 }

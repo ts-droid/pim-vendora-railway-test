@@ -41,22 +41,21 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
 
-        @if($shipments && $shipments->count() > 0)
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">Shipments</h5>
-                            </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">Shipments</h5>
 
+                        @if($shipments && $shipments->count() > 0)
                             <div class="table-responsive">
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-striped po-view-table">
+                                    <table class="table table-sm table-striped po-view-table mb-0">
                                         <thead>
                                         <tr>
                                             <th>Shipment</th>
                                             <th class="text-end">Items</th>
+                                            <th class="text-end">Tracking number</th>
                                             <th class="text-end">Created</th>
                                             <th class="text-end"></th>
                                         </tr>
@@ -66,6 +65,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             <tr>
                                                 <td>#{{ $shipment->id }}</td>
                                                 <td class="text-end">{{ $shipment->lines->count() }}</td>
+                                                <td class="text-end">{{ $shipment->tracking_number }}</td>
                                                 <td class="text-end">{{ date('d M Y', strtotime($shipment->created_at)) }}</td>
                                                 <td class="text-end">
                                                     <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'shipment_id' => $shipment->id]) }}">Shipping instructions</a>
@@ -76,12 +76,56 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     </table>
                                 </div>
                             </div>
+                        @else
+                            <div class="text-center text-muted">No shipments</div>
+                        @endif
 
-                        </div>
                     </div>
                 </div>
             </div>
-        @endif
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="mb-3">Invoices</h5>
+
+                        @if($invoices && $invoices->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped po-view-table mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th class="text-end">Lines</th>
+                                        <th class="text-end">Amount</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($invoices as $invoice)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ \App\Http\Controllers\DoSpacesController::getURL($invoice->filename) }}" target="_blank">{{ $invoice->client_filename ?: $invoice->filename }}</a>
+                                            </td>
+                                            <td class="text-end">{{ $invoice->lines->count() }}</td>
+                                            <td class="text-end">{{ number_format($invoice->lines->sum(fn($line) => $line->unit_cost * $line->quantity), 2, '.', '') }} {{ $purchaseOrder->currency }}</td>
+                                            <td class="text-end">
+                                                <a href="{{ route('supplierPortal.purchaseOrders.order.deleteInvoice', ['purchaseOrder' => $purchaseOrder->id, 'supplierInvoice' => $invoice->id]) }}"
+                                                    class="delete-invoice"
+                                                    onclick="return confirm('Are you sure you want to remove this invoice?');">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center text-muted">No invoices</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-12">
@@ -404,6 +448,14 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             'purchase_order_shipment_id' => $openShipment->id ?? 0,
         ])
 
+        @php($qrMetaData = [
+            'Vendora order.nr' => $purchaseOrder->id ?: '--',
+            'Visma order.nr' => $purchaseOrder->order_number ?: '--',
+            'Shipment.nr' => $openShipment->id ?: '--',
+            'Supplier' => $purchaseOrder->supplier->name ?: '--',
+            'Tracking number' => $openShipment->tracking_number ?: '--',
+        ])
+
         <div class="shipment-instructions">
             <div class="shipment-instructions__content">
                 <h4 class="mb-4"><i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Important instructions</h4>
@@ -416,14 +468,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
                 <div class="mb-5">
                     <div class="row">
-                        <div class="col-md-4 d-grid">
-                            <a href="{{ route('supplierPortal.qrCode.copy', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary js-copy-image">Copy</a>
+                        <div class="col-md-6 d-grid">
+                            <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
                         </div>
-                        <div class="col-md-4 d-grid">
-                            <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
-                        </div>
-                        <div class="col-md-4 d-grid">
-                            <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData)]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                        <div class="col-md-6 d-grid">
+                            <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
                         </div>
                     </div>
                 </div>
@@ -456,32 +505,6 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
         $(function() {
             initDatepicker();
-
-            $(document).on('click', '.js-copy-image', async function(e) {
-                e.preventDefault();
-
-                try {
-                    const url = $(this).attr('href');
-
-                    const res = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'image/png'
-                        }
-                    });
-
-                    if (!res.ok) alert('Failed to generate QR code. Please try again.');
-
-                    const blob = await res.blob();
-                    await navigator.clipboard.write([
-                        new ClipboardItem({ [blob.type]: blob })
-                    ]);
-
-                    alert('QR code copied to clipboard');
-                } catch (err) {
-                    alert('Failed to copy QR code to clipboard. Please try again.');
-                }
-            });
 
             $(document).on('click', '.js-split-line', function() {
                 const lineID = $(this).data('line');
