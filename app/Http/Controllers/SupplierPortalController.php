@@ -7,6 +7,7 @@ use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SupplierInvoice;
 use App\Services\PurchaseOrderPublisher;
+use App\Services\PurchaseOrderService;
 use App\Services\SupplierInvoiceService;
 use App\Services\SupplierPortal\SupplierPortalAccessService;
 use Illuminate\Http\Request;
@@ -113,7 +114,7 @@ class SupplierPortalController extends Controller
         ];
 
         if ($response['success']) {
-            $this->setPurchaseOrderStatus($purchaseOrder);
+            PurchaseOrderService::setPurchaseOrderStatus($purchaseOrder);
 
             $updateData['status_confirmed_by_supplier'] = 1;
             $updateData['shipping_reminder_sent_at'] = date('Y-m-d H:i:s');
@@ -147,7 +148,7 @@ class SupplierPortalController extends Controller
             );
         }
 
-        $this->setPurchaseOrderStatus($purchaseOrder);
+        PurchaseOrderService::setPurchaseOrderStatus($purchaseOrder);
 
         return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
     }
@@ -166,7 +167,7 @@ class SupplierPortalController extends Controller
         $supplierInvoiceService = new SupplierInvoiceService();
         $supplierInvoiceService->deleteInvoice($supplierInvoice);
 
-        $this->setPurchaseOrderStatus($purchaseOrder);
+        PurchaseOrderService::setPurchaseOrderStatus($purchaseOrder);
 
         return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]);
     }
@@ -202,26 +203,17 @@ class SupplierPortalController extends Controller
         );
 
         // Store the shipment
-        $purchaseOrderShipment = PurchaseOrderShipment::create([
-            'purchase_order_id' => $purchaseOrder->id,
-            'receipt' => $spaceFilename,
-            'tracking_number' => $trackingNumber,
-        ]);
+        $purchaseOrderLines = PurchaseOrderLine::whereIn('id', $orderLines)->get();
 
-        // Connect the order lines to the shipment
-        foreach ($orderLines as $lineID) {
-            $purchaseOrderLine = PurchaseOrderLine::find($lineID);
-
-            if (!$purchaseOrderLine) continue;
-
-            $purchaseOrderLine->update([
-                'is_shipped' => 1,
-                'tracking_number' => $trackingNumber,
-                'purchase_order_shipment_id' => $purchaseOrderShipment->id
-            ]);
-        }
-
-        $this->setPurchaseOrderStatus($purchaseOrder);
+        $purchaseOrderService = new PurchaseOrderService();
+        $purchaseOrderShipment = $purchaseOrderService->createShipment(
+            $purchaseOrder,
+            [
+                'receipt' => $spaceFilename,
+                'tracking_number' => $trackingNumber
+            ],
+            $purchaseOrderLines
+        );
 
         return redirect()->route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id, 'shipment_id' => $purchaseOrderShipment->id]);
     }
@@ -236,36 +228,6 @@ class SupplierPortalController extends Controller
     {
         $publisher = new PurchaseOrderPublisher();
         return $publisher->updateOrder($purchaseOrder, $request->input('items'));
-    }
-
-    private function setPurchaseOrderStatus(PurchaseOrder $purchaseOrder)
-    {
-        $providedShippingDetails = 1;
-        $providedTrackingNumbers = 1;
-        $uploadedInvoice = 1;
-
-        foreach ($purchaseOrder->lines as $line) {
-            if (!$line->promised_date) {
-                // Missing shipping details
-                $providedShippingDetails = 0;
-            }
-
-            if (!$line->tracking_number || !$line->is_shipped) {
-                // Missing tracking number
-                $providedTrackingNumbers = 0;
-            }
-
-            if (!$line->invoice_id) {
-                // Missing invoice
-                $uploadedInvoice = 0;
-            }
-        }
-
-        $purchaseOrder->update([
-            'status_shipping_details' => $providedShippingDetails,
-            'status_tracking_number' => $providedTrackingNumbers,
-            'status_invoice_uploaded' => $uploadedInvoice
-        ]);
     }
 
     private function callAPI($controller, $method, $params = [])

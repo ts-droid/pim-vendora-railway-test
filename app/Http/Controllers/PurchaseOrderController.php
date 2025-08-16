@@ -14,6 +14,7 @@ use App\Services\PurchaseOrderEmailer;
 use App\Services\PurchaseOrderGenerator;
 use App\Services\PurchaseOrderPublisher;
 use App\Services\PurchaseOrderReminderService;
+use App\Services\PurchaseOrderService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\VismaNet\VismaNetPurchaseOrderService;
 use App\Services\WMS\StockItemService;
@@ -97,83 +98,83 @@ class PurchaseOrderController extends Controller
 
     public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
-        // TODO: Handle manual shipment submission
+        $purchaseOrderService = new PurchaseOrderService();
+
+        $quantities = $request->input('quantities', []);
+        if (!$quantities) {
+            return ApiResponseController::error('No quantities provided.');
+        }
+
+        // Load all open lines
+        $lines = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+            ->where('purchase_order_shipment_id', 0)
+            ->get();
+
+        $deliveredLines = [];
+        $deliveredQuantities = [];
+
+        foreach ($lines as $line) {
+            $qty = $quantities[$line->id] ?? null;
+            if (is_null($qty) || !$qty) continue;
+
+            $qty = (int) $qty;
+
+            if ($qty > $line->quantity) {
+                return ApiResponseController::error('One or more lines have a quantity greater than the ordered quantity.');
+            }
+
+            if ($qty == $line->quantity) {
+                // The entire line is delivered
+                $deliveredLines[] = $line;
+                $deliveredQuantities[$line->id] = $qty;
+            }
+            else {
+                // The line is partially delivered, so we need to split it
+                $response = $purchaseOrderService->splitOrderLine($line, $qty);
+                if (!$response['success']) {
+                    return ApiResponseController::error($response['error_message']);
+                }
+
+                $newLine = $response['new_line'];
+                $deliveredLines[] = $newLine;
+                $deliveredQuantities[$newLine->id] = $qty;
+            }
+        }
+
+        if (count($deliveredLines) === 0) {
+            return ApiResponseController::error('No lines were delivered.');
+        }
+
+        // Create a new shipment for the delivered lines and deliver it
+        $purchaseOrderService = new PurchaseOrderService();
+        $purchaseOrderShipment = $purchaseOrderService->createShipment(
+            $purchaseOrder,
+            [],
+            $deliveredLines
+        );
+
+        $response = $purchaseOrderService->deliverShipment(
+            $purchaseOrderShipment,
+            $deliveredQuantities
+        );
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error_message']);
+        }
 
         return ApiResponseController::success($purchaseOrder->toArray());
     }
 
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
-        $quantities = $request->input('quantities', []);
-        if (!$quantities) {
-            return ApiResponseController::error('No quantities provided.');
-        }
-
-        $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
-            ->pluck('id');
-
-        DB::beginTransaction();
-
-        foreach ($lineIDs as $lineID) {
-            $qty = (int) ($quantities[$lineID] ?? 0);
-            if (!$qty) {
-                DB::rollBack();
-                return ApiResponseController::error('Please provide quantities for all lines.');
-            }
-
-            $orderLine = PurchaseOrderLine::find($lineID);
-
-            if ($orderLine->quantity != $qty) {
-                DB::rollBack();
-                return ApiResponseController::error('Quantity mismatch for "' . $orderLine->article_number . '".');
-            }
-
-            // Update the order line
-            $orderLine->update([
-                'is_completed' => 1,
-                'quantity_received' => $qty,
-            ]);
-        }
-
-        // Update the purchase order
-        $quantityOpen = (int) PurchaseOrderLine::select(DB::raw('SUM(quantity - quantity_received) AS quantity_open'))
-            ->where('purchase_order_id', 7603)
-            ->first()->quantity_open;
-
-        $purchaseOrder->update([
-            'status_received' => ($quantityOpen === 0) ? 1 : 0
-        ]);
-
-        DB::commit();
-
-        // Create a purchase order receipt in Visma.net
-        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt($purchaseOrder, $purchaseOrderShipment);
+        $purchaseOrderService = new PurchaseOrderService();
+        $response = $purchaseOrderService->deliverShipment(
+            $purchaseOrderShipment,
+            $request->input('quantities', [])
+        );
 
         if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
-        }
-
-
-        // Add the items to in-delivery stock place
-        $stockPlaceService = new StockPlaceService();
-        $stockItemService = new StockItemService();
-
-        $indeliveryCompartment = $stockPlaceService->getCompartmentByIdentifier('INLEV:1');
-
-        foreach ($lineIDs as $lineID) {
-            $line = PurchaseOrderLine::find($lineID);
-
-            $stockItemService->addStockItem(
-                $line->article_number,
-                $line->quantity_received,
-                $indeliveryCompartment,
-                get_display_name()
-            );
-
-            DB::table('articles')
-                ->where('article_number', $line->article_number)
-                ->increment('stock_manageable', $line->quantity_received);
+            return ApiResponseController::error($response['error_message']);
         }
 
         return ApiResponseController::success([]);
@@ -759,54 +760,12 @@ class PurchaseOrderController extends Controller
 
         $originalLine = PurchaseOrderLine::find($lineID);
 
-        if ($originalLine->quantity == 1 || $originalLine->quantity <= $quantity) {
-            return ApiResponseController::error('Invalid quantity.');
+        $purchaseOrderService = new PurchaseOrderService();
+        $response = $purchaseOrderService->splitOrderLine($originalLine, $quantity);
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error_message']);
         }
 
-        // Calculate new line_key
-        $maxLineKey = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-            ->selectRaw('MAX(CAST(line_key AS UNSIGNED)) as max_line_key')
-            ->value('max_line_key');
-
-        $newLineKey = $maxLineKey + 1;
-
-        // Deduct quantity from the original line
-        $originalLine->update([
-            'quantity' => $originalLine->quantity - $quantity,
-        ]);
-
-        // Copy to a new line
-        $newLine = $originalLine->replicate();
-        $newLine->fill([
-            'line_key' => $newLineKey,
-            'quantity' => $quantity,
-            'quantity_received' => 0,
-            'suggested_quantity' => 0,
-            'suggested_quantity_master' => 0,
-            'suggested_quantity_month' => 0,
-            'suggested_quantity_month_master' => 0,
-            'suggested_quantity_month_inner' => 0,
-            'suggested_quantity_inner' => 0,
-            'amount' => round($quantity * $newLine->unit_cost, 2),
-            'promised_date' => '',
-            'is_vip' => 0,
-            'is_completed' => 0,
-            'is_canceled' => 0,
-            'reminder_sent_at' => null,
-            'tracking_number' => null,
-            'invoice_id' => 0,
-            'is_shipped' => 0,
-            'purchase_order_shipment_id' => 0
-        ]);
-
-        $newLine->save();
-        $newLine->refresh();
-        $purchaseOrder->refresh();
-
-        // Send update to Visma.net
-        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
-
-        return ApiResponseController::success($newLine->toArray());
+        return ApiResponseController::success($response['new_line']->toArray());
     }
 }
