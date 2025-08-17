@@ -177,18 +177,6 @@ class PurchasePlanner
         }
 
         return $filtered;
-
-
-
-		// Z-score-test
-		$values = array_map(fn (DaySale $r) => $r->qty, $filtered);
-		$mean = array_sum($values) / max(count($values), 1);
-		$std = sqrt(array_sum(array_map(fn($v) => ($v - $mean) ** 2, $values)) / max(count($values), 1));
-
-		return array_filter(
-			$filtered,
-			fn(DaySale $row) => $std === 0.0 || abs(($row->qty - $mean) / $std) <= self::ZSCORE_LIMIT
-		);
 	}
 
 	public function trimmedMean(array $dailyTotals, int $days): float
