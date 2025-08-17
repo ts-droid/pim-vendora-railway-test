@@ -421,6 +421,11 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error('Article not found.');
         }
 
+        // Make sure it is an active article
+        if ($article->status != 'Active') {
+            return ApiResponseController::error('This article is not active.');
+        }
+
         // Check if the article already exists in the order
         $existingLine = PurchaseOrderLine::where([
             ['purchase_order_id', '=', $purchaseOrder->id],
