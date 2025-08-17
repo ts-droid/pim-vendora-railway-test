@@ -1482,6 +1482,7 @@ class ArticleController extends Controller
                 'ean',
                 'ean_inner_box',
                 'ean_master_box',
+                'upc_code',
                 'wright_article_number',
                 'supplier_number',
                 'article_type',
