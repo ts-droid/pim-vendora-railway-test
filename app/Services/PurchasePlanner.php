@@ -63,7 +63,7 @@ class PurchasePlanner
 
 
 		/* ---------- 3. Outlier-filtering ---------- */
-		$cleanDaily = $this->removeOutliersAndFlags($daily);
+		$cleanDaily = $this->removeOutliersAndFlags($daily, $from180, $today);
 
 
 		/* ---------- 4. Trimmed means ---------- */
@@ -74,7 +74,7 @@ class PurchasePlanner
 		// Last years corresponding 90-day period
 		$lyStart = (clone $today)->sub(new DateInterval('P1Y'))->sub(new DateInterval('P90D'));
 		$lyDaily = $this->getDailyTotals($articleCluster, $lyStart, $lyStart->add(new DateInterval('P90D')));
-		$avgLY90 = $this->trimmedMean($this->removeOutliersAndFlags($lyDaily), 90);
+		$avgLY90 = $this->trimmedMean($this->removeOutliersAndFlags($lyDaily, $lyStart, $lyStart), 90);
 
         $this->addLog('$avg60 = ' . $avg60);
         $this->addLog('$avg90 = ' . $avg90);
@@ -140,12 +140,45 @@ class PurchasePlanner
 		];
 	}
 
-	public function removeOutliersAndFlags(array $dailyTotals): array
+	public function removeOutliersAndFlags(array $dailyTotals, DateTimeInterface $startDate, DateTimeInterface $endDate): array
 	{
 		$filtered = array_filter(
 			$dailyTotals,
 			fn(DaySale $row) => !$row->exclude_from_trend || $row->override_include
 		);
+
+        if (count($filtered) < 2) {
+            return $filtered;
+        }
+
+        $interval = $startDate->diff($endDate);
+        $days = $interval->days;
+
+        $totalSales = array_sum(array_map(fn (DaySale $r) => $r->qty, $filtered));
+        $avgPerDay = $totalSales / max($days, 1);
+
+        if ($avgPerDay < 1.0) {
+            $percent = 8; // 800%
+        } elseif ($avgPerDay < 5.0) {
+            $percent = 5; // 500%
+        } elseif ($avgPerDay < 10.0) {
+            $percent = 3; // 300%
+        } else {
+            $percent = 1.5; // 150%
+        }
+
+        // Sort $filtered by qty
+        usort($filtered, fn(DaySale $a, DaySale $b) => $b->qty <=> $a->qty);
+
+        // Check if the sales contains a outlier
+        if ($filtered[0]->qty > ($filtered[1]->qty * $percent)) {
+            // Remove the first item in the array
+            array_shift($filtered);
+        }
+
+        return $filtered;
+
+
 
 		// Z-score-test
 		$values = array_map(fn (DaySale $r) => $r->qty, $filtered);
@@ -308,7 +341,7 @@ class PurchasePlanner
 				[$legacyArticle], $from180, $today
 			);
 
-			$cleanDaily = $this->removeOutliersAndFlags($daily);
+			$cleanDaily = $this->removeOutliersAndFlags($daily, $from180, $today);
 
 			$avg60 = $this->trimmedMean($cleanDaily, 60);
 			$avg90 = $this->trimmedMean($cleanDaily, 90);
@@ -316,7 +349,7 @@ class PurchasePlanner
 
 			$lyStart = (clone $today)->sub(new DateInterval('P1Y'))->sub(new DateInterval('P90D'));
 			$lyDaily = $this->getDailyTotals([$legacyArticle], $lyStart, $lyStart->add(new DateInterval('P90D')));
-			$avgLY90 = $this->trimmedMean($this->removeOutliersAndFlags($lyDaily), 90);
+			$avgLY90 = $this->trimmedMean($this->removeOutliersAndFlags($lyDaily, $lyStart, $lyStart), 90);
 
 			return $this->computeTrend($legacyArticle, $legacyArticleAgeDays, $avg60, $avg90, $avg180, $avgLY90);
 		}
