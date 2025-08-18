@@ -357,7 +357,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             <table class="table table-sm">
                                 <tr>
                                     <th style="width: 1px;">
-                                        <input type="checkbox" class="form-check-input js-all-shipment-rows">
+                                        @if(!$purchaseOrder->is_direct)
+                                            <input type="checkbox" class="form-check-input js-all-shipment-rows">
+                                        @endif
                                     </th>
                                     <th>Article</th>
                                     <th>Quantity</th>
@@ -366,7 +368,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <tr class="{{ $line->is_shipped ? 'opacity-50' : '' }}">
                                         <td>
                                             @if(!$line->is_shipped)
-                                                <input type="checkbox" class="form-check-input js-shipment-row" name="purchase_order_lines[]" value="{{ $line->id }}">
+                                                <input type="checkbox"
+                                                       class="form-check-input js-shipment-row"
+                                                       name="purchase_order_lines[]"
+                                                       value="{{ $line->id }}"
+                                                       onclick="{{ $purchaseOrder->is_direct ? 'return false;' : '' }}"
+                                                        {{ $purchaseOrder->is_direct ? 'checked' : '' }}>
                                             @endif
                                         </td>
                                         <td>{{ $line->article_number }}</td>
@@ -413,7 +420,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             <table class="table table-sm">
                                 <tr>
                                     <th style="width: 1px;">
-                                        <input type="checkbox" class="form-check-input js-all-invoice-rows">
+                                        @if(!$purchaseOrder->is_direct)
+                                            <input type="checkbox" class="form-check-input js-all-invoice-rows">
+                                        @endif
                                     </th>
                                     <th>Article</th>
                                     <th>Quantity</th>
@@ -422,7 +431,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <tr class="{{ ($line->invoice_id || !$line->is_shipped) ? 'opacity-50' : '' }}">
                                         <td>
                                             @if(!$line->invoice_id && $line->is_shipped)
-                                                <input type="checkbox" class="form-check-input js-invoice-row" name="purchase_order_lines[]" value="{{ $line->id }}">
+                                                <input type="checkbox"
+                                                       class="form-check-input js-invoice-row"
+                                                       name="purchase_order_lines[]"
+                                                       value="{{ $line->id }}"
+                                                       onclick="{{ $purchaseOrder->is_direct ? 'return false;' : '' }}"
+                                                        {{ $purchaseOrder->is_direct ? 'checked' : '' }}>
                                             @endif
                                         </td>
                                         <td>{{ $line->article_number }}</td>
@@ -460,22 +474,45 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             <div class="shipment-instructions__content">
                 <h4 class="mb-4"><i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Important instructions</h4>
 
-                <div class="alert alert-warning small mb-4" role="alert">
-                    You <b>MUST</b> place the below QR-code on the package when shipping the order. This is required for us to be able to match the shipment with the order.<br>
-                    <br>
-                    If this is not done, a manual handling fee will be charged to you.
-                </div>
+                @if($selectedShippingInstructions)
+                    <div class="alert alert-warning small mb-4" role="alert">
+                        {{ $selectedShippingInstructions }}
+                    </div>
+                @endif
 
-                <div class="mb-5">
-                    <div class="row">
-                        <div class="col-md-6 d-grid">
-                            <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
-                        </div>
-                        <div class="col-md-6 d-grid">
-                            <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                @if($purchaseOrder->is_direct)
+                    <div class="mb-3">
+                        <div class="fw-bold mb-2">This is a direct delivery that you should send directly to the below address:</div>
+                        <div>
+                            {{ $purchaseOrder->directOrder->shippingAddress->full_name ?? '' }}<br>
+                            {{ $purchaseOrder->directOrder->shippingAddress->street_line_1 ?? '' }}<br>
+                            @if($purchaseOrder->directOrder->shippingAddress->street_line_2 ?? null)
+                                {{ $purchaseOrder->directOrder->shippingAddress->street_line_2 ?? '' }}<br>
+                            @endif
+                            {{ $purchaseOrder->directOrder->shippingAddress->postal_code ?? '' }} {{ $purchaseOrder->directOrder->shippingAddress->city ?? '' }}<br>
+                            @if($purchaseOrder->directOrder->shippingAddress->country_code ?? null)
+                                {{ get_country_name($purchaseOrder->directOrder->shippingAddress->country_code) }}
+                            @endif
                         </div>
                     </div>
-                </div>
+                @else
+                    <div class="mb-3">
+                        You <b>MUST</b> place the below QR-code on the package when shipping the order. This is required for us to be able to match the shipment with the order.<br>
+                        <br>
+                        If this is not done, a manual handling fee will be charged to you.
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-6 d-grid">
+                                <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
+                            </div>
+                            <div class="col-md-6 d-grid">
+                                <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="d-grid">
                     <a class="btn btn-success" href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]) }}"><i class="bi bi-check-lg"></i> Complete</a>

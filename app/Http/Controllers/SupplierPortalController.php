@@ -63,6 +63,12 @@ class SupplierPortalController extends Controller
             abort(404);
         }
 
+        $shippingInstructions = json_decode($purchaseOrder->shipping_instructions ?: '[]', true);
+        $selectedShippingInstructions = null;
+        if ($purchaseOrder->shipping_instructions && isset($shippingInstructions[$purchaseOrder->shipping_instructions])) {
+            $selectedShippingInstructions = $shippingInstructions[$purchaseOrder->shipping_instructions];
+        }
+
         $purchaseOrder->update(['viewed_at' => date('Y-m-d H:i:s')]);
 
         // Load all shipments for the purchase order
@@ -85,7 +91,7 @@ class SupplierPortalController extends Controller
             'Order #' . $purchaseOrder->id => '',
         ];
 
-        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder', 'shipments', 'invoices', 'openShipment'));
+        return view('supplierPortal.pages.purchaseOrder', compact('breadcrumbs', 'purchaseOrder', 'shipments', 'invoices', 'openShipment', 'selectedShippingInstructions'));
     }
 
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)

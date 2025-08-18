@@ -43,7 +43,7 @@ class PurchaseOrder extends Model
         'supplier_order_number',
         'shipping_instructions',
         'is_direct',
-
+        'direct_order',
 
         'status_sent_to_supplier',
         'status_sent_external',
@@ -67,6 +67,11 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_id', 'id')
             ->orderBy('id', 'ASC');
+    }
+
+    public function directOrder()
+    {
+        return $this->belongsTo(SalesOrder::class, 'direct_order', 'id');
     }
 
     public function getHash(): string

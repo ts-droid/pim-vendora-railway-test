@@ -2,6 +2,14 @@
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\Intl\Countries;
+
+if (!function_exists('get_country_name')) {
+    function get_country_name(string $code, string $locale = 'en'): ?string
+    {
+        return Countries::getName($code, $locale);
+    }
+}
 
 if (!function_exists('get_internal_api_key')) {
     function get_internal_api_key()
