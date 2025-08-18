@@ -23,7 +23,7 @@ class SupplierPortalController extends Controller
 
         $apiRequest = new Request([
             'supplier_number' => $supplier->number,
-            'per_page' => 100
+            'per_page' => 5000
         ]);
 
         // Fetch purchase orders
