@@ -32,6 +32,9 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
                             Completed
+                            @if(count($purchaseOrders['closed'] ?? []))
+                                <span class="badge rounded-pill bg-secondary">{{ count($purchaseOrders['closed']) }}</span>
+                            @endif
                         </button>
                     </li>
                 </ul>
