@@ -40,6 +40,11 @@ class PurchaseOrder extends Model
         'is_confirmed',
         'is_po_system',
         'viewed_at',
+        'supplier_order_number',
+        'shipping_instructions',
+        'is_direct',
+
+
         'status_sent_to_supplier',
         'status_sent_external',
         'status_confirmed_by_supplier',
@@ -47,8 +52,6 @@ class PurchaseOrder extends Model
         'status_tracking_number',
         'status_invoice_uploaded',
         'status_received',
-
-        'supplier_order_number',
 
         'confirm_reminder_sent_at',
         'shipping_reminder_sent_at',
