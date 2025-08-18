@@ -22,7 +22,8 @@ class SupplierPortalController extends Controller
         $supplier = SupplierPortalAccessService::getActiveSupplier();
 
         $apiRequest = new Request([
-            'supplier_number' => $supplier->number
+            'supplier_number' => $supplier->number,
+            'per_page' => 100
         ]);
 
         // Fetch purchase orders
