@@ -243,7 +243,19 @@ class PurchaseOrderService
         return $shipment;
     }
 
+    /**
+     * @param PurchaseOrder $purchaseOrder
+     * @return array
+     */
+    public function indelivery(PurchaseOrder $purchaseOrder): array
+    {
 
+
+        return [
+            'success' => true,
+            'error_message' => null
+        ];
+    }
 
     /**
      * @param PurchaseOrder $purchaseOrder

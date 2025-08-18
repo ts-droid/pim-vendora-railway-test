@@ -331,6 +331,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/publish', [PurchaseOrderController::class, 'publish'])->name('purchaseOrders.publish');
         Route::post('/{purchaseOrder}/delete', [PurchaseOrderController::class, 'delete'])->name('purchaseOrders.delete');
         Route::post('/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel'])->name('purchaseOrders.cancel');
+        Route::post('/{purchaseOrder}/indelivery', [PurchaseOrderController::class, 'indelivery'])->name('purchaseOrders.indelivery');
         Route::post('/{purchaseOrder}/user-delete', [PurchaseOrderController::class, 'userDelete'])->name('purchaseOrders.userDelete');
         Route::post('/{purchaseOrder}/draft-reminder', [PurchaseOrderController::class, 'draftReminder'])->name('purchaseOrders.draftReminder');
         Route::post('/{purchaseOrder}/copy-line', [PurchaseOrderController::class, 'copyLine'])->name('purchaseOrders.copyLine');

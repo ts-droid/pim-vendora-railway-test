@@ -733,6 +733,18 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
+    public function indelivery(PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrderService = new PurchaseOrderService();
+        $response = $purchaseOrderService->indelivery($purchaseOrder);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error_message']);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function userDelete(Request $request, PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->update([
