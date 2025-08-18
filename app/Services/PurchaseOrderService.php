@@ -5,10 +5,15 @@ namespace App\Services;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
+use App\Models\SalesOrder;
+use App\Models\Shipment;
 use App\Services\VismaNet\VismaNetPurchaseOrderService;
+use App\Services\VismaNet\VismaNetSalesOrderService;
+use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Process;
 
 class PurchaseOrderService
 {
@@ -249,7 +254,57 @@ class PurchaseOrderService
      */
     public function indelivery(PurchaseOrder $purchaseOrder): array
     {
+        // Fetch the related sales order
+        $salesOrder = $purchaseOrder->directOrder;
+        if (!$salesOrder) {
+            return [
+                'success' => false,
+                'error_message' => 'Could not find the related sales order.'
+            ];
+        }
 
+        // First deliver the entire purchase order
+        $purchaseOrderShipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder)->get();
+        foreach ($purchaseOrderShipments as $purchaseOrderShipment) {
+            $quantities = [];
+            foreach ($purchaseOrderShipment->lines as $orderLine) {
+                $quantities[$orderLine->id] = $orderLine->quantity;
+            }
+
+            $deliveryResponse = $this->deliverShipment($purchaseOrderShipment, $quantities);
+            if (!$deliveryResponse['success']) {
+                return $deliveryResponse;
+            }
+        }
+
+        // Create a shipment for the sales order (if it does not already exist)
+        $shipmentsQuery = Shipment::whereJsonContains('order_numbers', $salesOrder->order_number);
+        $shipments = $shipmentsQuery->get();
+
+        if ($shipments->count() === 0) {
+            // Create a new shipment
+            try {
+                $vismaNetSalesOrderService = new VismaNetSalesOrderService();
+                $vismaNetSalesOrderService->createShipment($salesOrder, ($purchaseOrder->is_direct ? true : false));
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error_message' => $e->getMessage()
+                ];
+            }
+
+            // Sync shipments from Visma.net
+            Process::timeout(300)->run('php artisan visma:fetch shipments');
+
+            $shipments = $shipmentsQuery->get();
+        }
+
+
+        // Deliver the sales order shipment
+        $vismaNetShipmentService = new VismaNetShipmentService();
+        foreach ($shipments as $shipment) {
+            $vismaNetShipmentService->completeShipment($shipment, ($purchaseOrder->is_direct ? true : false));
+        }
 
         return [
             'success' => true,

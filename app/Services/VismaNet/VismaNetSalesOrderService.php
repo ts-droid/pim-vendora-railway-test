@@ -15,14 +15,14 @@ use Illuminate\Support\Facades\Log;
 
 class VismaNetSalesOrderService extends VismaNetApiService
 {
-    public function createShipment(SalesOrder $salesOrder)
+    public function createShipment(SalesOrder $salesOrder, bool $isDirectDelivery = false)
     {
         $salesOrderService = new SalesOrderService();
 
         $postData = [
             'orderType' => $salesOrder->order_type,
             'shipmentDate' => (new DateTime())->format('Y-m-d H:i:s'),
-            'shipmentWarehouse' => self::WAREHOUSE_ID
+            'shipmentWarehouse' => ($isDirectDelivery ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID)
         ];
 
         $response = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/createShipment', $postData);

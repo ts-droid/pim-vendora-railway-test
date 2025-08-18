@@ -39,7 +39,8 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'orderQty' => ['value' => $orderLine->quantity],
                 'unitCost' => ['value' => $orderLine->unit_cost],
                 'amount' => ['value' => $orderLine->amount],
-                'promised' => ['value' => $orderLine->promised_date] // Add 5 days to the promised date
+                'promised' => ['value' => $orderLine->promised_date], // Add 5 days to the promised date
+                'warehouse' => ['value' => $purchaseOrder->is_direct ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID],
             ];
         }
 
@@ -218,7 +219,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'lineNbr' => ['value' => $lineNbr++],
                 'lineType' => ['value' => 'GoodsForInventory'],
                 'inventoryId' => ['value' => $line->article_number],
-                'warehouseId' => ['value' => self::WAREHOUSE_ID],
+                'warehouseId' => ['value' => ($purchaseOrder->is_direct ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID)],
                 'transactionDescription' => ['value' => $line->description],
                 'receiptQty' => ['value' => (int) $line->quantity_received],
                 'unitCost' => ['value' => $line->unit_cost],

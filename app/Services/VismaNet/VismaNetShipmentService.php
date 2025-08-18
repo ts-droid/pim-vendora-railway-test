@@ -98,7 +98,7 @@ class VismaNetShipmentService extends VismaNetApiService
         $shipmentService->createShipment($shipmentData);
     }
 
-    public function completeShipment(Shipment $shipment): array
+    public function completeShipment(Shipment $shipment, bool $isDirectDelivery = false): array
     {
         $currentTime = microtime(true);
         $milliseconds = sprintf("%03d", ($currentTime - floor($currentTime)) * 1000);
@@ -124,7 +124,8 @@ class VismaNetShipmentService extends VismaNetApiService
             $lineData = [
                 'operation' => 'Update',
                 'lineNumber' => ['value' => $line->line_number],
-                'shippedQty' => ['value' => $line->picked_quantity]
+                'shippedQty' => ['value' => $line->picked_quantity],
+                'warehouse' => ['value' => ($isDirectDelivery ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID)]
             ];
 
             if ($line->serial_number) {

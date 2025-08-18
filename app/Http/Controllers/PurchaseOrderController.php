@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
+use App\Models\SalesOrder;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderCancelService;
 use App\Services\PurchaseOrderDeletionService;
