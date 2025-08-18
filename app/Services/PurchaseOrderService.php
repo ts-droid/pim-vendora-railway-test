@@ -49,7 +49,7 @@ class PurchaseOrderService
                 'success' => false,
                 'old_line' => null,
                 'new_line' => null,
-                'error_message' => 'New quantity must be less than the original quantity.'
+                'error_message' => 'New quantity (' . $newQuantity . ') must be less than the original quantity (' . $purchaseOrderLine->quantity . ').'
             ];
         }
 
