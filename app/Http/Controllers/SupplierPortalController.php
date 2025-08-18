@@ -34,15 +34,6 @@ class SupplierPortalController extends Controller
             'closed' => $this->callAPI(PurchaseOrderController::class, 'getClosed', [$apiRequest])['data'],
         ];
 
-        // Filter only supplier purchase orders
-        if (!App::environment('local')) {
-            foreach ($purchaseOrders as $key => $items) {
-                $purchaseOrders[$key] = array_filter($items, function ($order) use ($supplier) {
-                    return $order['supplier_number'] === $supplier->number;
-                });
-            }
-        }
-
         // Filter by search term
         if ($search) {
             foreach ($purchaseOrders as $key => $items) {

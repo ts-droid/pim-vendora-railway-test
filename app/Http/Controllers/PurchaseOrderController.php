@@ -290,11 +290,17 @@ class PurchaseOrderController extends Controller
     public function getOpen(Request $request)
     {
         $perPage = $request->get('per_page', 30);
+        $supplierNumber = $request->get('supplier_number', null);
 
-        $purchaseOrders = PurchaseOrder::where('status', 'Draft')
+        $query = PurchaseOrder::where('status', 'Draft')
             ->where('is_draft', 1)
-            ->where('is_sent', 0)
-            ->orderBy('id', 'DESC')
+            ->where('is_sent', 0);
+
+        if ($supplierNumber) {
+            $query->where('supplier_number', '=', $supplierNumber);
+        }
+
+        $purchaseOrders = $query->orderBy('id', 'DESC')
             ->paginate($perPage);
 
         if ($purchaseOrders->count()) {
@@ -309,11 +315,17 @@ class PurchaseOrderController extends Controller
     public function getPending(Request $request)
     {
         $perPage = $request->get('per_page', 30);
+        $supplierNumber = $request->get('supplier_number', null);
 
-        $purchaseOrders = PurchaseOrder::whereIn('status', ['Draft', 'Open'])
+        $query = PurchaseOrder::whereIn('status', ['Draft', 'Open'])
             ->where('is_draft', 0)
-            ->where('is_po_system', 1)
-            ->orderBy('id', 'DESC')
+            ->where('is_po_system', 1);
+
+        if ($supplierNumber) {
+            $query->where('supplier_number', '=', $supplierNumber);
+        }
+
+        $purchaseOrders = $query->orderBy('id', 'DESC')
             ->paginate($perPage);
 
         if ($purchaseOrders->count()) {
