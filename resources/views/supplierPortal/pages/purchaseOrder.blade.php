@@ -616,9 +616,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             '</td>';
 
                         if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
-                            rowColumns += '<td style="width: 250px;">' +
-                                                '<input type="text" class="form-control form-control-sm text-end" name="tracking_number_' + newLine.id + '" value="' + newLine.tracking_number + '" placeholder="ex. 12345678901">' +
-                                            '</td>';
+                            rowColumns += '<td style="width: 250px;"></td>';
 
                             rowColumns += '<td>' +
                                                 '<span class="link js-split-line" data-line="' + newLine.id + '" data-qty="' + newLine.quantity + '">Split</span>' +
