@@ -21,13 +21,17 @@ class SupplierPortalController extends Controller
 
         $supplier = SupplierPortalAccessService::getActiveSupplier();
 
+        $apiRequest = new Request([
+            'supplier_number' => $supplier->number
+        ]);
+
         // Fetch purchase orders
-        $openOrders = $this->callAPI(PurchaseOrderController::class, 'getOpen', [new Request()])['data'];
-        $pendingOrders = $this->callAPI(PurchaseOrderController::class, 'getPending', [new Request()])['data'];
+        $openOrders = $this->callAPI(PurchaseOrderController::class, 'getOpen', [$apiRequest])['data'];
+        $pendingOrders = $this->callAPI(PurchaseOrderController::class, 'getPending', [$apiRequest])['data'];
 
         $purchaseOrders = [
             'open' => array_merge($openOrders, $pendingOrders),
-            'closed' => $this->callAPI(PurchaseOrderController::class, 'getClosed', [new Request()])['data'],
+            'closed' => $this->callAPI(PurchaseOrderController::class, 'getClosed', [$apiRequest])['data'],
         ];
 
         // Filter only supplier purchase orders
