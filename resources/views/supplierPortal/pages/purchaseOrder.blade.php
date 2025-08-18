@@ -561,6 +561,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 const lineID = parseInt($('.js-split-line-id').text());
                 const qty = parseInt($('.js-split-new-quantity').val());
                 const currentQty = parseInt($('.js-split-current-quantityt').text());
+                const leftoverQty = currentQty - qty;
 
                 if (isNaN(qty) || qty <= 0) {
                     alert('Please enter a valid quantity to split.');
@@ -624,7 +625,17 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             '</td>';
                         }
 
+                        $('#order-table-body').append(
+                            '<tr class="js-item-row" data-id="' + newLine.id + '">' +
+                            rowColumns +
+                            '</tr>'
+                        );
 
+                        $('input[name="quantity_' + lineID + '"]').val(leftoverQty).trigger('change');
+
+                        $('#splitLineModal').modal('hide');
+
+                        updateTotal();
                     }
                 });
 
