@@ -165,7 +165,7 @@ class PurchaseOrderService
 
         // Update the purchase order
         $quantityOpen = (int) PurchaseOrderLine::select(DB::raw('SUM(quantity - quantity_received) AS quantity_open'))
-            ->where('purchase_order_id', 7603)
+            ->where('purchase_order_id', $purchaseOrderShipment->purchaseOrder->id)
             ->first()->quantity_open;
 
         $purchaseOrderShipment->purchaseOrder->update([
