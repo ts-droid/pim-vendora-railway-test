@@ -1,4 +1,12 @@
-An invoice have been uploaded for Purchase Order: {{ $purchaseOrder->order_number }}.
+An invoice have been uploaded for Purchase Order: {{ $purchaseOrder->id }} ({{ $purchaseOrder->order_number }}).
+
+<br><br>
+
+@if($purchaseOrder->is_direct)
+    <h2>Direct Delivery!</h2><br>
+    The purchase order is a direct delivery. You must handle the delivery manually using the below link:<br>
+    <a href="https://adm.vendora.se/purchase-orders/{{ $purchaseOrder->id }}" target="_blank">https://adm.vendora.se/purchase-orders/{{ $purchaseOrder->id }}</a>
+@endif
 
 <br><br>
 
