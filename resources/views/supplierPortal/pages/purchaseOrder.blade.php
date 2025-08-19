@@ -41,6 +41,27 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
 
+        @if($purchaseOrder->is_direct)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning p-2" role="alert">
+                        <div class="fw-bold mb-2">This is a direct delivery that you should send directly to the below address:</div>
+                        <div>
+                            {{ $purchaseOrder->directOrder->shippingAddress->full_name ?? '' }}<br>
+                            {{ $purchaseOrder->directOrder->shippingAddress->street_line_1 ?? '' }}<br>
+                            @if($purchaseOrder->directOrder->shippingAddress->street_line_2 ?? null)
+                                {{ $purchaseOrder->directOrder->shippingAddress->street_line_2 ?? '' }}<br>
+                            @endif
+                            {{ $purchaseOrder->directOrder->shippingAddress->postal_code ?? '' }} {{ $purchaseOrder->directOrder->shippingAddress->city ?? '' }}<br>
+                            @if($purchaseOrder->directOrder->shippingAddress->country_code ?? null)
+                                {{ get_country_name($purchaseOrder->directOrder->shippingAddress->country_code) }}
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-md-6">
                 <div class="card mb-4">

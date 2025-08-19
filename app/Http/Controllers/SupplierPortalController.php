@@ -22,8 +22,8 @@ class SupplierPortalController extends Controller
         $supplier = SupplierPortalAccessService::getActiveSupplier();
 
         $apiRequest = new Request([
-            'supplier_number' => $supplier->number,
-            'is_sent' => 1,
+            'supplier_number' => App::isLocal() ? '' : $supplier->number,
+            'is_sent' => App::isLocal() ? 0 : 1,
             'per_page' => 5000
         ]);
 

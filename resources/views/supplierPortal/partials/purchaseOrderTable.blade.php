@@ -29,6 +29,13 @@ $completed = $completed ?? false;
                     <td class="text-end">{{ $purchaseOrder['amount'] }} {{ $purchaseOrder['currency'] }}</td>
                     <td class="text-end">{{ ($purchaseOrder['not_shipped_value'] ?? 0) }} {{ $purchaseOrder['currency'] }}</td>
                     <td class="d-flex align-items-center justify-content-end">
+                        @if($purchaseOrder['is_direct'])
+                            <div class="d-inline me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Direct Delivery">
+                                <i class="bi bi-box2-fill"></i>
+                                <i class="bi bi-arrow-right-short"></i>
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        @endif
                         @include('supplierPortal.partials.purchaseOrderStatus', ['purchaseOrder' => $purchaseOrder])
                     </td>
                     @if(!$completed)
