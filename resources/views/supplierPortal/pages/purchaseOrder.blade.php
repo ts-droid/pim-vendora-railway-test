@@ -218,7 +218,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
                                             @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                                 <td class="text-end">
-                                                    @if(!$line->is_shipped && $line->quantity > 1)
+                                                    @if(!$line->is_shipped && !$line->is_completed && $line->quantity > 1)
                                                         <span class="link js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}">Split</span>
                                                     @endif
                                                 </td>
@@ -558,6 +558,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             });
 
             $(document).on('click', '.js-split-submit', function() {
+                const $button = $(this);
+                $button.prop('disabled', true);
+
                 const lineID = parseInt($('.js-split-line-id').text());
                 const qty = parseInt($('.js-split-new-quantity').val());
                 const currentQty = parseInt($('.js-split-current-quantityt').text());
@@ -565,11 +568,13 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
                 if (isNaN(qty) || qty <= 0) {
                     alert('Please enter a valid quantity to split.');
+                    $button.prop('disabled', false);
                     return;
                 }
 
                 if (qty >= currentQty) {
                     alert('You cannot split more than the current quantity.');
+                    $button.prop('disabled', false);
                     return;
                 }
 
@@ -585,6 +590,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                     if (!response.success) {
                         console.log(response);
                         alert(response.error_message || 'Something went wrong when splitting the row. Please try again.');
+                        $button.prop('disabled', false);
                     } else {
                         let newLine = response.data;
 
@@ -629,9 +635,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             '</tr>'
                         );
 
-                        $('input[name="quantity_' + lineID + '"]').val(leftoverQty).trigger('change');
-
                         $('#splitLineModal').modal('hide');
+                        $button.prop('disabled', false);
 
                         updateTotal();
                     }
