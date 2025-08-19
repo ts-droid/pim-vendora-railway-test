@@ -75,6 +75,11 @@ class PurchaseOrderGenerator
         }
     }
 
+    public function generateDirect(): void
+    {
+
+    }
+
     /**
      * Regenerates a purchase order (Only if it's a draft)
      *
@@ -122,6 +127,7 @@ class PurchaseOrderGenerator
             ->where('is_po_system', '=', 1)
             ->where('is_sent', '=', 0)
             ->where('is_draft', '=', 1)
+            ->where('is_direct', '=', 0)
             ->where('should_delete', '=', 0)
             ->exists();
 
@@ -167,6 +173,7 @@ class PurchaseOrderGenerator
             ->where('is_po_system', '=', 1)
             ->where('is_sent', '=', 0)
             ->where('is_draft', '=', 1)
+            ->where('is_direct', '=', 0)
             ->where('should_delete', '=', 0)
             ->first();
 

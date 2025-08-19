@@ -23,7 +23,8 @@ class SalesOrderLine extends Model
         'unit_price',
         'description',
         'is_completed',
-        'vat_rate'
+        'vat_rate',
+        'is_direct'
     ];
 
     public function article(): BelongsTo

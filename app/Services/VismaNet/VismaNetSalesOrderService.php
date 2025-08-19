@@ -297,6 +297,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         foreach (($order['lines'] ?? []) as $line) {
             $articleNumber = $line['inventory']['number'] ?? '';
             $lineNumber = $line['lineNbr'] ?? '';
+            $warehouseID = $line['waregouse']['id'] ?? self::WAREHOUSE_ID;
 
             if (!$articleNumber || !$lineNumber) {
                 continue;
@@ -316,6 +317,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 'description' => (string) ($line['lineDescription'] ?? ''),
                 'is_completed' => (int) ($line['completed'] ?? 0),
                 'vat_rate' => (float) $vatRate,
+                'is_direct' => ($warehouseID === self::WAREHOUSE_DIRECT_ID ? 1 : 0),
             ];
 
             trigger_stock_sync($articleNumber);

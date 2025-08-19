@@ -32,9 +32,12 @@ class GeneratePurchaseOrders implements ShouldQueue
     public function handle(): void
     {
         $purchaseOrderGenerator = new PurchaseOrderGenerator();
+
         $purchaseOrderGenerator->generate(
             $this->supplierID,
             $this->isEmpty
         );
+
+        $purchaseOrderGenerator->generateDirect();
     }
 }
