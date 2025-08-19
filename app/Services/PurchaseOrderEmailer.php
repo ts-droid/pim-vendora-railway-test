@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Mail\PurchaseOrderCancellation;
+use App\Mail\PurchaseOrderRowCancellation;
 use App\Mail\SendPurchaseOrder;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderLine;
 use App\Utilities\PurchaseOrderHelper;
 use Illuminate\Support\Facades\Mail;
 
@@ -69,6 +71,38 @@ class PurchaseOrderEmailer
         // Dispatch the email
         try {
             Mail::to($recipients)->queue(new SendPurchaseOrder($purchaseOrder));
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Email queued successfully'
+        ];
+    }
+
+    public function sendCancelRow(PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
+    {
+        $email = $purchaseOrder->email
+            ?: $purchaseOrder->supplier->supplier_contact_email
+            ?: $purchaseOrder->supplier->main_contact_email
+            ?: $purchaseOrder->supplier->email;
+
+        $recipients = $this->getRecipients($email);
+
+        if (count($recipients) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No valid recipient email addresses found'
+            ];
+        }
+
+        // Dispatch the email
+        try {
+            Mail::to($recipients)->queue(new PurchaseOrderRowCancellation($purchaseOrder, $purchaseOrderLine));
         } catch (\Exception $e) {
             return [
                 'success' => false,

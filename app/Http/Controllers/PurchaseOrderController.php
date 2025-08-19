@@ -755,10 +755,12 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
-    public function indelivery(PurchaseOrder $purchaseOrder)
+    public function cancelRow(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $lineID = (int) $request->input('line_id');
+
         $purchaseOrderService = new PurchaseOrderService();
-        $response = $purchaseOrderService->indelivery($purchaseOrder);
+        $response = $purchaseOrderService->cancelRow($lineID);
 
         if (!$response['success']) {
             return ApiResponseController::error($response['error_message']);
@@ -767,12 +769,10 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
-    public function cancelRow(Request $request, PurchaseOrder $purchaseOrder)
+    public function indelivery(PurchaseOrder $purchaseOrder)
     {
-        $lineID = (int) $request->input('line_id');
-
         $purchaseOrderService = new PurchaseOrderService();
-        $response = $purchaseOrderService->cancelRow($lineID);
+        $response = $purchaseOrderService->indelivery($purchaseOrder);
 
         if (!$response['success']) {
             return ApiResponseController::error($response['error_message']);

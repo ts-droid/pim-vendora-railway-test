@@ -295,12 +295,17 @@ class PurchaseOrderService
 
         $purchaseOrder = $purchaseOrderLine->purchaseOrder;
 
+        $purchaseOrderLineCopy = $purchaseOrderLine->replicate();
         $purchaseOrderLine->delete();
 
         $purchaseOrder->calculateTotal();
 
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $response = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+
+        // Send email to supplier that order line was cancelled
+        $mailer = new PurchaseOrderEmailer();
+        $mailer->sendCancelRow($purchaseOrder, $purchaseOrderLineCopy);
 
         if (!$response['success']) {
             return [
