@@ -219,12 +219,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                                 <td class="text-end">
                                                     @if(!$line->is_shipped && !$line->is_completed && $line->quantity > 1)
-                                                        <span class="text-primary js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Split row">
+                                                        <span class="text-primary cursor-pointer js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Split row">
                                                             <i class="bi bi-scissors"></i>
                                                         </span>
                                                     @endif
                                                         @if(!$line->is_shipped && !$line->is_completed)
-                                                            <span class="text-danger js-cancel-row ms-2" data-line="{{ $line->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel row">
+                                                            <span class="text-danger cursor-pointer js-cancel-row ms-2" data-line="{{ $line->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel row">
                                                                 <i class="bi bi-x-circle-fill"></i>
                                                             </span>
                                                         @endif
