@@ -291,6 +291,7 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
+        $isSent = (int) $request->get('is_sent', 0);
 
         $query = PurchaseOrder::where('status', 'Draft')
             ->where('is_draft', 1)
@@ -298,6 +299,9 @@ class PurchaseOrderController extends Controller
 
         if ($supplierNumber) {
             $query->where('supplier_number', '=', $supplierNumber);
+        }
+        if ($isSent) {
+            $query->where('is_sent', 1);
         }
 
         $purchaseOrders = $query->orderBy('id', 'DESC')
@@ -316,6 +320,7 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
+        $isSent = (int) $request->get('is_sent', 0);
 
         $query = PurchaseOrder::whereIn('status', ['Draft', 'Open'])
             ->where('is_draft', 0)
@@ -323,6 +328,9 @@ class PurchaseOrderController extends Controller
 
         if ($supplierNumber) {
             $query->where('supplier_number', '=', $supplierNumber);
+        }
+        if ($isSent) {
+            $query->where('is_sent', 1);
         }
 
         $purchaseOrders = $query->orderBy('id', 'DESC')
@@ -341,12 +349,16 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
+        $isSent = (int) $request->get('is_sent', 0);
 
         $query = PurchaseOrder::whereNotIn('status', ['Draft', 'Open'])
             ->where('is_po_system', 1);
 
         if ($supplierNumber) {
             $query->where('supplier_number', '=', $supplierNumber);
+        }
+        if ($isSent) {
+            $query->where('is_sent', 1);
         }
 
         $purchaseOrders = $query->orderBy('id', 'DESC')

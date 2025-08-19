@@ -23,6 +23,7 @@ class SupplierPortalController extends Controller
 
         $apiRequest = new Request([
             'supplier_number' => $supplier->number,
+            'is_sent' => 1,
             'per_page' => 5000
         ]);
 
