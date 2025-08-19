@@ -41,7 +41,8 @@ class SupplierPortalController extends Controller
             foreach ($purchaseOrders as $key => $items) {
                 $purchaseOrders[$key] = array_filter($items, function ($order) use ($search) {
                     return (str_contains($order['id'], $search)
-                        || str_contains($order['supplier_order_number'], $search));
+                        || str_contains($order['supplier_order_number'], $search)
+                        || in_array($search, $order['article_numbers']));
                 });
             }
         }
