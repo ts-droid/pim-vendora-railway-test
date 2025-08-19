@@ -31,6 +31,13 @@ function currencyToFloat(x) {
     return parseFloat(x);
 }
 
+function showLoader() {
+    $('#loader').removeClass('d-none');
+}
+function hideLoader() {
+    $('#loader').addClass('d-none');
+}
+
 function showToastMessage(message) {
     // Create toast element
     const toast = document.createElement('div');

@@ -219,12 +219,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
                                                 <td class="text-end">
                                                     @if(!$line->is_shipped && !$line->is_completed && $line->quantity > 1)
-                                                        <span class="link js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Split row">
+                                                        <span class="text-primary js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Split row">
                                                             <i class="bi bi-scissors"></i>
                                                         </span>
                                                     @endif
                                                         @if(!$line->is_shipped && !$line->is_completed)
-                                                            <span class="link text-danger ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel row">
+                                                            <span class="text-danger js-cancel-row ms-2" data-line="{{ $line->id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel row">
                                                                 <i class="bi bi-x-circle-fill"></i>
                                                             </span>
                                                         @endif
@@ -549,6 +549,24 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
 
         $(function() {
             initDatepicker();
+
+            $(document).on('click', '.js-cancel-row', function() {
+                const lineID = $(this).data('line');
+
+                showLoader();
+
+                $.post('{{ route('purchaseOrders.cancelRow', ['purchaseOrder' => $purchaseOrder->id, 'api_key' => get_internal_api_key()]) }}', {
+                    line_id: lineID
+                }, function(response) {
+                    if (!response.success) {
+                        console.log(response);
+                        alert(response.error_message || 'Something went wrong when trying to cancel the row. Please try again.');
+                        hideLoader();
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            });
 
             $(document).on('click', '.js-split-line', function() {
                 const lineID = $(this).data('line');
