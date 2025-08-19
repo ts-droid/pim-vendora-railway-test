@@ -572,6 +572,10 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             initDatepicker();
 
             $(document).on('click', '.js-cancel-row', function() {
+                if (!confirm('Are you sure you want to cancel this row? This action cannot be undone.')) {
+                    return false;
+                }
+
                 const lineID = $(this).data('line');
 
                 showLoader();
