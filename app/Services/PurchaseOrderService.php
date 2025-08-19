@@ -249,6 +249,40 @@ class PurchaseOrderService
         return $shipment;
     }
 
+    /**
+     * @param PurchaseOrder $purchaseOrder
+     * @return array
+     */
+    public function cancelPurchaseOrder(PurchaseOrder $purchaseOrder): array
+    {
+        // OBS! Visma.net API does not support deleting the whole order, so we have to delete each line separately
+
+        // Delete all local order lines
+        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)->delete();
+
+        // Sync order to delete lines in Visma.net
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $response = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'error_message' => $response['message']
+            ];
+        }
+
+        // Send email to supplier that order was cancelled
+        $mailer = new PurchaseOrderEmailer();
+        $mailer->sendCancelOrder($purchaseOrder);
+
+        // Delete the local order (it will be synced later again)
+        $purchaseOrder->delete();
+
+        return [
+            'success' => true,
+            'error_message' => null
+        ];
+    }
+
     public function cancelRow(int $lineID): array
     {
         $purchaseOrderLine = PurchaseOrderLine::find($lineID);

@@ -9,7 +9,6 @@ use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SalesOrder;
 use App\Services\ArticleQuantityCalculator;
-use App\Services\PurchaseOrderCancelService;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderEmailer;
 use App\Services\PurchaseOrderGenerator;
@@ -746,12 +745,11 @@ class PurchaseOrderController extends Controller
 
     public function cancel(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $cancelService = new PurchaseOrderCancelService();
-
-        $response = $cancelService->cancel($purchaseOrder);
+        $purchaseOrderService = new PurchaseOrderService();
+        $response = $purchaseOrderService->cancelPurchaseOrder($purchaseOrder);
 
         if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
+            return ApiResponseController::error($response['error_message']);
         }
 
         return ApiResponseController::success();
