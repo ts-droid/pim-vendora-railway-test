@@ -249,6 +249,38 @@ class PurchaseOrderService
         return $shipment;
     }
 
+    public function cancelRow(int $lineID): array
+    {
+        $purchaseOrderLine = PurchaseOrderLine::find($lineID);
+        if (!$purchaseOrderLine) {
+            return [
+                'success' => false,
+                'error_message' => 'Could not find the order line.'
+            ];
+        }
+
+        $purchaseOrder = $purchaseOrderLine->purchaseOrder;
+
+        $purchaseOrderLine->delete();
+
+        $purchaseOrder->calculateTotal();
+
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $response = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'error_message' => $response['message']
+            ];
+        }
+
+        return [
+            'success' => true,
+            'error_message' => null
+        ];
+    }
+
     /**
      * @param PurchaseOrder $purchaseOrder
      * @return array

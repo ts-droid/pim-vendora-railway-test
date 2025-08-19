@@ -167,4 +167,15 @@ class PurchaseOrder extends Model
 
         return $total;
     }
+
+    public function calculateTotal(): void
+    {
+        $totalAmount = $this->lines->sum(function ($line) {
+            return $line->unit_cost * $line->quantity;
+        });
+
+        $this->update([
+            'amount' => $totalAmount,
+        ]);
+    }
 }

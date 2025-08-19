@@ -579,14 +579,7 @@ class PurchaseOrderController extends Controller
 
         $purchaseOrder->refresh();
 
-        // Calculate the total amount of the order
-        $totalAmount = $purchaseOrder->lines->sum(function ($line) {
-            return $line->unit_cost * $line->quantity;
-        });
-
-        $purchaseOrder->update([
-            'amount' => $totalAmount,
-        ]);
+        $purchaseOrder->calculateTotal();
 
         return ApiResponseController::success([$purchaseOrder->toArray()]);
     }
@@ -767,6 +760,13 @@ class PurchaseOrderController extends Controller
     public function cancelRow(Request $request, PurchaseOrder $purchaseOrder)
     {
         $lineID = (int) $request->input('line_id');
+
+        $purchaseOrderService = new PurchaseOrderService();
+        $response = $purchaseOrderService->cancelRow($lineID);
+
+        if (!$response['success']) {
+            return ApiResponseController::error($response['error_message']);
+        }
 
         return ApiResponseController::success();
     }
