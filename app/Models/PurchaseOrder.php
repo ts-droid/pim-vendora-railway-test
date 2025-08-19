@@ -162,7 +162,7 @@ class PurchaseOrder extends Model
         $total = 0;
 
         foreach ($this->lines as $line) {
-            $total += $line->is_shipped ? 0 : ($line->quantity * $line->unit_cost);
+            $total += ($line->is_shipped || $line->is_completed) ? 0 : ($line->quantity * $line->unit_cost);
         }
 
         return $total;
