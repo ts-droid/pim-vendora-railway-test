@@ -764,6 +764,13 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
+    public function cancelRow(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $lineID = (int) $request->input('line_id');
+
+        return ApiResponseController::success();
+    }
+
     public function userDelete(Request $request, PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->update([
