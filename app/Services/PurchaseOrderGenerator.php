@@ -77,7 +77,94 @@ class PurchaseOrderGenerator
 
     public function generateDirect(): void
     {
+        $salesOrders = SalesOrder::whereIn('status', ['Open', 'Shipping'])->get();
 
+        if (!$salesOrders->count()) {
+            return;
+        }
+
+        foreach ($salesOrders as $salesOrder) {
+            $directOrderLines = [];
+            foreach ($salesOrder->lines as $line) {
+                if (!$line->is_direct) continue;
+
+                $supplierNumber = DB::table('articles')
+                    ->select('supplier_number')
+                    ->where('article_number', $line->article_number)
+                    ->first()->supplier_number;
+
+                if (!isset($directOrderLines[$supplierNumber])) {
+                    $directOrderLines[$supplierNumber] = [];
+                }
+
+                $directOrderLines[$supplierNumber][] = $line;
+            }
+
+            if (!count($directOrderLines)) continue;
+
+            // Create a purchase order for each supplier
+            foreach($directOrderLines as $supplierNumber => $orderLines) {
+                $hasDirectPurchaseOrder = PurchaseOrder::where('direct_order', $salesOrder->id)
+                    ->where('supplier_number', $supplierNumber)
+                    ->exists();
+
+                if ($hasDirectPurchaseOrder) continue;
+
+                $supplier = Supplier::where('number', $supplierNumber)->first();
+
+                if (!$supplier) continue;
+
+                $purchaseOrder = PurchaseOrder::create([
+                    'order_number' => $this->getNewOrderNumber(),
+                    'status' => 'Draft',
+                    'date' => date('Y-m-d'),
+                    'promised_date' => '',
+                    'supplier_id' => $supplier->external_id,
+                    'supplier_number' => $supplier->number,
+                    'supplier_name' => $supplier->name,
+                    'currency' => $supplier->currency,
+                    'amount' => 0,
+                    'is_draft' => 1,
+                    'is_vip' => 0,
+                    'foresight_days' => 0,
+                    'email' => $supplier->supplier_contact_email ?: $supplier->email,
+                    'is_po_system' => 1,
+                    'currency_rate' => round((new CurrencyConvertController)->convert(1, $supplier->currency, 'SEK'), 2),
+                    'is_direct' => 1,
+                    'direct_order' => $salesOrder->id
+                ]);
+
+                $supplierPriceService = new SupplierArticlePriceService();
+
+                $lineKey = 0;
+                foreach ($orderLines as $orderLine) {
+                    $unitCost = $supplierPriceService->getUnitCostForSupplier($orderLine->article_number, $supplier);
+                    $unitCost = round($unitCost, 2);
+
+                    PurchaseOrderLine::create([
+                        'purchase_order_id' => $purchaseOrder->id,
+                        'line_key' => $lineKey++,
+                        'article_number' => $orderLine->article_number,
+                        'description' => $orderLine->description,
+                        'quantity' => $orderLine->quantity,
+                        'suggested_quantity' => 0,
+                        'suggested_quantity_master' => 0,
+                        'suggested_quantity_inner' => 0,
+                        'suggested_quantity_month' => 0,
+                        'suggested_quantity_month_master' => 0,
+                        'suggested_quantity_month_inner' => 0,
+                        'unit_cost' => $unitCost,
+                        'amount' => ($unitCost * $orderLine->quantity),
+                        'is_vip' => 0,
+                        'ai_comment' => '',
+                        'promised_date' => '',
+                    ]);
+                }
+
+                $purchaseOrder->refresh();
+                $purchaseOrder->calculateTotal();
+            }
+        }
     }
 
     /**
@@ -268,15 +355,9 @@ class PurchaseOrderGenerator
             $purchaseOrder = $existingPurchaseOrder;
         }
         else {
-            // Create a new purchase order
-            $newOrderNumber = PurchaseOrder::where('order_number', 'NOT LIKE', '%OLD-%')
-                ->get()
-                ->max('order_number');
-            $newOrderNumber = intval($newOrderNumber) + 1;
-
             // Create the purchase order
             $purchaseOrder = PurchaseOrder::create([
-                'order_number' => $newOrderNumber,
+                'order_number' => $this->getNewOrderNumber(),
                 'status' => 'Draft',
                 'date' => date('Y-m-d'),
                 'promised_date' => '',
@@ -301,15 +382,10 @@ class PurchaseOrderGenerator
         }
 
         $purchaseOrder->refresh();
-
-        // Update the total amount of the purchase order
-        $totalAmount = $purchaseOrder->lines->sum(function ($line) {
-            return $line->unit_cost * $line->quantity;
-        });
+        $purchaseOrder->calculateTotal();
 
         $purchaseOrder->update([
             'is_generating' => 0,
-            'amount' => $totalAmount,
         ]);
 
         // Create a task
@@ -642,5 +718,14 @@ class PurchaseOrderGenerator
         arsort($monthCount); // Sort the array in descending order of days count
 
         return array_key_first($monthCount); // Return the month with the most days
+    }
+
+    private function getNewOrderNumber(): int
+    {
+        $newOrderNumber = PurchaseOrder::where('order_number', 'NOT LIKE', '%OLD-%')
+            ->get()
+            ->max('order_number');
+
+        return intval($newOrderNumber) + 1;
     }
 }
