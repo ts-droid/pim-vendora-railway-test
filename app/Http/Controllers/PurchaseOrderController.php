@@ -309,6 +309,7 @@ class PurchaseOrderController extends Controller
         if ($purchaseOrders->count()) {
             foreach ($purchaseOrders as &$purchaseOrder) {
                 $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
+                $purchaseOrder->articles_numbers = $purchaseOrder->getArticlesNumbers();
             }
         }
 
@@ -338,6 +339,7 @@ class PurchaseOrderController extends Controller
         if ($purchaseOrders->count()) {
             foreach ($purchaseOrders as &$purchaseOrder) {
                 $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
+                $purchaseOrder->articles_numbers = $purchaseOrder->getArticlesNumbers();
             }
         }
 
@@ -362,6 +364,12 @@ class PurchaseOrderController extends Controller
 
         $purchaseOrders = $query->orderBy('id', 'DESC')
             ->paginate($perPage);
+
+        if ($purchaseOrders->count()) {
+            foreach ($purchaseOrders as &$purchaseOrder) {
+                $purchaseOrder->articles_numbers = $purchaseOrder->getArticlesNumbers();
+            }
+        }
 
         return ApiResponseController::success($purchaseOrders->toArray());
     }

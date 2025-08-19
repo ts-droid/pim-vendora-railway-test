@@ -168,6 +168,21 @@ class PurchaseOrder extends Model
         return $total;
     }
 
+    public function getArticlesNumbers()
+    {
+        if (!$this->lines) {
+            return [];
+        }
+
+        $articleNumbers = [];
+
+        foreach ($this->lines as $line) {
+            $articleNumbers[] = $line->article_number;
+        }
+
+        return array_unique($articleNumbers);
+    }
+
     public function calculateTotal(): void
     {
         $totalAmount = $this->lines->sum(function ($line) {
