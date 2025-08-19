@@ -222,7 +222,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                         <span class="link js-split-line" data-line="{{ $line->id }}" data-qty="{{ $line->quantity }}">Split</span>
                                                     @endif
                                                         @if(!$line->is_shipped && !$line->is_completed)
-                                                            <span class="link text-danger">Cancel row</span>
+                                                            <span class="link text-danger">
+                                                                <i class="bi bi-x-circle-fill"></i>
+                                                            </span>
                                                         @endif
                                                 </td>
                                             @endif
