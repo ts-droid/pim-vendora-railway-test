@@ -12,6 +12,7 @@ use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 
@@ -222,7 +223,7 @@ class PurchaseOrderService
      * @param PurchaseOrderLine[] $lines
      * @return PurchaseOrderShipment
      */
-    public function createShipment(PurchaseOrder $purchaseOrder, array $data = [], array $lines = []): PurchaseOrderShipment
+    public function createShipment(PurchaseOrder $purchaseOrder, array $data = [], mixed $lines = []): PurchaseOrderShipment
     {
         $purchaseOrder->refresh();
 
