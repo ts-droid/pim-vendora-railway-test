@@ -151,6 +151,8 @@ class PurchasePlanner
             return $filtered;
         }
 
+        return $filtered;
+
         $interval = $startDate->diff($endDate);
         $days = $interval->days;
 
