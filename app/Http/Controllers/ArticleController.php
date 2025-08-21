@@ -1518,6 +1518,7 @@ class ArticleController extends Controller
                 'serial_number_management',
                 'is_backorder',
                 'is_dropship',
+                'is_outlet',
             ],
             'float' => [
                 'standard_reseller_margin',
