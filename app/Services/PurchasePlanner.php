@@ -34,6 +34,18 @@ class PurchasePlanner
 		$horizonEnd = $today->add(new DateInterval("P{$foresightDays}D"));
 
 
+        // Special handling for drop-shipped articles
+        if ($article->is_dropship) {
+            $onOrder = ArticleQuantityCalculator::getOnOrder($article->article_number);
+
+            return [
+                'quantity' => $onOrder,
+                'inner' => $onOrder,
+                'master' => $onOrder,
+            ];
+        }
+
+
 		/* ---------- 1. Articlecluster ---------- */
 		$articleCluster = array_merge(
 			[$article],
