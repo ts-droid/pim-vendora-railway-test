@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PurchasePlanner
 {
-    private const LOG_DATA = true;
+    private const LOG_DATA = false;
     private const LOG_ARTICLES = ['12-1915'];
 
 	private const ZSCORE_LIMIT = 3.0;
