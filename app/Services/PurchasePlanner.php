@@ -757,7 +757,7 @@ class PurchasePlanner
     {
         $jsonLog = json_encode($this->log, JSON_PRETTY_PRINT);
 
-        $filename = 'purchase_planner_log_' . rand(10000000, 99999999) . '_' . now()->format('Y-m-d_H-i-s') . '.json';
+        $filename = 'purchase_planner_log_' . now()->format('Y-m-d_H-i-s') . '_' . rand(10000000, 99999999) . '.json';
         $dir = storage_path('logs');
 
         File::ensureDirectoryExists($dir);
