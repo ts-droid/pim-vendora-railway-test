@@ -631,7 +631,7 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([]);
     }
 
-    public function sendV2(Request $request, PurchaseOrder $purchaseOrder)
+    public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
         // Send the order to external system
         $publisher = new PurchaseOrderPublisher();
@@ -650,45 +650,6 @@ class PurchaseOrderController extends Controller
 
         if (!$response['success']) {
             log_data('Failed to queue emails for purchase order ' . $purchaseOrder->id . ': ' . $response['message']);
-        }
-
-        // Should we also generate a new order for this supplier?
-        if ($request->get('generate_new_order')) {
-            Artisan::call('purchase-orders:generate', ['supplierID' => $purchaseOrder->supplier->id]);
-        }
-
-        $purchaseOrder->update([
-            'is_sent' => 1,
-            'status_sent_to_supplier' => 1,
-            'confirm_reminder_sent_at' => date('Y-m-d H:i:s')
-        ]);
-
-        return ApiResponseController::success();
-    }
-
-    public function send(Request $request, PurchaseOrder $purchaseOrder)
-    {
-        if ($purchaseOrder->supplier->id == 202) {
-            return $this->sendV2($request, $purchaseOrder);
-        }
-
-        // Send the order to external system
-        $publisher = new PurchaseOrderPublisher();
-        $response = $publisher->send($purchaseOrder);
-
-        if (!$response['success']) {
-            return ApiResponseController::error($response['message']);
-        }
-
-        // Make sure the order is updated
-        $purchaseOrder->refresh();
-
-        // Send the email
-        $mailer = new PurchaseOrderEmailer();
-        list($success, $message) = $mailer->send($purchaseOrder);
-
-        if (!$success) {
-            log_data('Failed to queue emails for purchase order ' . $purchaseOrder->id . ': ' . $message);
         }
 
         // Should we also generate a new order for this supplier?
