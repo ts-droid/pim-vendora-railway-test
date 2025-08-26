@@ -430,7 +430,7 @@ class PurchaseOrderGenerator
         $lineKey = 0;
 
         $supplierPriceService = new SupplierArticlePriceService();
-        $purchasePlanner = new PurchasePlanner();
+        $purchasePlanner = new PurchasePlannerV2();
 
         $excludeArticles = array_merge($this->excludeArticles, $excludeArticleNumbers);
 
