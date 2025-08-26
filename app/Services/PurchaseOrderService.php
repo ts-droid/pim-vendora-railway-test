@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\CanceledPurchaseOrderLine;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
@@ -294,6 +295,15 @@ class PurchaseOrderService
         }
 
         $purchaseOrder = $purchaseOrderLine->purchaseOrder;
+
+        // Create a cancelled line record
+        CanceledPurchaseOrderLine::create([
+            'purchase_order_id' => $purchaseOrderLine->purchase_order_id,
+            'article_number' => $purchaseOrderLine->article_number,
+            'description' => $purchaseOrderLine->description,
+            'unit_price' => (float) $purchaseOrderLine->unit_cost,
+            'quantity' => (int) $purchaseOrderLine->quantity,
+        ]);
 
         $purchaseOrderLineCopy = $purchaseOrderLine->replicate();
         $purchaseOrderLine->delete();

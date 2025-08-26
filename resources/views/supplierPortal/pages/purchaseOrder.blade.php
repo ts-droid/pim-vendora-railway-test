@@ -253,6 +253,25 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             @endif
                                         </tr>
                                     @endforeach
+
+                                    @foreach($purchaseOrder->canceledLines as $line)
+                                        <tr class="bg-cancelled">
+                                            <td class="no-wrap" style="width: 1px;">{{ $line->article_number }}</td>
+                                            <td></td>
+                                            <td>{{ $line->description }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-end small">{{ $line->unit_price }} {{ $purchaseOrder->currency }}</td>
+                                            <td class="text-end small">{{ $line->quantity }}</td>
+                                            <td class="text-end small">{{ round($line->unit_price * $line->quantity, 2) }} {{ $purchaseOrder->currency }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
+                                                <td></td>
+                                            @endif
+                                        </tr>
+                                    @endforeach
+
                                     </tbody>
                                     <tfoot>
                                     <tr>

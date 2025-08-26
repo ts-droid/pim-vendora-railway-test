@@ -69,6 +69,12 @@ class PurchaseOrder extends Model
             ->orderBy('id', 'ASC');
     }
 
+    public function canceledLines(): HasMany
+    {
+        return $this->hasMany(CanceledPurchaseOrderLine::class, 'purchase_order_id', 'id')
+            ->orderBy('id', 'ASC');
+    }
+
     public function directOrder()
     {
         return $this->belongsTo(SalesOrder::class, 'direct_order', 'id');

@@ -202,3 +202,7 @@ table td {
 .cursor-pointer {
     cursor: pointer !important;
 }
+
+.bg-cancelled {
+    background-color: #fdbbc0 !important;
+}
