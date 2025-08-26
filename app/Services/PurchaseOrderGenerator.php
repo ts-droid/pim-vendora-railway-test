@@ -448,6 +448,13 @@ class PurchaseOrderGenerator
 
             $quantityToPurchase = $quantity['quantity'];
             $quantityDebug = $quantity['debug'] ?? [];
+
+            $aiComment = [];
+            foreach ($quantity['debug'] as $key => $value) {
+                $aiComment[] = $key . ' = ' . $value;
+            }
+            $aiComment = implode(PHP_EOL, $aiComment);
+
             $quantityDebug = implode(PHP_EOL, $quantityDebug);
 
             if ($supplier->purchase_master_box && $supplier->purchase_inner_box) {
@@ -489,7 +496,7 @@ class PurchaseOrderGenerator
                 'unit_cost' => $unitCost,
                 'amount' => ($unitCost * $quantityToPurchase),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
-                'ai_comment' => $quantityDebug,
+                'ai_comment' => $aiComment,
                 'promised_date' => '',
             ]);
         }
