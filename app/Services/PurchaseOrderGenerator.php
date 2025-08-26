@@ -447,6 +447,8 @@ class PurchaseOrderGenerator
             $quantity = $purchasePlanner->getQuantityToOrder($article, $foresightDays);
 
             $quantityToPurchase = $quantity['quantity'];
+            $quantityDebug = $quantity['debug'] ?? [];
+            $quantityDebug = implode(PHP_EOL, $quantityDebug);
 
             if ($supplier->purchase_master_box && $supplier->purchase_inner_box) {
                 $innerDiff = abs($quantity['inner'] - $quantity['quantity']);
@@ -487,7 +489,7 @@ class PurchaseOrderGenerator
                 'unit_cost' => $unitCost,
                 'amount' => ($unitCost * $quantityToPurchase),
                 'is_vip' => $this->isVIPArticle($vipSalesOrders, $article->article_number),
-                'ai_comment' => '',
+                'ai_comment' => $quantityDebug,
                 'promised_date' => '',
             ]);
         }
