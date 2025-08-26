@@ -24,15 +24,8 @@ class PurchaseOrderReminder extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(
-        public \App\Models\PurchaseOrder $purchaseOrder,
-        public \Illuminate\Support\Collection $orderLines,
-    )
+    public function __construct(public \App\Models\PurchaseOrder $purchaseOrder)
     {
-        $this->orderLineIDs = $orderLines->pluck('id')->toArray();
-
-        $orderLineIDs = $orderLines->pluck('id')->toArray();
-
         $this->emailSubject = ConfigController::getConfig('purchase_system_reminder_email_subject');
         $this->emailBody = ConfigController::getConfig('purchase_system_reminder_email_body');
 
@@ -40,14 +33,14 @@ class PurchaseOrderReminder extends Mailable
         $this->emailSubject = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailSubject);
         $this->emailBody = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailBody);
 
-        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
-        $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
+        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->id, $this->emailSubject);
+        $this->emailBody = str_replace('{order_number}', $purchaseOrder->id, $this->emailBody);
 
         $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
         $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
 
-        $this->emailBody = str_replace('{details_link}', '<a href="' . route('purchaseOrder.eta', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash(), 'orderLines' => implode(',', $orderLineIDs)]) . '" target="_blank">Provide delivery dates here</a>', $this->emailBody);
-        $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.reminderTable', compact('orderLines'))->render(), $this->emailBody);
+        $confirmURL = route('supplierPortal.purchaseOrders.index', ['access_key' => $purchaseOrder->supplier->access_key ?? '']);
+        $this->emailBody = str_replace('{confirm_link}', '<a href="' . $confirmURL . '" target="_blank">Manage the order here</a>', $this->emailBody);
     }
 
     /**

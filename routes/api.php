@@ -320,7 +320,6 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/ongoing', [PurchaseOrderController::class, 'getOngoing'])->name('purchaseOrders.getOngoing');
         Route::get('/ongoing-sent', [PurchaseOrderController::class, 'getOngoingSent'])->name('purchaseOrders.getOngoingSent');
         Route::get('/ongoing-deleted', [PurchaseOrderController::class, 'getOngoingDeleted'])->name('purchaseOrders.getOngoingDeleted');
-        Route::post('/send-reminders', [PurchaseOrderController::class, 'sendReminders'])->name('purchaseOrders.sendReminders');
         Route::post('/cancel', [PurchaseOrderController::class, 'cancelOrderLines'])->name('purchaseOrders.cancelOrderLines');
         Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'getOrder'])->name('purchaseOrders.getOrder');
         Route::post('/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchaseOrders.update');
@@ -334,7 +333,6 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/indelivery', [PurchaseOrderController::class, 'indelivery'])->name('purchaseOrders.indelivery');
         Route::post('/{purchaseOrder}/cancel-row', [PurchaseOrderController::class, 'cancelRow'])->name('purchaseOrders.cancelRow');
         Route::post('/{purchaseOrder}/user-delete', [PurchaseOrderController::class, 'userDelete'])->name('purchaseOrders.userDelete');
-        Route::post('/{purchaseOrder}/draft-reminder', [PurchaseOrderController::class, 'draftReminder'])->name('purchaseOrders.draftReminder');
         Route::post('/{purchaseOrder}/copy-line', [PurchaseOrderController::class, 'copyLine'])->name('purchaseOrders.copyLine');
 
         Route::post('/{purchaseOrder}/shipments/manual', [PurchaseOrderController::class, 'submitManualShipment'])->name('purchaseOrders.submitShipment.manual');

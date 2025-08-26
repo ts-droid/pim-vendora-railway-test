@@ -33,21 +33,15 @@ class PurchaseOrder extends Mailable
         $this->emailSubject = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailSubject);
         $this->emailBody = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailBody);
 
-        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
-        $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
+        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->id, $this->emailSubject);
+        $this->emailBody = str_replace('{order_number}', $purchaseOrder->id, $this->emailBody);
 
         $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
         $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
 
-        $this->emailSubject = str_replace('{payment_terms}', ($purchaseOrder->supplier->credit_terms_description ?? ''), $this->emailSubject);
-        $this->emailBody = str_replace('{payment_terms}', ($purchaseOrder->supplier->credit_terms_description ?? ''), $this->emailBody);
 
-        // Replace some words
-        $this->emailSubject = str_replace('dagar', 'days', $this->emailSubject);
-        $this->emailBody = str_replace('dagar', 'days', $this->emailBody);
-
-        $this->emailBody = str_replace('{confirm_link}', '<a href="' . route('purchaseOrder.confirm', ['purchaseOrder' => $purchaseOrder->id, 'hash' => $purchaseOrder->getHash()]) . '" target="_blank">Manage the order here</a>', $this->emailBody);
-        $this->emailBody = str_replace('{order_table}', view('purchaseOrders.partials.orderTable', compact('purchaseOrder'))->render(), $this->emailBody);
+        $confirmURL = route('supplierPortal.purchaseOrders.index', ['access_key' => $purchaseOrder->supplier->access_key ?? '']);
+        $this->emailBody = str_replace('{confirm_link}', '<a href="' . $confirmURL . '" target="_blank">Manage the order here</a>', $this->emailBody);
     }
 
     /**

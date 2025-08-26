@@ -612,25 +612,6 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
-    public function sendReminders(Request $request)
-    {
-        $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
-        $emails = $request->post('emails');
-
-        if (!$purchaseOrderLineIDs) {
-            return ApiResponseController::error('No order lines selected');
-        }
-
-        if (is_string($purchaseOrderLineIDs) || is_numeric($purchaseOrderLineIDs)) {
-            $purchaseOrderLineIDs = [$purchaseOrderLineIDs];
-        }
-
-        $reminderService = new PurchaseOrderReminderService();
-        $reminderService->remindETARequest($purchaseOrderLineIDs, $emails);
-
-        return ApiResponseController::success([]);
-    }
-
     public function cancelOrderLines(Request $request)
     {
         $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
@@ -794,14 +775,6 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->update([
             'user_deleted_at' => date('Y-m-d H:i:s'),
         ]);
-
-        return ApiResponseController::success();
-    }
-
-    public function draftReminder(Request $request, PurchaseOrder $purchaseOrder)
-    {
-        $reminderService = new PurchaseOrderReminderService();
-        $reminderService->remindPurchaseOrderDraft($purchaseOrder);
 
         return ApiResponseController::success();
     }

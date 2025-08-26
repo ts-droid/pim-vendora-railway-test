@@ -35,8 +35,11 @@ class PurchaseOrderRowCancellation extends Mailable
         $this->emailSubject = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailSubject);
         $this->emailBody = str_replace('{supplier_name}', $purchaseOrder->supplier_name, $this->emailBody);
 
-        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailSubject);
-        $this->emailBody = str_replace('{order_number}', $purchaseOrder->order_number, $this->emailBody);
+        $this->emailSubject = str_replace('{order_number}', $purchaseOrder->id, $this->emailSubject);
+        $this->emailBody = str_replace('{order_number}', $purchaseOrder->id, $this->emailBody);
+
+        $this->emailSubject = str_replace('{order_date}', $purchaseOrder->date, $this->emailSubject);
+        $this->emailBody = str_replace('{order_date}', $purchaseOrder->date, $this->emailBody);
 
         $this->emailSubject = str_replace('{sku}', $purchaseOrderLine->article_number, $this->emailSubject);
         $this->emailBody = str_replace('{sku}', $purchaseOrderLine->article_number, $this->emailBody);
@@ -44,7 +47,7 @@ class PurchaseOrderRowCancellation extends Mailable
         $this->emailSubject = str_replace('{quantity}', $purchaseOrderLine->quantity, $this->emailSubject);
         $this->emailBody = str_replace('{quantity}', $purchaseOrderLine->quantity, $this->emailBody);
 
-        $portalURL = '';
+        $portalURL = route('supplierPortal.purchaseOrders.index', ['access_key' => $purchaseOrder->supplier->access_key ?? '']);
         $this->emailSubject = str_replace('{portal_url}', $portalURL, $this->emailSubject);
         $this->emailBody = str_replace('{portal_url}', $portalURL, $this->emailBody);
     }
