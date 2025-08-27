@@ -450,12 +450,10 @@ class PurchaseOrderGenerator
             $quantityDebug = $quantity['debug'] ?? [];
 
             $aiComment = [];
-            foreach ($quantity['debug'] as $key => $value) {
+            foreach ($quantityDebug as $key => $value) {
                 $aiComment[] = $key . ' = ' . $value;
             }
             $aiComment = implode(PHP_EOL, $aiComment);
-
-            $quantityDebug = implode(PHP_EOL, $quantityDebug);
 
             if ($supplier->purchase_master_box && $supplier->purchase_inner_box) {
                 $innerDiff = abs($quantity['inner'] - $quantity['quantity']);
