@@ -412,9 +412,11 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                     <th>Quantity</th>
                                 </tr>
                                 @foreach($purchaseOrder->lines as $line)
-                                    <tr class="{{ $line->is_shipped ? 'opacity-50' : '' }}">
+                                    @php($isShippable = (!$line->is_shipped && !$line->is_completed))
+
+                                    <tr class="{{ $isShippable ? '' : 'opacity-50' }}">
                                         <td>
-                                            @if(!$line->is_shipped)
+                                            @if($isShippable)
                                                 <input type="checkbox"
                                                        class="form-check-input js-shipment-row"
                                                        name="purchase_order_lines[]"
