@@ -328,8 +328,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $existingSalesOrder = SalesOrder::where('order_number', $order['orderNo'])->first();
 
-        dd($orderData);
-
         if ($existingSalesOrder) {
             // Update the order
             $response = $salesOrderApiController->update(new Request($orderData), $existingSalesOrder);
