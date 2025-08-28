@@ -297,7 +297,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         foreach (($order['lines'] ?? []) as $line) {
             $articleNumber = $line['inventory']['number'] ?? '';
             $lineNumber = $line['lineNbr'] ?? '';
-            $warehouseID = $line['waregouse']['id'] ?? self::WAREHOUSE_ID;
+            $warehouseID = $line['warehouse']['id'] ?? self::WAREHOUSE_ID;
 
             if (!$articleNumber || !$lineNumber) {
                 continue;
