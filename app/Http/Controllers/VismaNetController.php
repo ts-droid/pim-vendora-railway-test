@@ -453,7 +453,9 @@ class VismaNetController extends Controller
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
-        $params = [];
+        $params = [
+            'addCostPriceStatistics' => true
+        ];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_article_fetch');
 
@@ -476,6 +478,10 @@ class VismaNetController extends Controller
                     'external_id' => (string) ($article['inventoryId'] ?? ''),
                     'article_number' => (string) ($article['inventoryNumber'] ?? ''),
                     'cost_price_avg' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
+                    'stats_last_cost' => (float) ($article['costPriceStatistics']['lastCost'] ?? 0),
+                    'stats_avg_cost' => (float) ($article['costPriceStatistics']['averageCost'] ?? 0),
+                    'stats_min_cost' => (float) ($article['costPriceStatistics']['minCost'] ?? 0),
+                    'stats_max_cost' => (float) ($article['costPriceStatistics']['maxCost'] ?? 0),
                     'stock' => 0,
                     'stock_warehouse' => 0,
                     'stock_on_hand' => 0,
