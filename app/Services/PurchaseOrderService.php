@@ -346,7 +346,7 @@ class PurchaseOrderService
         }
 
         // First deliver the entire purchase order
-        $purchaseOrderShipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder)->get();
+        $purchaseOrderShipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->get();
         foreach ($purchaseOrderShipments as $purchaseOrderShipment) {
             $quantities = [];
             foreach ($purchaseOrderShipment->lines as $orderLine) {
