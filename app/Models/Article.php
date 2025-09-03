@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Actions\DispatchArticleUpdate;
+use App\Http\Controllers\CurrencyController;
 use App\Services\ArticleQuantityCalculator;
+use App\Services\EcbService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -314,5 +316,45 @@ class Article extends Model
             ->first();
 
         return ($articleImage->path_url ?? '');
+    }
+
+    public function getOutletPrices(): array
+    {
+        $ecbService = new EcbService();
+
+        $baseCurrency = 'SEK';
+
+        $discount = $this->outlet_discount / 100;
+        $maxDiscount = $this->outlet_max_discount / 100;
+        $innerWeight = $this->outlet_inner_weight / 100;
+
+        $innerDiscount = $discount + ($maxDiscount * $innerWeight);
+        $masterDiscount = $discount + $maxDiscount;
+
+        $unitPrice = round($this->{'rek_price_' . $baseCurrency} * (1 - $discount), 2);
+        $unitPriceInner = round($this->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount), 2);
+        $unitPriceMaster = round($this->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount), 2);
+
+        $prices = [
+            'unit' => [
+                $baseCurrency => $unitPrice
+            ],
+            'inner' => [
+                $baseCurrency => $unitPriceInner
+            ],
+            'master' => [
+                $baseCurrency => $unitPriceMaster
+            ]
+        ];
+
+        foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
+            if ($currency == $baseCurrency) continue;
+
+            $prices['unit'][$currency] = $ecbService->convertCurrency($prices['unit'][$baseCurrency], $baseCurrency, $currency);
+            $prices['inner'][$currency] = $ecbService->convertCurrency($prices['inner'][$baseCurrency], $baseCurrency, $currency);
+            $prices['master'][$currency] = $ecbService->convertCurrency($prices['master'][$baseCurrency], $baseCurrency, $currency);
+        }
+
+        return $prices;
     }
 }

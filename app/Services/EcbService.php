@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use DateTime;
 
 class EcbService
@@ -12,7 +13,10 @@ class EcbService
             $date = date('Y-m-d');
         }
 
-        $rates = $this->getRatesForDate($date);
+        $cacheKey = 'currency_rates_'. $date;
+        $rates = Cache::remember($cacheKey, now()->addHours(10), function() use ($date) {
+           return $this->getRatesForDate($date);
+        });
 
         if ($fromCurrency != 'EUR' && !isset($rates[$fromCurrency])) {
             throw new \Exception('Unsupported currency rate ' . $fromCurrency);
