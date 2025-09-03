@@ -210,6 +210,8 @@ class PurchaseOrderController extends Controller
                     $invoice->url = DoSpacesController::getURL($invoice->filename);
                 }
             }
+
+            $purchaseOrder->invoices = $invoices;
         }
 
         return ApiResponseController::success($purchaseOrder->toArray());
