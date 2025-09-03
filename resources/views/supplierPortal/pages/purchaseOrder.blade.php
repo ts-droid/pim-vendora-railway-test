@@ -31,12 +31,12 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 <input type="text" class="form-control form-control-sm" name="supplier_order_number" value="{{ $purchaseOrder['supplier_order_number'] }}" style="width: 250px;">
             </div>
             <div class="col-md-6 mb-4 text-end">
-                @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && !$purchaseOrder->isFullyInvoiced())
-                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#invoiceModal">Upload Invoice</button>
-                @endif
-
                 @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && (!$purchaseOrder->status_shipping_details || !$purchaseOrder->status_tracking_number))
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createShipmentModal">Create Shipment</button>
+                @endif
+
+                @if($portalStatus != \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED && !$purchaseOrder->isFullyInvoiced())
+                    <button class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#invoiceModal">Upload Invoice</button>
                 @endif
             </div>
         </div>
