@@ -305,7 +305,7 @@ class ArticleController extends Controller
             return get_object_vars($article);
         }, $articles);
 
-        if ($articles) {
+        if ($request->input('outlet_prices') && $articles) {
             foreach ($articles as &$article) {
                 $article['outlet_prices'] = Article::getOutletPrices($article['id']);
             }
