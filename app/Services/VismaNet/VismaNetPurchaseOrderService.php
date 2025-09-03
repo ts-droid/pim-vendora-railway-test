@@ -40,7 +40,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'unitCost' => ['value' => $orderLine->unit_cost],
                 'amount' => ['value' => $orderLine->amount],
                 'promised' => ['value' => $orderLine->promised_date], // Add 5 days to the promised date
-                'warehouse' => ['value' => $purchaseOrder->is_direct ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID],
+                'warehouse' => ['value' => ($purchaseOrder->is_direct ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID)],
             ];
         }
 
