@@ -318,22 +318,24 @@ class Article extends Model
         return ($articleImage->path_url ?? '');
     }
 
-    public function getOutletPrices(): array
+    public static function getOutletPrices(int $articleID): array
     {
+        $article = Article::find($articleID);
+
         $ecbService = new EcbService();
 
         $baseCurrency = 'SEK';
 
-        $discount = $this->outlet_discount / 100;
-        $maxDiscount = $this->outlet_max_discount / 100;
-        $innerWeight = $this->outlet_inner_weight / 100;
+        $discount = $article->outlet_discount / 100;
+        $maxDiscount = $article->outlet_max_discount / 100;
+        $innerWeight = $article->outlet_inner_weight / 100;
 
         $innerDiscount = $discount + ($maxDiscount * $innerWeight);
         $masterDiscount = $discount + $maxDiscount;
 
-        $unitPrice = round($this->{'rek_price_' . $baseCurrency} * (1 - $discount), 2);
-        $unitPriceInner = round($this->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount), 2);
-        $unitPriceMaster = round($this->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount), 2);
+        $unitPrice = round($article->{'rek_price_' . $baseCurrency} * (1 - $discount), 2);
+        $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount), 2);
+        $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount), 2);
 
         $prices = [
             'unit' => [

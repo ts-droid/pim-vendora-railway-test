@@ -300,16 +300,16 @@ class ArticleController extends Controller
         // Execute query
         $articles = $query->orderBy('created_at', 'DESC')->get()->toArray();
 
-        if ($articles) {
-            foreach ($articles as &$article) {
-                $article->outlet_prices = $article->getOutletPrices();
-            }
-        }
-
         // Convert article objects into an array
         $articles = array_map(function ($article) {
             return get_object_vars($article);
         }, $articles);
+
+        if ($articles) {
+            foreach ($articles as &$article) {
+                $article['outlet_prices'] = Article::getOutletPrices($article['id']);
+            }
+        }
 
         // Use different translations?
         $translationServiceID = translation_service();
