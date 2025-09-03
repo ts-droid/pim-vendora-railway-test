@@ -8,6 +8,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SalesOrder;
+use App\Models\SupplierInvoice;
 use App\Services\ArticleQuantityCalculator;
 use App\Services\PurchaseOrderDeletionService;
 use App\Services\PurchaseOrderEmailer;
@@ -200,6 +201,15 @@ class PurchaseOrderController extends Controller
                 ->with('lines')
                 ->orderBy('id', 'DESC')
                 ->get();
+
+            $invoiceIDs = $purchaseOrder->lines->pluck('invoice_id')->toArray();
+            $invoices = SupplierInvoice::whereIn('id', $invoiceIDs)->get();
+
+            if ($invoices) {
+                foreach ($invoices as &$invoice) {
+                    $invoice->url = DoSpacesController::getURL($invoice->filename);
+                }
+            }
         }
 
         return ApiResponseController::success($purchaseOrder->toArray());
