@@ -333,9 +333,9 @@ class Article extends Model
         $innerDiscount = $discount + ($maxDiscount * $innerWeight);
         $masterDiscount = $discount + $maxDiscount;
 
-        $unitPrice = round($article->{'rek_price_' . $baseCurrency} * (1 - $discount), 2);
-        $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount), 2);
-        $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount), 2);
+        $unitPrice = round($article->{'rek_price_' . $baseCurrency} * (1 - $discount));
+        $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount));
+        $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount));
 
         $prices = [
             'unit' => [
@@ -352,9 +352,11 @@ class Article extends Model
         foreach (CurrencyController::SUPPORTED_CURRENCIES as $currency) {
             if ($currency == $baseCurrency) continue;
 
-            $prices['unit'][$currency] = $ecbService->convertCurrency($prices['unit'][$baseCurrency], $baseCurrency, $currency);
-            $prices['inner'][$currency] = $ecbService->convertCurrency($prices['inner'][$baseCurrency], $baseCurrency, $currency);
-            $prices['master'][$currency] = $ecbService->convertCurrency($prices['master'][$baseCurrency], $baseCurrency, $currency);
+            $roundPrecision = ($currency == 'EUR') ? 1 : 0;
+
+            $prices['unit'][$currency] = round($ecbService->convertCurrency($prices['unit'][$baseCurrency], $baseCurrency, $currency), $roundPrecision);
+            $prices['inner'][$currency] = round($ecbService->convertCurrency($prices['inner'][$baseCurrency], $baseCurrency, $currency), $roundPrecision);
+            $prices['master'][$currency] = round($ecbService->convertCurrency($prices['master'][$baseCurrency], $baseCurrency, $currency), $roundPrecision);
         }
 
         return $prices;
