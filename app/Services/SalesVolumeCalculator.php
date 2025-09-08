@@ -74,6 +74,10 @@ class SalesVolumeCalculator
                 date('Y-m-d', strtotime('-180 days')),
                 date('Y-m-d')
             ],
+            'sales_365_days' => [
+                date('Y-m-d', strtotime('-365 days')),
+                date('Y-m-d')
+            ],
             'sales_last_year' => [
                 date('Y-m-d', strtotime('-365 days')),
                 date('Y-m-d', strtotime('-335 days')),

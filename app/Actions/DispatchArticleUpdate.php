@@ -19,6 +19,7 @@ class DispatchArticleUpdate
         'sales_60_days',
         'sales_90_days',
         'sales_180_days',
+        'sales_365_days',
         'sales_7_days_last_year',
         'sales_30_days_last_year',
         'sales_60_days_last_year',
