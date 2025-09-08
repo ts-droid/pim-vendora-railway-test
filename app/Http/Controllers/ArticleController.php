@@ -396,6 +396,7 @@ class ArticleController extends Controller
                 $article['highest_cost'] = 0;
                 $article['lowest_cost'] = 0;
                 $article['first_seen'] = '';
+                $article['last_sale'] = '';
 
                 if ($orderLines && $orderLines->count() > 0) {
                     $mappedOrderLines = $orderLines->map(function ($line) {
@@ -408,6 +409,7 @@ class ArticleController extends Controller
                     $article['lowest_cost'] = $mappedOrderLines->min() ?: 0;
 
                     $article['first_seen'] = min(array_column($orderLines->toArray(), 'date'));
+                    $article['last_sale'] = max(array_column($orderLines->toArray(), 'date'));
                 }
 
                 $article['lead_time'] = round($filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0);
