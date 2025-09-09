@@ -41,6 +41,16 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
             </div>
         </div>
 
+        @if($selectedShippingInstructions)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning p-2" role="alert">
+                        {{ $selectedShippingInstructions }}
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if($purchaseOrder->is_direct)
             <div class="row">
                 <div class="col-md-12">
