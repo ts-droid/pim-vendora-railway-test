@@ -170,9 +170,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                         <th class="text-end">Quantity</th>
                                         <th class="text-end">Total</th>
                                         <th class="text-end">Shipping date</th>
-                                        @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                            <th class="text-end">Tracking number</th>
-                                        @endif
+                                        <th class="text-end">Tracking number</th>
                                         @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                             <th class="text-end">Status</th>
                                         @endif
@@ -219,13 +217,10 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                             <td style="width: 150px;">
                                                 <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                             </td>
-                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN)
-                                                <td style="width: 250px;">
-                                                    @if($line->is_shipped)
-                                                        <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
-                                                    @endif
-                                                </td>
-                                            @elseif($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
+                                            <td style="width: 250px;">
+                                                <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>
+                                            </td>
+                                            @if($portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED)
                                                 <td style="width: 150px;">
                                                     <select class="form-select form-select-sm" name="status_{{ $line->id }}">
                                                         <option value="">-----</option>
@@ -551,13 +546,13 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                         If this is not done, a manual handling fee will be charged to you.
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <div class="row">
                             <div class="col-md-6 d-grid">
-                                <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Print</a>
+                                <a href="{{ route('supplierPortal.qrCode.print', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Print QR-code</a>
                             </div>
                             <div class="col-md-6 d-grid">
-                                <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                                <a href="{{ route('supplierPortal.qrCode.download', ['data' => json_encode($qrData), 'meta_data' => $qrMetaData]) }}" class="btn btn-sm btn-primary" target="_blank">Download QR-code</a>
                             </div>
                         </div>
                     </div>
@@ -878,7 +873,13 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.reload();
+                        const shipmentID = data?.shipment_id ?? null;
+
+                        if (shipmentID) {
+                            window.location.href = '{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder->id]) }}?shipment_id=' + shipmentID;
+                        } else {
+                            window.location.reload();
+                        }
                     }
                     else {
                         alert(data.message);
@@ -966,11 +967,9 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                             '<input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_' + newLine.id + '" value="">' +
                         '</td>';
 
-                    if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_OPEN }}') {
-                        rowColumns += '<td style="width: 250px;">' +
-                            '<input type="text" class="form-control form-control-sm text-end" name="tracking_number_' + newLine.id + '" value="' + newLine.tracking_number + '" placeholder="ex. 12345678901">' +
-                            '</td>';
-                    }
+                    rowColumns += '<td style="width: 250px;">' +
+                        '<input type="text" class="form-control form-control-sm text-end" name="tracking_number_' + newLine.id + '" value="' + newLine.tracking_number + '" placeholder="ex. 12345678901">' +
+                        '</td>';
 
                     if (portalStatus === '{{ \App\Models\PurchaseOrder::PORTAL_STATUS_UNCONFIRMED }}') {
                         rowColumns += '<td style="width: 150px;">' +

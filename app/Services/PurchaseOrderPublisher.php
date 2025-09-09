@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\MarkArticleEOL;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
+use App\Models\PurchaseOrderShipment;
 use App\Services\VismaNet\VismaNetPurchaseOrderService;
 use Illuminate\Support\Facades\Mail;
 
@@ -56,7 +57,7 @@ class PurchaseOrderPublisher
 
         // Process the items
         if ($items && count($items) > 0) {
-            $response = $this->processItems($purchaseOrder, $items);
+            $response = $this->processItems($purchaseOrder, $items, true);
 
             if ($response['require_confirmation']) {
                 // Order needs confirmation from admin before publishing
@@ -95,7 +96,14 @@ class PurchaseOrderPublisher
             'published_at' => date('Y-m-d H:i:s')
         ]);
 
-        return ['success' => true, 'message' => ''];
+        // Fetch the initial shipment id
+        $shipmentID = (int) PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->value('id');
+
+        return [
+            'success' => true,
+            'message' => '',
+            'shipment_id' => ($shipmentID ?: null),
+        ];
     }
 
     /**
@@ -135,7 +143,7 @@ class PurchaseOrderPublisher
      * @param array $items
      * @return array
      */
-    private function processItems(PurchaseOrder &$purchaseOrder, array $items): array
+    private function processItems(PurchaseOrder &$purchaseOrder, array $items, bool $publish = false): array
     {
         $response = [
             'require_confirmation' => false,
@@ -220,6 +228,35 @@ class PurchaseOrderPublisher
 
         // Refresh the order before returning
         $purchaseOrder->refresh();
+
+        if ($publish) {
+            $shipmentDate = '';
+            $shipmentLines = [];
+
+            foreach ($purchaseOrder->lines as $orderLine) {
+                if ($shipmentDate && $shipmentDate < $orderLine->promised_date) {
+                    continue;
+                }
+
+                $shipmentLines = ($shipmentDate == $orderLine->promised_date) ? $shipmentLines : [];
+                $shipmentLines[] = $orderLine;
+
+                $shipmentDate = $orderLine->promised_date;
+            }
+
+            if (count($shipmentLines) > 0) {
+                // Create initial shipment for the order
+                $purchaseOrderService = new PurchaseOrderService();
+                $purchaseOrderShipment = $purchaseOrderService->createShipment(
+                    $purchaseOrder,
+                    [
+                        'receipt' => null,
+                        'tracking_number' => $shipmentLines[0]->tracking_number ?? '',
+                    ],
+                    $shipmentLines
+                );
+            }
+        }
 
         return $response;
     }
