@@ -1527,6 +1527,11 @@ class ArticleController extends Controller
                 'is_backorder',
                 'is_dropship',
                 'is_outlet',
+                'outlet_price',
+                'outlet_max_price',
+                'outlet_price_fixed',
+                'outlet_inner_price_fixed',
+                'outlet_master_price_fixed',
             ],
             'float' => [
                 'standard_reseller_margin',
