@@ -6,9 +6,13 @@ use Illuminate\Support\Facades\Http;
 
 class BrandPageService
 {
+    const API_KEY = 'AJ2Cy3EkizwOX4Xn0Seqwvur1Mv8Ldo0cbik0N26Ma';
+
     public function callAPI(string $method, string $endpoint, array $params = []): array
     {
-        $getParams = [];
+        $getParams = [
+            'api_key' => self::API_KEY
+        ];
 
         if ($method == 'GET') {
             $getParams = array_merge($getParams, $params);
