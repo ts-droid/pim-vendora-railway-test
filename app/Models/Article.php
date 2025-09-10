@@ -326,8 +326,9 @@ class Article extends Model
 
         $baseCurrency = 'SEK';
 
+        $priceMode = $article->outlet_price_mode ?: 'Relative';
 
-        if ($article->outlet_price_mode == 'Relative') {
+        if ($priceMode == 'Relative') {
             $discount = $article->outlet_discount / 100;
             $maxDiscount = $article->outlet_max_discount / 100;
             $innerWeight = $article->outlet_inner_weight / 100;
@@ -339,14 +340,14 @@ class Article extends Model
             $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount));
             $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount));
         }
-        elseif ($article->outlet_price_mode == 'Relative price') {
+        elseif ($priceMode == 'Relative price') {
             $innerWeight = $article->outlet_inner_weight / 100;
 
             $unitPrice = (int) $article->outlet_price;
             $unitPriceMaster = (int) $article->outlet_max_price;
             $unitPriceInner = round($unitPrice - (($unitPrice - $unitPriceMaster) * $innerWeight));
         }
-        elseif ($article->outlet_price_mode == 'Fixed price') {
+        elseif ($priceMode == 'Fixed price') {
             $unitPrice = (int) $article->outlet_price_fixed;
             $unitPriceInner = (int) $article->outlet_inner_price_fixed;
             $unitPriceMaster = (int) $article->outlet_master_price_fixed;

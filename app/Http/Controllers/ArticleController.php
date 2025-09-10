@@ -1506,7 +1506,8 @@ class ArticleController extends Controller
                 'un_code',
                 'minimum_order_quantity',
                 'alternatives',
-                'predecessor'
+                'predecessor',
+                'outlet_price_mode',
             ],
             'int' => [
                 'pallet_height',
