@@ -146,6 +146,10 @@ class OpenAIService implements AIInterface
             ],
         ];
 
+        if (str_contains($this->model, 'gpt-5')) {
+            $body['reasoning_effort'] = 'low';
+        }
+
         if ($temperature !== null) {
             $body['temperature'] = $temperature;
         }
