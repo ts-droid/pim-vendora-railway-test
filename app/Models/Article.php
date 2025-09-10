@@ -326,16 +326,37 @@ class Article extends Model
 
         $baseCurrency = 'SEK';
 
-        $discount = $article->outlet_discount / 100;
-        $maxDiscount = $article->outlet_max_discount / 100;
-        $innerWeight = $article->outlet_inner_weight / 100;
 
-        $innerDiscount = $discount + ($maxDiscount * $innerWeight);
-        $masterDiscount = $discount + $maxDiscount;
+        if ($article->outlet_price_mode == 'Relative') {
+            $discount = $article->outlet_discount / 100;
+            $maxDiscount = $article->outlet_max_discount / 100;
+            $innerWeight = $article->outlet_inner_weight / 100;
 
-        $unitPrice = round($article->{'rek_price_' . $baseCurrency} * (1 - $discount));
-        $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount));
-        $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount));
+            $innerDiscount = $discount + ($maxDiscount * $innerWeight);
+            $masterDiscount = $discount + $maxDiscount;
+
+            $unitPrice = round($article->{'rek_price_' . $baseCurrency} * (1 - $discount));
+            $unitPriceInner = round($article->{'rek_price_' . $baseCurrency} * (1 - $innerDiscount));
+            $unitPriceMaster = round($article->{'rek_price_' . $baseCurrency} * (1 - $masterDiscount));
+        }
+        elseif ($article->outlet_price_mode == 'Relative price') {
+            $innerWeight = $article->outlet_inner_weight / 100;
+
+            $unitPrice = (int) $article->outlet_price;
+            $unitPriceMaster = (int) $article->outlet_max_price;
+            $unitPriceInner = round($unitPrice - (($unitPrice - $unitPriceMaster) * $innerWeight));
+        }
+        elseif ($article->outlet_price_mode == 'Fixed price') {
+            $unitPrice = (int) $article->outlet_price_fixed;
+            $unitPriceInner = (int) $article->outlet_inner_price_fixed;
+            $unitPriceMaster = (int) $article->outlet_master_price_fixed;
+        }
+        else {
+            $unitPrice = 0;
+            $unitPriceInner = 0;
+            $unitPriceMaster = 0;
+        }
+
 
         $prices = [
             'unit' => [
