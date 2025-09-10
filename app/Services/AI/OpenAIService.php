@@ -134,7 +134,6 @@ class OpenAIService implements AIInterface
 
         $body = [
             'model' => $this->model,
-            'reasoning' => ['effort' => 'low'],
             'messages' => [
                 [
                     'role' => 'system',
