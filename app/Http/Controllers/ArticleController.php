@@ -359,7 +359,7 @@ class ArticleController extends Controller
                     ->select(
                         'sales_orders.date'
                     )
-                    ->where('sales_order_lines.article_number', '=', $articleNumber)
+                    ->where('sales_order_lines.article_number', '=', $article['article_number'])
                     ->orderBy('sales_orders.date', 'DESC')
                     ->get();
 
