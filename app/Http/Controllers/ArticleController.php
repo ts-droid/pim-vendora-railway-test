@@ -354,6 +354,15 @@ class ArticleController extends Controller
                     ->orderBy('purchase_orders.date', 'DESC')
                     ->get();
 
+                $salesOrderLines = DB::table('sales_order_lines')
+                    ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
+                    ->select(
+                        'sales_orders.date'
+                    )
+                    ->where('sales_order_lines.article_number', '=', $articleNumber)
+                    ->orderBy('sales_orders.date', 'DESC')
+                    ->get();
+
                 $filteredOrderLines = $orderLines->filter(function ($item) {
                     return $item->date !== $item->promised_date;
                 });
@@ -409,7 +418,10 @@ class ArticleController extends Controller
                     $article['lowest_cost'] = $mappedOrderLines->min() ?: 0;
 
                     $article['first_seen'] = min(array_column($orderLines->toArray(), 'date'));
-                    $article['last_sale'] = max(array_column($orderLines->toArray(), 'date'));
+                }
+
+                if ($salesOrderLines && $salesOrderLines->count() > 0) {
+                    $article['last_sale'] = max(array_column($salesOrderLines->toArray(), 'date'));
                 }
 
                 $article['lead_time'] = round($filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0);
