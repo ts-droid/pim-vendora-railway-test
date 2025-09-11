@@ -117,17 +117,16 @@ class TranslationController extends Controller
         $excludes = array_filter($excludes);
 
         // Wrap excludes with <nt> tags
-        for ($i = 0;$i < count($excludes);$i++) {
-            for ($j = 0;$j < count($strings);$j++) {
-                $strings[$j] = str_replace($excludes[$i], '<nt>' . $excludes[$i] . '</nt>', $strings[$j]);
-            }
+        for ($j = 0;$j < count($strings);$j++) {
+            $strings[$j] = $this->wrapExcludesWithDntHtml($strings[$j], $excludes);
         }
 
 
         // Translate all the strings
         $options = [
-            'tag_handling' => 'xml',
-            'ignore_tags' => ['nt'],
+            'tag_handling' => 'html',
+            'ignore_tags' => ['dnt'],
+            'non_splitting_tags' => ['dnt'],
             'preserve_formatting' => true,
         ];
 
@@ -153,6 +152,8 @@ class TranslationController extends Controller
 
         // Remove <nt> tags from the text
         for ($j = 0;$j < count($translations);$j++) {
+            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j]);
+
             $translations[$j] = $this->stripNtTagsSmart($translations[$j]);
         }
 
@@ -160,22 +161,29 @@ class TranslationController extends Controller
         return $translations;
     }
 
-    private function stripNtTagsSmart(string $s): string
+    private function wrapExcludesWithDntHtml(string $html, array $excludes): string
     {
-        // Case 1: word<nt>TERM</nt>word  -> word TERM word
-        $s = preg_replace('/(\pL|\pN)<nt>(.*?)<\/nt>(\pL|\pN)/u', '$1 $2 $3', $s);
+        return $html;
+    }
 
-        // Case 2: word<nt>TERM</nt> -> word TERM
-        $s = preg_replace('/(\pL|\pN)<nt>(.*?)<\/nt>/u', '$1 $2', $s);
+    private function stripDntAndFixHtmlSpacing(string $s): string
+    {
+        // 1) Drop the <dnt> tags
+        $s = preg_replace('/<\/?dnt>/iu', '', $s);
 
-        // Case 3: <nt>TERM</nt>word -> TERM word
-        $s = preg_replace('/<nt>(.*?)<\/nt>(\pL|\pN)/u', '$1 $2', $s);
+        // 2) Convert our &nbsp; sentinels back to normal spaces
+        //    (use a conservative replace so real non-breaking spaces elsewhere remain)
+        $s = str_replace('&nbsp;', ' ', $s);
 
-        // Case 4: general fallback (boundaries/punctuation): just drop the tags
-        $s = preg_replace('/<nt>(.*?)<\/nt>/u', '$1', $s);
+        // 3) Fix “</tag>word” and “word<tag>” glue where both sides are letters/digits
+        //    a) ...X</b>Y... → ...X</b> Y...
+        $s = preg_replace('/(\pL|\pN)(<\/[^>]+>)(\pL|\pN)/u', '$1$2 $3', $s);
+        //    b) ...X(<tag> or </tag>)Y... → ...X $2 Y...  [rare but safe]
+        $s = preg_replace('/(\pL|\pN)(<[^>]+>)(\pL|\pN)/u', '$1 $2 $3', $s);
 
-        // Normalize runs of whitespace to a single space (but keep newlines if any)
+        // 4) Collapse excessive whitespace (not newlines)
         $s = preg_replace('/[^\S\r\n]+/u', ' ', $s);
+
         return $s;
     }
 
