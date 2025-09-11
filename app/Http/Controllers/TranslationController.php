@@ -153,8 +153,6 @@ class TranslationController extends Controller
         // Remove <nt> tags from the text
         for ($j = 0;$j < count($translations);$j++) {
             $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j]);
-
-            $translations[$j] = $this->stripNtTagsSmart($translations[$j]);
         }
 
 
@@ -163,6 +161,24 @@ class TranslationController extends Controller
 
     private function wrapExcludesWithDntHtml(string $html, array $excludes): string
     {
+        // longest-first to avoid partial matches inside larger terms
+        usort($excludes, fn($a,$b) => mb_strlen($b) <=> mb_strlen($a));
+
+        foreach ($excludes as $term) {
+            if ($term === '') continue;
+            $pattern = '/' . preg_quote($term, '/') . '/u';
+
+            $html = preg_replace_callback($pattern, function ($m) use ($term) {
+                return '<dnt>' . $m[0] . '</dnt>';
+            }, $html);
+        }
+
+        // Convert a *single* literal space before/after <dnt> into &nbsp; sentinels.
+        // before
+        $html = preg_replace('/(\s)<dnt>/u', '&nbsp;<dnt>', $html);
+        // after
+        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&nbsp;', $html);
+
         return $html;
     }
 
