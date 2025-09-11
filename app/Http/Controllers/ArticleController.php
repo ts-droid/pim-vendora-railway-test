@@ -421,7 +421,7 @@ class ArticleController extends Controller
                 }
 
                 if ($salesOrderLines && $salesOrderLines->count() > 0) {
-                    $article['last_sale'] = max(array_column($salesOrderLines->toArray(), 'date'));
+                    $article['last_sale'] = substr(max(array_column($salesOrderLines->toArray(), 'date')), 0, 10);
                 }
 
                 $article['lead_time'] = round($filteredOrderLines->count() > 0 ? $totalDays / $filteredOrderLines->count() : 0);
