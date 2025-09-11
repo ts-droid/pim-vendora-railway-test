@@ -116,20 +116,20 @@ class TranslationController extends Controller
 
         $excludes = array_filter($excludes);
 
-        // Replace excludes with placeholders
+        // Wrap excludes with <nt> tags
         for ($i = 0;$i < count($excludes);$i++) {
             for ($j = 0;$j < count($strings);$j++) {
-                $strings[$j] = str_replace($excludes[$i], '[1010_' . $i . ']', $strings[$j]);
+                $strings[$j] = str_replace($excludes[$i], '<nt>' . $excludes[$i] . '</nt>', $strings[$j]);
             }
         }
 
 
         // Translate all the strings
-        $options = [];
-
-        if ($isHTML) {
-            $options['tag_handling'] = 'html';
-        }
+        $options = [
+            'tag_handling' => 'xml',
+            'ignore_tags' => ['nt'],
+            'preserve_formatting' => true,
+        ];
 
         $translations = [];
 
@@ -151,10 +151,10 @@ class TranslationController extends Controller
         }
 
 
-        // Replace placeholders with excludes
+        // Remove <nt> tags from the text
         for ($i = 0;$i < count($excludes);$i++) {
             for ($j = 0;$j < count($translations);$j++) {
-                $translations[$j] = str_replace('[1010_' . $i . ']', $excludes[$i], $translations[$j]);
+                $translations[$j] = str_replace(['<nt>', '</nt>'], '', $translations[$j]);
             }
         }
 
