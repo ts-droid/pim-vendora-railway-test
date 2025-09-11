@@ -152,14 +152,31 @@ class TranslationController extends Controller
 
 
         // Remove <nt> tags from the text
-        for ($i = 0;$i < count($excludes);$i++) {
-            for ($j = 0;$j < count($translations);$j++) {
-                $translations[$j] = str_replace(['<nt>', '</nt>'], '', $translations[$j]);
-            }
+        for ($j = 0;$j < count($translations);$j++) {
+            $translations[$j] = $this->stripNtTagsSmart($translations[$j]);
         }
 
 
         return $translations;
+    }
+
+    private function stripNtTagsSmart(string $s): string
+    {
+        // Case 1: word<nt>TERM</nt>word  -> word TERM word
+        $s = preg_replace('/(\pL|\pN)<nt>(.*?)<\/nt>(\pL|\pN)/u', '$1 $2 $3', $s);
+
+        // Case 2: word<nt>TERM</nt> -> word TERM
+        $s = preg_replace('/(\pL|\pN)<nt>(.*?)<\/nt>/u', '$1 $2', $s);
+
+        // Case 3: <nt>TERM</nt>word -> TERM word
+        $s = preg_replace('/<nt>(.*?)<\/nt>(\pL|\pN)/u', '$1 $2', $s);
+
+        // Case 4: general fallback (boundaries/punctuation): just drop the tags
+        $s = preg_replace('/<nt>(.*?)<\/nt>/u', '$1', $s);
+
+        // Normalize runs of whitespace to a single space (but keep newlines if any)
+        $s = preg_replace('/[^\S\r\n]+/u', ' ', $s);
+        return $s;
     }
 
     public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
