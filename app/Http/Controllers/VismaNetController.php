@@ -510,6 +510,7 @@ class VismaNetController extends Controller
                 // Fetch detailed stock
                 if (should_sync_stock($updateData['article_number'])) {
                     $updateData['stock_manageable'] = 0;
+                    $lookupFound = false;
 
                     $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
                     foreach ($detailedStock as $stock) {
@@ -517,13 +518,14 @@ class VismaNetController extends Controller
 
                         if ($stockLocationName === '1') {
                             $updateData['stock_manageable'] += ($stock['onHand'] ?? 0);
+                            $lookupFound = true;
                             break;
                         }
                     }
 
                     // Remove all stock items, if no manageable stock is found.
                     // This must be an invalid difference, so we remove all stock items to avoid problems.
-                    if ($updateData['stock_manageable'] === 0) {
+                    if ($updateData['stock_manageable'] === 0 && $lookupFound) {
                         $stockItems = StockItem::where('article_number', '=', $updateData['article_number'])->get();
 
                         if ($stockItems && $stockItems->count() > 0) {
