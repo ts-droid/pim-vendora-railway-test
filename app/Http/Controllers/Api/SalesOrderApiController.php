@@ -208,7 +208,7 @@ class SalesOrderApiController
         }
 
         $salesOrder->update([
-            'order_number' => $salesOrder->order_number . '1'
+            'order_number' => '1' . $salesOrder->order_number
         ]);
 
         OrderCreatedJob::dispatch($salesOrder)
