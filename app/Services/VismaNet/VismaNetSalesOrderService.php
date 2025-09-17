@@ -158,7 +158,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function cancelSalesOrder(SalesOrder $salesOrder): array
     {
-        $fetchResponse = $this->callAPI('GET', '/v2/salesorder/', $salesOrder->order_number);
+        $fetchResponse = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
         if (empty($fetchResponse['response']['orderNo'])) {
             return [
                 'success' => false,
