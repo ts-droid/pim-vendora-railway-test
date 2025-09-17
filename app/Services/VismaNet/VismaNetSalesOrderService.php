@@ -51,7 +51,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService = new SalesOrderService();
 
         if (!$cancelSuccess) {
-            $salesOrderService->createLog($salesOrder->id, 'Failed to reset order sync state to Visma.net.');
+            $salesOrderService->createLog($salesOrder->id, 'Failed to reset order sync state to Visma.net. (' . $cancelResponse['message'] . ')');
             return false;
         }
 
