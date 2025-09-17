@@ -348,7 +348,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
     }
 
-    private function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $isUpdate = false): array
+    public function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $isUpdate = false): array
     {
         $orderData = [
             'orderType' => ['value' => $salesOrder->order_type],
