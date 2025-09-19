@@ -117,8 +117,10 @@ class SalesOrder extends Model
     {
         if (!$this->source) return false;
 
+        $endpoint = 'https://' . $this->source . '/api/v1/pages/site/get-by-domain';
+
         $brandPageService = new BrandPageService();
-        $response = $brandPageService->callAPI('GET', '/v1/pages/site/get-by-domain', [
+        $response = $brandPageService->callAPI('GET', $endpoint, [
             'domain' => $this->source
         ]);
 
@@ -137,8 +139,10 @@ class SalesOrder extends Model
     public function getBrandingDate(): array
     {
         if ($this->source) {
+            $endpoint = 'https://' . $this->source . '/api/v1/pages/site/get-by-domain';
+
             $brandPageService = new BrandPageService();
-            $response = $brandPageService->callAPI('GET', '/v1/pages/site/get-by-domain', [
+            $response = $brandPageService->callAPI('GET', $endpoint, [
                 'domain' => $this->source
             ]);
 

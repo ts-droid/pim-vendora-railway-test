@@ -15,8 +15,10 @@ class BrandPageDiscountCode
         App::setLocale($language);
 
         // Fetch brand page data
+        $endpoint = 'https://' . $source . '/api/v1/pages/site/get-by-domain';
+
         $brandPageService = new BrandPageService();
-        $response = $brandPageService->callAPI('GET', '/v1/pages/site/get-by-domain', [
+        $response = $brandPageService->callAPI('GET', $endpoint, [
             'domain' => $source
         ]);
 

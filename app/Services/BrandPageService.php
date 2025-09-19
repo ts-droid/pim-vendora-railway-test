@@ -18,7 +18,11 @@ class BrandPageService
             $getParams = array_merge($getParams, $params);
         }
 
-        $url = 'http://brand-pages.vendora.se/api' . $endpoint . '?' . http_build_query($getParams);
+        if (str_starts_with($endpoint, 'https://')) {
+            $url = $endpoint . '?' . http_build_query($getParams);
+        } else {
+            $url = 'http://brand-pages.vendora.se/api' . $endpoint . '?' . http_build_query($getParams);
+        }
 
         switch (strtoupper($method)) {
             case 'POST':
