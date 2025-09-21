@@ -150,6 +150,7 @@ class SalesOrder extends Model
                 $domain = $response['data']['domain'] ?? '';
                 $brandName = $response['data']['name'] ?? '';
                 $logoPath = $response['data']['logo']['path'] ?? '';
+                $logoMultiplier = $response['data']['logo_multiplier'] ?? 1;
 
                 if ($domain && $brandName && $logoPath) {
                     return [
@@ -157,6 +158,7 @@ class SalesOrder extends Model
                         'brand_name' => $brandName,
                         'logo_url' => 'https://' . $domain . '/storage/' . $logoPath,
                         'logo_path' => null,
+                        'logo_multiplier' => $logoMultiplier,
                         'customer_review_url' => 'https://' . $domain . '/{lang}/customer-review?sku={sku}&rating={rating}',
                         'language_code' => $this->language,
                     ];
@@ -169,6 +171,7 @@ class SalesOrder extends Model
             'brand_name' => 'Vendora Nordic AB',
             'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
             'logo_path' => public_path('/assets/img/logos/logo_vendora.png'),
+            'logo_multiplier' => 1,
             'customer_review_url' => route('customer.review', ['article_id' => '{article_id}', 'lang' => '{lang}', 'rating' => '{rating}']),
             'language_code' => $this->language,
         ];

@@ -94,6 +94,7 @@ class Shipment extends Model
             'brand_name' => 'Vendora Nordic AB',
             'logo_url' => asset('/assets/img/logos/logo_vendora.png'),
             'logo_path' => public_path('/assets/img/logos/logo_vendora.png'),
+            'logo_multiplier' => 1,
             'language_code' => 'en'
         ];
 

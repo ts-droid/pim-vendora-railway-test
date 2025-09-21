@@ -35,7 +35,7 @@ if ($salesOrder->lines ?? false) {
                     <!-- Logo -->
                     <tr>
                         <td align="center" style="padding: 20px 0;">
-                            <img src="{{ \App\Services\EmailImageService::prepareImageForEmail($brandingData['logo_url']) }}" alt="Logo" style="height: 28px;margin-bottom: 1rem;" />
+                            <img src="{{ \App\Services\EmailImageService::prepareImageForEmail($brandingData['logo_url']) }}" alt="Logo" style="height: {{ ($brandingData['logo_multiplier'] * 28) }}px;margin-bottom: 1rem;" />
                         </td>
                     </tr>
 
