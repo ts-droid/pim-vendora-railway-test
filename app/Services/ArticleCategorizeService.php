@@ -59,7 +59,7 @@ class ArticleCategorizeService
 
         $message = 'Product description: ' . PHP_EOL . ($article->shop_description_en ?? '') . PHP_EOL . PHP_EOL . 'Candidate Google Product Categories:' . PHP_EOL . $relevantCategories . PHP_EOL . PHP_EOL . 'Which category best matches the product?';
 
-        $AIService = new AiService(self::COMPLETION_MODEL);
+        $AIService = new AiService();
         $response = $AIService->chatCompletion($system, $message, 0);
 
         $categoryID = (int) $response;
