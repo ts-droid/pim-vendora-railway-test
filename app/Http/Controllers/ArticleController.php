@@ -311,6 +311,12 @@ class ArticleController extends Controller
             }
         }
 
+        if ($request->input('related_articles') && $articles) {
+            foreach ($articles as &$article) {
+                $article['related_articles'] = [];
+            }
+        }
+
         // Use different translations?
         $translationServiceID = translation_service();
         if ($translationServiceID) {
