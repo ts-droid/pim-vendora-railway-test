@@ -203,8 +203,6 @@ class ArticleController extends Controller
             ['articleData' => $articleRawData]
         );
 
-        return ApiResponseController::success(['raw' => $rawResponse]);
-
         $response = json_decode($rawResponse, true);
 
         if (!isset($response['groups']) || !is_array($response['groups'])) {
