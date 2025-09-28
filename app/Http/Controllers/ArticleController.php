@@ -190,8 +190,6 @@ class ArticleController extends Controller
 
         $articles = Article::whereIn('id', $articleIDs)->get();
 
-        return ApiResponseController::success(['articles' => count($articles)]);
-
         $articleRawData = '';
         for ($i = 1;$i <= count($articles);$i++) {
             $articleRawData .= 'JSON-object for article ' . $i . ':' . PHP_EOL . json_encode($articles[$i - 1]->toArray()) . PHP_EOL . PHP_EOL;
@@ -204,6 +202,8 @@ class ArticleController extends Controller
             $prompt->id,
             ['articleData' => $articleRawData]
         );
+
+        return ApiResponseController::success(['raw' => $rawResponse]);
 
         $response = json_decode($rawResponse, true);
 
