@@ -22,6 +22,7 @@ use App\Models\StockKeepTransaction;
 use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
+use App\Services\RelatedArticlesService;
 use App\Services\StockKeepService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\Todo\TodoItemService;
@@ -181,6 +182,18 @@ class ArticleController extends Controller
             'description' => $article->description,
             'unit_price' => 0,
         ]);
+    }
+
+    public function relateArticles(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+
+        if ($articleIDs && is_array($articleIDs)) {
+            $service = new RelatedArticlesService();
+            $service->syncGroup($articleIDs);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function search(Request $request)

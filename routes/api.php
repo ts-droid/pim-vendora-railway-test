@@ -244,6 +244,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/stock-data', [ArticleController::class, 'getStockData'])->name('articles.getStockData');
         Route::get('/order-row', [ArticleController::class, 'getDataForOrderRow'])->name('articles.getDataForOrderRow');
 
+        Route::post('/relate', [ArticleController::class, 'relateArticles'])->name('articles.relateArticles');
+
         Route::get('/edit-data', [ArticleController::class, 'getEditData'])->name('articles.getEditData');
 
         Route::get('/images', [ArticleController::class, 'getAllImages'])->name('articles.getAllImages');
