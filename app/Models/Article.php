@@ -10,6 +10,7 @@ use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Article extends Model
 {
@@ -316,6 +317,36 @@ class Article extends Model
             ->first();
 
         return ($articleImage->path_url ?? '');
+    }
+
+    public function linkedChildren(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Article::class,
+            'related_articles',
+            'parent_article_id',
+            'child_article_id'
+        )->withTimestamps();
+    }
+
+    public function linkedParents(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Article::class,
+            'related_articles',
+            'child_article_id',
+            'parent_article_id'
+        )->withTimestamps();
+    }
+
+    public function getLinkedArticlesAttribute()
+    {
+        return $this->linkedChildren->merge($this->linkedParents)->unique('id')->values();
+    }
+
+    public function scopeWithLinked($query)
+    {
+        return $query->with(['linkedChildren', 'linkedParents']);
     }
 
     public static function getOutletPrices(int $articleID): array
