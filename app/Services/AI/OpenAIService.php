@@ -15,8 +15,8 @@ class OpenAIService implements AIInterface
     {
         $this->model = $model;
 
-        $this->apiKey = env('OPEN_AI_KEY', '');
-        $this->apiURL = env('OPEN_AI_ENDPOINT', '');
+        $this->apiKey = config('services.openai.key', '');
+        $this->apiURL = config('services.openai.endpoint', '');
 
         if (!$this->apiKey || !$this->apiURL) {
             throw new \Exception('OpenAI API key or endpoint not set');

@@ -33,6 +33,11 @@ return [
 
     'deepl' => [
         'api_key' => env('DEEPL_API_KEY', '')
+    ],
+
+    'openai' => [
+        'key' => env('OPEN_AI_KEY', ''),
+        'endpoint' => env('OPEN_AI_ENDPOINT', ''),
     ]
 
 ];
