@@ -196,6 +196,18 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function deleteRelateArticles(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+
+        if ($articleIDs && is_array($articleIDs)) {
+            $service = new RelatedArticlesService();
+            $service->disconnectSubset($articleIDs);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function search(Request $request)
     {
         $searchQuery = (string) $request->input('search', '');
