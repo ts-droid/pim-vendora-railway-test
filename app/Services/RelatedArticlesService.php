@@ -25,7 +25,7 @@ class RelatedArticlesService
             foreach ($pairs as [$a, $b]) {
                 if ($a === $b) continue;
 
-                $rows = [
+                $rows[] = [
                     'parent_article_id' => $a,
                     'child_article_id' => $b,
                     'created_at' => $now,
