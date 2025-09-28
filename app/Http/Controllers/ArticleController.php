@@ -184,6 +184,34 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function getRelateArticlesSuggestions(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+
+        $articles = Article::whereIn('id', $articleIDs)->get();
+
+        $articleRawData = '';
+        for ($i = 1;$i <= count($articles);$i++) {
+            $articleRawData .= 'JSON-object for article ' . $i . ':' . PHP_EOL . json_encode($articles[$i - 1]->toArray()) . PHP_EOL . PHP_EOL;
+        }
+
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode('group_related_articles');
+
+        $rawResponse = $promptController->execute(
+            $prompt->id,
+            ['articleData' => $articleRawData]
+        );
+
+        $response = json_decode($rawResponse, true);
+
+        if (!isset($response['groups']) || !is_array($response['groups'])) {
+            return ApiResponseController::error('Failed to generate suggestions. Please try again.');
+        }
+
+        return ApiResponseController::success($response);
+    }
+
     public function relateArticles(Request $request)
     {
         $articleIDs = $request->input('article_ids', []);
