@@ -313,7 +313,18 @@ class ArticleController extends Controller
 
         if ($request->input('related_articles') && $articles) {
             foreach ($articles as &$article) {
-                $article['related_articles'] = [];
+                $model = Article::with(['linkedChildren', 'linkedParents'])->find($article['id']);
+
+                if ($model) {
+                    $article['related_articles'] = $model->linkedChildren
+                        ->merge($model->linkedParents)
+                        ->pluck('id')
+                        ->unique()
+                        ->values()
+                        ->toArray();
+                } else {
+                    $article['related_articles'] = [];
+                }
             }
         }
 
