@@ -239,6 +239,18 @@ class ArticleController extends Controller
         return ApiResponseController::success();
     }
 
+    public function setSingleArticles(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+        $flag = (bool) $request->input('flag');
+
+        DB::table('articles')
+            ->whereIn('id', $articleIDs)
+            ->update(['is_single' => ($flag ? 1 : 0)]);
+
+        return ApiResponseController::success();
+    }
+
     public function search(Request $request)
     {
         $searchQuery = (string) $request->input('search', '');
