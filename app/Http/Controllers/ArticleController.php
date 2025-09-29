@@ -298,6 +298,7 @@ class ArticleController extends Controller
         $supplierNumber = $request->input('supplier_number', '');
 
         $count = Article::where('supplier_number', '=', $supplierNumber)
+            ->where('is_single', 0)
             ->whereDoesntHave('linkedChildren')
             ->whereDoesntHave('linkedParents')
             ->count();
