@@ -188,11 +188,14 @@ class ArticleController extends Controller
     {
         $articleIDs = $request->input('article_ids', []);
 
-        $articles = Article::whereIn('id', $articleIDs)->get();
+        $articles = DB::table('articles')
+            ->select('id', 'description', 'shop_description_en')
+            ->whereIn('id', $articleIDs)
+            ->get();
 
         $articleRawData = '';
         for ($i = 1;$i <= count($articles);$i++) {
-            $articleRawData .= 'JSON-object for article ' . $i . ':' . PHP_EOL . json_encode($articles[$i - 1]->toArray()) . PHP_EOL . PHP_EOL;
+            $articleRawData .= 'JSON-object for article ' . $i . ':' . PHP_EOL . json_encode($articles[$i - 1]) . PHP_EOL . PHP_EOL;
         }
 
         $promptController = new PromptController();
