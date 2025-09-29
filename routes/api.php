@@ -199,6 +199,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [SupplierController::class, 'get'])->name('suppliers.get');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::get('/basic', [SupplierController::class, 'getBasic'])->name('suppliers.getBasic');
+        Route::get('/ungrouped', [SupplierController::class, 'getUngrouped'])->name('suppliers.getUngrouped');
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
         Route::get('/{supplier}', [SupplierController::class, 'getSupplier'])->name('suppliers.getSupplier');
         Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');

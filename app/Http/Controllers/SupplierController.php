@@ -23,6 +23,18 @@ class SupplierController extends Controller
         return ApiResponseController::success($suppliers->toArray());
     }
 
+    public function getUngrouped(Request $request)
+    {
+        $supplierNumber = $request->input('supplier_number', '');
+
+        $count = Article::where('supplier_number', '=', $supplierNumber)
+            ->whereDoesntHave('linkedChildren')
+            ->whereDoesntHave('linkedParents')
+            ->count();
+
+        return ApiResponseController::success(['count' => $count]);
+    }
+
     public function getBasic(Request $request)
     {
         $filters = $request->input('filter');
