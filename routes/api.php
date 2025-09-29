@@ -199,7 +199,6 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/', [SupplierController::class, 'get'])->name('suppliers.get');
         Route::post('/', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::get('/basic', [SupplierController::class, 'getBasic'])->name('suppliers.getBasic');
-        Route::get('/ungrouped', [SupplierController::class, 'getUngrouped'])->name('suppliers.getUngrouped');
         Route::post('/update-many', [SupplierController::class, 'updateMany'])->name('suppliers.updateMany');
         Route::get('/{supplier}', [SupplierController::class, 'getSupplier'])->name('suppliers.getSupplier');
         Route::post('/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
@@ -239,6 +238,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
         Route::get('/search', [ArticleController::class, 'search'])->name('articles.search');
         Route::get('/basic', [ArticleController::class, 'getBasic'])->name('articles.getBasic');
+        Route::get('/ungrouped', [ArticleController::class, 'getUngrouped'])->name('articles.getUngrouped');
         Route::get('/simple', [ArticleController::class, 'getSimple'])->name('articles.getSimple');
         Route::get('/brands', [ArticleController::class, 'getBrands'])->name('articles.getBrands');
         Route::get('/unspsc-categories', [ArticleController::class, 'unspscCategories'])->name('articles.unspscCategories');
