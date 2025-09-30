@@ -215,6 +215,27 @@ class ArticleController extends Controller
         return ApiResponseController::success($response);
     }
 
+    public function getRelateArticles(Request $request)
+    {
+        $articleNumbers = $request->input('article_numbers', []);
+
+        $articles = Article::toBase()
+            ->select('id', 'article_number', 'description', 'is_single')
+            ->whereIn('article_number', $articleNumbers)
+            ->get();
+
+        foreach ($articles as &$article) {
+            $linkedArticles = DB::table('related_articles')
+                ->select('parent_article_id')
+                ->where('child_article_id', $article->id)
+                ->pluck('parent_article_id');
+
+            $article->related_articles = $linkedArticles ? $linkedArticles->toArray() : [];
+        }
+
+        return ApiResponseController::success($articles->toArray());
+    }
+
     public function relateArticles(Request $request)
     {
         $articleIDs = $request->input('article_ids', []);

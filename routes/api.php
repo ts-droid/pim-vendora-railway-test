@@ -249,6 +249,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/relate/suggest', [ArticleController::class, 'getRelateArticlesSuggestions'])->name('articles.getRelateArticlesSuggestions');
         Route::post('/relate/delete', [ArticleController::class, 'deleteRelateArticles'])->name('articles.deleteRelateArticles');
         Route::post('/relate/single', [ArticleController::class, 'setSingleArticles'])->name('articles.setSingleArticles');
+        Route::get('/relate/get-articles', [ArticleController::class, 'getRelateArticles'])->name('articles.getRelateArticles');
 
         Route::get('/edit-data', [ArticleController::class, 'getEditData'])->name('articles.getEditData');
 
