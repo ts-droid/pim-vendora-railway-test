@@ -32,8 +32,12 @@ class GenerateArticleShopData extends Command
             ->where(function($query) {
                 $query->where('shop_title_sv', '=', '')
                     ->orWhereNull('shop_title_sv')
+                    ->orWhere('shop_title_en', '=', '')
+                    ->orWhereNull('shop_title_en')
                     ->orWhere('shop_marketing_description_sv', '=', '')
-                    ->orWhereNull('shop_marketing_description_sv');
+                    ->orWhereNull('shop_marketing_description_sv')
+                    ->orWhere('shop_marketing_description_en', '=', '')
+                    ->orWhereNull('shop_marketing_description_en');
             })
             ->limit(50)
             ->get();
