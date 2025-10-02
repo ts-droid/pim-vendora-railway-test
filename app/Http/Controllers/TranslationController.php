@@ -112,7 +112,16 @@ class TranslationController extends Controller
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
 
-        $excludes = array_merge($excludes, $globalExcludes);
+        $variables = [];
+        for ($j = 0;$j < count($strings);$j++) {
+            preg_match_all('/%[a-zA-Z0-9_]+%/', $strings[$j], $matches);
+            $variables = array_merge($variables, $matches[0]);
+
+            preg_match_all('/{[a-zA-Z0-9_]+}/', $strings[$j], $matches);
+            $variables = array_merge($variables, $matches[0]);
+        }
+
+        $excludes = array_merge($excludes, $globalExcludes, $variables);
 
         $excludes = array_filter($excludes);
 
