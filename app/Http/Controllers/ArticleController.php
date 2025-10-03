@@ -701,7 +701,7 @@ class ArticleController extends Controller
         if ($diff != 0) {
             if ($diff > 0) {
                 // Add stock items
-                $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature);
+                $stockItemService->addStockItem($article->article_number, $diff, $identifierData['stock_place_compartment'], $signature, 'Stock keeping');
             }
             else {
                 // Remove stock items
@@ -710,7 +710,7 @@ class ArticleController extends Controller
                     ->limit(abs($diff))
                     ->get();
 
-                $stockItemService->removeStockItems($stockItems, $signature);
+                $stockItemService->removeStockItems($stockItems, $signature, 'Stock keeping');
             }
         }
 

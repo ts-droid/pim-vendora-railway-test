@@ -14,6 +14,7 @@ class StockItemLog extends Model
         'stock_place_compartment_id',
         'quantity',
         'signature',
+        'source'
     ];
 
     public function stockPlaceCompartment()

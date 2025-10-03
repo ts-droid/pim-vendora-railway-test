@@ -530,7 +530,7 @@ class VismaNetController extends Controller
 
                         if ($stockItems && $stockItems->count() > 0) {
                             $stockItemService = new StockItemService();
-                            $stockItemService->removeStockItems($stockItems, 'Visma.net stock sync');
+                            $stockItemService->removeStockItems($stockItems, 'System', 'Visma.net stock sync');
                         }
                     }
 

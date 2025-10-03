@@ -124,7 +124,8 @@ class AppWarehouseController extends Controller
                     $quantity,
                     $fromCompartmentObject,
                     $toCompartmentObject,
-                    $signature
+                    $signature,
+                    'Create stock movement from app'
                 );
             }
             else {
@@ -132,7 +133,8 @@ class AppWarehouseController extends Controller
                     $article->article_number,
                     $quantity,
                     $toCompartmentObject,
-                    $signature
+                    $signature,
+                    'Movement form app'
                 );
             }
 
@@ -192,7 +194,8 @@ class AppWarehouseController extends Controller
                 $stockItemMovement->quantity,
                 $stockItemMovement->fromStockPlaceCompartment,
                 $stockItemMovement->toStockPlaceCompartment,
-                $signature
+                $signature,
+                'Confirm stock movement from app'
             );
         }
         else {
@@ -202,7 +205,8 @@ class AppWarehouseController extends Controller
                     $stockItemMovement->article_number,
                     $stockItemMovement->quantity,
                     $stockItemMovement->toStockPlaceCompartment,
-                    $signature
+                    $signature,
+                    'Confirm movement from app'
                 );
             }
             else if ($stockItemMovement->from_stock_place_compartment) {
@@ -214,7 +218,7 @@ class AppWarehouseController extends Controller
                     return ApiResponseController::error('Not enough stock in the selected compartment to item move from.');
                 }
 
-                $response = $stockItemService->removeStockItems($stockItems, $signature);
+                $response = $stockItemService->removeStockItems($stockItems, $signature, 'Confirm movement from app');
             }
         }
 

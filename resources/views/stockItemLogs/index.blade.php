@@ -65,6 +65,7 @@
                 <th class="text-start">Stock Place</th>
                 <th class="text-start">User</th>
                 <th class="text-end">Quantity</th>
+                <th class="text-end">Source</th>
                 <th class="text-end">Time</th>
             </tr>
             <tr>
@@ -78,6 +79,7 @@
                     <td class="text-start">{{ ($stockLog->stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockLog->stockPlaceCompartment->identifier ?? '') }}</td>
                     <td class="text-start">{{ $stockLog->signature }}</td>
                     <td class="text-end">{{ ($stockLog->quantity > 0) ? ('+' . $stockLog->quantity) : $stockLog->quantity }}</td>
+                    <td class="text-start">{{ $stockLog->source }}</td>
                     <td class="text-end">{{ date('Y-m-d H:i:s', strtotime($stockLog->created_at)) }}</td>
                 </tr>
             @endforeach

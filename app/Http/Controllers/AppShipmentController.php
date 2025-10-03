@@ -301,7 +301,7 @@ class AppShipmentController extends Controller
                             continue;
                         }
 
-                        $stockItemService->removeStockItems($stockItems, $displayName);
+                        $stockItemService->removeStockItems($stockItems, $displayName, 'Picked shipment #' . $shipment->id);
                     }
                 }
             }

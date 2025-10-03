@@ -171,7 +171,8 @@ class StockKeepController extends Controller
                     $articleNumber,
                     abs($diff),
                     $compartmentObject,
-                    $signature
+                    $signature,
+                    'Stock place movement'
                 );
             }
             else {
@@ -181,7 +182,7 @@ class StockKeepController extends Controller
                     ->limit(abs($diff))
                     ->get();
 
-                $stockItemService->removeStockItems($stockItems, $signature);
+                $stockItemService->removeStockItems($stockItems, $signature, 'Stock place movement');
             }
         }
 
@@ -252,7 +253,7 @@ class StockKeepController extends Controller
 
                 if ($diff > 0) {
                     // Add stock items
-                    $stockItemService->addStockItem($articleNumber, $diff, $compartmentObject, $signature);
+                    $stockItemService->addStockItem($articleNumber, $diff, $compartmentObject, $signature, 'Stock place keeping');
                 }
                 else {
                     // Remove stock items
@@ -261,7 +262,7 @@ class StockKeepController extends Controller
                         ->limit(abs($diff))
                         ->get();
 
-                    $stockItemService->removeStockItems($stockItems, $signature);
+                    $stockItemService->removeStockItems($stockItems, $signature, 'Stock place keeping');
                 }
 
 
@@ -277,7 +278,7 @@ class StockKeepController extends Controller
             }
             else {
                 // Insert new stock
-                $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, $signature);
+                $stockItemService->addStockItem($articleNumber, $stock, $compartmentObject, $signature, 'Stock place keeping');
 
                 if (!$isManual) {
                     StockKeepService::makeTransaction(
@@ -302,7 +303,7 @@ class StockKeepController extends Controller
                 ->limit($stock)
                 ->get();
 
-            $stockItemService->removeStockItems($stockItems, $signature);
+            $stockItemService->removeStockItems($stockItems, $signature, 'Stock place keeping');
 
             StockKeepService::makeTransaction(
                 $articleNumber,

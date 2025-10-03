@@ -204,7 +204,8 @@ class PurchaseOrderService
                 $line->article_number,
                 $line->quantity_received,
                 $indeliveryCompartment,
-                get_display_name()
+                get_display_name(),
+                'Shipment delivery PO ' . $purchaseOrderShipment->purchaseOrder->id
             );
 
             DB::table('articles')

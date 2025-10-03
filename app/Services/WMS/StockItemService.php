@@ -19,7 +19,7 @@ class StockItemService
             ->get();
     }
 
-    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, string $signature = ''): array
+    public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = ''): array
     {
         DB::beginTransaction();
 
@@ -35,7 +35,7 @@ class StockItemService
 
             $this->updateStockMovements([$stockPlaceCompartment]);
 
-            $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity, $signature);
+            $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity, $signature, $source);
 
             DB::commit();
 
@@ -54,7 +54,7 @@ class StockItemService
         }
     }
 
-    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = ''): array
+    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = '', string $source = ''): array
     {
         $stockItems = StockItem::where('article_number', $articleNumber)
             ->where('stock_place_compartment_id', $fromStockPlaceCompartment->id)
@@ -69,7 +69,7 @@ class StockItemService
         }
 
         foreach ($stockItems as $stockItem) {
-            $this->moveStockItem($stockItem, $toStockPlaceCompartment, $signature);
+            $this->moveStockItem($stockItem, $toStockPlaceCompartment, $signature, $source);
         }
 
         return [
@@ -78,15 +78,15 @@ class StockItemService
         ];
     }
 
-    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = ''): array
+    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = ''): array
     {
         DB::beginTransaction();
 
         try {
             $oldStockPlaceCompartment = StockPlaceCompartment::find($stockItem->stock_place_compartment_id);
 
-            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature);
-            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature);
+            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature, $source);
+            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature, $source);
 
             $stockItem->update([
                 'stock_place_compartment_id' => $stockPlaceCompartment->id
@@ -110,7 +110,7 @@ class StockItemService
         }
     }
 
-    public function removeStockItems($stockItems, string $signature = ''): array
+    public function removeStockItems($stockItems, string $signature = '', $source = ''): array
     {
         DB::beginTransaction();
 
@@ -134,7 +134,7 @@ class StockItemService
 
             foreach ($totalRemoved as $articleNumber => $groups) {
                 foreach ($groups as $stockPlaceCompartmentId => $quantity) {
-                    $this->logChange($articleNumber, $stockPlaceCompartmentId, (-1 * $quantity), $signature);
+                    $this->logChange($articleNumber, $stockPlaceCompartmentId, (-1 * $quantity), $signature, $source);
 
                     if (!isset($stockPlaceCompartments[$stockPlaceCompartmentId])) {
                         $stockPlaceCompartments[$stockPlaceCompartmentId] = StockPlaceCompartment::find($stockPlaceCompartmentId);
@@ -312,13 +312,14 @@ class StockItemService
         }
     }
 
-    private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = ''): void
+    private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = '', string $source = ''): void
     {
         StockItemLog::create([
             'article_number' => $articleNumber,
             'stock_place_compartment_id' => $stockPlaceCompartmentID,
             'quantity' => $quantity,
             'signature' => $signature,
+            'source' => $source
         ]);
     }
 }
