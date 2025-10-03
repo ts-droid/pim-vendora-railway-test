@@ -73,6 +73,7 @@
                 <td></td>
                 <td class="text-end"><b>{{ $sumQuantity }}</b></td>
                 <td></td>
+                <td></td>
             </tr>
             @foreach($stockLogs as $stockLog)
                 <tr>
