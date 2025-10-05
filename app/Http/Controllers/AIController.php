@@ -23,7 +23,7 @@ class AIController extends Controller
         $imageURL = (string)$request->input('image_url', '');
 
         $aiService = new AIService($model);
-        $streamData = $aiService->streamChatCompletion($system, $message);
+        $streamData = $aiService->streamChatCompletion($system, $message, $imageURL);
 
         $headers = [];
         foreach ($streamData['headers'] as $key => $value) {
