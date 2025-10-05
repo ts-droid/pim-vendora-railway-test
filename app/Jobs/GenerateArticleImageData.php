@@ -64,6 +64,7 @@ class GenerateArticleImageData implements ShouldQueue
                     'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
                 ],
                 '',
+                '',
                 $image->path_url
             );
 
