@@ -27,9 +27,9 @@ class AIService
         }
     }
 
-    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null, $imageURL = ''): string
     {
-        return $this->aiService->chatCompletion($system, $message, $temperature);
+        return $this->aiService->chatCompletion($system, $message, $temperature, $imageURL);
     }
 
     public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array

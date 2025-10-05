@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class PromptController extends Controller
 {
-    public function execute(int $promptID, array $inputs = [], string $customInstructions = '', string $model = ''): string
+    public function execute(int $promptID, array $inputs = [], string $customInstructions = '', string $model = '', string $imageURL = ''): string
     {
         $prompt = $this->get($promptID);
 
@@ -22,7 +22,7 @@ class PromptController extends Controller
         }
 
         $AIService = new AIService($model);
-        $response = $AIService->chatCompletion($system, $prompt->message);
+        $response = $AIService->chatCompletion($system, $prompt->message, null, $imageURL);
 
         return $response;
     }

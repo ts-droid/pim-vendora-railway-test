@@ -33,8 +33,6 @@ class GenerateArticleImageData implements ShouldQueue
      */
     public function handle(): void
     {
-        return;
-
         $languages = (new LanguageController())->getAllLanguages();
 
         // Load the image
@@ -59,10 +57,15 @@ class GenerateArticleImageData implements ShouldQueue
 
         // Generate and translate alt text
         if ($prompt) {
-            $altText = $promptController->execute($prompt->id, [
-                'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},
-                'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
-            ]);
+            $altText = $promptController->execute(
+                $prompt->id,
+                [
+                    'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},
+                    'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
+                ],
+                '',
+                $image->path_url
+            );
 
             $altText = remove_quotations($altText);
 
