@@ -21,8 +21,9 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('visma:check')->everyTwoMinutes()->withoutOverlapping();
 
-            // TODO: Can me moved to long loved processes
             $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
+
+            // TODO: Can me moved to long loved processes
             $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();

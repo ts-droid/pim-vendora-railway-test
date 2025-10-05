@@ -18,7 +18,7 @@ class GenerateArticleImageData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    const DEFAULT_LANGUAGE = 'en';
+    const DEFAULT_LANGUAGE = 'sv';
 
     /**
      * Create a new job instance.
@@ -26,9 +26,7 @@ class GenerateArticleImageData implements ShouldQueue
     public function __construct(
         private int $imageID
     )
-    {
-        //
-    }
+    {}
 
     /**
      * Execute the job.
@@ -55,13 +53,11 @@ class GenerateArticleImageData implements ShouldQueue
         $translationController = new TranslationController();
 
         // Fetch the prompt based on system_code
-        $productPrompt = $promptController->getBySystemCode('article_image_alt_product');
-        $lifestylePrompt = $promptController->getBySystemCode('article_image_alt_lifestyle');
+        $prompt = $promptController->getBySystemCode('article_image_alt_product');
 
         $imageUpdate = [];
 
         // Generate and translate alt text
-        $prompt = $image->solid_background ? $productPrompt : $lifestylePrompt;
         if ($prompt) {
             $altText = $promptController->execute($prompt->id, [
                 'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},

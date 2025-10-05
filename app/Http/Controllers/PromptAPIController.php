@@ -35,12 +35,15 @@ class PromptAPIController extends Controller
         $inputs = $request->input('inputs');
         $inputs = $inputs ? json_decode($inputs, true) : [];
 
+        $image = $request->input('image');
+
         $prompt->system = $promptController->replaceInputs($prompt->system, $inputs);
         $prompt->message = $promptController->replaceInputs($prompt->message, $inputs);
 
         return ApiResponseController::success([
             'system' => $prompt->system,
             'message' => $prompt->message,
+            'image' => $image,
         ]);
     }
 

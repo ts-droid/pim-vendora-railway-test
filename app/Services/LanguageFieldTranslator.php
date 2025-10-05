@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\MetaDataController;
 use App\Http\Controllers\TranslationController;
 
 class LanguageFieldTranslator

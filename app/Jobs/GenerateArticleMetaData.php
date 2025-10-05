@@ -17,7 +17,7 @@ class GenerateArticleMetaData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    const DEFAULT_LANGUAGE = 'en';
+    const DEFAULT_LANGUAGE = 'sv';
 
     /**
      * Create a new job instance.
@@ -25,16 +25,13 @@ class GenerateArticleMetaData implements ShouldQueue
     public function __construct(
         private int $articleID
     )
-    {
-        //
-    }
+    {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        return;
 
         $languages = (new LanguageController())->getAllLanguages();
 
@@ -48,16 +45,16 @@ class GenerateArticleMetaData implements ShouldQueue
         $translationController = new TranslationController();
 
         // Fetch prompts based on system_code
-        //$metaTitlePrompt = $promptController->getBySystemCode('article_meta_title');
+        $metaTitlePrompt = $promptController->getBySystemCode('article_meta_title');
         $metaDescriptionPrompt = $promptController->getBySystemCode('article_meta_description');
 
         $articleUpdate = [];
 
         // Generate and translate meta title
-        /*if ($metaTitlePrompt) {
+        if ($metaTitlePrompt) {
             $metaTitle = $promptController->execute($metaTitlePrompt->id, [
                 'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},
-                'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
+                'description' => $article->{'short_description_' . self::DEFAULT_LANGUAGE},
             ]);
 
             $metaTitle = remove_quotations($metaTitle);
@@ -72,13 +69,13 @@ class GenerateArticleMetaData implements ShouldQueue
                 list($translation) = $translationController->translate([$metaTitle], self::DEFAULT_LANGUAGE, $language->language_code);
                 $articleUpdate['meta_title_' . $language->language_code] = $translation;
             }
-        }*/
+        }
 
         // Generate and translate meta description
         if ($metaDescriptionPrompt) {
             $metaDescription = $promptController->execute($metaDescriptionPrompt->id, [
                 'title' => $article->{'shop_title_' . self::DEFAULT_LANGUAGE},
-                'description' => $article->{'shop_description_' . self::DEFAULT_LANGUAGE},
+                'description' => $article->{'short_description_' . self::DEFAULT_LANGUAGE},
             ]);
 
             $articleUpdate['meta_description_' . self::DEFAULT_LANGUAGE] = $metaDescription;
