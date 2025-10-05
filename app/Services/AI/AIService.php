@@ -32,9 +32,9 @@ class AIService
         return $this->aiService->chatCompletion($system, $message, $temperature);
     }
 
-    public function streamChatCompletion(string $system, string $message): array
+    public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array
     {
-        return $this->aiService->streamChatCompletion($system, $message);
+        return $this->aiService->streamChatCompletion($system, $message, $imageURL);
     }
 
     public function translate(string $text, string $fromLocale, string $toLocale): string

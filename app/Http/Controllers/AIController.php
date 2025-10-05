@@ -20,6 +20,7 @@ class AIController extends Controller
         $model = (string)$request->input('model', '');
         $system = (string)$request->input('system', '');
         $message = (string)$request->input('message', '');
+        $imageURL = (string)$request->input('image_url', '');
 
         $aiService = new AIService($model);
         $streamData = $aiService->streamChatCompletion($system, $message);

@@ -67,9 +67,9 @@ class OpenAIService implements AIInterface
         return $chatResponse;
     }
 
-    public function streamChatCompletion(string $system, string $message): array
+    public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array
     {
-        $requestBody = $this->getChatCompletionBody($system, $message);
+        $requestBody = $this->getChatCompletionBody($system, $message, null, $imageURL);
         $requestBody['stream'] = true;
 
         return [
