@@ -102,8 +102,11 @@ class Article extends Model
             }
 
             $lastSaved = $article->last_saved ?: [];
-            foreach ($article->getChanges() as $column => $value) {
-                $lastSaved[$column] = date('Y-m-d H:i:s');
+            $dirtyColumns = array_keys($article->getDirty());
+
+            $now = now()->format('Y-m-d H:i:s');
+            foreach ($dirtyColumns as $column) {
+                $lastSaved[$column] = $now;
             }
 
             $article->last_saved = $lastSaved;
