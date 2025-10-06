@@ -43,7 +43,8 @@ class DispatchArticleUpdate
         'classification_volume',
         'wms_toplist',
         'created_at',
-        'updated_at,'
+        'updated_at',
+        'last_saved'
     ];
 
     public function execute(int $articleID, bool $isNew, array $changes, bool $force = false): void

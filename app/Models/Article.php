@@ -23,6 +23,7 @@ class Article extends Model
 
     protected $casts = [
         'category_ids' => 'array',
+        'last_saved' => 'array'
     ];
 
     protected $appends = [
@@ -99,6 +100,13 @@ class Article extends Model
             foreach ($article->getAppends() as $append) {
                 unset($article->attributes[$append]);
             }
+
+            $lastSaved = $article->last_saved ?: [];
+            foreach ($article->getChanges() as $column => $value) {
+                $lastSaved[$column] = date('Y-m-d H:i:s');
+            }
+
+            $article->last_saved = $lastSaved;
         });
 
         static::updated(function ($article) {
