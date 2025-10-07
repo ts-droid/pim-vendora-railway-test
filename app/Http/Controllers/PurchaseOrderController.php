@@ -581,7 +581,9 @@ class PurchaseOrderController extends Controller
 
                 $updatedLineKeys[] = $line['line_key'];
             } else {
-                // Create a new order line
+                // Create a new order line (if order is not already sent)
+                if (!$purchaseOrder->is_draft) continue;
+
                 $createData = [];
 
                 foreach ($line as $key => $value) {
@@ -594,7 +596,12 @@ class PurchaseOrderController extends Controller
                     $createData['unit_cost'] = round($createData['unit_cost'], 2);
                 }
 
-                $createData['amount'] = $createData['unit_cost'] * $createData['quantity'];
+                $quantity = (int) ($createData['quantity'] ?? 0);
+                if ($quantity <= 0) {
+                    continue;
+                }
+
+                $createData['amount'] = $createData['unit_cost'] * $quantity;
                 $createData['purchase_order_id'] = $purchaseOrder->id;
 
                 PurchaseOrderLine::create($createData);
