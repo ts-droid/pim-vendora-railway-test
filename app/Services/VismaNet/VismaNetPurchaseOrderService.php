@@ -9,6 +9,7 @@ use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use Illuminate\Support\Facades\Http;
 use DateTime;
+use Illuminate\Support\Facades\Log;
 
 class VismaNetPurchaseOrderService extends VismaNetApiService
 {
@@ -234,7 +235,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         $response = $this->callAPI('POST', '/v1/PurchaseReceipt', $postData);
 
-        log_data('/v1/PurchaseReceipt ' . json_encode(['payload' => $postData, 'response' => $response]));
+        Log::info('/v1/PurchaseReceipt ' . json_encode(['payload' => $postData, 'response' => $response]));
 
         if (!$response['success']) {
             return [
