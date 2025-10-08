@@ -179,12 +179,11 @@ class PurchaseOrderService
             'status_received' => ($quantityOpen === 0) ? 1 : 0
         ]);
 
-        DB::commit();
-
         // Create a purchase order receipt in Visma.net
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt($purchaseOrderShipment->purchaseOrder, $purchaseOrderShipment);
         if (!$response['success']) {
+            DB::rollback();
             return [
                 'success' => false,
                 'error_message' => $response['message']
@@ -212,6 +211,8 @@ class PurchaseOrderService
                 ->where('article_number', $line->article_number)
                 ->increment('stock_manageable', $line->quantity_received);
         }
+
+        DB::commit();
 
         return [
             'success' => true,
