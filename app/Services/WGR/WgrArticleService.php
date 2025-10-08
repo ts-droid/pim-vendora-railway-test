@@ -227,7 +227,7 @@ class WgrArticleService
             'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
             'VATRate' => 25,
             'eta' => '',
-            'etaQuantity' => 9,
+            'etaQuantity' => 0,
         ];
 
         // Add article ETA

@@ -13,7 +13,7 @@ class PurchaseOrderHelper
         return DB::table('purchase_order_lines')
             ->select(
                 'promised_date',
-                DB::raw('SUM(quantity - quantity_received) as remaining_quantity')
+                DB::raw('SUM(quantity - quantity_received) as quantity')
             )
             ->where('article_number', '=', $articleNumber)
             ->where('is_completed', '=', 0)
