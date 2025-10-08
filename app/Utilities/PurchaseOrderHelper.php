@@ -4,9 +4,30 @@ namespace App\Utilities;
 
 use App\Http\Controllers\ConfigController;
 use App\Models\Supplier;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderHelper
 {
+    public static function getArticleETA(string $articleNumber)
+    {
+        return DB::table('purchase_order_lines')
+            ->select(
+                'promised_date',
+                DB::raw('SUM(quantity - quantity_received) as remaining_quantity')
+            )
+            ->where('article_number', '=', $articleNumber)
+            ->where('is_completed', '=', 0)
+            ->where('is_canceled', '=', 0)
+            ->where(function($query) {
+                $query->where('promised_date', '')
+                    ->orWhere('promised_date', '>', date('Y-m-d', strtotime('-2 years')));
+            })
+            ->orderByRaw("CASE WHEN promised_date IS NULL OR promised_date = '' THEN 1 ELSE 0 END ASC")
+            ->orderBy('promised_date', 'asc')
+            ->groupBy('promised_date')
+            ->get();
+    }
+
     public static function getCCRecipients()
     {
         $string = (string)ConfigController::getConfig('purchase_system_cc_emails');

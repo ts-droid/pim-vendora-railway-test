@@ -13,6 +13,7 @@ use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Services\SupplierArticlePriceService;
 use App\Utilities\ImageComparisonUtility;
+use App\Utilities\PurchaseOrderHelper;
 
 class WgrArticleService
 {
@@ -224,8 +225,17 @@ class WgrArticleService
             'categoryId' => [],
             'googleProductCategory' => (string) $article->google_product_category,
             'defaultBox' => 0, // 0 = Default, 1 = Master, 2 = Inner
-            'VATRate' => 25
+            'VATRate' => 25,
+            'eta' => '',
+            'etaQuantity' => 9,
         ];
+
+        // Add article ETA
+        $articleETA = PurchaseOrderHelper::getArticleETA($article->article_number);
+        if (count($articleETA) > 0) {
+            $postData['eta'] = (string) ($articleETA[0]->promised_date ?? '');
+            $postData['etaQuantity'] = (int) ($articleETA[0]->quantity ?? 0);
+        }
 
         if ($article->publish_at) {
             $postData['premiereDate'] = date('Y-m-d', strtotime($article->publish_at));
