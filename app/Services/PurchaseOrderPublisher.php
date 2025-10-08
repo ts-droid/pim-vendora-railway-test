@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Actions\DispatchArticleUpdate;
 use App\Jobs\MarkArticleEOL;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
@@ -209,6 +210,9 @@ class PurchaseOrderPublisher
                 'amount' => round(($unitCost * $quantity), 2),
                 'tracking_number' => $item['tracking_number'] ?? null,
             ]);
+
+            // Dispatch article update so ETA gets pushed to external systems
+            (new DispatchArticleUpdate)->execute($orderLine->article->id, false, [], true);
         }
 
         // Calculate the order total
