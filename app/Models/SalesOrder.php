@@ -115,7 +115,9 @@ class SalesOrder extends Model
 
     public function isBrandPageOrder(): bool
     {
-        if (!$this->source) return false;
+        if (!$this->source || $this->source == 'visma_net') {
+            return false;
+        }
 
         $endpoint = 'https://' . $this->source . '/api/v1/pages/site/get-by-domain';
 
@@ -138,7 +140,7 @@ class SalesOrder extends Model
 
     public function getBrandingDate(): array
     {
-        if ($this->source) {
+        if ($this->source && $this->source != 'visma_net') {
             $endpoint = 'https://' . $this->source . '/api/v1/pages/site/get-by-domain';
 
             $brandPageService = new BrandPageService();
