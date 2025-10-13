@@ -135,12 +135,12 @@ class PurchasePlanner
 
 		$finalNeedInnerBox = round($finalNeed / $innerSize) * $innerSize;
         if ($finalNeed > 1) {
-            $finalNeedInnerBox = max(1, $finalNeedInnerBox);
+            $finalNeedInnerBox = max($innerSize, $finalNeedInnerBox);
         }
 
 		$finalNeedMasterBox = round($finalNeed / $masterSize) * $masterSize;
         if ($finalNeed > 1) {
-            $finalNeedMasterBox = max(1, $finalNeedMasterBox);
+            $finalNeedMasterBox = max($masterSize, $finalNeedMasterBox);
         }
 
         $this->addLog('$finalNeedInnerBox = ' . $finalNeedInnerBox);
