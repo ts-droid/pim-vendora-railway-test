@@ -590,7 +590,7 @@ class ArticleController extends Controller
     public function getArticleWmsData(Article $article)
     {
         $articleData = DB::table('articles')
-            ->select('id', 'article_number', 'description', 'ean')
+            ->select('id', 'article_number', 'description', 'ean', 'stock_manageable')
             ->where('article_number', '=', $article->article_number)
             ->first();
 
