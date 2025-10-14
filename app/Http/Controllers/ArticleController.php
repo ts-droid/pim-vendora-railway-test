@@ -612,9 +612,6 @@ class ArticleController extends Controller
         $signature = get_display_name();
 
         try {
-            $times = [];
-            $startTime = microtime(true);
-
             $markForInvestigation = false;
             $updateAllStockMovements = false;
 
@@ -631,9 +628,6 @@ class ArticleController extends Controller
 
             $i = 0;
             foreach ($stockValues as $identifier => $quantity) {
-                $times['stock_value_' . $i++] = microtime(true) - $startTime;
-                $startTime = microtime(true);
-
                 if ($quantity === '' || !is_numeric($quantity)) continue;
 
                 if ($identifier == '--') {
@@ -654,9 +648,6 @@ class ArticleController extends Controller
                 }
             }
 
-            $times['save'] = microtime(true) - $startTime;
-            $startTime = microtime(true);
-
             // Save the stock keep transaction
             if (count($identifiers) > 0
                 && count($values) > 0
@@ -670,21 +661,17 @@ class ArticleController extends Controller
                     $markForInvestigation
                 );
 
-                if ($updateAllStockMovements) {
+                if ($updateAllStockMovements && false) {
+                    // TODO: Queue this shit
                     $stockItemService = new StockItemService();
                     $stockItemService->updateAllStockMovements();
                 }
             }
 
-            $times[] = microtime(true) - $startTime;
-            $startTime = microtime(true);
-
             // Remove tasks to stock keep this article
             StockKeepTodo::where('type', 'article')
                 ->where('reference', $article->article_number)
                 ->delete();
-
-            log_data(json_encode($times));
 
             return ApiResponseController::success($stockKeepTransaction->toArray());
         } catch (\Throwable $e) {
