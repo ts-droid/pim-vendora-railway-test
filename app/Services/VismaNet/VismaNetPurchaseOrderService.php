@@ -228,6 +228,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'unitCost' => ['value' => $line->unit_cost],
                 'amount' => ['value' => ($line->unit_cost * $line->quantity_received)],
                 'poOrderNbr' => ['value' => $purchaseOrder->order_number],
+                'poOrderType' => ['value' => 'RegularOrder'],
                 'poOrderLineNbr' => ['value' => $line->line_key],
                 'completePoLine' => ['value' => ($line->quantity == $line->quantity_received)],
             ];
