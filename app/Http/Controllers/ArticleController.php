@@ -618,6 +618,15 @@ class ArticleController extends Controller
             $stockValues = $request->input('stock_values');
             $stockValues = json_decode($stockValues, true);
 
+            $locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
+            $existingIdentifiers = array_column($locations, 'identifier');
+
+            foreach ($existingIdentifiers as $identifier) {
+                if (isset($stockValues[$identifier])) continue;
+
+                $stockValues[$identifier] = 0;
+            }
+
             if (!$stockValues || !is_array($stockValues)) {
                 return ApiResponseController::error('No stock values provided');
             }
