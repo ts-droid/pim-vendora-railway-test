@@ -555,9 +555,7 @@ class StockKeepController extends Controller
 
     public function getTodo()
     {
-        $todos = StockKeepTodo::orderBy('created_at', 'ASC')
-            ->limit(50)
-            ->get();
+        $todos = StockKeepTodo::orderBy('created_at', 'ASC')->get();
 
         if ($todos) {
             foreach ($todos as &$todo) {
