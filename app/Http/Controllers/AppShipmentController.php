@@ -280,7 +280,7 @@ class AppShipmentController extends Controller
             if ($shipmentLines) {
                 foreach ($shipmentLines as $shipmentLine) {
                     $pickingLocations = json_decode($shipmentLine->picking_location, true);
-                    $pickingLocationQuantity = json_decode($shipmentLine->picking_location_quantity, true);
+                    $pickingLocationQuantities = json_decode($shipmentLine->picking_location_quantity, true);
 
                     if ($shipmentLine->shipped_quantity != $shipmentLine->picked_quantity) {
                         $markForInvestigation = true;
@@ -288,7 +288,7 @@ class AppShipmentController extends Controller
 
                     for ($i = 0;$i < count($pickingLocations);$i++) {
                         $pickingLocation = $pickingLocations[$i];
-                        $pickingLocationQuantity = $pickingLocationQuantity[$i] ?? 0;
+                        $qty = $pickingLocationQuantities[$i] ?? 0;
 
                         if ($pickingLocation == '--') {
                             continue;
@@ -296,7 +296,7 @@ class AppShipmentController extends Controller
 
                         $compartment = $stockPlaceService->getCompartmentByIdentifier($pickingLocation);
 
-                        $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $pickingLocationQuantity);
+                        $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $qty);
                         if ($stockItems->count() == 0) {
                             continue;
                         }
