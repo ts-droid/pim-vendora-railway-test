@@ -613,7 +613,6 @@ class ArticleController extends Controller
 
         try {
             $markForInvestigation = false;
-            $updateAllStockMovements = false;
 
             $stockValues = $request->input('stock_values');
             $stockValues = json_decode($stockValues, true);
@@ -641,8 +640,6 @@ class ArticleController extends Controller
 
                 if ($identifier == '--') {
                     $response = $this->stockKeepArticleUnspecified($article, $quantity, $signature);
-
-                    $updateAllStockMovements = true;
                 }
                 else {
                     $response = $this->stockKeepArticlePlace($article, $identifier, $quantity, $signature);
@@ -669,12 +666,6 @@ class ArticleController extends Controller
                     implode(',', $diffs),
                     $markForInvestigation
                 );
-
-                if ($updateAllStockMovements && false) {
-                    // TODO: Queue this shit
-                    $stockItemService = new StockItemService();
-                    $stockItemService->updateAllStockMovements();
-                }
             }
 
             // Remove tasks to stock keep this article
