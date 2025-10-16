@@ -365,17 +365,13 @@ class AppWarehouseController extends Controller
             ->where('list_order', 0)
             ->get();
 
+        $imagesByArticle = $articleImages->keyBy('article_id');
+
         $articlesData = [];
 
         foreach ($articles as $article) {
             // Fetch main image
-            $article->image = null;
-            foreach($articleImages as $articleImage) {
-                if ($articleImage->article_id == $article->id) {
-                    $article->image = $articleImage->path_url;
-                    break;
-                }
-            }
+            $article->image = $imagesByArticle[$article->id]?->path_url ?? null;
 
             // Fetch detailed data
             if ($detailed) {

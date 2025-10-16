@@ -123,25 +123,28 @@ class WarehouseHelper
 
     public static function getArticleLocationsWithStock(string $articleNumber): array
     {
-        $locations = [];
-
-        $managedStock = 0;
-
         $articleStock = (int) DB::table('articles')
             ->select('stock_manageable')
             ->where('article_number', $articleNumber)
             ->value('stock_manageable');
 
-        $stockItems = StockItem::where('article_number', $articleNumber)
+        $stockItemsByLocation = DB::table('stock_items')
+            ->join('stock_place_compartments', 'stock_place_compartments.id', '=', 'stock_items.stock_place_compartment_id')
+            ->join('stock_places', 'stock_places.id', '=', 'stock_place_compartments.stock_place_id')
+            ->where('stock_items.article_number', $articleNumber)
+            ->groupBy('stock_places.identifier', 'stock_place_compartments.identifier')
+            ->select([
+                'stock_places.identifier as stock_place_identifier',
+                'stock_place_compartments.identifier as compartment_identifier',
+                DB::raw('COUNT(*) as stock_count'),
+            ])
             ->get();
 
-        foreach ($stockItems as $stockItem) {
-            $stockPlaceCompartment = StockPlaceCompartment::where('id', $stockItem->stock_place_compartment_id)
-                ->first();
+        $locations = [];
+        $managedStock = 0;
 
-            $stockPlace = StockPlace::find($stockPlaceCompartment->stock_place_id);
-
-            $identifier = $stockPlace->identifier . ':' . $stockPlaceCompartment->identifier;
+        foreach ($stockItemsByLocation as $locationRow) {
+            $identifier = $locationRow->stock_place_identifier . ':' . $locationRow->compartment_identifier;
 
             if (!isset($locations[$identifier])) {
                 $locations[$identifier] = [
@@ -151,9 +154,8 @@ class WarehouseHelper
                 ];
             }
 
-            $locations[$identifier]['stock']++;
-
-            $managedStock++;
+            $locations[$identifier]['stock'] += (int) $locationRow->stock_count;
+            $managedStock += (int) $locationRow->stock_count;
         }
 
         $locations['--'] = [
