@@ -48,7 +48,7 @@ class AppShipmentController extends Controller
             $shipmentsQuery->where('internal_status', $status);
         }
 
-        $shipmentsQuery->with('address', 'lines')
+        $shipments = $shipmentsQuery->with('address', 'lines')
             ->get();
 
         foreach ($shipments as &$shipment) {
