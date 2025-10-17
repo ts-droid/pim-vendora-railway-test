@@ -69,6 +69,24 @@ class AppShipmentController extends Controller
         return ApiResponseController::success($shipments->toArray());
     }
 
+    public function listTabCount()
+    {
+        $shipments = DB::table('shipments')
+            ->select('internal_status', DB::raw('count(*) as total'))
+            ->where('status', 'Open')
+            ->where('operation', 'Issue')
+            ->whereIn('internal_status', [0, 1, 3])
+            ->groupBy('internal_status')
+            ->get()
+            ->keyBy('internal_status');
+
+        return ApiResponseController::success([
+            '0' => $shipments[0]->total ?? 0,
+            '1' => $shipments[1]->total ?? 0,
+            '3' => $shipments[3]->total ?? 0
+        ]);
+    }
+
     public function listHistory()
     {
         $shipments = Shipment::where('operation', 'Issue')

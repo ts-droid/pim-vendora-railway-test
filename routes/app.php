@@ -29,6 +29,7 @@ Route::prefix('/app')->group(function() {
 
         Route::prefix('/shipments')->group(function() {
             Route::get('/', [AppShipmentController::class, 'list']);
+            Route::get('/tab-count', [AppShipmentController::class, 'listTabCount']);
             Route::get('/history', [AppShipmentController::class, 'listHistory']);
             Route::post('/check-serial-number', [AppShipmentController::class, 'checkSerialNumber']);
             Route::get('/{shipment}', [AppShipmentController::class, 'get']);
