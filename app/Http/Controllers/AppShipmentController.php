@@ -33,10 +33,22 @@ class AppShipmentController extends Controller
 
     public function list(Request $request)
     {
-        $shipments = Shipment::where('status', 'Open')
+        $page = (int) $request->input('page', 0);
+        $pageSize = (int) $request->input('page_size', 12);
+        $status = (int) $request->input('status', -1);
+
+        $shipmentsQuery = Shipment::where('status', 'Open')
             ->where('operation', 'Issue')
-            ->orderBy('id', 'DESC')
-            ->with('address', 'lines')
+            ->orderBy('id', 'DESC');
+
+        if ($page > 0) {
+            $shipmentsQuery->offset(($page - 1) * $pageSize)->limit($pageSize);
+        }
+        if ($status != -1) {
+            $shipmentsQuery->where('internal_status', $status);
+        }
+
+        $shipmentsQuery->with('address', 'lines')
             ->get();
 
         foreach ($shipments as &$shipment) {
