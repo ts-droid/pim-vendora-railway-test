@@ -49,6 +49,7 @@ class AppShipmentController extends Controller
         }
 
         $shipments = $shipmentsQuery->with('address', 'lines')
+            ->orderBy('customer_number')
             ->get();
 
         foreach ($shipments as &$shipment) {
