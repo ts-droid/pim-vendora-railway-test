@@ -8,6 +8,7 @@ use App\Models\StockItemMovement;
 use App\Models\StockKeepTodo;
 use App\Services\Todo\TodoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AppMetaDataController extends Controller
 {
@@ -46,7 +47,16 @@ class AppMetaDataController extends Controller
         }
 
         // TODO: Add delivery counts
-        $counts['delivery'] = 0;
+        $counts['delivery'] = (int) DB::table('purchase_order_lines')
+            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
+            ->select('purchase_orders.id')
+            ->where('purchase_orders.status', '!=', 'Closed')
+            ->where('purchase_orders.is_draft', 0)
+            ->where('purchase_orders.is_po_system', 1)
+            ->where('purchase_order_lines.is_completed', 0)
+            ->where('purchase_order_shipment_id', '>', 0)
+            ->distinct()
+            ->count('purchase_orders.id');
 
         // Invenstory
         $counts['inventory'] = (int) StockKeepTodo::count();
