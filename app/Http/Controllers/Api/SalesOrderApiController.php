@@ -216,4 +216,16 @@ class SalesOrderApiController
 
         return ApiResponseController::success();
     }
+
+    public function createShipment(SalesOrder $salesOrder)
+    {
+        try {
+            $vismaNetSalesOrderService = new VismaNetSalesOrderService();
+            $vismaNetSalesOrderService->createShipment($salesOrder);
+
+            return ApiResponseController::success();
+        } catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
+    }
 }
