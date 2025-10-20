@@ -39,6 +39,7 @@ class AppShipmentController extends Controller
 
         $shipmentsQuery = Shipment::where('status', 'Open')
             ->where('operation', 'Issue')
+            ->orderBy('customer_number', 'ASC')
             ->orderBy('id', 'DESC');
 
         if ($page > 0) {
@@ -49,7 +50,6 @@ class AppShipmentController extends Controller
         }
 
         $shipments = $shipmentsQuery->with('address', 'lines')
-            ->orderBy('name', 'ASC')
             ->get();
 
         foreach ($shipments as &$shipment) {
