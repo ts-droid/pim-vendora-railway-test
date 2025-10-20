@@ -49,7 +49,7 @@ class AppShipmentController extends Controller
         }
 
         $shipments = $shipmentsQuery->with('address', 'lines')
-            ->orderBy('customer_number')
+            ->orderBy('customer_number', 'ASC')
             ->get();
 
         foreach ($shipments as &$shipment) {
