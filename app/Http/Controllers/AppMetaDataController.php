@@ -27,6 +27,7 @@ class AppMetaDataController extends Controller
         $counts = [
             'picking' => 0,
             'todo' => 0,
+            'delivery' => 0,
             'inventory' => 0,
             'warehouse' => 0,
         ];
@@ -43,6 +44,9 @@ class AppMetaDataController extends Controller
             $todoService = new TodoService();
             $counts['todo'] = $todoService->getQueueCount($queue);
         }
+
+        // TODO: Add delivery counts
+        $counts['delivery'] = 0;
 
         // Invenstory
         $counts['inventory'] = (int) StockKeepTodo::count();
