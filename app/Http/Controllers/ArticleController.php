@@ -1620,6 +1620,16 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function getNewShopTitle(Request $request, Article $article)
+    {
+        return ApiResponseController::success(['value' => 'shop title']);
+    }
+
+    public function getNewMarketingDescription(Request $request, Article $article)
+    {
+        return ApiResponseController::success(['value' => 'marketing description']);
+    }
+
     private function formatPostData(Request $request, array $data)
     {
         $castTypes = [
