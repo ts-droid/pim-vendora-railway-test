@@ -1612,6 +1612,10 @@ class ArticleController extends Controller
 
     public function getGoogleProductCategory(Request $request, Article $article)
     {
+        return ApiResponseController::success([
+            'category_id' => $article->id,
+        ]);
+
         $job = new CategorizeArticle($article, true);
         $categoryID = $job->handle();
 
