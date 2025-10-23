@@ -14,7 +14,7 @@ class ArticleCategorizeService
     const EMBEDDINGS_MODEL = 'text-embedding-3-small';
     CONST EMBEDDINGS_PATH = 'app/google_product_categories_embeddings.json';
 
-    public function categorizeArticle(Article $article)
+    public function categorizeArticle(Article $article, bool $returnOnly = false)
     {
         $this->generateEmbeddings();
 
@@ -65,12 +65,16 @@ class ArticleCategorizeService
         $categoryID = (int) $response;
 
         if (!$categoryID) {
-            return;
+            return 0;
         }
 
-        DB::table('articles')
-            ->where('id', $article->id)
-            ->update(['google_product_category' => $categoryID]);
+        if (!$returnOnly) {
+            DB::table('articles')
+                ->where('id', $article->id)
+                ->update(['google_product_category' => $categoryID]);
+        }
+
+        return $categoryID;
     }
 
     private function cosineSimilarity(array $vec1, array $vec2): float

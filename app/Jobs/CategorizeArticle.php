@@ -19,22 +19,26 @@ class CategorizeArticle implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected Article $article) {}
+    public function __construct(protected Article $article, protected bool $returnOnly = false) {}
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(): int
     {
         if (!$this->article->shop_description_en) {
-            return;
+            return 0;
         }
 
         $articleCategorizeService = new ArticleCategorizeService();
-        $articleCategorizeService->categorizeArticle($this->article);
+        $categoryID = $articleCategorizeService->categorizeArticle($this->article, $this->returnOnly);
 
-        DB::table('articles')
-            ->where('id', $this->article->id)
-            ->update(['last_categorize' => Carbon::now()]);
+        if (!$this->returnOnly) {
+            DB::table('articles')
+                ->where('id', $this->article->id)
+                ->update(['last_categorize' => Carbon::now()]);
+        }
+
+        return $categoryID;
     }
 }

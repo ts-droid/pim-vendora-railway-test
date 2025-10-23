@@ -266,6 +266,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/reviews', [ArticleController::class, 'getReviews'])->name('articles.getReviews');
         Route::get('/{article}/faq', [ArticleController::class, 'getFAQ'])->name('articles.getFAQ');
 
+        Route::get('/{article}/job/google-product-category', [ArticleController::class, 'getGoogleProductCategory']);
+
         Route::post('/{article}/todo/stock-keep', [ArticleController::class, 'createStockKeepTodo']);
         Route::post('/{article}/todo/measurement', [ArticleController::class, 'createMeasurementTodo']);
 

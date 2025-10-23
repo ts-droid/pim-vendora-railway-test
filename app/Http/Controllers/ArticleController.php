@@ -1343,11 +1343,6 @@ class ArticleController extends Controller
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
 
-
-        if ($request->input('google_product_category_queue', 0)) {
-            CategorizeArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
-        }
-
         if ($request->input('shop_title_queue', 0) || $request->input('shop_marketing_description_queue', 0)) {
             GenerateArticleShopTitle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
         }
@@ -1613,6 +1608,16 @@ class ArticleController extends Controller
         );
 
         return ApiResponseController::success();
+    }
+
+    public function getGoogleProductCategory(Request $request, Article $article)
+    {
+        $job = new CategorizeArticle($article, true);
+        $categoryID = $job->handle();
+
+        return ApiResponseController::success([
+            'category_id' => $categoryID,
+        ]);
     }
 
     private function formatPostData(Request $request, array $data)
