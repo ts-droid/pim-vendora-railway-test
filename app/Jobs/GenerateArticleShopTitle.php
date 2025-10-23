@@ -22,13 +22,14 @@ class GenerateArticleShopTitle implements ShouldQueue
      */
     public function __construct(
         public Article $article,
+        public bool $returnOnly = false
     )
     {}
 
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(): array
     {
         $productData = json_encode($this->article->toArray());
 
@@ -76,8 +77,12 @@ class GenerateArticleShopTitle implements ShouldQueue
             $updateData['shop_marketing_description_' . $locale->language_code] = ($translations[1] ?? '');
         }
 
-        DB::table('articles')
-            ->where('id', $this->article->id)
-            ->update($updateData);
+        if (!$this->returnOnly) {
+            DB::table('articles')
+                ->where('id', $this->article->id)
+                ->update($updateData);
+        }
+
+        return $updateData;
     }
 }

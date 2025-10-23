@@ -1343,10 +1343,6 @@ class ArticleController extends Controller
         $stockLogController = new StockLogController();
         $stockLogController->logStock($article->article_number, $article->stock);
 
-        if ($request->input('shop_title_queue', 0) || $request->input('shop_marketing_description_queue', 0)) {
-            GenerateArticleShopTitle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
-        }
-
         if ($request->input('faq_queue', 0)) {
             ArticleFaqEntry::where('article_id', $article->id)->delete();
 
@@ -1622,12 +1618,22 @@ class ArticleController extends Controller
 
     public function getNewShopTitle(Request $request, Article $article)
     {
-        return ApiResponseController::success(['value' => 'shop title']);
+        $job = new GenerateArticleShopTitle($article, true);
+        $response = $job->handle();
+
+        return ApiResponseController::success([
+            'value' => ($response['shop_title_en'] ?? '')
+        ]);
     }
 
     public function getNewMarketingDescription(Request $request, Article $article)
     {
-        return ApiResponseController::success(['value' => 'marketing description']);
+        $job = new GenerateArticleShopTitle($article, true);
+        $response = $job->handle();
+
+        return ApiResponseController::success([
+            'value' => ($response['shop_marketing_description_en'] ?? '')
+        ]);
     }
 
     private function formatPostData(Request $request, array $data)
