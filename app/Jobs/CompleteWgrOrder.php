@@ -3,12 +3,14 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\WgrController;
+use App\Mail\WgrActivationFail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class CompleteWgrOrder implements ShouldQueue
 {
@@ -38,9 +40,18 @@ class CompleteWgrOrder implements ShouldQueue
             'trackingNumber' => $this->trackingNumber
         ]);
 
-        $result = $response['0']['result'] ?? false;
-
         Log::channel('shipments')->info('CompleteWgrOrder request made. Response: ' . json_encode($response), ['wgrOrderID' => $this->wgrOrderID]);
+
+        $result = $response['0']['result'] ?? false;
+        $requireActivation = $response['0']['requireActivation'] ?? false;
+        $activateSuccess = $response['0']['activateSuccess'] ?? false;
+
+        if ($requireActivation && !$activateSuccess) {
+            // Failed to activate the payment in WGR, notify admin about this
+            Mail::to('info@vendora.se')
+                ->cc('anton@vendora.se')
+                ->send(new WgrActivationFail($this->wgrOrderID));
+        }
 
         if (!$result) {
             throw new \Exception('Failed to complete order in WGR. API Response: ' . json_encode($response));
