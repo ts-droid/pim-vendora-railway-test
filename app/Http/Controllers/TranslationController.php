@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TranslationService;
 use App\Services\AI\AIService;
+use App\Services\TranslateExcludeService;
 use App\Services\TranslationServiceManager;
 use DeepL\Translator;
 use Exception;
@@ -60,6 +61,8 @@ class TranslationController extends Controller
         if ($request->has('excludes')) {
             $excludes = $request->excludes ?: [];
         }
+
+        $excludes = array_merge($excludes, TranslateExcludeService::getAll());
 
         if (!is_array($strings)) {
             $strings = [$strings];
