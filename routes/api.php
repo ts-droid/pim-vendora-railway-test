@@ -40,6 +40,7 @@ use App\Http\Controllers\StockOptimizationController;
 use App\Http\Controllers\StockPlaceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierPriceController;
+use App\Http\Controllers\TranslateExcludeController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\VismaNetApiController;
 use App\Http\Controllers\VismaNetQueueController;
@@ -72,6 +73,12 @@ Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
 Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::get('/ecb/convert-currency', [EcbController::class, 'convertCurrency']);
+
+    Route::prefix('/translate-excludes')->group(function() {
+        Route::get('/', [TranslateExcludeController::class, 'get']);
+        Route::post('/', [TranslateExcludeController::class, 'store']);
+        Route::post('/delete', [TranslateExcludeController::class, 'delete']);
+    });
 
     Route::prefix('/sales-order')->group(function() {
         Route::get('/', [SalesOrderApiController::class, 'index'])->name('salesOrder.index');
