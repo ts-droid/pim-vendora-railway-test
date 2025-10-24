@@ -18,13 +18,11 @@ class TranslateExcludeService
         $value = trim($value);
         if (!$value) return;
 
-        $row = DB::table('translate_excludes')
+        $exists = DB::table('translate_excludes')
             ->whereRaw('BINARY `value` = ?', [$value])
-            ->first();
+            ->exists();
 
-        if ($row) {
-            $row->update(['value' => $value]);
-        } else {
+        if (!$exists) {
             DB::table('translate_excludes')->insert(['value' => $value]);
         }
     }

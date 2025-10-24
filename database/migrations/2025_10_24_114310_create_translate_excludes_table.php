@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('translate_excludes', function (Blueprint $table) {
             $table->id();
-            $table->string('value')->unique();
+            $table->string('value');
             $table->timestamps();
         });
     }
