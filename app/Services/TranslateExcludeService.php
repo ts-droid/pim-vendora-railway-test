@@ -18,7 +18,15 @@ class TranslateExcludeService
         $value = trim($value);
         if (!$value) return;
 
-        DB::table('translate_excludes')->updateOrInsert(['value' => $value]);
+        $row = DB::table('translate_excludes')
+            ->whereRaw('BINARY `value` = ?', [$value])
+            ->first();
+
+        if ($row) {
+            $row->update(['value' => $value]);
+        } else {
+            DB::table('translate_excludes')->insert(['value' => $value]);
+        }
     }
 
     public static function remove(string $value): void
@@ -27,7 +35,8 @@ class TranslateExcludeService
         if (!$value) return;
 
         DB::table('translate_excludes')
-            ->where('value', '=', $value)
+            ->whereRaw('BINARY `value` = ?', [$value])
             ->delete();
+
     }
 }
