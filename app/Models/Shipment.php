@@ -54,6 +54,11 @@ class Shipment extends Model
         return SalesOrder::whereIn('order_number', $this->order_numbers ?: [])->first();
     }
 
+    public function getCountry()
+    {
+        return Address::where('id', $this->delivery_address_id)->value('country_code');
+    }
+
     public function isBackorder()
     {
         return Cache::remember('shipment:' . $this->id . ':is_backorder', (6 * 3600), function() {

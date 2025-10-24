@@ -54,6 +54,7 @@ class AppShipmentController extends Controller
 
         foreach ($shipments as &$shipment) {
             $shipment->is_backorder = $shipment->isBackorder();
+            $shipment->country_code = $shipment->getCountry();
 
             $shipment->has_notes = $shipment->note ? true : false;
 
