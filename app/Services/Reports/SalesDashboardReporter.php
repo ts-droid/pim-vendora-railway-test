@@ -999,9 +999,11 @@ class SalesDashboardReporter
     private function loadData(): void
     {
         // Load customers connected to the sales person
-        $customersQuery = DB::table('customers')
+        $customers = DB::table('customers')
             ->select('customers.id', 'customers.external_id', 'customers.customer_number', 'customers.name', 'customers.country')
-            ->leftJoin('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id');
+            ->leftJoin('sales_people', 'sales_people.external_id', '=', 'customers.sales_person_id')
+            ->whereNotIn('sales_people.id', self::EXCLUDE_SALES_PERSONS)
+            ->get()->toArray();
 
         $salesPersonIDs = [];
         $hasEmptySalesPerson = false;
@@ -1015,23 +1017,7 @@ class SalesDashboardReporter
 
                 $salesPersonIDs[] = $salesPersonID;
             }
-
-            if ($hasEmptySalesPerson) {
-                $customersQuery->where(function($query) use ($salesPersonIDs) {
-                    $query->whereIn('sales_people.id', $salesPersonIDs)
-                        ->orWhereNull('sales_people.id');
-                });
-            }
-            else {
-                $customersQuery->whereIn('sales_people.id', $salesPersonIDs);
-            }
         }
-        else {
-            // Exclude certain sales persons
-            $customersQuery->whereNotIn('sales_people.id', self::EXCLUDE_SALES_PERSONS);
-        }
-
-        $customers = $customersQuery->get()->toArray();
 
         $this->customerNumbers = array_map(function ($customer) {
             return $customer->customer_number;
