@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ArticlePrice;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
+use App\Models\SalesPerson;
 use App\Models\Supplier;
 use App\Services\Allianz\AllianzGradeCover;
 use App\Services\CustomerCreditService;
@@ -74,6 +75,13 @@ class CustomerController extends Controller
 
             foreach ($customers as &$customer) {
                 $customer->grade = $allianzGradeCover->getCustomerGrade($customer);
+            }
+        }
+
+        if ($request->input('with_sales_person')) {
+            $customer->sales_person = null;
+            if ($customer->sales_person_id) {
+                $customer->sales_person = SalesPerson::where('external_id', $customer->sales_person_id)->first()->toArray();
             }
         }
 
