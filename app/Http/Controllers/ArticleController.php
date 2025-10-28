@@ -1097,7 +1097,7 @@ class ArticleController extends Controller
             'filename' => $remoteFilename,
             'path_url' => DoSpacesController::getURL($remoteFilename),
             'size' => $imageSize,
-            'solid_background' => $solidBackground,
+            'solid_background' => $solidBackground ? 1 : 0,
             'list_order' => $newListOrder,
             'hash' => md5($imageContent),
         ]);
