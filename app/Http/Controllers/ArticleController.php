@@ -399,6 +399,41 @@ class ArticleController extends Controller
             $query->orWhere('article_number', $articleNumber);
         }
 
+        $missing = $request->input('missing');
+        if ($missing) {
+            $column = null;
+            $useLocales = false;
+            $locales = [];
+
+            switch ($missing) {
+                case 'shop_title':
+                    $column = 'shop_title';
+                    $useLocales = true;
+                    break;
+            }
+
+            if ($column) {
+                if ($useLocales) {
+                    $languages = (new LanguageController())->getAllLanguages();
+                    $locales = $languages->pluck('language_code');
+                }
+
+                $query->where(function($q) use ($column, $useLocales, $locales) {
+                    if ($useLocales) {
+                        foreach ($locales as $locale) {
+                            $q->orWhere($column . '_' . $locale, '=', '')
+                                ->orWhere($column . '_' . $locale, '=', '0')
+                                ->orWhereNull($column . '_' . $locale);
+                        }
+                    } else {
+                        $q->orWhere($column, '=', '')
+                            ->orWhere($column, '=', '0')
+                            ->orWhereNull($column);
+                    }
+                });
+            }
+        }
+
         // Execute query
         $articles = $query->orderBy('created_at', 'DESC')->get()->toArray();
 
