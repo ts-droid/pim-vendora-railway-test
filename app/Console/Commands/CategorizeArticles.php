@@ -33,11 +33,13 @@ class CategorizeArticles extends Command
     public function handle()
     {
         $articles = Article::where('status', '!=', 'Inactive')
+            ->where('is_webshop', '1')
+            ->where('google_product_category', '=', 0)
             ->where('shop_description_en', '!=', '')
             ->whereNotNull('shop_description_en')
             ->where(function ($query) {
                 $query->whereNull('last_categorize')
-                    ->orWhere('last_categorize', '<', Carbon::now()->subDays(30));
+                    ->orWhere('last_categorize', '<', Carbon::now()->subDays(2));
             })
             ->limit(self::BATCH_SIZE)
             ->get();
