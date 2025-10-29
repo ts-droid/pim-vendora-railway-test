@@ -28,7 +28,7 @@ class GenerateArticleShopData extends Command
      */
     public function handle()
     {
-        $articles = Article::where('status', '=', 'Active')
+        $articles = Article::whereIn('status', ['Active', 'NoPurchases'])
             ->where(function($query) {
                 $query->where('shop_title_sv', '=', '')
                     ->orWhereNull('shop_title_sv')
