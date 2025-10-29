@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\StatusIndicator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class StatusIndicatorController extends Controller
 {
@@ -50,5 +52,49 @@ class StatusIndicatorController extends Controller
         $statusIndicators = StatusIndicator::orderBy('title', 'ASC')->get();
 
         return ApiResponseController::success($statusIndicators->toArray());
+    }
+
+    public function getArticleStatus()
+    {
+        $counts = Cache::remember('getArticleStatus', 300, function () {
+            return [
+                'shop_title' => $this->getColumnCount('shop_title',  true),
+                'shop_description' => $this->getColumnCount('shop_description',  true),
+                'shop_marketing_description' => $this->getColumnCount('shop_marketing_description', true),
+                'short_description' => $this->getColumnCount('short_description', true),
+                'meta_title' => $this->getColumnCount('meta_title', true),
+                'meta_description' => $this->getColumnCount('meta_description', true)
+            ];
+        });
+
+        return ApiResponseController::success($counts);
+    }
+
+    private function getColumnCount(string $column, bool $useLocales)
+    {
+        $locales = [];
+        if ($useLocales) {
+            $languages = (new LanguageController())->getAllLanguages();
+            $locales = $languages->pluck('language_code');
+        }
+
+        return DB::table('articles')
+            ->select('id')
+            ->where('is_webshop', '1')
+            ->whereIn('status', ['Active', 'NoPurchases'])
+            ->where(function($query) use ($useLocales, $column, $locales) {
+                if ($useLocales) {
+                    foreach ($locales as $locale) {
+                        $query->orWhere($column . '_' . $locale, '=', '')
+                            ->orWhere($column . '_' . $locale, '=', '0')
+                            ->orWhereNull($column . '_' . $locale);
+                    }
+                } else {
+                    $query->orWhere($column, '=', '')
+                        ->orWhere($column, '=', '0')
+                        ->orWhereNull($column);
+                }
+            })
+            ->count();
     }
 }
