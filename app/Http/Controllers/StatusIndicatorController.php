@@ -63,7 +63,8 @@ class StatusIndicatorController extends Controller
                 'shop_marketing_description' => $this->getColumnCount('shop_marketing_description', true),
                 'short_description' => $this->getColumnCount('short_description', true),
                 'meta_title' => $this->getColumnCount('meta_title', true),
-                'meta_description' => $this->getColumnCount('meta_description', true)
+                'meta_description' => $this->getColumnCount('meta_description', true),
+                'google_category' => $this->getColumnCount('google_product_category', false)
             ];
         });
 
