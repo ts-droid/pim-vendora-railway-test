@@ -410,6 +410,36 @@ class ArticleController extends Controller
                     $column = 'shop_title';
                     $useLocales = true;
                     break;
+
+                case 'shop_description':
+                    $column = 'shop_description';
+                    $useLocales = true;
+                    break;
+
+                case 'shop_marketing_description':
+                    $column = 'shop_marketing_description';
+                    $useLocales = true;
+                    break;
+
+                case 'short_description':
+                    $column = 'short_description';
+                    $useLocales = true;
+                    break;
+
+                case 'meta_title':
+                    $column = 'meta_title';
+                    $useLocales = true;
+                    break;
+
+                case 'meta_description':
+                    $column = 'meta_description';
+                    $useLocales = true;
+                    break;
+
+                case 'google_category':
+                    $column = 'google_product_category';
+                    $useLocales = false;
+                    break;
             }
 
             if ($column) {
