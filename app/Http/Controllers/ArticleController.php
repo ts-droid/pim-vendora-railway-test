@@ -418,6 +418,9 @@ class ArticleController extends Controller
                     $locales = $languages->pluck('language_code');
                 }
 
+                $query->where('is_webshop', '1')
+                    ->whereIn('status', ['Active', 'NoPurchases']);
+
                 $query->where(function($q) use ($column, $useLocales, $locales) {
                     if ($useLocales) {
                         foreach ($locales as $locale) {
