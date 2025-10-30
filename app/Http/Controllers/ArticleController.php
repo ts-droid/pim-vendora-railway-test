@@ -23,6 +23,7 @@ use App\Models\Supplier;
 use App\Models\SupplierArticlePrice;
 use App\Models\UnspscCategory;
 use App\Services\RelatedArticlesService;
+use App\Services\ShortDescriptionService;
 use App\Services\StockKeepService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\Todo\TodoItemService;
@@ -1701,6 +1702,16 @@ class ArticleController extends Controller
 
         return ApiResponseController::success([
             'value' => ($response['shop_marketing_description_en'] ?? '')
+        ]);
+    }
+
+    public function getNewShortDescription(Request $request, Article $article)
+    {
+        $shortDescriptionService = new ShortDescriptionService();
+        $response = $shortDescriptionService->generateArticle($article);
+
+        return ApiResponseController::success([
+            'value' => ($response['updates']['short_description_en'] ?? '')
         ]);
     }
 

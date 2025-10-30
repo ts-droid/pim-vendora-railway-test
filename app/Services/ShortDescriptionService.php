@@ -12,7 +12,7 @@ class ShortDescriptionService
 {
     const MODEL = 'gpt-4o';
 
-    public function generateArticle(Article $article): array
+    public function generateArticle(Article $article, $returnOnly = false): array
     {
         $promptController = new PromptController();
 
@@ -69,13 +69,16 @@ class ShortDescriptionService
 
 
         // Update the article with the generated short description
-        DB::table('articles')
-            ->where('id', $article->id)
-            ->update($updates);
+        if (!$returnOnly) {
+            DB::table('articles')
+                ->where('id', $article->id)
+                ->update($updates);
+        }
 
         return [
             'success' => true,
             'error_message' => null,
+            'updates' => $updates,
         ];
     }
 }
