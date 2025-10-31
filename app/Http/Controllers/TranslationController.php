@@ -63,6 +63,7 @@ class TranslationController extends Controller
         }
 
         $excludes = array_merge($excludes, TranslateExcludeService::getAll());
+        $excludes[] = 'herQs';
 
         if (!is_array($strings)) {
             $strings = [$strings];
@@ -208,7 +209,18 @@ class TranslationController extends Controller
 
         // 2) Convert our &nbsp; sentinels back to normal spaces
         //    (use a conservative replace so real non-breaking spaces elsewhere remain)
-        $s = str_replace('&nbsp;', ' ', $s);
+        $s = str_replace(
+            [
+                "\u{00A0}", // regular NBSP
+                "\u{202F}", // narrow NBSP, just in case
+                "&nbsp;",
+                "&#160;",
+                "&#xA0;",
+                "&#xa0;",
+            ],
+            ' ',
+            $s
+        );
 
         // 3) Fix “</tag>word” and “word<tag>” glue where both sides are letters/digits
         //    a) ...X</b>Y... → ...X</b> Y...
