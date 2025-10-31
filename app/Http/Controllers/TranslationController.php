@@ -63,7 +63,7 @@ class TranslationController extends Controller
         }
 
         $excludes = array_merge($excludes, TranslateExcludeService::getAll());
-        $excludes[] = 'herQs';
+        $excludes = ['herQs'];
 
         if (!is_array($strings)) {
             $strings = [$strings];
