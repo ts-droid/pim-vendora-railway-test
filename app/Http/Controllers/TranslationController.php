@@ -68,6 +68,8 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
+        $originalStrings = $strings;
+
         if (!$engine || $engine == 'deepl') {
             $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
         }
@@ -128,7 +130,7 @@ class TranslationController extends Controller
 
         $excludes = array_filter($excludes);
 
-        // Wrap excludes with <nt> tags
+        // Wrap excludes with <dnt> tags
         for ($j = 0;$j < count($strings);$j++) {
             $strings[$j] = $this->wrapExcludesWithDntHtml($strings[$j], $excludes);
         }
@@ -162,9 +164,10 @@ class TranslationController extends Controller
         }
 
 
-        // Remove <nt> tags from the text
+        // Remove <dnt> tags from the text
         for ($j = 0;$j < count($translations);$j++) {
-            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j]);
+            $original = $originalStrings[$j] ?? '';
+            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
         }
 
 
@@ -194,8 +197,12 @@ class TranslationController extends Controller
         return $html;
     }
 
-    private function stripDntAndFixHtmlSpacing(string $s): string
+    private function stripDntAndFixHtmlSpacing(string $s, string $original = ''): string
     {
+        if ($original !== '') {
+            $s = $this->restoreWhitespaceAroundDnt($s, $original);
+        }
+
         // 1) Drop the <dnt> tags
         $s = preg_replace('/<\/?dnt>/iu', '', $s);
 
@@ -213,6 +220,65 @@ class TranslationController extends Controller
         $s = preg_replace('/[^\S\r\n]+/u', ' ', $s);
 
         return $s;
+    }
+
+    private function restoreWhitespaceAroundDnt(string $translated, string $original): string
+    {
+        $cursor = 0;
+        $originalCursor = 0;
+        $originalLength = mb_strlen($original, 'UTF-8');
+
+        while (($tagStart = strpos($translated, '<dnt>', $cursor)) !== false) {
+            $tagEnd = strpos($translated, '</dnt>', $tagStart);
+            if ($tagEnd === false) {
+                break;
+            }
+
+            $termStart = $tagStart + 5;
+            $term = substr($translated, $termStart, $tagEnd - $termStart);
+
+            if ($term === '') {
+                $cursor = $tagEnd + 6;
+                continue;
+            }
+
+            $origPos = mb_strpos($original, $term, $originalCursor, 'UTF-8');
+            if ($origPos === false) {
+                $originalCursor = 0;
+                $origPos = mb_strpos($original, $term, $originalCursor, 'UTF-8');
+                if ($origPos === false) {
+                    $cursor = $tagEnd + 6;
+                    continue;
+                }
+            }
+
+            $termLength = mb_strlen($term, 'UTF-8');
+            $originalCursor = $origPos + $termLength;
+
+            $hasSpaceBefore = $origPos > 0 && preg_match('/\s/u', mb_substr($original, $origPos - 1, 1, 'UTF-8'));
+            $hasSpaceAfter = $originalCursor < $originalLength && preg_match('/\s/u', mb_substr($original, $originalCursor, 1, 'UTF-8'));
+
+            if ($hasSpaceBefore) {
+                if ($tagStart === 0 || !preg_match('/\s/u', substr($translated, $tagStart - 1, 1))) {
+                    $translated = substr_replace($translated, ' ', $tagStart, 0);
+                    $tagStart += 1;
+                    $tagEnd += 1;
+                    $termStart += 1;
+                }
+            }
+
+            if ($hasSpaceAfter) {
+                $afterPos = $tagEnd + 6;
+                if ($afterPos >= strlen($translated) || !preg_match('/\s/u', substr($translated, $afterPos, 1))) {
+                    $translated = substr_replace($translated, ' ', $afterPos, 0);
+                    $tagEnd += 1;
+                }
+            }
+
+            $cursor = $tagEnd + 6;
+        }
+
+        return $translated;
     }
 
     public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
