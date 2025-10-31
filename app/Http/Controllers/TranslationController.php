@@ -185,22 +185,58 @@ class TranslationController extends Controller
         // longest-first to avoid partial matches inside larger terms
         usort($excludes, fn($a,$b) => mb_strlen($b) <=> mb_strlen($a));
 
+        $dntRanges = [];
+
         foreach ($excludes as $term) {
             if ($term === '') continue;
-            $pattern = '/' . preg_quote($term, '/') . '/u';
 
-            $html = preg_replace_callback($pattern, function ($m) use ($term) {
-                return '<dnt>' . $m[0] . '</dnt>';
-            }, $html);
+            $pattern = '/' . preg_quote($term, '/') . '/u';
+            if (!preg_match_all($pattern, $html, $matches, PREG_OFFSET_CAPTURE)) {
+                continue;
+            }
+
+            $shift = 0;
+
+            foreach ($matches[0] as [$match, $offset]) {
+                $offset += $shift;
+
+                if ($this->isOffsetInsideDnt($html, $offset)) {
+                    continue;
+                }
+
+                $replacement = '<dnt>' . $match . '</dnt>';
+                $html = substr_replace($html, $replacement, $offset, strlen($match));
+
+                $delta = strlen($replacement) - strlen($match);
+                $shift += $delta;
+                $dntRanges[] = [$offset, $offset + strlen($replacement)];
+            }
+
+            // keep ranges ordered for the helper
+            usort($dntRanges, fn ($a, $b) => $a[0] <=> $b[0]);
         }
 
-        // Convert a *single* literal space before/after <dnt> into &nbsp; sentinels.
-        // before
         $html = preg_replace('/(\s)<dnt>/u', '&nbsp;<dnt>', $html);
-        // after
         $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&nbsp;', $html);
 
         return $html;
+    }
+
+    private function isOffsetInsideDnt(string $html, int $offset): bool
+    {
+        if ($offset <= 0) {
+            return false;
+        }
+
+        $before = substr($html, 0, $offset);
+        $opened = substr_count($before, '<dnt>');
+        if ($opened === 0) {
+            return false;
+        }
+
+        $closed = substr_count($before, '</dnt>');
+
+        return $opened > $closed;
     }
 
     private function stripDntAndFixHtmlSpacing(string $s, string $original = ''): string
