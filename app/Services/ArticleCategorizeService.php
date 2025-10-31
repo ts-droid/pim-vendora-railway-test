@@ -62,11 +62,6 @@ class ArticleCategorizeService
         $AIService = new AiService();
         $response = $AIService->chatCompletion($system, $message);
 
-        var_dump($system);
-        var_dump($message);
-        var_dump($response);
-        die();
-
         $categoryID = (int) $response;
 
         if (!$categoryID) {
