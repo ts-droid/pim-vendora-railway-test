@@ -22,6 +22,9 @@ class ArticleCategorizeService
 
         $openAiService = new OpenAIService(self::EMBEDDINGS_MODEL);
 
+        var_dump('pre embedding call');
+        die();
+
         $productEmbedding = $openAiService->getEmbedding($productDescription);
 
         var_dump('got embeddings.');
