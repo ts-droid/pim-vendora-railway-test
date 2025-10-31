@@ -30,9 +30,6 @@ class CategorizeArticle implements ShouldQueue
             return 0;
         }
 
-        $apiKey = config('services.openai.key', '');
-        $apiURL = config('services.openai.endpoint', '');
-
         $articleCategorizeService = new ArticleCategorizeService();
         $categoryID = $articleCategorizeService->categorizeArticle($this->article, $this->returnOnly);
 
