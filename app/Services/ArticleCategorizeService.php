@@ -24,6 +24,9 @@ class ArticleCategorizeService
 
         $productEmbedding = $openAiService->getEmbedding($productDescription);
 
+        var_dump('got embeddings.');
+        die();
+
         $categories = json_decode(file_get_contents(storage_path(self::EMBEDDINGS_PATH)), true);
 
         $similarities = [];
