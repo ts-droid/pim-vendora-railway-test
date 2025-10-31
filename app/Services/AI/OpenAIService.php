@@ -99,7 +99,8 @@ class OpenAIService implements AIInterface
                 break;
         }
 
-        if (request()->get('dump') == '1') {
+        if (request()->get('dump') == '1' && str_contains($url, 'chat/completions')) {
+            dump($response);
             dd($response->json());
         }
 
