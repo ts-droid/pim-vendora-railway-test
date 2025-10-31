@@ -168,12 +168,14 @@ class TranslationController extends Controller
         }
 
 
-        // Remove <dnt> tags from the text
         for ($j = 0;$j < count($translations);$j++) {
+            // Remove <dnt> tags from the text
             $original = $originalStrings[$j] ?? '';
             $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
-        }
 
+            // Fix HTML entities
+            $translations[$j] = html_entity_decode($translations[$j]);
+        }
 
         return $translations;
     }
