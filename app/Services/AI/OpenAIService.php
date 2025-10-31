@@ -54,10 +54,6 @@ class OpenAIService implements AIInterface
     {
         $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature, $imageURL));
 
-        if (request()->get('dump') == '1') {
-            dd($response);
-        }
-
         $chatResponse = '';
 
         if (isset($response['choices']) && is_array($response['choices'])) {
@@ -101,6 +97,10 @@ class OpenAIService implements AIInterface
             default:
                 $response = $request->get($url . '?' . http_build_query($data));
                 break;
+        }
+
+        if (request()->get('dump') == '1') {
+            dd($response);
         }
 
         if (!$response->successful()) {
