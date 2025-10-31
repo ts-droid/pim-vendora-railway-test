@@ -100,7 +100,7 @@ class OpenAIService implements AIInterface
         }
 
         if (request()->get('dump') == '1') {
-            dd($response);
+            dd($response->json());
         }
 
         if (!$response->successful()) {
