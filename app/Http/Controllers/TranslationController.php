@@ -63,12 +63,11 @@ class TranslationController extends Controller
         }
 
         $excludes = array_merge($excludes, TranslateExcludeService::getAll());
+        $excludes[] = 'herQs';
 
         if (!is_array($strings)) {
             $strings = [$strings];
         }
-
-        $originalStrings = $strings;
 
         if (!$engine || $engine == 'deepl') {
             $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
@@ -112,6 +111,8 @@ class TranslationController extends Controller
             'isHTML' => $isHTML,
             'excludes' => $excludes
         ]));*/
+
+        $originalStrings = $strings;
 
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
