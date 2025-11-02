@@ -76,7 +76,6 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'external_id' => 'required|string',
             'number' => 'required|string',
             'name' => 'required|string',
         ]);
