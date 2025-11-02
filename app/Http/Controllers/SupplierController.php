@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Supplier;
 use App\Models\SupplierContact;
+use App\Services\VismaNet\VismaNetSupplierService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -89,7 +90,22 @@ class SupplierController extends Controller
         $data = $request->all();
         $data['access_key'] = Str::random(32);
 
+        DB::beginTransaction();
+
         $supplier = Supplier::create($data);
+
+        // Create the supplier in Visma.net
+        if (empty($data['external_id'])) {
+            $vismaNetSupplierService = new VismaNetSupplierService();
+            $response = $vismaNetSupplierService->createSupplier($supplier);
+
+            if (!$response['success']) {
+                DB::rollBack();
+                return ApiResponseController::error($response['error_message']);
+            }
+        }
+
+        DB::commit();
 
         return ApiResponseController::success([$supplier->toArray()]);
     }
