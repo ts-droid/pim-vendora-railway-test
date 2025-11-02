@@ -39,7 +39,7 @@ class PurchaseOrderPriceController extends Controller
         $response = $publisher->publishOrder($purchaseOrder, []);
 
         if (!$response['success']) {
-            echo 'Failed to accept the purchase order. Please try again or contact admin.';
+            echo 'Failed to accept the purchase order. Please try again or contact admin. (Error message: ' . ($response['message'] ?? '') . ')';
             exit;
         }
 
