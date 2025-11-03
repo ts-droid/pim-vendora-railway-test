@@ -23,12 +23,12 @@ class WgrArticleService
             return;
         }
 
-        $postData = $this->getPostData($article);
-        $postData['articleNumber'] = $article->article_number;
-
-        if (!$article->is_webshop) {
+        if (!$article->is_webshop || $article->only_brand_pages) {
             return;
         }
+
+        $postData = $this->getPostData($article);
+        $postData['articleNumber'] = $article->article_number;
 
         if (count($postData['categoryId']) === 0) {
             return;
@@ -245,6 +245,7 @@ class WgrArticleService
         $isHidden = false;
 
         if (!$article->is_webshop
+            || $article->only_brand_pages
             || !in_array($article->status, ['Active', 'NoPurchases'])) {
             $isHidden = true;
         }
