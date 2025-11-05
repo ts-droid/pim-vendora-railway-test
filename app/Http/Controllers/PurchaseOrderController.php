@@ -303,6 +303,8 @@ class PurchaseOrderController extends Controller
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
+        $sort = $request->get('sort', 'id');
+        $sortDir = $request->get('sort_dir', 'desc');
 
         $query = PurchaseOrder::where('status', 'Draft')
             ->where('is_draft', 1)
@@ -315,7 +317,7 @@ class PurchaseOrderController extends Controller
             $query->where('is_sent', 1);
         }
 
-        $purchaseOrders = $query->orderBy('id', 'DESC')
+        $purchaseOrders = $query->orderBy($sort, $sortDir)
             ->paginate($perPage);
 
         if ($purchaseOrders->count()) {
@@ -333,6 +335,8 @@ class PurchaseOrderController extends Controller
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
+        $sort = $request->get('sort', 'id');
+        $sortDir = $request->get('sort_dir', 'desc');
 
         $query = PurchaseOrder::whereIn('status', ['Draft', 'Open'])
             ->where('is_draft', 0)
@@ -345,7 +349,7 @@ class PurchaseOrderController extends Controller
             $query->where('is_sent', 1);
         }
 
-        $purchaseOrders = $query->orderBy('id', 'DESC')
+        $purchaseOrders = $query->orderBy($sort, $sortDir)
             ->paginate($perPage);
 
         if ($purchaseOrders->count()) {
@@ -363,6 +367,8 @@ class PurchaseOrderController extends Controller
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
+        $sort = $request->get('sort', 'id');
+        $sortDir = $request->get('sort_dir', 'desc');
 
         $query = PurchaseOrder::whereNotIn('status', ['Draft', 'Open'])
             ->where('is_po_system', 1);
@@ -374,7 +380,7 @@ class PurchaseOrderController extends Controller
             $query->where('is_sent', 1);
         }
 
-        $purchaseOrders = $query->orderBy('id', 'DESC')
+        $purchaseOrders = $query->orderBy($sort, $sortDir)
             ->paginate($perPage);
 
         if ($purchaseOrders->count()) {
