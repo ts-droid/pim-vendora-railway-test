@@ -92,7 +92,7 @@ class PurchaseOrderController extends Controller
 
     public function getShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
-        $purchaseOrderShipment->load('lines');
+        $purchaseOrderShipment->load('lines', 'lines.article');
 
         return ApiResponseController::success($purchaseOrderShipment->toArray());
     }
