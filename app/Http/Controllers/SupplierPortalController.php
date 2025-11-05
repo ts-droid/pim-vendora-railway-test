@@ -61,7 +61,7 @@ class SupplierPortalController extends Controller
             abort(404);
         }
 
-        $shippingInstructions = json_decode($purchaseOrder->shipping_instructions ?: '[]', true);
+        $shippingInstructions = json_decode($purchaseOrder->supplier->shipping_instructions ?: '[]', true);
         $selectedShippingInstructions = null;
         if ($purchaseOrder->shipping_instructions && isset($shippingInstructions[$purchaseOrder->shipping_instructions])) {
             $selectedShippingInstructions = $shippingInstructions[$purchaseOrder->shipping_instructions];
