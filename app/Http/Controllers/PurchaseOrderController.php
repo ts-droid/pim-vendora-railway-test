@@ -398,6 +398,7 @@ class PurchaseOrderController extends Controller
         $purchaseOrders = PurchaseOrder::where('is_po_system', 1)
             ->where(function($query) use ($search) {
                 $query->where('id', $search)
+                    ->orWhere('order_number', $search)
                     ->orWhereHas('supplier', function ($q) use ($search) {
                         $q->where('name', 'LIKE', '%' . $search . '%');
                     })
