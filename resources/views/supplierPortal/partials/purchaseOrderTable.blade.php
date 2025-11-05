@@ -21,6 +21,7 @@ $completed = $completed ?? false;
         <body>
         @if($orders)
             @foreach($orders as $purchaseOrder)
+                @php($emptyShipmentID = (new \App\Models\PurchaseOrder())->getEmptyShipment($purchaseOrder['id'])->id ?? 0)
                 <tr>
                     <td>#{{ $purchaseOrder['id'] }}</td>
                     <td>{{ $purchaseOrder['supplier_order_number'] }}</td>
@@ -40,7 +41,7 @@ $completed = $completed ?? false;
                     </td>
                     @if(!$completed)
                         <td class="text-end">
-                            <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder['id']]) }}" class="btn btn-table btn-primary">Open <i class="bi bi-arrow-right"></i></a>
+                            <a href="{{ route('supplierPortal.purchaseOrders.order', ['purchaseOrder' => $purchaseOrder['id'], 'shipment_id' => $emptyShipmentID]) }}" class="btn btn-table btn-primary">Open <i class="bi bi-arrow-right"></i></a>
                         </td>
                     @endif
                 </tr>

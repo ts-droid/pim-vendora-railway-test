@@ -220,6 +220,15 @@ class PurchaseOrderService
         ];
     }
 
+    public function createEmptyShipment(PurchaseOrder $purchaseOrder): PurchaseOrderShipment
+    {
+        return PurchaseOrderShipment::create([
+            'purchase_order_id' => $purchaseOrder->id,
+            'receipt' => '',
+            'tracking_number' => '',
+        ]);
+    }
+
     /**
      * @param PurchaseOrder $purchaseOrder
      * @param array $data
@@ -233,11 +242,23 @@ class PurchaseOrderService
         $receipt = $data['receipt'] ?? null;
         $trackingNumber = $data['tracking_number'] ?? null;
 
-        $shipment = PurchaseOrderShipment::create([
-            'purchase_order_id' => $purchaseOrder->id,
-            'receipt' => $receipt,
-            'tracking_number' => $trackingNumber,
-        ]);
+        $emptyShipment = $purchaseOrder->getEmptyShipment();
+        if ($emptyShipment) {
+            // Use the empty shipment
+            $emptyShipment->update([
+                'receipt' => $receipt,
+                'tracking_number' => $trackingNumber,
+            ]);
+
+            $shipment = $emptyShipment;
+        } else {
+            // Create a new shipment
+            $shipment = PurchaseOrderShipment::create([
+                'purchase_order_id' => $purchaseOrder->id,
+                'receipt' => $receipt,
+                'tracking_number' => $trackingNumber,
+            ]);
+        }
 
         foreach ($lines as $line) {
             $line->update([

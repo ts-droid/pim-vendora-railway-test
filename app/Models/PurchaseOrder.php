@@ -199,4 +199,18 @@ class PurchaseOrder extends Model
             'amount' => $totalAmount,
         ]);
     }
+
+    public function getEmptyShipment($purchaseOrderID = 0): ?PurchaseOrderShipment
+    {
+        $purchaseOrderID = intval($purchaseOrderID ?: $this->id);
+
+        $shipments = PurchaseOrderShipment::where('purchase_order_id', '=', $purchaseOrderID)->get();
+        if ($shipments->isEmpty()) return null;
+
+        foreach ($shipments as $shipment) {
+            if ($shipment->lines->isEmpty()) return $shipment;
+        }
+
+        return null;
+    }
 }

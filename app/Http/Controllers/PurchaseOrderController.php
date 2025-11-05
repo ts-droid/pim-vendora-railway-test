@@ -691,6 +691,10 @@ class PurchaseOrderController extends Controller
             'confirm_reminder_sent_at' => date('Y-m-d H:i:s')
         ]);
 
+        // Create an empty shipment
+        $purchaseOrderService = new PurchaseOrderService();
+        $purchaseOrderService->createEmptyShipment($purchaseOrder);
+
         return ApiResponseController::success();
     }
 
