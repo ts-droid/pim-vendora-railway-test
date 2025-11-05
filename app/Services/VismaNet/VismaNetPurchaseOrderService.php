@@ -202,6 +202,11 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
     }
 
+    public function releasePurchaseOrderReceipt(string $receiptNumber): bool
+    {
+        $response = $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
+        return $response['success'];
+    }
 
     public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
     {
@@ -248,8 +253,30 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             ];
         }
 
+        // Fetch the purchase order receipt number
+        $response = $this->callAPI('GET', '/v1/PurchaseReceipt', [
+            'poOrderNbr' => $purchaseOrder->order_number
+        ]);
+
+        $receiptNumber = null;
+        $compareTime = 0;
+        $receipts = $response['response'] ?? [];
+        foreach ($receipts as $receipt) {
+            $lastModifiedDateTime = $receipt['lastModifiedDateTime'] ?? null;
+            if (!$lastModifiedDateTime) continue;
+
+            $modTime = strtotime($lastModifiedDateTime);
+            if (($modTime > $compareTime) && ((time() - 15) < $modTime)) {
+                $receiptNumber = $receipt['receiptNbr'] ?? null;
+            }
+        }
+
         $this->fetchPurchaseOrders('', $purchaseOrder->order_number);
 
-        return ['success' => true, 'message' => ''];
+        return [
+            'success' => true,
+            'message' => '',
+            'receiptNumber' => $receiptNumber
+        ];
     }
 }

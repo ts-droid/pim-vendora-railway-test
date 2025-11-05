@@ -190,6 +190,11 @@ class PurchaseOrderService
             ];
         }
 
+        $receiptNumber = $response['receiptNumber'];
+        if ($receiptNumber) {
+            $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+        }
+
         // Add the items to in-delivery stock place
         $stockPlaceService = new StockPlaceService();
         $stockItemService = new StockItemService();
