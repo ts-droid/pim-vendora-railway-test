@@ -189,12 +189,15 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             ];
         }
 
+        // Fetch the order from Visma to get updated status
+        $this->fetchPurchaseOrders('', $purchaseOrder->order_number);
+
         return ['success' => true, 'message' => ''];
     }
 
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = '')
     {
-        // TODO: Move the called function this this service class
+        // TODO: Move the called function to this service class
         $vismaNetController = new VismaNetController();
         $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
     }
