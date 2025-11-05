@@ -390,6 +390,8 @@ class PurchaseOrderController extends Controller
     {
         $perPage = $request->get('per_page', 30);
         $search = $request->get('search', '');
+        $sort = $request->get('sort', 'id');
+        $sortDir = $request->get('sort_dir', 'desc');
 
         if (!$search) {
             return ApiResponseController::error('No search provided');
@@ -406,7 +408,7 @@ class PurchaseOrderController extends Controller
                         $q->where('article_number', 'LIKE', $search);
                     });
             })
-            ->orderBy('id', 'DESC')
+            ->orderBy($sort, $sortDir)
             ->paginate($perPage);
 
         return ApiResponseController::success($purchaseOrders->toArray());
