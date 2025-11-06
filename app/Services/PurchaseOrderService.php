@@ -132,13 +132,7 @@ class PurchaseOrderService
 
         foreach ($lineIDs as $lineID) {
             $qty = (int) ($quantities[$lineID] ?? 0);
-            if (!$qty) {
-                DB::rollBack();
-                return [
-                    'success' => false,
-                    'error_message' => 'Quantity not provided for all lines.'
-                ];
-            }
+            $qty = max(0, $qty);
 
             $orderLine = PurchaseOrderLine::find($lineID);
 
@@ -150,8 +144,17 @@ class PurchaseOrderService
                 ];
             }
 
-            // If received quantity is less than expected, split the missing quantity to a new line
-            if ($qty < $orderLine->quantity) {
+            if ($qty == 0) {
+                // Disconnect the line from the shipment
+                $orderLine->update([
+                    'is_shipped' => 0,
+                    'purchase_order_shipment_id' => 0
+                ]);
+
+                continue;
+            }
+            elseif ($qty < $orderLine->quantity) {
+                // If received quantity is less than expected, split the missing quantity to a new line
                 $missingQty = $orderLine->quantity - $qty;
                 $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
 
