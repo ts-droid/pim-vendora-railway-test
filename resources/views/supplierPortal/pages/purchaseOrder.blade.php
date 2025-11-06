@@ -178,6 +178,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                         <th class="text-center">Invoiced</th>
                                         <th class="text-end">Unit price</th>
                                         <th class="text-end">Quantity</th>
+                                        <th class="text-end">Shipped</th>
+                                        <th class="text-end">Received</th>
                                         <th class="text-end">Total</th>
                                         <th class="text-end">Shipping date</th>
                                         <th class="text-end">Tracking number</th>
@@ -221,6 +223,8 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                 <input type="text" class="form-control form-control-sm text-end js-quantity" name="quantity_{{ $line->id }}" value="{{ $line->quantity }}"
                                                        data-default="{{ $line->quantity }}" {{ $quantityEditable ? '' : 'readonly' }}>
                                             </td>
+                                            <td style="width: 100px;" class="text-end no-wrap">{{ $line->is_shipped ? $line->quantity : 0 }}</td>
+                                            <td style="width: 100px;" class="text-end no-wrap">{{ $line->quantity_received }}</td>
                                             <td style="width: 100px;" class="text-end no-wrap">
                                                 <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
                                             </td>
