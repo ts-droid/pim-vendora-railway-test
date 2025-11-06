@@ -159,6 +159,27 @@ class PurchaseOrder extends Model
         }
     }
 
+    public function getShippingStatus()
+    {
+        if (!$this->lines) {
+            return 'Unknown';
+        }
+
+        $shippedLines = 0;
+
+        foreach ($this->lines as $line) {
+            if ($line->is_shipped) $shippedLines++;
+        }
+
+        if (count($this->lines) === $shippedLines) {
+            return 'Full';
+        } else if ($shippedLines > 0) {
+            return 'Partial';
+        } else {
+            return 'Not shipped';
+        }
+    }
+
     public function getNotShippedValue()
     {
         if (!$this->lines) {

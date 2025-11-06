@@ -327,6 +327,7 @@ class PurchaseOrderController extends Controller
             foreach ($purchaseOrders as &$purchaseOrder) {
                 $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
                 $purchaseOrder->article_numbers = $purchaseOrder->getArticlesNumbers();
+                $purchaseOrder->shipping_status = $purchaseOrder->getShippingStatus();
             }
         }
 
@@ -359,6 +360,7 @@ class PurchaseOrderController extends Controller
             foreach ($purchaseOrders as &$purchaseOrder) {
                 $purchaseOrder->not_shipped_value = $purchaseOrder->getNotShippedValue();
                 $purchaseOrder->article_numbers = $purchaseOrder->getArticlesNumbers();
+                $purchaseOrder->shipping_status = $purchaseOrder->getShippingStatus();
             }
         }
 
@@ -389,6 +391,7 @@ class PurchaseOrderController extends Controller
         if ($purchaseOrders->count()) {
             foreach ($purchaseOrders as &$purchaseOrder) {
                 $purchaseOrder->article_numbers = $purchaseOrder->getArticlesNumbers();
+                $purchaseOrder->shipping_status = $purchaseOrder->getShippingStatus();
             }
         }
 
@@ -419,6 +422,12 @@ class PurchaseOrderController extends Controller
             })
             ->orderBy($sort, $sortDir)
             ->paginate($perPage);
+
+        if ($purchaseOrders->count()) {
+            foreach ($purchaseOrders as &$purchaseOrder) {
+                $purchaseOrder->shipping_status = $purchaseOrder->getShippingStatus();
+            }
+        }
 
         return ApiResponseController::success($purchaseOrders->toArray());
     }
