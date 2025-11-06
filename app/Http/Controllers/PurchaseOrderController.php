@@ -199,6 +199,7 @@ class PurchaseOrderController extends Controller
 
             $purchaseOrder->shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
                 ->with('lines')
+                ->orderBy('is_completed', 'ASC')
                 ->orderBy('id', 'DESC')
                 ->get();
 
