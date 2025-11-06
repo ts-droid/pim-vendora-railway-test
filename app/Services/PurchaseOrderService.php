@@ -217,6 +217,8 @@ class PurchaseOrderService
                 ->increment('stock_manageable', $line->quantity_received);
         }
 
+        $purchaseOrderShipment->update(['is_completed' => 1]);
+
         DB::commit();
 
         return [

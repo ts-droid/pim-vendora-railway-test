@@ -12,7 +12,8 @@ class PurchaseOrderShipment extends Model
     protected $fillable = [
         'purchase_order_id',
         'receipt',
-        'tracking_number'
+        'tracking_number',
+        'is_completed'
     ];
 
     public function purchaseOrder()
