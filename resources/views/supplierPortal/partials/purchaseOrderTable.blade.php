@@ -12,6 +12,7 @@ $completed = $completed ?? false;
             <th>Date</th>
             <th class="text-end">Total</th>
             <th class="text-end">Not shipped</th>
+            <th class="text-end">Shipping status</th>
             <th class="text-end">Status</th>
             @if(!$completed)
                 <th class="text-end">Manage</th>
@@ -29,6 +30,7 @@ $completed = $completed ?? false;
                     <td>{{ date('d M Y', strtotime($purchaseOrder['date'])) }}</td>
                     <td class="text-end">{{ $purchaseOrder['amount'] }} {{ $purchaseOrder['currency'] }}</td>
                     <td class="text-end">{{ ($purchaseOrder['not_shipped_value'] ?? 0) }} {{ $purchaseOrder['currency'] }}</td>
+                    <td class="text-end">{{ $purchaseOrder['shipping_status'] }}</td>
                     <td class="d-flex align-items-center justify-content-end">
                         @if($purchaseOrder['is_direct'])
                             <div class="d-inline me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Direct Delivery">
