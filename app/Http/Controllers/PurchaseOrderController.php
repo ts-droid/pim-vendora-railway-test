@@ -276,7 +276,7 @@ class PurchaseOrderController extends Controller
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')
             ->where('is_draft', 0)
             ->where('is_po_system', 1)
-            ->orderByRaw('ISNULL(promised_date) ASC')
+            ->orderByRaw('(promised_date IS NULL OR promised_date = "") ASC')
             ->orderBy('promised_date', 'ASC')
             ->orderBy('id', 'DESC')
             ->get();
