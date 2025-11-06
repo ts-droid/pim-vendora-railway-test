@@ -24,7 +24,7 @@ $completed = $completed ?? false;
             @foreach($orders as $purchaseOrder)
                 @php($emptyShipmentID = (new \App\Models\PurchaseOrder())->getEmptyShipment($purchaseOrder['id'])->id ?? 0)
                 <tr>
-                    <td>#{{ $purchaseOrder['id'] }}</td>
+                    <td>#{{ $purchaseOrder['id'] }} / {{ $purchaseOrder['order_number'] }}</td>
                     <td>{{ $purchaseOrder['supplier_order_number'] }}</td>
                     <td>{{ $purchaseOrder['published_at'] ? 'Confirmed' : 'Unconfirmed' }}</td>
                     <td>{{ date('d M Y', strtotime($purchaseOrder['date'])) }}</td>
