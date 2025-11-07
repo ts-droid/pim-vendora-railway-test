@@ -182,7 +182,7 @@ class PurchaseOrderService
                     DB::rollBack();
                     return [
                         'success' => false,
-                        'error_message' => $splitResponse['error_message']
+                        'error_message' => 'Split error: ' . $splitResponse['error_message']
                     ];
                 }
             }
@@ -208,13 +208,13 @@ class PurchaseOrderService
             DB::rollback();
             return [
                 'success' => false,
-                'error_message' => $response['message']
+                'error_message' => 'Failed to create purchase receipt: ' . $response['message']
             ];
         }
 
         $receiptNumber = $response['receiptNumber'];
         if ($receiptNumber) {
-            $releaseResponse = $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+            $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
         }
 
         // Add the items to in-delivery stock place
