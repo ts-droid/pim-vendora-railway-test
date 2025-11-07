@@ -138,8 +138,6 @@ class PurchaseOrderService
         $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
             ->pluck('id');
 
-        log_data('QUANTITIES: ' . json_encode($quantities));
-
         DB::beginTransaction();
 
         foreach ($lineIDs as $lineID) {
@@ -170,8 +168,6 @@ class PurchaseOrderService
                 $missingQty = $orderLine->quantity - $qty;
                 $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
 
-                log_data('SPLIT RESPONSE: ' . json_encode($splitResponse));
-
                 if (!$splitResponse['success']) {
                     DB::rollBack();
                     return [
@@ -180,8 +176,6 @@ class PurchaseOrderService
                     ];
                 }
             }
-
-            log_data('Setting quantity: ' . $qty);
 
             $orderLine->update([
                 'is_completed' => 1,
@@ -208,6 +202,8 @@ class PurchaseOrderService
                 'error_message' => $response['message']
             ];
         }
+
+        log_data('Receipt response: ' . json_encode($response));
 
         $receiptNumber = $response['receiptNumber'];
         if ($receiptNumber) {
