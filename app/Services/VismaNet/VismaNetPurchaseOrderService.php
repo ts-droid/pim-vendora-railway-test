@@ -255,9 +255,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         }
 
         // Fetch the purchase order receipt number
-        $response = $this->callAPI('GET', '/v1/PurchaseReceipt', [
-            'poOrderNbr' => $purchaseOrder->order_number
-        ]);
+        $response = $this->callAPI('GET', '/v1/PurchaseReceipt?poOrderNbr=' . $purchaseOrder->order_number);
 
         $receiptNumber = null;
         $compareTime = 0;
