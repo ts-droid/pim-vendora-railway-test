@@ -249,7 +249,11 @@ class PurchaseOrderService
                 ->increment('stock_manageable', $line->quantity_received);
         }
 
-        $purchaseOrderShipment->update(['is_completed' => 1]);
+        $purchaseOrderShipment->update([
+            'is_completed' => 1,
+            'completed_at' => now(),
+            'completed_by' => get_display_name() ?: 'Unknown',
+        ]);
 
         DB::commit();
 

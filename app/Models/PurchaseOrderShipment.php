@@ -13,7 +13,9 @@ class PurchaseOrderShipment extends Model
         'purchase_order_id',
         'receipt',
         'tracking_number',
-        'is_completed'
+        'is_completed',
+        'completed_at',
+        'completed_by'
     ];
 
     public function purchaseOrder()
