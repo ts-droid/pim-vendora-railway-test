@@ -207,7 +207,9 @@ class PurchaseOrderService
 
         $receiptNumber = $response['receiptNumber'];
         if ($receiptNumber) {
-            $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+            $releaseResponse = $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+
+            log_data('Release response: ' . json_encode($releaseResponse));
         }
 
         // Add the items to in-delivery stock place

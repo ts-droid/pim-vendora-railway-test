@@ -204,10 +204,9 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
     }
 
-    public function releasePurchaseOrderReceipt(string $receiptNumber): bool
+    public function releasePurchaseOrderReceipt(string $receiptNumber): array
     {
-        $response = $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
-        return $response['success'];
+        return $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
     }
 
     public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
