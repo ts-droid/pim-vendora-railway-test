@@ -58,11 +58,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/simulate-error', function() {
-    $error = 1 / 0;
-    return response()->json([]);
-});
-
 Route::prefix('/v2')->middleware(['api.key', 'gzip'])->group(function() {
     Route::prefix('/articles')->group(function() {
         Route::get('/customer-reviews', [ArticleController::class, 'customerReviews'])->name('articles.customerReviews');
