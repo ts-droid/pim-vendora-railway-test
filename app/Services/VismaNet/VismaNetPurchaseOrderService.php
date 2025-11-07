@@ -104,7 +104,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
      * @param PurchaseOrder $purchaseOrder
      * @return array|true[]
      */
-    public function updatePurchaseOrder(PurchaseOrder $purchaseOrder, ?bool $onHold = null): array
+    public function updatePurchaseOrder(PurchaseOrder $purchaseOrder, ?bool $onHold = null, bool $fetchAfterUpdate = true): array
     {
         $purchaseOrder->refresh();
 
@@ -190,7 +190,9 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         }
 
         // Fetch the order from Visma to get updated status
-        $this->fetchPurchaseOrders('', $purchaseOrder->order_number);
+        if ($fetchAfterUpdate) {
+            $this->fetchPurchaseOrders('', $purchaseOrder->order_number);
+        }
 
         return ['success' => true, 'message' => ''];
     }

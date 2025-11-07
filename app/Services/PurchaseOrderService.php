@@ -99,7 +99,7 @@ class PurchaseOrderService
         $purchaseOrder = PurchaseOrder::find($purchaseOrderLine->purchase_order_id);
 
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $updateResponse = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+        $updateResponse = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder, null, false);
 
         if (!$updateResponse['success']) {
             return [
