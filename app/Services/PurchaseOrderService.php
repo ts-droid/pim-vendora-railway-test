@@ -168,7 +168,7 @@ class PurchaseOrderService
                 $missingQty = $orderLine->quantity - $qty;
                 $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
 
-                log_data('SPLIT RESPONSE: ' . json_encode($splitResponse))
+                log_data('SPLIT RESPONSE: ' . json_encode($splitResponse));
 
                 if (!$splitResponse['success']) {
                     DB::rollBack();
