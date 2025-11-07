@@ -138,6 +138,8 @@ class PurchaseOrderService
         $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
             ->pluck('id');
 
+        log_data('QUANTITIES: ' . json_encode($quantities));
+
         DB::beginTransaction();
 
         foreach ($lineIDs as $lineID) {
@@ -178,6 +180,8 @@ class PurchaseOrderService
                     ];
                 }
             }
+
+            log_data('Setting quantity: ' . $qty);
 
             $orderLine->update([
                 'is_completed' => 1,
