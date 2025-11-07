@@ -209,7 +209,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         return $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
     }
 
-    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
+    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment, ?array $receiptQuantities = null): array
     {
         $postData = [
             'receiptType' => ['value' => 'PoReceipt'],
@@ -226,6 +226,17 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         $lineNbr = 1;
         foreach ($lines as $line) {
+
+            $receiptQuantity = (int) $line->quantity_received;
+            $totalReceivedQuantity = (int) $line->quantity_received;
+
+            if (!is_null($receiptQuantities)) {
+                $receiptQuantity = intval($receiptQuantities[$line->id] ?? 0);
+                $totalReceivedQuantity = $line->quantity_received + $receiptQuantity;
+            }
+
+            if ($receiptQuantity == 0) continue;
+
             $postData['lines'][] = [
                 'operation' => 'Insert',
                 'lineNbr' => ['value' => $lineNbr++],
@@ -233,13 +244,20 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'inventoryId' => ['value' => $line->article_number],
                 'warehouseId' => ['value' => ($purchaseOrder->is_direct ? self::WAREHOUSE_DIRECT_ID : self::WAREHOUSE_ID)],
                 'transactionDescription' => ['value' => $line->description],
-                'receiptQty' => ['value' => (int) $line->quantity_received],
+                'receiptQty' => ['value' => $receiptQuantity],
                 'unitCost' => ['value' => $line->unit_cost],
-                'amount' => ['value' => ($line->unit_cost * $line->quantity_received)],
+                'amount' => ['value' => ($line->unit_cost * $receiptQuantity)],
                 'poOrderNbr' => ['value' => $purchaseOrder->order_number],
                 'poOrderType' => ['value' => 'RegularOrder'],
                 'poOrderLineNbr' => ['value' => $line->line_key],
-                'completePoLine' => ['value' => ($line->quantity == $line->quantity_received)],
+                'completePoLine' => ['value' => ($line->quantity == $totalReceivedQuantity)],
+            ];
+        }
+
+        if (count($postData['lines']) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No lines received in purchase receipt.'
             ];
         }
 

@@ -119,12 +119,13 @@ class PurchaseOrderController extends Controller
             if (is_null($qty) || !$qty) continue;
 
             $qty = (int) $qty;
+            $openQuantity = $line->quantity - $line->quantity_received;
 
-            if ($qty > $line->quantity) {
-                return ApiResponseController::error('One or more lines have a quantity greater than the ordered quantity.');
+            if ($qty > $openQuantity) {
+                return ApiResponseController::error('One or more lines have a quantity greater than the remaining quantity.');
             }
 
-            if ($qty == $line->quantity) {
+            if ($qty == $openQuantity) {
                 // The entire line is delivered
                 $deliveredLines[] = $line;
                 $deliveredQuantities[$line->id] = $qty;

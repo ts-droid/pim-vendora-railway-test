@@ -144,9 +144,11 @@ class PurchaseOrderService
         if (!$updateResponse['success']) {
             return [
                 'success' => false,
-                'error_message' => 'Failed to unpark purchase order.',
+                'error_message' => 'Failed to unpark purchase order. (' . $updateResponse['message'] . ')',
             ];
         }
+
+        $receiptQuantities = [];
 
         DB::beginTransaction();
 
@@ -155,8 +157,9 @@ class PurchaseOrderService
             $qty = max(0, $qty);
 
             $orderLine = PurchaseOrderLine::find($lineID);
+            $openQuantity = $orderLine->quantity - $orderLine->quantity_received;
 
-            if ($qty > $orderLine->quantity) {
+            if ($qty > $openQuantity) {
                 DB::rollBack();
                 return [
                     'success' => false,
@@ -173,9 +176,9 @@ class PurchaseOrderService
 
                 continue;
             }
-            elseif ($qty < $orderLine->quantity) {
+            elseif ($qty < $openQuantity) {
                 // If received quantity is less than expected, split the missing quantity to a new line
-                $missingQty = $orderLine->quantity - $qty;
+                $missingQty = $openQuantity - $qty;
                 $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
 
                 if (!$splitResponse['success']) {
@@ -189,8 +192,10 @@ class PurchaseOrderService
 
             $orderLine->update([
                 'is_completed' => 1,
-                'quantity_received' => $qty,
+                'quantity_received' => ($orderLine->quantity_received + $qty),
             ]);
+
+            $receiptQuantities[$orderLine->id] = $qty;
         }
 
         // Update the purchase order
@@ -203,7 +208,12 @@ class PurchaseOrderService
         ]);
 
         // Create a purchase order receipt in Visma.net
-        $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt($purchaseOrderShipment->purchaseOrder, $purchaseOrderShipment);
+        $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt(
+            $purchaseOrderShipment->purchaseOrder,
+            $purchaseOrderShipment,
+            $receiptQuantities
+        );
+
         if (!$response['success']) {
             DB::rollback();
             return [
