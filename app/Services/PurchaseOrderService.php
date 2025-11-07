@@ -138,6 +138,16 @@ class PurchaseOrderService
         $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
             ->pluck('id');
 
+        // First make sure the order is not marked as on old
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $updateResponse = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrderShipment->purchaseOrder, false, false);
+        if (!$updateResponse['success']) {
+            return [
+                'success' => false,
+                'error_message' => 'Failed to unpark purchase order.',
+            ];
+        }
+
         DB::beginTransaction();
 
         foreach ($lineIDs as $lineID) {
@@ -193,7 +203,6 @@ class PurchaseOrderService
         ]);
 
         // Create a purchase order receipt in Visma.net
-        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt($purchaseOrderShipment->purchaseOrder, $purchaseOrderShipment);
         if (!$response['success']) {
             DB::rollback();
@@ -203,13 +212,9 @@ class PurchaseOrderService
             ];
         }
 
-        log_data('Receipt response: ' . json_encode($response));
-
         $receiptNumber = $response['receiptNumber'];
         if ($receiptNumber) {
             $releaseResponse = $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
-
-            log_data('Release response: ' . json_encode($releaseResponse));
         }
 
         // Add the items to in-delivery stock place
