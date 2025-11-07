@@ -268,7 +268,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             if (!$lastModifiedDateTime) continue;
 
             $modTime = strtotime($lastModifiedDateTime);
-            if (($modTime > $compareTime) && ((time() - 15) < $modTime)) {
+            if ($modTime > $compareTime) {
                 $receiptNumber = $receipt['receiptNbr'] ?? null;
             }
         }
