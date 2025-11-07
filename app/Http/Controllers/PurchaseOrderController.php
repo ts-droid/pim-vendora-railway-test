@@ -182,7 +182,7 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([]);
     }
 
-    public function setLineAppState(Request $request, purchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
+    public function setLineAppState(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
         $purchaseOrderLine->update([
             'app_state_quantity' => (int) $request->input('quantity', 0),
