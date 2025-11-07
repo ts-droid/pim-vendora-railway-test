@@ -99,7 +99,17 @@ class PurchaseOrderService
         $purchaseOrder = PurchaseOrder::find($purchaseOrderLine->purchase_order_id);
 
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+        $updateResponse = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrder);
+
+        if (!$updateResponse['success']) {
+            return [
+                'success' => false,
+                'old_line' => $purchaseOrderLine,
+                'new_line' => $newLine,
+                'error_message' => $updateResponse['message'],
+                'meta' => $updateResponse['meta'] ?? null
+            ];
+        }
 
         return [
             'success' => true,
@@ -157,6 +167,8 @@ class PurchaseOrderService
                 // If received quantity is less than expected, split the missing quantity to a new line
                 $missingQty = $orderLine->quantity - $qty;
                 $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
+
+                log_data('SPLIT RESPONSE: ' . json_encode($splitResponse))
 
                 if (!$splitResponse['success']) {
                     DB::rollBack();
