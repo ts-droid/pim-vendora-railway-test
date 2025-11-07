@@ -358,6 +358,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{purchaseOrder}/shipments/manual', [PurchaseOrderController::class, 'submitManualShipment'])->name('purchaseOrders.submitShipment.manual');
         Route::get('/{purchaseOrder}/shipments/{purchaseOrderShipment}', [PurchaseOrderController::class, 'getShipment'])->name('purchaseOrders.getShipment');
         Route::post('/{purchaseOrder}/shipments/{purchaseOrderShipment}/submit', [PurchaseOrderController::class, 'submitShipment'])->name('purchaseOrders.submitShipment');
+
+        Route::post('/{purchaseOrder}/lines/{purchaseOrderLine}/set-state', [PurchaseOrderController::class, 'setLineAppState']);
     });
 
     Route::prefix('/inventory-receipts')->group(function() {

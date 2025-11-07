@@ -182,6 +182,16 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([]);
     }
 
+    public function setLineAppState(Request $request, purchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
+    {
+        $purchaseOrderLine->update([
+            'app_state_quantity' => (int) $request->input('quantity', 0),
+            'app_state_verified' => (int) $request->input('verified', 0),
+        ]);
+
+        return ApiResponseController::success([]);
+    }
+
     public function getOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         $loadRelations = $request->input('load_relations', '0');
