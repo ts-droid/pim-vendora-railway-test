@@ -21,6 +21,8 @@ class StockPlace extends Model
         'type',
         'template_id',
         'is_active',
+        'is_virtual',
+        'is_temporary',
     ];
 
     public function compartments()

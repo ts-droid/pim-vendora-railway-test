@@ -8,6 +8,8 @@ use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SalesOrder;
 use App\Models\Shipment;
+use App\Models\StockPlace;
+use App\Models\StockPlaceCompartment;
 use App\Services\VismaNet\VismaNetPurchaseOrderService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
@@ -227,11 +229,63 @@ class PurchaseOrderService
             $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
         }
 
-        // Add the items to in-delivery stock place
+        // Create a new compartment under "INLEV" and place the new article there
         $stockPlaceService = new StockPlaceService();
         $stockItemService = new StockItemService();
 
-        $indeliveryCompartment = $stockPlaceService->getCompartmentByIdentifier('INLEV:1');
+        // Find or create "INLEV"
+        $stockPlace = StockPlace::where('identifier', 'INLEV')->first();
+        if (!$stockPlace) {
+            $response = $stockPlaceService->createStockPlace([
+                'identifier' => 'INLEV',
+                'map_position_x' => 0,
+                'map_position_y' => 0,
+                'map_size_x' => 0,
+                'map_size_y' => 0,
+                'type' => 0,
+                'is_temporary' => 1,
+                'is_virtual' => 1,
+            ]);
+
+            if (!$response['success']) {
+                DB::rollback();
+                return [
+                    'success' => false,
+                    'error_message' => 'Failed to create stock place INLEV: ' . $response['message']
+                ];
+            }
+
+            $stockPlace = $response['stockPlace'];
+        }
+
+        // Create a new compartment
+        $indeliveryCompartment = null;
+
+        for ($i = 1;$i < 5000;$i++) {
+            $exists = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+                ->where('identifier', $i)
+                ->exists();
+
+            if ($exists) continue;
+
+            $indeliveryCompartment = StockPlaceCompartment::create([
+                'identifier' => $i,
+                'stock_place_id' => $stockPlace->id,
+                'volume_class' => 'A',
+                'width' => 100,
+                'height' => 100,
+                'depth' => 100,
+            ]);
+            break;
+        }
+
+        if (!$indeliveryCompartment) {
+            DB::rollback();
+            return [
+                'success' => false,
+                'error_message' => 'Failed to create new stock place compartment to deliver items to'
+            ];
+        }
 
         foreach ($lineIDs as $lineID) {
             $line = PurchaseOrderLine::find($lineID);

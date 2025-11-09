@@ -92,6 +92,9 @@ class StockItemService
                 'stock_place_compartment_id' => $stockPlaceCompartment->id
             ]);
 
+
+            $this->deleteTemporaryCompartments($stockPlaceCompartment->id);
+
             DB::commit();
 
             $this->updateStockMovements([$oldStockPlaceCompartment, $stockPlaceCompartment]);
@@ -128,6 +131,8 @@ class StockItemService
                 }
 
                 $totalRemoved[$stockItem->article_number][$stockItem->stock_place_compartment_id] += 1;
+
+                $this->deleteTemporaryCompartments($stockItem->stock_place_compartment_id);
 
                 $stockItem->delete();
             }
@@ -310,6 +315,21 @@ class StockItemService
                 }
             }
         }
+    }
+
+    private function deleteTemporaryCompartments(int $stockPlaceCompartmentID): void
+    {
+        $compartment = StockPlaceCompartment::find($stockPlaceCompartmentID);
+
+        if (!$compartment) return;
+
+        if (!$compartment->stockPlace->is_temporary) return;
+
+        $hasItems = StockItem::where('stock_place_compartment_id', $compartment->id)->exists();
+        if ($hasItems) return;
+
+        // The compartment is empty, so we can remove it
+        $compartment->delete();
     }
 
     private function logChange(string $articleNumber, int $stockPlaceCompartmentID, int $quantity, string $signature = '', string $source = ''): void
