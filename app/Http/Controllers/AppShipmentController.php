@@ -327,13 +327,18 @@ class AppShipmentController extends Controller
                         }
 
                         $compartment = $stockPlaceService->getCompartmentByIdentifier($pickingLocation);
+                        $newCompartment = $stockPlaceService->getCompartmentByIdentifier('UTLEV:1');
 
-                        $stockItems = $stockItemService->getStockItemsFromCompartment($compartment, $shipmentLine->article_number, $qty);
-                        if ($stockItems->count() == 0) {
-                            continue;
+                        if ($newCompartment) {
+                            $stockItemService->moveStockItems(
+                                $shipmentLine->article_number,
+                                $qty,
+                                $compartment,
+                                $newCompartment,
+                                $displayName,
+                                ('Picked shipment #' . $shipment->id)
+                            );
                         }
-
-                        $stockItemService->removeStockItems($stockItems, $displayName, 'Picked shipment #' . $shipment->id);
                     }
                 }
             }
