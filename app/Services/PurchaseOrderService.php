@@ -243,6 +243,7 @@ class PurchaseOrderService
                 'map_size_x' => 1,
                 'map_size_y' => 1,
                 'type' => 0,
+                'is_active' => 1,
                 'is_temporary' => 1,
                 'is_virtual' => 1,
             ]);
