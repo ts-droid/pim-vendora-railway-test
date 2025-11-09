@@ -167,10 +167,8 @@ class WarehouseHelper
         return array_values($locations);
     }
 
-    public static function getArticleLocations(string $articleNumber, int $quantity, bool $isPicking = false): array
+    public static function getArticleLocations(string $articleNumber, int $quantity): array
     {
-        $compartmentMaxPick = 0.5; // TODO: Make this a setting
-
         $pickedStock = self::getPickedStock($articleNumber);
 
         $colors = [
@@ -196,20 +194,16 @@ class WarehouseHelper
         $isBoxCount = (($masterBox > 1) && (($quantity % $masterBox) == 0)) || (($innerBox > 1) && (($quantity % $innerBox) == 0));
 
         // Fetch stock places with compartments and items in a single query
-        $stockPlacesQuery = StockPlace::whereIn('color', $colors)
-            ->where('is_active', 1);
-
-        if ($isPicking) {
-            $stockPlacesQuery->whereNotIn('identifier', ['UTLEV']);
-        }
-
-        $stockPlacesQuery->with(['compartments.stockItems' => function ($query) use ($articleNumber) {
-            $query->where('article_number', $articleNumber);
-        }]);
-
-        $stockPlaces = $stockPlacesQuery->get()->sortBy(function ($stockPlace) use ($colors) {
-            return array_search($stockPlace->color, $colors);
-        });
+        $stockPlaces = StockPlace::whereIn('color', $colors)
+            ->where('is_active', 1)
+            ->whereNotIn('identifier', ['UTLEV'])
+            ->with(['compartments.stockItems' => function ($query) use ($articleNumber) {
+                $query->where('article_number', $articleNumber);
+            }])
+            ->get()
+            ->sortBy(function ($stockPlace) use ($colors) {
+                return array_search($stockPlace->color, $colors);
+            });
 
         $articleLocations = [];
         $managedStock = 0;
@@ -282,7 +276,7 @@ class WarehouseHelper
             if (!$location['is_prio']) break;
 
             if ($location['class'] === 'A') {
-                if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
+                if (!$isBoxCount && $quantity <= $location['stock']) {
                     return [
                         'locations' => [$location['identifier']],
                         'quantity' => [$quantity]
@@ -301,7 +295,7 @@ class WarehouseHelper
         // Keep original single-compartment pass (already considers PRIO first due to sort)
         foreach ($articleLocations as $location) {
             if ($location['class'] === 'A') {
-                if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
+                if (!$isBoxCount && $quantity <= $location['stock']) {
                     return [
                         'locations' => [$location['identifier']],
                         'quantity' => [$quantity]
