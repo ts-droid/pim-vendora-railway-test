@@ -167,7 +167,7 @@ class WarehouseHelper
         return array_values($locations);
     }
 
-    public static function getArticleLocations(string $articleNumber, int $quantity): array
+    public static function getArticleLocations(string $articleNumber, int $quantity, bool $isPicking = false): array
     {
         $compartmentMaxPick = 0.5; // TODO: Make this a setting
 
@@ -196,15 +196,20 @@ class WarehouseHelper
         $isBoxCount = (($masterBox > 1) && (($quantity % $masterBox) == 0)) || (($innerBox > 1) && (($quantity % $innerBox) == 0));
 
         // Fetch stock places with compartments and items in a single query
-        $stockPlaces = StockPlace::whereIn('color', $colors)
-            ->where('is_active', 1)
-            ->with(['compartments.stockItems' => function ($query) use ($articleNumber) {
-                $query->where('article_number', $articleNumber);
-            }])
-            ->get()
-            ->sortBy(function ($stockPlace) use ($colors) {
-                return array_search($stockPlace->color, $colors);
-            });
+        $stockPlacesQuery = StockPlace::whereIn('color', $colors)
+            ->where('is_active', 1);
+
+        if ($isPicking) {
+            $stockPlacesQuery->whereNotIn('identifier', ['UTLEV']);
+        }
+
+        $stockPlacesQuery->with(['compartments.stockItems' => function ($query) use ($articleNumber) {
+            $query->where('article_number', $articleNumber);
+        }]);
+
+        $stockPlaces = $stockPlacesQuery->get()->sortBy(function ($stockPlace) use ($colors) {
+            return array_search($stockPlace->color, $colors);
+        });
 
         $articleLocations = [];
         $managedStock = 0;
@@ -234,7 +239,8 @@ class WarehouseHelper
                         'identifier' => $identifier,
                         'stock' => $stockItemsCount,
                         'class' => self::colorToClass($stockPlace->color),
-                        'layer' => $layer
+                        'layer' => $layer,
+                        'is_prio' => ($stockPlace->identifier === 'INLEV')
                     ];
                     $managedStock += $stockItemsCount;
                 }
@@ -249,22 +255,50 @@ class WarehouseHelper
                 'identifier' => '--',
                 'stock' => $unmanagedStock,
                 'class' => 'C',
-                'layer' => 1
+                'layer' => 1,
+                'is_prio' => false
             ];
         }
 
-        // Sort locations: prioritize layer 1, then layer 2/3 if needed
+        // Sort so that any is_prio comes before everything else
         usort($articleLocations, function ($a, $b) {
-            if ($a['layer'] !== $b['layer']) {
-                return $a['layer'] - $b['layer']; // Lower layer number comes first (1 before 2 and 3)
+            // Prio first
+            if ($a['is_prio'] !== $b['is_prio']) {
+                return $a['is_prio'] ? -1 : 1;
             }
 
-            // Tie-breaker: use class priority A > B > C
+            // Lower layer number first
+            if ($a['layer'] !== $b['layer']) {
+                return $a['layer'] - $b['layer'];
+            }
+
+            // Tie-breaker: class A > B > C
             $classPriority = ['A' => 0, 'B' => 1, 'C' => 2];
             return $classPriority[$a['class']] <=> $classPriority[$b['class']];
         });
 
-        // Check if a single compartment is sufficient
+        // If any single PRIO location alone is sufficient, return it immediately
+        foreach ($articleLocations as $location) {
+            if (!$location['is_prio']) break;
+
+            if ($location['class'] === 'A') {
+                if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
+                    return [
+                        'locations' => [$location['identifier']],
+                        'quantity' => [$quantity]
+                    ];
+                }
+            } else {
+                if ($quantity <= $location['stock']) {
+                    return [
+                        'locations' => [$location['identifier']],
+                        'quantity' => [$quantity]
+                    ];
+                }
+            }
+        }
+
+        // Keep original single-compartment pass (already considers PRIO first due to sort)
         foreach ($articleLocations as $location) {
             if ($location['class'] === 'A') {
                 if (!$isBoxCount && $quantity <= ($location['stock'] * $compartmentMaxPick)) {
@@ -283,47 +317,80 @@ class WarehouseHelper
             }
         }
 
-        // First, try to fulfill quantity using only Layer 1
-        $layer1Locations = array_filter($articleLocations, fn($loc) => $loc['layer'] === 1);
-
+        // Always drain PRIO first (all layers), then proceed with existing layer-first logic
         $collectedStock = 0;
         $identifiers = [];
-        $quantities = [];
+        $quantities  = [];
 
-        foreach ($layer1Locations as $location) {
+        // 1) Drain INLEV locations first
+        foreach ($articleLocations as $location) {
+            if (!$location['is_prio']) break; // PRIO block is at the front
+
             $remaining = $quantity - $collectedStock;
+
+            if ($remaining <= 0) break;
+
             $take = min($location['stock'], $remaining);
 
-            $collectedStock += $take;
-            $identifiers[] = $location['identifier'];
-            $quantities[] = $take;
-
-            if ($collectedStock >= $quantity) {
-                break;
+            if ($take > 0) {
+                $collectedStock += $take;
+                $identifiers[] = $location['identifier'];
+                $quantities[]  = $take;
             }
         }
 
-        // If Layer 1 was not enough, include other layers
+        if ($collectedStock >= $quantity) {
+            return [
+                'locations' => $identifiers,
+                'quantity' => $quantities
+            ];
+        }
+
+        // 2) Original: try to fulfill using only Layer 1 (excluding any already-consumed PRIO)
+        $layer1Locations = array_filter(
+            $articleLocations,
+            fn($loc) => $loc['layer'] === 1 && !($loc['is_prio'] && in_array($loc['identifier'], $identifiers, true))
+        );
+
+        foreach ($layer1Locations as $location) {
+            $remaining = $quantity - $collectedStock;
+
+            if ($remaining <= 0) break;
+
+            $take = min($location['stock'], $remaining);
+
+            if ($take > 0) {
+                $collectedStock += $take;
+                $identifiers[] = $location['identifier'];
+                $quantities[]  = $take;
+            }
+        }
+
+        // 3) Original: if still not enough, include other layers
         if ($collectedStock < $quantity) {
-            $otherLayers = array_filter($articleLocations, fn($loc) => $loc['layer'] !== 1);
+            $otherLayers = array_filter(
+                $articleLocations,
+                fn($loc) => $loc['layer'] !== 1 && !($loc['is_prio'] && in_array($loc['identifier'], $identifiers, true))
+            );
 
             foreach ($otherLayers as $location) {
                 $remaining = $quantity - $collectedStock;
+
+                if ($remaining <= 0) break;
+
                 $take = min($location['stock'], $remaining);
 
-                $collectedStock += $take;
-                $identifiers[] = $location['identifier'];
-                $quantities[] = $take;
-
-                if ($collectedStock >= $quantity) {
-                    break;
+                if ($take > 0) {
+                    $collectedStock += $take;
+                    $identifiers[] = $location['identifier'];
+                    $quantities[]  = $take;
                 }
             }
         }
 
         return [
             'locations' => $identifiers,
-            'quantity' => $quantities
+            'quantity'  => $quantities
         ];
     }
 

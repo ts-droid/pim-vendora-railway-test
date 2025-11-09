@@ -124,7 +124,7 @@ class AppShipmentController extends Controller
         foreach ($shipment->lines as &$line) {
             $line->order_quantity = $line->orderQuantity();
 
-            $locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity);
+            $locations = WarehouseHelper::getArticleLocations($line->article_number, $line->shipped_quantity, true);
 
             $line->picking_locations = $locations['locations'];
             $line->picking_quantities = $locations['quantity'];
