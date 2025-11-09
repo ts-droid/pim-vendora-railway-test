@@ -175,6 +175,7 @@ class WarehouseHelper
             self::classToColor('A'),
             self::classToColor('B'),
             self::classToColor('C'),
+            self::classToColor('X'),
         ];
 
         $articleData = DB::table('articles')
@@ -426,6 +427,9 @@ class WarehouseHelper
 
             case 'C':
                 return '#f2505f';
+
+            case 'X':
+                return '#878787';
         }
 
         return '';
