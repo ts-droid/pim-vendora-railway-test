@@ -275,6 +275,7 @@ class PurchaseOrderService
                 'width' => 100,
                 'height' => 100,
                 'depth' => 100,
+                'is_manual' => 1,
             ]);
             break;
         }
