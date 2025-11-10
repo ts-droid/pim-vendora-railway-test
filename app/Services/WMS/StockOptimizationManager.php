@@ -175,7 +175,7 @@ class StockOptimizationManager
                         }
 
                         // Try to fill using managed stock instead
-                        $locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
+                        /*$locations = WarehouseHelper::getArticleLocationsWithStock($article->article_number);
                         foreach ($locations as $location) {
                             if ($location['identifier'] == '--') {
                                 continue;
@@ -209,7 +209,7 @@ class StockOptimizationManager
                                     break 2;
                                 }
                             }
-                        }
+                        }*/
 
                         $toplistIndex++;
                     }
