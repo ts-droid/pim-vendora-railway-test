@@ -142,7 +142,7 @@ class PurchaseOrderService
 
         // First make sure the order is not marked as on old
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $unparkResponse = $vismaNetPurchaseOrderService->unparkPurchaseOrder($purchaseOrderShipment);
+        $unparkResponse = $vismaNetPurchaseOrderService->unparkPurchaseOrder($purchaseOrderShipment->purchaseOrder);
 
         if (!$unparkResponse['success']) {
             return [
