@@ -142,11 +142,12 @@ class PurchaseOrderService
 
         // First make sure the order is not marked as on old
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $updateResponse = $vismaNetPurchaseOrderService->updatePurchaseOrder($purchaseOrderShipment->purchaseOrder, false, false);
-        if (!$updateResponse['success']) {
+        $unparkResponse = $vismaNetPurchaseOrderService->unparkPurchaseOrder($purchaseOrderShipment);
+
+        if (!$unparkResponse['success']) {
             return [
                 'success' => false,
-                'error_message' => 'Failed to unpark purchase order. (' . $updateResponse['message'] . ')',
+                'error_message' => 'Failed to unpark purchase order. (' . $unparkResponse['error'] . ')',
             ];
         }
 

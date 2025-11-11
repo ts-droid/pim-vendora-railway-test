@@ -98,6 +98,27 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         ];
     }
 
+    public function unparkPurchaseOrder(PurchaseOrder $purchaseOrder): array
+    {
+        $data = [
+            'hold' => ['value' => false]
+        ];
+
+        $response = $this->callAPI('PUT', '/v1/purchaseorder/' . $purchaseOrder->order_number, $data);
+
+        if (!$response['success']) {
+            return [
+                'success' => false,
+                'error' => ($response['response']['message'] ?? 'Unknown error'),
+            ];
+        }
+
+        return [
+            'success' => true,
+            'error' => '',
+        ];
+    }
+
     /**
      * Updates a purchase order in visma based on the local purchase order
      *
