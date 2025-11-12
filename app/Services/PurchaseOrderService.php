@@ -361,6 +361,11 @@ class PurchaseOrderService
         }
 
         foreach ($lines as $line) {
+            DB::table('purchase_order_shipment_lines')->insert([
+                'purchase_order_shipment_id' => $shipment->id,
+                'purchase_order_line_id' => $line->id
+            ]);
+
             $line->update([
                 'is_shipped' => 1,
                 'tracking_number' => $trackingNumber,
