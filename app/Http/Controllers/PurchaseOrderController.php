@@ -94,6 +94,13 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrderShipment->load('lines', 'lines.article');
 
+        foreach ($purchaseOrderShipment->lines as &$line) {
+            $line->quantity_on_shipment = (int) DB::table('purchase_order_shipment_lines')
+                ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+                ->where('purchase_order_line_id', $line->id)
+                ->sum('quantity');
+        }
+
         return ApiResponseController::success($purchaseOrderShipment->toArray());
     }
 
