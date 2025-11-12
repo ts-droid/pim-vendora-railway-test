@@ -5,12 +5,15 @@ use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\AppMetaDataController;
 use App\Http\Controllers\AppShipmentController;
 use App\Http\Controllers\AppWarehouseController;
+use App\Http\Controllers\PushNotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/app')->group(function() {
     Route::prefix('/v1')->group(function() {
 
         Route::post('/login', [LoginController::class, 'login']);
+
+        Route::post('/push-token', [PushNotificationController::class, 'setPushToken']);
 
         Route::get('/tab-counts', [AppMetaDataController::class, 'getTabCounts']);
         Route::get('/version', [AppMetaDataController::class, 'getVersion']);
