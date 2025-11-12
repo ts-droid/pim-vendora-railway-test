@@ -29,7 +29,7 @@ class PurchaseOrderShipment extends Model
             PurchaseOrderLine::class,
             'purchase_order_shipment_lines',
             'purchase_order_shipment_id',
-            'purchase_order_line'
+            'purchase_order_line_id'
         );
     }
 }
