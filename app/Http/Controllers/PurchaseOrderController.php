@@ -283,17 +283,9 @@ class PurchaseOrderController extends Controller
             $purchaseOrder->num_lines = $purchaseOrder->lines->count();
             $purchaseOrder->tracking_numbers = $purchaseOrder->lines->pluck('tracking_number')->unique()->toArray();
 
-            // Check if the order has open shipments
-            $hasOpenShipments = false;
-
-            foreach ($purchaseOrder->lines as $line) {
-                if ($line->purchase_order_shipment_id && !$line->is_completed) {
-                    $hasOpenShipments = true;
-                    break;
-                }
-            }
-
-            $purchaseOrder->has_open_shipments = $hasOpenShipments;
+            $purchaseOrder->has_open_shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
+                ->where('is_completed', 0)
+                ->exists();
         }
 
         return ApiResponseController::success($purchaseOrders->toArray());
