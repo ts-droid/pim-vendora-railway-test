@@ -137,10 +137,11 @@ class PurchaseOrderService
             ];
         }
 
-        $lineIDs = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)
-            ->pluck('id');
+        $lineIDs = DB::table('purchase_order_shipment_lines')
+            ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+            ->pluck('purchase_order_line_id');
 
-        // First make sure the order is not marked as on old
+        // Make sure the purchase order is not parked/on-hold
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $unparkResponse = $vismaNetPurchaseOrderService->unparkPurchaseOrder($purchaseOrderShipment->purchaseOrder);
 
@@ -150,8 +151,6 @@ class PurchaseOrderService
                 'error_message' => 'Failed to unpark purchase order. (' . $unparkResponse['error'] . ')',
             ];
         }
-
-        $receiptQuantities = [];
 
         DB::beginTransaction();
 
@@ -166,12 +165,17 @@ class PurchaseOrderService
                 DB::rollBack();
                 return [
                     'success' => false,
-                    'error_message' => 'Quantity cannot be greater than the ordered quantity.'
+                    'error_message' => 'Quantity cannot be greater than the open quantity.'
                 ];
             }
 
             if ($qty == 0) {
                 // Disconnect the line from the shipment
+                DB::table('purchase_order_shipment_lines')
+                    ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+                    ->where('purchase_order_line_id', $lineID)
+                    ->delete();
+
                 $orderLine->update([
                     'is_shipped' => 0,
                     'purchase_order_shipment_id' => 0
@@ -179,32 +183,23 @@ class PurchaseOrderService
 
                 continue;
             }
-            elseif ($qty < $openQuantity) {
-                // If received quantity is less than expected, split the missing quantity to a new line
-                $missingQty = $openQuantity - $qty;
-                $splitResponse = $this->splitOrderLine($orderLine, $missingQty);
 
-                if (!$splitResponse['success']) {
-                    DB::rollBack();
-                    return [
-                        'success' => false,
-                        'error_message' => 'Split error: ' . $splitResponse['error_message']
-                    ];
-                }
-            }
+            // Update the quantity on the shipment
+            DB::table('purchase_order_shipment_lines')
+                ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+                ->where('purchase_order_line_id', $lineID)
+                ->update(['quantity' => $qty]);
 
             $orderLine->update([
-                'is_completed' => 1,
+                'is_completed' => ($qty == $openQuantity) ? 1 : 0,
                 'quantity_received' => ($orderLine->quantity_received + $qty),
             ]);
-
-            $receiptQuantities[$orderLine->id] = $qty;
         }
 
         // Update the purchase order
         $quantityOpen = (int) PurchaseOrderLine::select(DB::raw('SUM(quantity - quantity_received) AS quantity_open'))
             ->where('purchase_order_id', $purchaseOrderShipment->purchaseOrder->id)
-            ->first()->quantity_open;
+            ->first()->quantity_open ?: 0;
 
         $purchaseOrderShipment->purchaseOrder->update([
             'status_received' => ($quantityOpen === 0) ? 1 : 0
@@ -213,8 +208,7 @@ class PurchaseOrderService
         // Create a purchase order receipt in Visma.net
         $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt(
             $purchaseOrderShipment->purchaseOrder,
-            $purchaseOrderShipment,
-            $receiptQuantities
+            $purchaseOrderShipment
         );
 
         if (!$response['success']) {
@@ -335,7 +329,7 @@ class PurchaseOrderService
      * @param PurchaseOrderLine[] $lines
      * @return PurchaseOrderShipment
      */
-    public function createShipment(PurchaseOrder $purchaseOrder, array $data = [], mixed $lines = []): PurchaseOrderShipment
+    public function createShipment(PurchaseOrder $purchaseOrder, array $data = [], mixed $lines = [], array $quantities = []): PurchaseOrderShipment
     {
         $purchaseOrder->refresh();
 
@@ -361,10 +355,12 @@ class PurchaseOrderService
         }
 
         foreach ($lines as $line) {
+            $quantity = $quantities[$line->id] ?? $line->quantity;
+
             DB::table('purchase_order_shipment_lines')->insert([
                 'purchase_order_shipment_id' => $shipment->id,
                 'purchase_order_line_id' => $line->id,
-                'quantity' => $line->quantity
+                'quantity' => $quantity
             ]);
 
             $line->update([

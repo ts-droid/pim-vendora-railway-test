@@ -107,54 +107,41 @@ class PurchaseOrderController extends Controller
         }
 
         // Load all open lines
-        $lines = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
-            ->where('purchase_order_shipment_id', 0)
-            ->get();
+        $unassignedLines = $purchaseOrder->getLinesOutsideShipments();
 
         $deliveredLines = [];
         $deliveredQuantities = [];
 
-        foreach ($lines as $line) {
-            $qty = $quantities[$line->id] ?? null;
-            if (is_null($qty) || !$qty) continue;
+        foreach ($unassignedLines as $unassignedLine) {
+            $line = $unassignedLine['line'];
+            $unassignedQuantity = $unassignedLine['unassigned_quantity'];
 
-            $qty = (int) $qty;
-            $openQuantity = $line->quantity - $line->quantity_received;
+            $qty = intval($quantities[$line->id] ?? 0);
 
-            if ($qty > $openQuantity) {
-                return ApiResponseController::error('One or more lines have a quantity greater than the remaining quantity.');
+            if ($qty <= 0) continue;
+
+            if ($qty > $unassignedQuantity) {
+                return ApiResponseController::error('One ore more lines have a quantity greater then the remaining quantity.');
             }
 
-            if ($qty == $openQuantity) {
-                // The entire line is delivered
-                $deliveredLines[] = $line;
-                $deliveredQuantities[$line->id] = $qty;
-            }
-            else {
-                // The line is partially delivered, so we need to split it
-                $response = $purchaseOrderService->splitOrderLine($line, $qty);
-                if (!$response['success']) {
-                    return ApiResponseController::error($response['error_message']);
-                }
-
-                $newLine = $response['new_line'];
-                $deliveredLines[] = $newLine;
-                $deliveredQuantities[$newLine->id] = $qty;
-            }
+            $deliveredLines[] = $line;
+            $deliveredQuantities[$line->id] = $qty;
         }
 
-        if (count($deliveredLines) === 0) {
-            return ApiResponseController::error('No lines were delivered.');
+        if (count($deliveredQuantities) === 0) {
+            return ApiResponseController::error('No lines were delivered');
         }
 
-        // Create a new shipment for the delivered lines and deliver it
+        // Create a new shipment for the delivered lines
         $purchaseOrderService = new PurchaseOrderService();
         $purchaseOrderShipment = $purchaseOrderService->createShipment(
             $purchaseOrder,
             [],
-            $deliveredLines
+            $deliveredLines,
+            $deliveredQuantities
         );
 
+        // Deliver the shipment
         $response = $purchaseOrderService->deliverShipment(
             $purchaseOrderShipment,
             $deliveredQuantities

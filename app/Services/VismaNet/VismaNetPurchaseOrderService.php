@@ -7,6 +7,7 @@ use App\Http\Controllers\VismaNetController;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use DateTime;
 use Illuminate\Support\Facades\Log;
@@ -230,8 +231,10 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         return $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
     }
 
-    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment, ?array $receiptQuantities = null): array
+    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
     {
+        $purchaseOrderShipment->refresh();
+
         $postData = [
             'receiptType' => ['value' => 'PoReceipt'],
             'receiptNbr' => ['values' => (string) $purchaseOrderShipment->id],
@@ -243,18 +246,13 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'lines' => [],
         ];
 
-        $lines = PurchaseOrderLine::where('purchase_order_shipment_id', $purchaseOrderShipment->id)->get();
-
         $lineNbr = 1;
-        foreach ($lines as $line) {
+        foreach ($purchaseOrderShipment->lines as $line) {
 
-            $receiptQuantity = (int) $line->quantity_received;
-            $totalReceivedQuantity = (int) $line->quantity_received;
-
-            if (!is_null($receiptQuantities)) {
-                $receiptQuantity = intval($receiptQuantities[$line->id] ?? 0);
-                $totalReceivedQuantity = $line->quantity_received + $receiptQuantity;
-            }
+            $receiptQuantity = (int) DB::table('purchase_order_shipment_lines')
+                ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+                ->where('purchase_order_line_id', $line->id)
+                ->value('quantity');
 
             if ($receiptQuantity == 0) continue;
 
@@ -271,7 +269,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'poOrderNbr' => ['value' => $purchaseOrder->order_number],
                 'poOrderType' => ['value' => 'RegularOrder'],
                 'poOrderLineNbr' => ['value' => $line->line_key],
-                'completePoLine' => ['value' => ($line->quantity == $totalReceivedQuantity)],
+                'completePoLine' => ['value' => ($line->quantity == $line->quantity_received)],
             ];
         }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrder extends Model
 {
@@ -233,5 +234,27 @@ class PurchaseOrder extends Model
         }
 
         return null;
+    }
+
+    public function getLinesOutsideShipments(): array
+    {
+        $lines = [];
+
+        foreach ($this->lines as $line) {
+            $quantityOnShipments = (int) DB::table('purchase_order_shipment_lines')
+                ->where('purchase_order_line_id', $line->id)
+                ->sum('quantity');
+
+            $unassignedQuantity = $line->quantity - $quantityOnShipments;
+            if ($unassignedQuantity <= 0) continue;
+
+            $lines[] = [
+                'qty_on_shipments' => $quantityOnShipments,
+                'unassigned_quantity' => $unassignedQuantity,
+                'line' => $line
+            ];
+        }
+
+        return $lines;
     }
 }
