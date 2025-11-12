@@ -363,7 +363,8 @@ class PurchaseOrderService
         foreach ($lines as $line) {
             DB::table('purchase_order_shipment_lines')->insert([
                 'purchase_order_shipment_id' => $shipment->id,
-                'purchase_order_line_id' => $line->id
+                'purchase_order_line_id' => $line->id,
+                'quantity' => $line->quantity
             ]);
 
             $line->update([
