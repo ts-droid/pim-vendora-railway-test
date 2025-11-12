@@ -195,11 +195,24 @@ class PurchaseOrderController extends Controller
                 }
             }
 
-            $purchaseOrder->shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
+            $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
                 ->with('lines')
                 ->orderBy('is_completed', 'ASC')
                 ->orderBy('id', 'DESC')
                 ->get();
+
+            if ($shipments) {
+                foreach ($shipments as &$shipment) {
+                    foreach ($shipment->lines as &$line) {
+                        $line->quantity_on_shipment = (int) DB::table('purchase_order_shipment_lines')
+                            ->where('purchase_order_shipment_id', $shipment->id)
+                            ->where('purchase_order_line_id', $line->id)
+                            ->sum('quantity');
+                    }
+                }
+            }
+
+            $purchaseOrder->shipments = $shipments;
 
             $invoiceIDs = $purchaseOrder->lines->pluck('invoice_id')->toArray();
             $invoices = SupplierInvoice::whereIn('id', $invoiceIDs)->get();
