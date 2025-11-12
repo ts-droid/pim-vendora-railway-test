@@ -298,8 +298,6 @@ class PurchaseOrderController extends Controller
     public function getWarehouse(Request $request)
     {
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')
-            ->where('is_draft', 0)
-            ->where('is_po_system', 1)
             ->orderByRaw('(promised_date IS NULL OR promised_date = "") ASC')
             ->orderBy('promised_date', 'ASC')
             ->orderBy('id', 'DESC')
