@@ -268,7 +268,7 @@ class WarehouseHelper
             }
 
             // Tie-breaker: class A > B > C
-            $classPriority = ['A' => 0, 'B' => 1, 'C' => 2];
+            $classPriority = ['' => 0, 'A' => 1, 'B' => 2, 'C' => 3];
             return $classPriority[$a['class']] <=> $classPriority[$b['class']];
         });
 
