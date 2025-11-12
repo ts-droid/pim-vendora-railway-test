@@ -25,6 +25,11 @@ class PurchaseOrderShipment extends Model
 
     public function lines()
     {
-        return $this->hasMany(PurchaseOrderLine::class, 'purchase_order_shipment_id', 'id');
+        return $this->belongsToMany(
+            PurchaseOrderLine::class,
+            'purchase_order_shipment_lines',
+            'purchase_order_shipment_id',
+            'purchase_order_line'
+        );
     }
 }
