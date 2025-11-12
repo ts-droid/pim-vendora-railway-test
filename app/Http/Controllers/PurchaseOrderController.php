@@ -192,6 +192,12 @@ class PurchaseOrderController extends Controller
                     $orderLine->incoming_by_date = ArticleQuantityCalculator::getIncomingByDate($orderLine['article_number']);
                     $orderLine->on_order_quantity = ArticleQuantityCalculator::getOnOrder($orderLine['article_number']);
                     $orderLine->on_order_by_date = ArticleQuantityCalculator::getOnOrderByDate($orderLine['article_number']);
+
+                    $assignedQuantity = (int) DB::table('purchase_order_shipment_lines')
+                        ->where('purchase_order_line_id', $orderLine->id)
+                        ->sum('quantity');
+
+                    $orderLine->unassigned_quantity = $orderLine->quantity - $assignedQuantity;
                 }
             }
 
