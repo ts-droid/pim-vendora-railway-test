@@ -176,6 +176,27 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success([]);
     }
 
+    public function getQueuedShipments()
+    {
+        $queueCount = DB::table('purchase_order_shipment_queue')->count();
+
+        return ApiResponseController::success([
+            'has_queue' => ($queueCount > 0)
+        ]);
+    }
+
+    public function releaseShipments(Request $request)
+    {
+        try {
+            $purchaseOrderService = new PurchaseOrderService();
+            $purchaseOrderService->releasePurchaseOrderShipments();
+        } catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function setLineAppState(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
         $purchaseOrderLine->update([
