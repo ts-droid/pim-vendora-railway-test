@@ -106,8 +106,6 @@ class PurchaseOrderController extends Controller
 
     public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $purchaseOrderService = new PurchaseOrderService();
-
         $quantities = $request->input('quantities', []);
         if (!$quantities) {
             return ApiResponseController::error('No quantities provided.');

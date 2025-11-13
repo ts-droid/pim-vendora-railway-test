@@ -15,6 +15,7 @@ use App\Models\StockItem;
 use App\Models\Supplier;
 use App\Services\ApiLogger;
 use App\Services\CreditNoteService;
+use App\Services\PurchaseOrderService;
 use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\WMS\StockItemService;
@@ -363,6 +364,9 @@ class VismaNetController extends Controller
                     $orderController->update(new Request($orderData), $existingOrder);
                 }
             }
+
+            $purchaseOrderService = new PurchaseOrderService();
+            $purchaseOrderService->autoDeliverPurchaseOrders();
         }
 
         if (!$orderNumber && $fetchedData) {

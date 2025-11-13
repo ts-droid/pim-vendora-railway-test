@@ -519,6 +519,47 @@ class PurchaseOrderService
         ];
     }
 
+    public function autoDeliverPurchaseOrders(): void
+    {
+        $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')->get();
+
+        foreach ($purchaseOrders as $purchaseOrder) {
+            $shipmentIDs = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->pluck('id')->toArray();
+
+            $deliveredQuantities = [];
+
+            foreach ($purchaseOrder->lines as $line) {
+                $assignedQuantity = (int) DB::table('purchase_order_shipment_lines')
+                    ->whereIn('purchase_order_shipment_id', $shipmentIDs)
+                    ->where('purchase_order_line_id', $line->id)
+                    ->sum('quantity');
+
+                if ($line->quantity_received <= $assignedQuantity) continue;
+
+                $deliveredQuantities[$line->id] = $line->quantity_received - $assignedQuantity;
+            }
+
+            if (empty($deliveredQuantities)) continue;
+
+            // Create shipment and shipment lines
+            $shipment = PurchaseOrderShipment::create([
+                'purchase_order_id' => $purchaseOrder->id,
+                'is_completed' => 1,
+                'completed_at' => now(),
+                'completed_by' => 'System'
+            ]);
+
+            foreach ($deliveredQuantities as $lineID => $qty) {
+                DB::table('purchase_order_shipment_lines')->insert([
+                    'purchase_order_shipment_id' => $shipment->id,
+                    'purchase_order_line_id' => $lineID,
+                    'quantity' => $qty
+                ]);
+            }
+        }
+
+    }
+
     /**
      * @param PurchaseOrder $purchaseOrder
      * @return void
