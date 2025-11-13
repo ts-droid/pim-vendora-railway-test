@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TodoQueue;
+use App\Models\PurchaseOrderShipment;
 use App\Models\Shipment;
 use App\Models\StockItemMovement;
 use App\Models\StockKeepTodo;
@@ -46,17 +47,8 @@ class AppMetaDataController extends Controller
             $counts['todo'] = $todoService->getQueueCount($queue);
         }
 
-        // TODO: Add delivery counts
-        $counts['delivery'] = (int) DB::table('purchase_order_lines')
-            ->join('purchase_orders', 'purchase_orders.id', '=', 'purchase_order_lines.purchase_order_id')
-            ->select('purchase_orders.id')
-            ->where('purchase_orders.status', '!=', 'Closed')
-            ->where('purchase_orders.is_draft', 0)
-            ->where('purchase_orders.is_po_system', 1)
-            ->where('purchase_order_lines.is_completed', 0)
-            ->where('purchase_order_shipment_id', '>', 0)
-            ->distinct()
-            ->count('purchase_orders.id');
+        // Delivery counts
+        $counts['delivery'] = (int) PurchaseOrderShipment::where('is_completed', 0)->count();
 
         // Invenstory
         $counts['inventory'] = (int) StockKeepTodo::count();
