@@ -126,7 +126,7 @@ class PurchaseOrderService
      * @param array $quantities
      * @return array
      */
-    public function deliverShipment(PurchaseOrderShipment $purchaseOrderShipment, array $quantities): array
+    public function deliverShipment(PurchaseOrderShipment $purchaseOrderShipment, array $quantities, string $comment = ''): array
     {
         $purchaseOrderShipment->refresh();
 
@@ -208,7 +208,8 @@ class PurchaseOrderService
         // Create a purchase order receipt in Visma.net
         $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt(
             $purchaseOrderShipment->purchaseOrder,
-            $purchaseOrderShipment
+            $purchaseOrderShipment,
+            $comment
         );
 
         if (!$response['success']) {
@@ -301,6 +302,7 @@ class PurchaseOrderService
         }
 
         $purchaseOrderShipment->update([
+            'comment' => $comment,
             'is_completed' => 1,
             'completed_at' => now(),
             'completed_by' => get_display_name() ?: 'Unknown',

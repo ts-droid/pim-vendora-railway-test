@@ -149,7 +149,8 @@ class PurchaseOrderController extends Controller
         // Deliver the shipment
         $response = $purchaseOrderService->deliverShipment(
             $purchaseOrderShipment,
-            $deliveredQuantities
+            $deliveredQuantities,
+            (string) $request->input('comment', '')
         );
 
         if (!$response['success']) {
@@ -164,7 +165,8 @@ class PurchaseOrderController extends Controller
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->deliverShipment(
             $purchaseOrderShipment,
-            $request->input('quantities', [])
+            $request->input('quantities', []),
+            (string) $request->input('comment', '')
         );
 
         if (!$response['success']) {

@@ -13,6 +13,7 @@ class PurchaseOrderShipment extends Model
         'purchase_order_id',
         'receipt',
         'tracking_number',
+        'comment',
         'is_completed',
         'completed_at',
         'completed_by'

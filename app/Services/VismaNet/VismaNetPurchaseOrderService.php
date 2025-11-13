@@ -231,7 +231,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         return $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
     }
 
-    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment): array
+    public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment, string $comment = ''): array
     {
         $purchaseOrderShipment->refresh();
 
@@ -245,6 +245,10 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             'currency' => ['value' => $purchaseOrder->currency],
             'lines' => [],
         ];
+
+        if ($comment) {
+            $postData['comment'] = ['value' => $comment];
+        }
 
         $lineNbr = 1;
         foreach ($purchaseOrderShipment->lines as $line) {
