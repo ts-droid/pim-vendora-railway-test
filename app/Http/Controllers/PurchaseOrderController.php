@@ -162,11 +162,28 @@ class PurchaseOrderController extends Controller
 
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
+        $images = [];
+        foreach ($purchaseOrderShipment->lines as $line) {
+            for ($i = 0;$i < 20;$i++) {
+                $image = $request->file('image', null);
+
+                if (!$image) continue 2;
+
+                if (!isset($images[$line->id])) {
+                    $images[$line->id] = [];
+                }
+
+                $images[$line->id][] = $image;
+            }
+        }
+
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->deliverShipment(
             $purchaseOrderShipment,
             $request->input('quantities', []),
-            (string) $request->input('comment', '')
+            (string) $request->input('comment', ''),
+            $request->input('exceptions', []),
+            $images
         );
 
         if (!$response['success']) {

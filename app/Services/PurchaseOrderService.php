@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CanceledPurchaseOrderLine;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderException;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SalesOrder;
@@ -237,7 +238,7 @@ class PurchaseOrderService
      * @param array $quantities
      * @return array
      */
-    public function deliverShipment(PurchaseOrderShipment $purchaseOrderShipment, array $quantities, string $comment = ''): array
+    public function deliverShipment(PurchaseOrderShipment $purchaseOrderShipment, array $quantities, string $comment = '', array $exceptions = [], array $images = []): array
     {
         $purchaseOrderShipment->refresh();
 
@@ -269,15 +270,43 @@ class PurchaseOrderService
             $qty = (int) ($quantities[$lineID] ?? 0);
             $qty = max(0, $qty);
 
+            $exception = $exceptions[$lineID] ?? null;
+            $exceptionImages = $images[$lineID] ?? [];
+
             $orderLine = PurchaseOrderLine::find($lineID);
             $openQuantity = $orderLine->quantity - $orderLine->quantity_received;
+            $qtyOnShipment = DB::table('purchase_order_shipment_lines')
+                ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
+                ->where('purchase_order_line_id', $orderLine->id)
+                ->sum('quantity');
 
-            if ($qty > $openQuantity) {
+            if ($qty != $qtyOnShipment && !$exception) {
                 DB::rollBack();
                 return [
                     'success' => false,
-                    'error_message' => 'Quantity cannot be greater than the open quantity.'
+                    'error_message' => 'You must provide an exception type for all lines not matching the quantity.'
                 ];
+            }
+
+            if ($qty != $qtyOnShipment) {
+                $diffQty = $qty - $qtyOnShipment;
+                $qty = min($qty, $qtyOnShipment);
+            } else {
+                $diffQty = 0;
+            }
+
+            if ($diffQty !== 0) {
+                $purchaseOrderException = PurchaseOrderException::create([
+                    'purchase_order_shipment_id' => $purchaseOrderShipment->id,
+                    'purchase_order_line_id' => $orderLine->id,
+                    'diff' => $diffQty,
+                    'exception_type' => $exception,
+                    'images' => []
+                ]);
+
+                foreach ($exceptionImages as $image) {
+                    // TODO: Upload and connect images
+                }
             }
 
             if ($qty == 0) {
