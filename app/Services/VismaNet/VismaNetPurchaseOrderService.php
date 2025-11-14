@@ -261,9 +261,9 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
             if ($receiptQuantity == 0) continue;
 
             $orderQty = (int) $line->quantity;
-            $vismaReceivedQty = (int) $line->quantity_received;
-            $outstandingQty = max(0, $orderQty - $vismaReceivedQty);
-            $completesLine = $outstandingQty === 0 || $receiptQuantity >= $outstandingQty;
+            $receivedQty = (int) $line->quantity_received;
+            $outstandingQty = max(0, $orderQty - $receivedQty);
+            $completesLine = $outstandingQty === 0;
 
             $postData['lines'][] = [
                 'operation' => 'Insert',
