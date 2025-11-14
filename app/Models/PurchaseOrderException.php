@@ -12,6 +12,7 @@ class PurchaseOrderException extends Model
     protected $fillable = [
         'purchase_order_shipment_id',
         'purchase_order_line_id',
+        'article_number',
         'diff',
         'exception_type',
         'images',

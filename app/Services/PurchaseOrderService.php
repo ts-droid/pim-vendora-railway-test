@@ -302,7 +302,7 @@ class PurchaseOrderService
 
                 foreach ($exceptionImages as $image) {
                     $images[] = DoSpacesController::store(
-                        time() . '_' . $image->getClientOriginalName(),
+                        time() . rand(0, 999_999_999) . '_' . $image->getClientOriginalName(),
                         $image->getContent(),
                         false
                     );

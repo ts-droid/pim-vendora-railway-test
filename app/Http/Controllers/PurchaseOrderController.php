@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\RegeneratePurchaseOrder;
 use App\Models\Article;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderException;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
 use App\Models\SalesOrder;
@@ -157,6 +158,8 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error($response['error_message']);
         }
 
+        $this->submitExceptionRows($request);
+
         return ApiResponseController::success($purchaseOrder->toArray());
     }
 
@@ -190,7 +193,57 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error($response['error_message']);
         }
 
+        $this->submitExceptionRows($request);
+
         return ApiResponseController::success([]);
+    }
+
+    public function submitExceptionRows(Request $request)
+    {
+        $exceptionRows = [];
+
+        for ($i = 0;$i < 1000;$i++) {
+            $ean = $request->input('exception-row-' . $i . '-ean');
+            $exceptionType = $request->input('exception-row-' . $i . '-type');
+            $qty = (int) $request->input('exception-row-' . $i . '-qty', 0);
+            $images = [];
+
+            if (!$ean || !$exceptionType || !$qty) break;
+
+            // Find article by EAN
+            $article = Article::where('article_number', $ean)
+                ->orWhere('ean', $ean)
+                ->orWhere('gtin_inner_box', $ean)
+                ->orWhere('gtin_master_box', $ean)
+                ->orWhere('gtin_pallet', $ean)
+                ->first();
+
+            if (!$article) continue;
+
+            // Upload images
+            for ($j = 0;$j < 20;$j++) {
+                $image = $request->file('image', null);
+                if (!$image) break;
+
+                $images[] = DoSpacesController::store(
+                    time() . rand(0, 999_999_999) . '_' . $image->getClientOriginalName(),
+                    $image->getContent(),
+                    false
+                );
+            }
+
+            // Create the exception entries
+            PurchaseOrderException::create([
+                'purchase_order_shipment_id' => 0,
+                'purchase_order_line_id' => 0,
+                'article_number' => $article->article_number,
+                'diff' => $qty,
+                'exception_type' => $exceptionType,
+                'images' => $images,
+            ]);
+        }
+
+        return ApiResponseController::success();
     }
 
     public function getQueuedShipments()
