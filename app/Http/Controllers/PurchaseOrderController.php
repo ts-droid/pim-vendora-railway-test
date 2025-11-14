@@ -169,7 +169,7 @@ class PurchaseOrderController extends Controller
         $images = [];
         foreach ($purchaseOrderShipment->lines as $line) {
             for ($i = 0;$i < 20;$i++) {
-                $image = $request->file('image', null);
+                $image = $request->file('image-' . $line->id . '-' . $i, null);
 
                 if (!$image) continue 2;
 
