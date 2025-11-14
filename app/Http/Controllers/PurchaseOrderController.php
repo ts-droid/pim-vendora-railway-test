@@ -182,7 +182,7 @@ class PurchaseOrderController extends Controller
         }
 
         $quantities = json_decode($request->input('quantities', '[]'), true);
-        $exceptions = json_decode($request->input('exceptions', '[]'), true);
+        $exceptions = json_decode($request->input('exception_types', '[]'), true);
 
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->deliverShipment(
