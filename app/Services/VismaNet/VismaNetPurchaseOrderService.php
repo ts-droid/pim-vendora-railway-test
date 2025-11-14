@@ -247,7 +247,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
         ];
 
         if ($comment) {
-            $postData['comment'] = ['value' => $comment];
+            $postData['note'] = ['value' => $comment];
         }
 
         $lineNbr = 1;
