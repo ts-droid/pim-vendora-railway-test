@@ -275,7 +275,6 @@ class PurchaseOrderService
             $exceptionImages = $images[$lineID] ?? [];
 
             $orderLine = PurchaseOrderLine::find($lineID);
-            $openQuantity = $orderLine->quantity - $orderLine->quantity_received;
             $qtyOnShipment = DB::table('purchase_order_shipment_lines')
                 ->where('purchase_order_shipment_id', $purchaseOrderShipment->id)
                 ->where('purchase_order_line_id', $orderLine->id)
@@ -339,9 +338,11 @@ class PurchaseOrderService
                 ->where('purchase_order_line_id', $lineID)
                 ->update(['quantity' => $qty]);
 
+            $quantityReceived = $orderLine->quantity_received + $qty;
+
             $orderLine->update([
-                'is_completed' => ($qty == $openQuantity) ? 1 : 0,
-                'quantity_received' => ($orderLine->quantity_received + $qty),
+                'is_completed' => ($quantityReceived == $orderLine->quantity) ? 1 : 0,
+                'quantity_received' => $quantityReceived,
                 'app_state_quantity' => null,
                 'app_state_verified' => 0
             ]);
