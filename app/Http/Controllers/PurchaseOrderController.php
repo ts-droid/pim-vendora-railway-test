@@ -107,7 +107,8 @@ class PurchaseOrderController extends Controller
 
     public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
-        $quantities = $request->input('quantities', []);
+        $quantities = json_decode($request->input('quantities', '[]'), true);
+
         if (!$quantities) {
             return ApiResponseController::error('No quantities provided.');
         }
@@ -180,12 +181,15 @@ class PurchaseOrderController extends Controller
             }
         }
 
+        $quantities = json_decode($request->input('quantities', '[]'), true);
+        $exceptions = json_decode($request->input('exceptions', '[]'), true);
+
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->deliverShipment(
             $purchaseOrderShipment,
-            $request->input('quantities', []),
+            $quantities,
             (string) $request->input('comment', ''),
-            $request->input('exceptions', []),
+            $exceptions,
             $images
         );
 
@@ -200,8 +204,6 @@ class PurchaseOrderController extends Controller
 
     public function submitExceptionRows(Request $request)
     {
-        $exceptionRows = [];
-
         for ($i = 0;$i < 1000;$i++) {
             $ean = $request->input('exception-row-' . $i . '-ean');
             $exceptionType = $request->input('exception-row-' . $i . '-type');
