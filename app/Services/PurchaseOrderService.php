@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\DoSpacesController;
 use App\Models\CanceledPurchaseOrderLine;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderException;
@@ -296,17 +297,25 @@ class PurchaseOrderService
             }
 
             if ($diffQty !== 0) {
-                $purchaseOrderException = PurchaseOrderException::create([
+                // Upload images
+                $images = [];
+
+                foreach ($exceptionImages as $image) {
+                    $images[] = DoSpacesController::store(
+                        time() . '_' . $image->getClientOriginalName(),
+                        $image->getContent(),
+                        false
+                    );
+                }
+
+                // Create Exception
+                PurchaseOrderException::create([
                     'purchase_order_shipment_id' => $purchaseOrderShipment->id,
                     'purchase_order_line_id' => $orderLine->id,
                     'diff' => $diffQty,
                     'exception_type' => $exception,
-                    'images' => []
+                    'images' => $images
                 ]);
-
-                foreach ($exceptionImages as $image) {
-                    // TODO: Upload and connect images
-                }
             }
 
             if ($qty == 0) {
