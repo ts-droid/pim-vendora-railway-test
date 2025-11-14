@@ -260,6 +260,11 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
             if ($receiptQuantity == 0) continue;
 
+            $orderQty = (int) $line->quantity;
+            $vismaReceivedQty = (int) $line->quantity_received;
+            $outstandingQty = max(0, $orderQty - $vismaReceivedQty);
+            $completesLine = $outstandingQty === 0 || $receiptQuantity >= $outstandingQty;
+
             $postData['lines'][] = [
                 'operation' => 'Insert',
                 'lineNbr' => ['value' => $lineNbr++],
@@ -273,7 +278,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
                 'poOrderNbr' => ['value' => $purchaseOrder->order_number],
                 'poOrderType' => ['value' => 'RegularOrder'],
                 'poOrderLineNbr' => ['value' => $line->line_key],
-                'completePoLine' => ['value' => ($line->quantity == $line->quantity_received)],
+                'completePoLine' => ['value' => $completesLine],
             ];
         }
 
