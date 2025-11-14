@@ -342,6 +342,8 @@ class PurchaseOrderService
             $orderLine->update([
                 'is_completed' => ($qty == $openQuantity) ? 1 : 0,
                 'quantity_received' => ($orderLine->quantity_received + $qty),
+                'app_state_quantity' => null,
+                'app_state_verified' => 0
             ]);
         }
 
