@@ -52,13 +52,14 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
             $purchaseOrderShipment = $data['purchase_order_shipment'];
             $exceptions = $data['exceptions'];
 
-            // TODO: Queue notification
             $recipients = [
-                'anton@scriptsector.se',
-                // $email,
-                // 'purchasing@vendora.se',
-                // 'logistics@vendora.se'
+                'purchasing@vendora.se',
+                'logistics@vendora.se'
             ];
+
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $recipients[] = $email;
+            }
 
             Mail::to($recipients)->queue(new NotifyPurchaseOrderExceptions($purchaseOrderShipment, $exceptions));
 
