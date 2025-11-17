@@ -36,21 +36,18 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
 
         $groupedExceptions = [];
         foreach ($unhandledExceptions as $exception) {
-            $supplierID = $exception->purchaseOrderShipment->purchaseOrder->supplier_id ?? 0;
-            if (!$supplierID) continue;
-
-            if (!isset($groupedExceptions[$supplierID])) {
-                $groupedExceptions[$supplierID] = [
+            if (!isset($groupedExceptions[$exception->purchase_order_shipment_id])) {
+                $groupedExceptions[$exception->purchase_order_shipment_id] = [
                     'email' => $exception->purchaseOrderShipment->purchaseOrder->email,
                     'purchase_order_shipment' => $exception->purchaseOrderShipment,
                     'exceptions' => []
                 ];
             }
 
-            $groupedExceptions[$supplierID]['exceptions'][] = $exception;
+            $groupedExceptions[$exception->purchase_order_shipment_id]['exceptions'][] = $exception;
         }
 
-        foreach ($groupedExceptions as $supplierID => $data) {
+        foreach ($groupedExceptions as $data) {
             $email = $data['email'];
             $purchaseOrderShipment = $data['purchase_order_shipment'];
             $exceptions = $data['exceptions'];
