@@ -481,6 +481,31 @@ class AppShipmentController extends Controller
             'ping_at' => 0
         ]);
 
+        // Remove stock items from "UTLEV"
+        $stockPlaceService = new StockPlaceService();
+        $stockItemService = new StockItemService();
+
+        $compartment = $stockPlaceService->getCompartmentByIdentifier('UTLEV:1');
+
+        foreach ($shipment->lines as $line) {
+            $stockItems = $stockItemService->getStockItemsFromCompartment(
+                $compartment,
+                $line->article_number,
+                $line->quantity,
+            );
+
+            $response = $stockItemService->removeStockItems(
+                $stockItems,
+                get_display_name(),
+                'Completing shipment #' . $shipment->id
+            );
+
+            if (!$response['success']) {
+                Log::channel('shipments')->error('Failed to remove stock items when competing shipment.', ['shipmentNumber' => $shipment->number]);
+            }
+        }
+
+
         // Send/notify tracking number to customer
         if ($trackingNumber != $trackingNumberOld || !$trackingNumberOld) {
             $this->notifyTrackingNumber($shipment, $trackingNumber);
