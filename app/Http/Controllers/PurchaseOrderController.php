@@ -159,7 +159,7 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error($response['error_message']);
         }
 
-        $this->submitExceptionRows($request);
+        $this->submitExceptionRows($request, $purchaseOrderShipment);
 
         return ApiResponseController::success($purchaseOrder->toArray());
     }
@@ -197,12 +197,12 @@ class PurchaseOrderController extends Controller
             return ApiResponseController::error($response['error_message']);
         }
 
-        $this->submitExceptionRows($request);
+        $this->submitExceptionRows($request, $purchaseOrderShipment);
 
         return ApiResponseController::success([]);
     }
 
-    public function submitExceptionRows(Request $request)
+    public function submitExceptionRows(Request $request, PurchaseOrderShipment $purchaseOrderShipment)
     {
         for ($i = 0;$i < 1000;$i++) {
             $ean = $request->input('exception-row-' . $i . '-ean');
@@ -236,7 +236,7 @@ class PurchaseOrderController extends Controller
 
             // Create the exception entries
             PurchaseOrderException::create([
-                'purchase_order_shipment_id' => 0,
+                'purchase_order_shipment_id' => $purchaseOrderShipment->id,
                 'purchase_order_line_id' => 0,
                 'article_number' => $article->article_number,
                 'diff' => $qty,

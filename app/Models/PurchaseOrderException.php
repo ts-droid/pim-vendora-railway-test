@@ -16,9 +16,15 @@ class PurchaseOrderException extends Model
         'diff',
         'exception_type',
         'images',
+        'handled_at',
     ];
 
     protected $casts = [
         'images' => 'array'
     ];
+
+    public function purchaseOrderShipment()
+    {
+        return $this->belongsTo(PurchaseOrderShipment::class);
+    }
 }
