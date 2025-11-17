@@ -27,4 +27,9 @@ class PurchaseOrderException extends Model
     {
         return $this->belongsTo(PurchaseOrderShipment::class);
     }
+
+    public function line()
+    {
+        return $this->belongsTo(PurchaseOrderLine::class, 'purchase_order_line_id', 'id');
+    }
 }

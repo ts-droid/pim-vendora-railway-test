@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\NotifyPurchaseOrderExceptions;
 use App\Models\PurchaseOrderException;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Support\Facades\Mail;
 
 
 class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
@@ -30,7 +32,42 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
     {
         $unhandledExceptions = PurchaseOrderException::whereNull('handled_at')->get();
 
-        $groupedExceptions = [];
+        if (!$unhandledExceptions->count()) return;
 
+        $groupedExceptions = [];
+        foreach ($unhandledExceptions as $exception) {
+            $supplierID = $exception->purchaseOrderShipment->purchaseOrder->supplier_id ?? 0;
+            if (!$supplierID) continue;
+
+            if (!isset($groupedExceptions[$supplierID])) {
+                $groupedExceptions[$supplierID] = [
+                    'email' => $exception->purchaseOrderShipment->purchaseOrder->email,
+                    'purchase_order_shipment' => $exception->purchaseOrderShipment,
+                    'exceptions' => []
+                ];
+            }
+
+            $groupedExceptions[$supplierID]['exceptions'][] = $exception;
+        }
+
+        foreach ($groupedExceptions as $supplierID => $data) {
+            $email = $data['email'];
+            $purchaseOrderShipment = $data['purchase_order_shipment'];
+            $exceptions = $data['exceptions'];
+
+            // TODO: Queue notification
+            $recipients = [
+                'anton@scriptsector.se',
+                // $email,
+                // 'purchasing@vendora.se',
+                // 'logistics@vendora.se'
+            ];
+
+            Mail::to($recipients)->queue(new NotifyPurchaseOrderExceptions($purchaseOrderShipment, $exceptions));
+
+            foreach ($exceptions as $exception) {
+                $exception->update(['handled_at' => now()]);
+            }
+        }
     }
 }
