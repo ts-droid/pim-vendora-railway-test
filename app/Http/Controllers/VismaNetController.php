@@ -40,7 +40,9 @@ class VismaNetController extends Controller
         'vismanet_erp_interactive_api:create',
         'vismanet_erp_interactive_api:delete',
         'vismanet_erp_interactive_api:read',
-        'vismanet_erp_interactive_api:update'
+        'vismanet_erp_interactive_api:update',
+        'visma.net.erp.salesorder.inter:read',
+        'visma.net.erp.salesorder.inter:write',
     ];
 
     const MAX_TRIES = 3; // Maximum number of tries to for callAPI() if the request fails
