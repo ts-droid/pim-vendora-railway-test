@@ -30,7 +30,7 @@ class VismaNetApiService
 
     public function __construct()
     {
-        $this->baseUrl = 'https://integration.visma.net';
+        $this->baseUrl = 'https://api.finance.visma.net';
         $this->baseUrlV3 = 'https://salesorder.visma.net/api';
 
         $this->clientId = env('VISMA_CLIENT_ID', '');
@@ -90,7 +90,7 @@ class VismaNetApiService
                 $url = $this->baseUrlV3 . $endpoint;
             }
             else {
-                $url = $this->baseUrl . '/API/controller/api' . $endpoint;
+                $url = $this->baseUrl . $endpoint;
             }
         }
 
