@@ -224,7 +224,7 @@ class PurchaseOrderController extends Controller
 
             // Upload images
             for ($j = 0;$j < 20;$j++) {
-                $image = $request->file('image', null);
+                $image = $request->file('exception-row-' . $i . '-image-' . $j, null);
                 if (!$image) break;
 
                 $images[] = DoSpacesController::store(
