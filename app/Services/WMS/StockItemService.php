@@ -68,8 +68,24 @@ class StockItemService
             ];
         }
 
+        $log = [];
+
         foreach ($stockItems as $stockItem) {
-            $this->moveStockItem($stockItem, $toStockPlaceCompartment, $signature, $source);
+            $response = $this->moveStockItem($stockItem, $toStockPlaceCompartment, $signature, $source, false);
+
+            if ($response['success']) {
+                foreach ($response['log'] as $compartmentID => $movedQty) {
+                    if (!isset($log[$compartmentID])) {
+                        $log[$compartmentID] = 0;
+                    }
+
+                    $log[$compartmentID] += $movedQty;
+                }
+            }
+        }
+
+        foreach ($log as $compartmentID => $movedQty) {
+            $this->logChange($articleNumber, $compartmentID, $movedQty, $signature, $source);
         }
 
         return [
@@ -78,15 +94,22 @@ class StockItemService
         ];
     }
 
-    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = ''): array
+    public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = '', bool $storeLog = true): array
     {
         DB::beginTransaction();
+
+        $log = [];
 
         try {
             $oldStockPlaceCompartment = StockPlaceCompartment::find($stockItem->stock_place_compartment_id);
 
-            $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature, $source);
-            $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature, $source);
+            if (!$storeLog) {
+                $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature, $source);
+                $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature, $source);
+            }
+
+            $log[$stockItem->stock_place_compartment_id] = -1;
+            $log[$stockPlaceCompartment->id] = 1;
 
             $stockItem->update([
                 'stock_place_compartment_id' => $stockPlaceCompartment->id
@@ -102,6 +125,7 @@ class StockItemService
             return [
                 'success' => true,
                 'message' => 'Stock item moved',
+                'log' => $log
             ];
         } catch (\Exception $e) {
             DB::rollBack();
