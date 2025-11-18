@@ -54,7 +54,8 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
 
             $recipients = [
                 'purchasing@vendora.se',
-                'logistics@vendora.se'
+                'logistics@vendora.se',
+                'anton@vendora.se'
             ];
 
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
