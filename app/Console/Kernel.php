@@ -29,6 +29,8 @@ class Kernel extends ConsoleKernel
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
             $schedule->command('generate-article-shop-data')->hourly()->withoutOverlapping();
 
+            $schedule->command('purchase-order-exceptions:handle')->everyFiveMinutes()->withoutOverlapping();
+
             // Visma.net
             $schedule->command('visma:fetch quick')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:fetch hourly')->hourly()->withoutOverlapping();
