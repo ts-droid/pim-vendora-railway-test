@@ -6,7 +6,6 @@ use App\Actions\DispatchArticleUpdate;
 use App\Actions\UploadArticlePackageImage;
 use App\Enums\LaravelQueues;
 use App\Jobs\CategorizeArticle;
-use App\Jobs\GenerateArticleShopTitle;
 use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
@@ -1687,21 +1686,15 @@ class ArticleController extends Controller
 
     public function getNewShopTitle(Request $request, Article $article)
     {
-        $job = new GenerateArticleShopTitle($article, true);
-        $response = $job->handle();
-
         return ApiResponseController::success([
-            'value' => ($response['shop_title_en'] ?? '')
+            'value' => ''
         ]);
     }
 
     public function getNewMarketingDescription(Request $request, Article $article)
     {
-        $job = new GenerateArticleShopTitle($article, true);
-        $response = $job->handle();
-
         return ApiResponseController::success([
-            'value' => ($response['shop_marketing_description_en'] ?? '')
+            'value' => ''
         ]);
     }
 

@@ -419,9 +419,6 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
     });
 
     Route::prefix('/product-seo')->group(function() {
-        Route::post('/meta-data/queue', [ProductSeoController::class, 'queueMetaData']);
-        Route::post('/meta-data/queue/brand', [ProductSeoController::class, 'queueBrandMetaData']);
-
         Route::post('/images/queue', [ProductSeoController::class, 'queueImageData']);
         Route::post('/images/queue/brand', [ProductSeoController::class, 'queueBrandImageData']);
     });

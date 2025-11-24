@@ -21,13 +21,10 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('visma:check')->everyTwoMinutes()->withoutOverlapping();
 
-            $schedule->command('meta-data:generate-articles')->everyFiveMinutes()->withoutOverlapping();
-
             // TODO: Can me moved to long loved processes
             $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
-            $schedule->command('generate-article-shop-data')->hourly()->withoutOverlapping();
 
             $schedule->command('purchase-order-exceptions:handle')->everyFiveMinutes()->withoutOverlapping();
 
@@ -42,6 +39,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('wgr:fetch')->everyTenMinutes();
 
+            // Generate article data
+            $schedule->command('article:generate-titles')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('article:generate-missing-short-descriptions')->everyFiveMinutes();
             $schedule->command('faq:generate-missing')->everyFifteenMinutes();
             $schedule->command('articles:categorize')->hourly();
