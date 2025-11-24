@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->string('color_sv')->nullable()->default(null);
-            $table->string('color_lt')->nullable()->default(null);
-            $table->string('color_lv')->nullable()->default(null);
-            $table->string('color_et')->nullable()->default(null);
-            $table->string('color_is')->nullable()->default(null);
-            $table->string('color_fi')->nullable()->default(null);
-            $table->string('color_no')->nullable()->default(null);
-            $table->string('color_en')->nullable()->default(null);
-            $table->string('color_da')->nullable()->default(null);
+            $table->text('color_sv')->nullable()->default(null);
+            $table->text('color_lt')->nullable()->default(null);
+            $table->text('color_lv')->nullable()->default(null);
+            $table->text('color_et')->nullable()->default(null);
+            $table->text('color_is')->nullable()->default(null);
+            $table->text('color_fi')->nullable()->default(null);
+            $table->text('color_no')->nullable()->default(null);
+            $table->text('color_en')->nullable()->default(null);
+            $table->text('color_da')->nullable()->default(null);
         });
     }
 
