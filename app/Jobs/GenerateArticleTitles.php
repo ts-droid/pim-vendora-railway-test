@@ -83,11 +83,11 @@ class GenerateArticleTitles implements ShouldQueue
         foreach ($languages as $language) {
             if ($language->language_code == 'en') continue;
 
-            $updates['color_' . $language->language_code] = $translationController->translate($updates['color_en'], 'en', $language->language_code);
-            $updates['shop_title_' . $language->language_code] = $translationController->translate($updates['shop_title_en'], 'en', $language->language_code);
-            $updates['meta_title_' . $language->language_code] = $translationController->translate($updates['meta_title_en'], 'en', $language->language_code);
-            $updates['meta_description_' . $language->language_code] = $translationController->translate($updates['meta_description_en'], 'en', $language->language_code);
-            $updates['shop_marketing_description_' . $language->language_code] = $translationController->translate($updates['shop_marketing_description_en'], 'en', $language->language_code);
+            $updates['color_' . $language->language_code] = $translationController->translate([$updates['color_en']], 'en', $language->language_code)[0];
+            $updates['shop_title_' . $language->language_code] = $translationController->translate([$updates['shop_title_en']], 'en', $language->language_code)[0];
+            $updates['meta_title_' . $language->language_code] = $translationController->translate([$updates['meta_title_en']], 'en', $language->language_code)[0];
+            $updates['meta_description_' . $language->language_code] = $translationController->translate([$updates['meta_description_en']], 'en', $language->language_code)[0];
+            $updates['shop_marketing_description_' . $language->language_code] = $translationController->translate([$updates['shop_marketing_description_en']], 'en', $language->language_code)[0];
         }
 
         if (count($updates) > 0) {
