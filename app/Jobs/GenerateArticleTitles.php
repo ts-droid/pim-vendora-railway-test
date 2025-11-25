@@ -39,9 +39,11 @@ class GenerateArticleTitles implements ShouldQueue
         $rawResponse = $promptController->execute(
             $prompt->id,
             [
-                'brand_name' => $this->article->brand,
-                'current_title' => $this->article->shop_title_en ?: $this->article->description,
-                'current_description' => $this->article->shop_description_en,
+                'brand_name' => $this->article->brand ?: '',
+                'current_title' => $this->article->shop_title_en ?: $this->article->description ?: '',
+                'current_description' => $this->article->shop_description_en ?: '',
+                'marketing_description' => $this->article->marketing_description_en ?: '',
+                'short_description' => strip_tags($this->article->short_description_en ?: ''),
             ]
         );
 
