@@ -39,7 +39,9 @@ class GenerateArticleTitles extends Command
                     ->orWhereNull('meta_description_en')
                     ->orWhere('meta_description_en', '')
                     ->orWhereNull('shop_marketing_description_en')
-                    ->orWhere('shop_marketing_description_en', '');
+                    ->orWhere('shop_marketing_description_en', '')
+                    ->orWhereNull('short_description_en')
+                    ->orWhere('short_description_en', '');
             })
             ->limit(10)
             ->get();

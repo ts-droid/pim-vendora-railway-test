@@ -1700,11 +1700,8 @@ class ArticleController extends Controller
 
     public function getNewShortDescription(Request $request, Article $article)
     {
-        $shortDescriptionService = new ShortDescriptionService();
-        $response = $shortDescriptionService->generateArticle($article);
-
         return ApiResponseController::success([
-            'value' => ($response['updates']['short_description_en'] ?? '')
+            'value' => ''
         ]);
     }
 

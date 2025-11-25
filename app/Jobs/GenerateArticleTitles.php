@@ -60,10 +60,15 @@ class GenerateArticleTitles implements ShouldQueue
         $metaTitle = $response['meta_title'] ?? null;
         $metaDescription = $response['meta_description'] ?? null;
         $premiumIntroText = $response['premium_introtext'] ?? null;
+        $sellingPoints = $response['selling_points'] ?? [];
 
-        if (!$color || !$shortTitle || !$longTitle || !$metaTitle || !$metaDescription || !$premiumIntroText) {
+        if (!$color || !$shortTitle || !$longTitle || !$metaTitle || !$metaDescription || !$premiumIntroText || empty($sellingPoints) || count($sellingPoints) !== 3) {
             throw new \Exception('Invalid response format from AI service.');
         }
+
+        $sellingPoints = [
+            'en' => $sellingPoints
+        ];
 
         // Translate and save each value
         $updates = [
@@ -88,6 +93,18 @@ class GenerateArticleTitles implements ShouldQueue
             $updates['meta_title_' . $language->language_code] = $translationController->translate([$updates['meta_title_en']], 'en', $language->language_code)[0];
             $updates['meta_description_' . $language->language_code] = $translationController->translate([$updates['meta_description_en']], 'en', $language->language_code)[0];
             $updates['shop_marketing_description_' . $language->language_code] = $translationController->translate([$updates['shop_marketing_description_en']], 'en', $language->language_code)[0];
+
+            $sellingPoints[$language->language_code] = $translationController->translate($sellingPoints['en'], 'en', $language->language_code);
+        }
+
+        foreach ($sellingPoints as $languageCode => $points) {
+            $html = '<ul>';
+            foreach ($points as $point) {
+                $html .= '<li>' . $point . '</li>';
+            }
+            $html .= '</ul>';
+
+            $updates['short_description_' . $languageCode] = $html;
         }
 
         if (count($updates) > 0) {

@@ -40,8 +40,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('wgr:fetch')->everyTenMinutes();
 
             // Generate article data
-            $schedule->command('article:generate-titles')->everyFiveMinutes()->withoutOverlapping();
-            $schedule->command('article:generate-missing-short-descriptions')->everyFiveMinutes();
+            // $schedule->command('article:generate-titles')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('faq:generate-missing')->everyFifteenMinutes();
             $schedule->command('articles:categorize')->hourly();
 
