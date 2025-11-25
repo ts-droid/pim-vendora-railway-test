@@ -27,7 +27,7 @@ class GenerateArticleTitles implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(): array
     {
         $promptController = new PromptController();
         $prompt = $promptController->getBySystemCode('article_titles');
@@ -120,5 +120,7 @@ class GenerateArticleTitles implements ShouldQueue
         if (count($updates) > 0) {
             $this->article->update($updates);
         }
+
+        return $updates;
     }
 }
