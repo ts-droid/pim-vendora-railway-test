@@ -36,6 +36,13 @@ class GenerateArticleTitles implements ShouldQueue
             throw new \Exception('Missing required article data.');
         }
 
+        $faqEntries = [];
+        foreach ($this->article->faqEntries as $entry) {
+            $faqEntries[] = 'Question: ' . $entry->question_en;
+            $faqEntries[] = 'Answer: ' . $entry->answer_en;
+            $faqEntries[] = '';
+        }
+
         $rawResponse = $promptController->execute(
             $prompt->id,
             [
@@ -44,6 +51,7 @@ class GenerateArticleTitles implements ShouldQueue
                 'current_description' => $this->article->shop_description_en ?: '',
                 'marketing_description' => $this->article->marketing_description_en ?: '',
                 'short_description' => strip_tags($this->article->short_description_en ?: ''),
+                'faq' => implode(PHP_EOL, $faqEntries),
             ]
         );
 
