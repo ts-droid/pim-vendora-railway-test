@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PromptController;
+use App\Http\Controllers\RawDataController;
 use App\Http\Controllers\TranslationController;
 use App\Models\Article;
 use Illuminate\Bus\Queueable;
@@ -36,22 +37,11 @@ class GenerateArticleTitles implements ShouldQueue
             throw new \Exception('Missing required article data.');
         }
 
-        $faqEntries = [];
-        foreach ($this->article->faqEntries as $entry) {
-            $faqEntries[] = 'Question: ' . $entry->question_en;
-            $faqEntries[] = 'Answer: ' . $entry->answer_en;
-            $faqEntries[] = '';
-        }
-
         $rawResponse = $promptController->execute(
             $prompt->id,
             [
-                'brand_name' => $this->article->brand ?: '',
-                'current_title' => $this->article->shop_title_en ?: $this->article->description ?: '',
-                'current_description' => $this->article->shop_description_en ?: '',
-                'marketing_description' => $this->article->marketing_description_en ?: '',
-                'short_description' => strip_tags($this->article->short_description_en ?: ''),
-                'faq' => implode(PHP_EOL, $faqEntries),
+                'raw_url' => route('raw.article', ['article_number' => $this->article->article_number]),
+                'raw_data' => RawDataController::getArticleRaw($this->article),
             ]
         );
 
