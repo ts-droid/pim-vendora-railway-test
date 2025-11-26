@@ -65,7 +65,7 @@ class GenerateArticleTitles implements ShouldQueue
         $updates = [
             'premium_introtext_' . self::BASE_LANGUAGE => $response['premium_introtext'],
         ];
-        $updates = $this->translateValues($updates, ['premium_introtext_']);
+        $updates = $this->translateValues($updates, ['premium_introtext']);
 
         $sellingPoints = [
             self::BASE_LANGUAGE => $response['selling_points']
