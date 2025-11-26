@@ -73,7 +73,7 @@ class GenerateArticleTitles implements ShouldQueue
         $sellingPoints = $response['selling_points'] ?? [];
 
         if (!$color || !$shortTitle || !$longTitle || !$metaTitle || !$metaDescription || !$premiumIntroText || empty($sellingPoints) || count($sellingPoints) !== 3) {
-            throw new \Exception('Invalid response format from AI service.');
+            throw new \Exception('Invalid response format from AI service. (' . $rawResponse . ')');
         }
 
         $sellingPoints = [
