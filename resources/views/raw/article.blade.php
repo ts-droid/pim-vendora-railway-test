@@ -8,24 +8,7 @@
 </head>
 <body>
 
-<h1>{{ $article->shop_title_en }}</h1>
-
-<h2>{{ $article->shop_marketing_description_en }}</h2>
-
-<section id="description">
-    {!! $article->shop_description_en !!}
-</section>
-
-@if($faqEntries)
-    <section id="faq">
-        @foreach($faqEntries as $faqEntry)
-            <div>
-                <h3>{{ $faqEntry->question_sv }}</h3>
-                <p>{{ $faqEntry->answer_sv }}</p>
-            </div>
-        @endforeach
-    </section>
-@endif
+{!! $html !!}
 
 </body>
 </html>

@@ -17,8 +17,32 @@ class RawDataController extends Controller
             return response('Article not found', 404)->header('Content-Type', 'text/plain; charset=utf-8');
         }
 
+        $html = self::getArticleRaw($article);
+
+        return view('raw.article', compact('html'));
+    }
+
+    public static function getArticleRaw(Article $article)
+    {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
-        return view('raw.article', compact('article', 'faqEntries'));
+        $html = '<h1>' . $article->shop_title_en . '</h1>' . PHP_EOL . PHP_EOL .
+                '<h2>' . $article->shop_marketing_description_en . '</h2>' . PHP_EOL . PHP_EOL .
+                '<section id="description">' . $article->shop_description_en . '</section>';
+
+        if ($faqEntries) {
+            $html .= PHP_EOL . PHP_EOL . '<section id="faq">';
+
+            foreach ($faqEntries as $faqEntry) {
+                $html .= '<div>
+                            <h3>' . $faqEntry->question_en . '</h3>
+                            <p>' . $faqEntry->answer_en . '</p>
+                          </div>';
+            }
+
+            $html .= '</section>';
+        }
+
+        return $html;
     }
 }
