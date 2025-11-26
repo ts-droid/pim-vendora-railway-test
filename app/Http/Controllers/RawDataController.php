@@ -30,6 +30,15 @@ class RawDataController extends Controller
                 '<h2>' . $article->shop_marketing_description_en . '</h2>' . PHP_EOL . PHP_EOL .
                 '<section id="description">' . $article->shop_description_en . '</section>';
 
+        if ($article->google_product_category) {
+            $googleCategories = get_google_product_categories();
+            $category = $googleCategories[$article->google_product_category] ?? null;
+
+            if ($category) {
+                $html .= '<p>' . $category . '</p>';
+            }
+        }
+
         if ($faqEntries) {
             $html .= PHP_EOL . PHP_EOL . '<section id="faq">';
 

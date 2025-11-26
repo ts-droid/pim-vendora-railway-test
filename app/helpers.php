@@ -4,6 +4,23 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Intl\Countries;
 
+if (!function_exists('get_google_product_categories')) {
+    function get_google_product_categories()
+    {
+        $categories = [];
+
+        $filename = storage_path('google_product_categories.txt');
+
+        $file = fopen($filename, 'r');
+        while (($line = fgets($file)) !== false) {
+            list($id, $category) = explode(' - ', $line);
+            $categories[$id] = trim($category);
+        }
+
+        return $categories;
+    }
+}
+
 if (!function_exists('get_country_name')) {
     function get_country_name(string $code, string $locale = 'en'): ?string
     {
