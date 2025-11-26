@@ -20,10 +20,8 @@ class GenerateArticleTitles implements ShouldQueue
     const BASE_LANGUAGE = 'en';
 
     const FIELD_MAPPING = [
-        'short_title' => 'description',
         'long_title' => 'shop_title',
         'premium_introtext' => 'shop_marketing_description',
-        ''
     ];
 
     /**
@@ -124,10 +122,7 @@ class GenerateArticleTitles implements ShouldQueue
     public function handleShortTitle(): array
     {
         $response = $this->executePrompt('article_titles_short_title', ['short_title']);
-
-        $updates = ['short_title_' . self::BASE_LANGUAGE => $response['short_title']];
-        $updates = $this->translateValues($updates, ['short_title']);
-
+        $updates = ['description' => $response['short_title']];
         $this->update($updates);
 
         return $updates;
