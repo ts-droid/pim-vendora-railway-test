@@ -38,6 +38,21 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test-titles', function () {
+    $articleNumber = request()->get('article_number');
+    $article = Article::where('article_number', $articleNumber)->first();
+
+    if (!$article) {
+        echo 'Article not found';
+        return;
+    }
+
+    $job = new \App\Jobs\GenerateArticleTitles($article);
+    $response = $job->handle();
+
+    dd($response);
+});
+
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');
 
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
