@@ -40,7 +40,6 @@ class GenerateArticleTitles implements ShouldQueue
         $rawResponse = $promptController->execute(
             $prompt->id,
             [
-                'raw_url' => route('raw.article', ['article_number' => $this->article->article_number]),
                 'raw_data' => RawDataController::getArticleRaw($this->article),
             ]
         );
