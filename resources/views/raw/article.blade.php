@@ -8,10 +8,12 @@
 </head>
 <body>
 
-<h1>{{ $article->shop_title_sv }}</h1>
+<h1>{{ $article->shop_title_en }}</h1>
+
+<h2>{{ $article->shop_marketing_description_en }}</h2>
 
 <section id="description">
-    {!! $article->shop_description_sv !!}
+    {!! $article->shop_description_en !!}
 </section>
 
 @if($faqEntries)
