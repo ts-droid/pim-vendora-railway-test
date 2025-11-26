@@ -147,8 +147,6 @@ class GenerateArticleTitles implements ShouldQueue
 
     private function update(array $updates): void
     {
-        return;
-
         if (count($updates) > 0) {
             $mappedUpdates = [];
             foreach ($updates as $key => $value) {
