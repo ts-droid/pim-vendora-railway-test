@@ -152,7 +152,7 @@ class GenerateArticleTitles implements ShouldQueue
                 $mappedUpdates[$key] = $value;
             }
 
-            $this->article->update($updates);
+            $this->article->update($mappedUpdates);
         }
     }
 
