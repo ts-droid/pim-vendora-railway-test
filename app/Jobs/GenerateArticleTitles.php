@@ -17,6 +17,15 @@ class GenerateArticleTitles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    const BASE_LANGUAGE = 'en';
+
+    const FIELD_MAPPING = [
+        'short_title' => 'description',
+        'long_title' => 'shop_title',
+        'premium_introtext' => 'shop_marketing_description',
+        ''
+    ];
+
     /**
      * Create a new job instance.
      */
@@ -25,75 +34,49 @@ class GenerateArticleTitles implements ShouldQueue
     )
     {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(): array
     {
-        $promptController = new PromptController();
-        $prompt = $promptController->getBySystemCode('article_titles');
-
         if (!$this->article->brand || !$this->article->shop_title_en || !$this->article->shop_description_en) {
             throw new \Exception('Missing required article data.');
         }
 
-        $rawResponse = $promptController->execute(
-            $prompt->id,
-            [
-                'raw_data' => RawDataController::getArticleRaw($this->article),
-            ]
-        );
+        $allUpdates = [];
 
-        if (!$rawResponse) {
-            throw new \Exception('No response from AI service.');
-        }
+        $updates = $this->handleColor();
+        $allUpdates = array_merge($allUpdates, $updates);
 
-        $json = $rawResponse;
-        $json = str_replace('```json', '', $json);
-        $json = str_replace('```', '', $json);
-        $response = json_decode($json, true);
+        $updates = $this->handleShortTitle();
+        $allUpdates = array_merge($allUpdates, $updates);
 
-        $color = $response['color'] ?? null;
-        $shortTitle = $response['short_title'] ?? null;
-        $longTitle = $response['long_title'] ?? null;
-        $metaTitle = $response['meta_title'] ?? null;
-        $metaDescription = $response['meta_description'] ?? null;
-        $premiumIntroText = $response['premium_introtext'] ?? null;
-        $sellingPoints = $response['selling_points'] ?? [];
+        $updates = $this->handleLongTitle();
+        $allUpdates = array_merge($allUpdates, $updates);
 
-        if (!$color || !$shortTitle || !$longTitle || !$metaTitle || !$metaDescription || !$premiumIntroText || empty($sellingPoints) || count($sellingPoints) !== 3) {
-            throw new \Exception('Invalid response format from AI service. (' . $rawResponse . ')');
-        }
+        $updates = $this->handleMeta();
+        $allUpdates = array_merge($allUpdates, $updates);
+
+        $updates = $this->handleMarketing();
+        return array_merge($allUpdates, $updates);
+    }
+
+    public function handleMarketing(): array
+    {
+        $response = $this->executePrompt('article_titles_marketing', ['premium_introtext', 'selling_points']);
+
+        $updates = [
+            'premium_introtext_' . self::BASE_LANGUAGE => $response['premium_introtext'],
+        ];
+        $updates = $this->translateValues($updates, ['premium_introtext_']);
 
         $sellingPoints = [
-            'en' => $sellingPoints
-        ];
-
-        // Translate and save each value
-        $updates = [
-            'color_en' => $color,
-            'shop_title_en' => $longTitle,
-            'meta_title_en' => $metaTitle,
-            'meta_description_en' => $metaDescription,
-            'shop_marketing_description_en' => $premiumIntroText,
-
-            // This one does not need translation
-            'description' => $shortTitle,
+            self::BASE_LANGUAGE => $response['selling_points']
         ];
 
         $translationController = new TranslationController();
         $languages = (new LanguageController())->getAllLanguages();
-
         foreach ($languages as $language) {
-            if ($language->language_code == 'en') continue;
+            if ($language->language_code == self::BASE_LANGUAGE) continue;
 
-            $updates['color_' . $language->language_code] = $translationController->translate([$updates['color_en']], 'en', $language->language_code)[0];
-            $updates['shop_title_' . $language->language_code] = $translationController->translate([$updates['shop_title_en']], 'en', $language->language_code)[0];
-            $updates['meta_title_' . $language->language_code] = $translationController->translate([$updates['meta_title_en']], 'en', $language->language_code)[0];
-            $updates['meta_description_' . $language->language_code] = $translationController->translate([$updates['meta_description_en']], 'en', $language->language_code)[0];
-            $updates['shop_marketing_description_' . $language->language_code] = $translationController->translate([$updates['shop_marketing_description_en']], 'en', $language->language_code)[0];
-
-            $sellingPoints[$language->language_code] = $translationController->translate($sellingPoints['en'], 'en', $language->language_code);
+            $sellingPoints[$language->language_code] = $translationController->translate($sellingPoints[self::BASE_LANGUAGE], self::BASE_LANGUAGE, $language->language_code);
         }
 
         foreach ($sellingPoints as $languageCode => $points) {
@@ -106,10 +89,123 @@ class GenerateArticleTitles implements ShouldQueue
             $updates['short_description_' . $languageCode] = $html;
         }
 
-        if (count($updates) > 0) {
-            $this->article->update($updates);
-        }
+        $this->update($updates);
 
         return $updates;
+    }
+
+    public function handleMeta(): array
+    {
+        $response = $this->executePrompt('article_titles_meta', ['meta_title', 'meta_description']);
+
+        $updates = [
+            'meta_title_' . self::BASE_LANGUAGE => $response['meta_title'],
+            'meta_description_' . self::BASE_LANGUAGE => $response['meta_description']
+        ];
+        $updates = $this->translateValues($updates, ['meta_title', 'meta_description']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    public function handleLongTitle(): array
+    {
+        $response = $this->executePrompt('article_titles_long_title', ['long_title']);
+
+        $updates = ['long_title_' . self::BASE_LANGUAGE => $response['long_title']];
+        $updates = $this->translateValues($updates, ['long_title']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    public function handleShortTitle(): array
+    {
+        $response = $this->executePrompt('article_titles_short_title', ['short_title']);
+
+        $updates = ['short_title_' . self::BASE_LANGUAGE => $response['short_title']];
+        $updates = $this->translateValues($updates, ['short_title']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    public function handleColor(): array
+    {
+        $response = $this->executePrompt('article_titles_color', ['color']);
+
+        $updates = ['color_' . self::BASE_LANGUAGE => $response['color']];
+        $updates = $this->translateValues($updates, ['color']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    private function update(array $updates): void
+    {
+        if (count($updates) > 0) {
+            $mappedUpdates = [];
+            foreach ($updates as $key => $value) {
+                foreach (self::FIELD_MAPPING as $old => $new) {
+                    $key = str_replace($old, $new, $key);
+                }
+
+                $mappedUpdates[$key] = $value;
+            }
+
+            $this->article->update($updates);
+        }
+    }
+
+    private function translateValues(array $array, array $keys): array
+    {
+        $translationController = new TranslationController();
+        $languages = (new LanguageController())->getAllLanguages();
+
+        foreach ($languages as $language) {
+            if ($language->language_code == self::BASE_LANGUAGE) continue;
+
+            foreach ($keys as $key) {
+                $array[$key . '_' . $language->language_code] = $translationController->translate([$array[$key . '_' . self::BASE_LANGUAGE]], self::BASE_LANGUAGE, $language->language_code)[0];
+            }
+        }
+
+        return $array;
+    }
+
+    private function executePrompt(string $systemCode, array $arrayKeys): array
+    {
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode($systemCode);
+
+        $rawResponse = $promptController->execute(
+            $prompt->id,
+            ['raw_data' => RawDataController::getArticleRaw($this->article)]
+        );
+
+        if (!$rawResponse) throw new \Exception('Empty response from AI service.');
+
+        $response = $this->getJsonResponse($rawResponse);
+
+        $structuredResponse = [];
+        foreach ($arrayKeys as $key) {
+            if (!isset($response[$key])) throw new \Exception('Invalid response from AI service.');
+
+            $structuredResponse[$key] = $response[$key];
+        }
+
+        return $structuredResponse;
+    }
+
+    private function getJsonResponse(string $rawResponse): array
+    {
+        $json = $rawResponse;
+        $json = str_replace('```json', '', $json);
+        $json = str_replace('```', '', $json);
+        return json_decode($json, true) ?: [];
     }
 }
