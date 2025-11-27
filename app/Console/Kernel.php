@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('purchase-order-exceptions:handle')->everyFiveMinutes()->withoutOverlapping();
 
+            $schedule->command('newsletter:clean')->daily()->withoutOverlapping();
+
             // Visma.net
             $schedule->command('visma:fetch quick')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:fetch hourly')->hourly()->withoutOverlapping();
