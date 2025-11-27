@@ -24,7 +24,7 @@
                 <tr>
                     <td align="center">
                         <h1 style="font-size:1.75rem;font-weight:600;margin:0 0 10px 0;">
-                            🖤 Black Friday 🖤<br>
+                            Black Friday<br>
                             20% off everything in our store
                         </h1>
 
