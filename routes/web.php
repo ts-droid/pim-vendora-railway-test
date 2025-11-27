@@ -17,8 +17,10 @@ use App\Http\Controllers\VismaNetTestController;;
 
 use App\Jobs\UpdateArticleJob;
 use App\Models\Article;
+use App\Models\NewsletterSubscriber;
 use App\Models\SalesOrder;
 use App\Services\AI\AIService;
+use App\Services\BrandPageService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -36,11 +38,6 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
-});
-
-Route::get('/test', function() {
-    $service = new \App\Services\MailerSend\MailerSendActivityService();
-    $service->getUncleanEmails();
 });
 
 Route::get('/test-titles', function () {
