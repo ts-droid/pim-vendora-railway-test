@@ -64,6 +64,8 @@ class NewsletterController extends Controller
 
         $email = mb_strtolower($request->input('email'));
         $source = mb_strtolower($request->input('source'));
+        $discountCode = $request->input('discount_code');
+        $locale = $request->input('locale', 'en');
 
         $existingSubscriber = NewsletterSubscriber::where('email', $email)
             ->where('source', $request->input('source', $source))
@@ -75,15 +77,12 @@ class NewsletterController extends Controller
 
         $newsletterSubscriber = NewsletterSubscriber::create([
             'email' => $email,
-            'language' => $request->input('language', 'en'),
+            'language' => $locale,
             'source' => $source,
             'first_name' => $request->input('first_name', ''),
             'last_name' => $request->input('last_name', ''),
             'tag' => $request->input('tag', 'form'),
         ]);
-
-        $discountCode = $request->input('discount_code', null);
-        $locale = $request->input('locale', 'en');
 
         if ($discountCode) {
             (new BrandPageDiscountCode)->execute($source, $locale, $email, $discountCode);
