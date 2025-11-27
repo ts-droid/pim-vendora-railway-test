@@ -75,6 +75,7 @@ class NewsletterController extends Controller
 
         $newsletterSubscriber = NewsletterSubscriber::create([
             'email' => $email,
+            'language' => $request->input('language', 'en'),
             'source' => $source,
             'first_name' => $request->input('first_name', ''),
             'last_name' => $request->input('last_name', ''),
