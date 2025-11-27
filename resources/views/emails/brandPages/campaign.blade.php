@@ -40,7 +40,7 @@
 
                 <!-- Company information -->
                 <tr>
-                    <td align="center" style="padding: 20px 0;text-align: center;">
+                    <td align="center" style="padding: 20px 0;text-align: center;font-size: 14px;">
                         @if($brandingData['brand_name'] != 'Vendora Nordic ABa')
                             <p style="font-weight: bold;margin-bottom: 8px;">{{ __('order_confirm_distributor') }} {{ $brandingData['brand_name'] }}</p>
                         @endif
