@@ -2,6 +2,7 @@
 
 namespace App\Services\Esign;
 
+use App\Enums\LaravelQueues;
 use App\Http\Controllers\DoSpacesController;
 use App\Models\SignDocument;
 use App\Models\SignDocumentRecipient;
@@ -96,7 +97,7 @@ class EsignService
     private function sendDocumentToRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
         try {
-            Mail::to($recipient->email)->queue(new \App\Mail\DocumentSign($document, $recipient));
+            Mail::to($recipient->email)->queue((new \App\Mail\DocumentSign($document, $recipient))->onQueue(LaravelQueues::MAIL->value));
 
             $recipient->update(['sent_at' => now()]);
         }

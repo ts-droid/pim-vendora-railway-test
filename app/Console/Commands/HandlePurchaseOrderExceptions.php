@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\LaravelQueues;
 use App\Mail\NotifyPurchaseOrderExceptions;
 use App\Models\PurchaseOrderException;
 use Illuminate\Console\Command;
@@ -62,7 +63,7 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
                 // $recipients[] = $email;
             }
 
-            Mail::to($recipients)->queue(new NotifyPurchaseOrderExceptions($purchaseOrderShipment, $exceptions));
+            Mail::to($recipients)->queue((new NotifyPurchaseOrderExceptions($purchaseOrderShipment, $exceptions))->onQueue(LaravelQueues::MAIL->value));
 
             foreach ($exceptions as $exception) {
                 $exception->update(['handled_at' => now()]);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\LaravelQueues;
 use App\Http\Controllers\DoSpacesController;
 use App\Models\PurchaseOrder;
 use App\Models\SupplierInvoice;
@@ -44,7 +45,7 @@ class SupplierInvoiceService
             );
         } else {
             Mail::to('invoice@vendora.se')->queue(
-                new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
+                (new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl))->onQueue(LaravelQueues::MAIL->value)
             );
         }
     }

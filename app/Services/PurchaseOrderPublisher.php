@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Actions\DispatchArticleUpdate;
+use App\Enums\LaravelQueues;
 use App\Jobs\MarkArticleEOL;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
@@ -66,7 +67,7 @@ class PurchaseOrderPublisher
 
                 // Dispatch confirmation email to admin
                 try {
-                    Mail::to('purchasing@vendora.se')->queue(new \App\Mail\PurchaseOrderPriceChange($purchaseOrder, $response['updated_prices']));
+                    Mail::to('purchasing@vendora.se')->queue((new \App\Mail\PurchaseOrderPriceChange($purchaseOrder, $response['updated_prices']))->onQueue(LaravelQueues::MAIL->value));
                 }
                 catch (\Exception $e) {
                     log_data('Failed to send purchase order price change confirmation email. (Error: ' . $e->getMessage() . ')');

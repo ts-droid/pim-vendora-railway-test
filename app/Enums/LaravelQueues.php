@@ -10,4 +10,5 @@ enum LaravelQueues: string
     case MAIN = 'main';
     case ARTICLE_SYNC = 'article-sync';
     case PRIORITY = 'priority';
+    case MAIL = 'mail';
 }

@@ -35,7 +35,7 @@ class SendSalesOrderConfirmation
         ])->render();
 
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
-            ->onQueue(LaravelQueues::DEFAULT->value);
+            ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($salesOrder->email)->bcc($emailBCC)->queue($mail);
 

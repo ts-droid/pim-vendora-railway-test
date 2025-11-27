@@ -17,7 +17,7 @@ class ErrorNotification
         $recipients = $recipients ?: self::DEFAULT_RECIPIENTS;
 
         $mail = (new RawMail($title, $message, 'noreply@vendora.se', 'Vendora PIMP'))
-            ->onQueue(LaravelQueues::DEFAULT->value);
+            ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($recipients)->queue($mail);
     }

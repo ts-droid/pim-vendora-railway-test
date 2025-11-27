@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LaravelQueues;
 use App\Mail\DocumentSigned;
 use App\Models\SignDocument;
 use App\Models\SignDocumentRecipient;
@@ -124,7 +125,7 @@ class EsignRecipientController extends Controller
         // Email signed document to all recipients
         foreach ($document->recipients as $recipient) {
             try {
-                Mail::to($recipient->email)->queue(new DocumentSigned($document, $recipient));
+                Mail::to($recipient->email)->queue((new DocumentSigned($document, $recipient))->onQueue(LaravelQueues::MAIL->value));
             }
             catch (\Exception $e) {
                 // Silent fail

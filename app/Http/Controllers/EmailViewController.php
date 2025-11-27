@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LaravelQueues;
 use App\Mail\ResendEmail;
 use App\Models\Email;
 use Illuminate\Http\Request;
@@ -28,11 +29,11 @@ class EmailViewController extends Controller
         Mail::to($to)
             ->cc($cc)
             ->bcc($bcc)
-            ->queue(new ResendEmail(
+            ->queue((new ResendEmail(
                 $email->subject,
                 $email->body,
                 $email->attachments ?: []
-            ));
+            ))->onQueue(LaravelQueues::MAIL->value));
 
         echo('Email queued successfully!');
         die();

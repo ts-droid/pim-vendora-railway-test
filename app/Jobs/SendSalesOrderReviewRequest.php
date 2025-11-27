@@ -52,7 +52,7 @@ class SendSalesOrderReviewRequest implements ShouldQueue
         ])->render();
 
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
-            ->onQueue(LaravelQueues::DEFAULT->value);
+            ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($this->salesOrder->email)->bcc($emailBCC)->queue($mail);
 

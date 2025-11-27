@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\LaravelQueues;
 use App\Mail\PurchaseOrderCancellation;
 use App\Mail\PurchaseOrderRowCancellation;
 use App\Mail\SendPurchaseOrder;
@@ -32,10 +33,10 @@ class PurchaseOrderEmailer
         // Dispatch the email
         try {
             if ($isReminder) {
-                Mail::to($recipients)->queue(new \App\Mail\PurchaseOrderConfirmReminder($purchaseOrder));
+                Mail::to($recipients)->queue((new \App\Mail\PurchaseOrderConfirmReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
             }
             else {
-                Mail::to($recipients)->queue(new \App\Mail\PurchaseOrder($purchaseOrder));
+                Mail::to($recipients)->queue((new \App\Mail\PurchaseOrder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
             }
         }
         catch (\Exception $e) {
@@ -70,7 +71,7 @@ class PurchaseOrderEmailer
 
         // Dispatch the email
         try {
-            Mail::to($recipients)->queue(new SendPurchaseOrder($purchaseOrder));
+            Mail::to($recipients)->queue((new SendPurchaseOrder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -102,7 +103,7 @@ class PurchaseOrderEmailer
 
         // Dispatch the email
         try {
-            Mail::to($recipients)->queue(new PurchaseOrderRowCancellation($purchaseOrder, $purchaseOrderLine));
+            Mail::to($recipients)->queue((new PurchaseOrderRowCancellation($purchaseOrder, $purchaseOrderLine))->onQueue(LaravelQueues::MAIL->value));
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -137,7 +138,7 @@ class PurchaseOrderEmailer
 
         // Dispatch the email
         try {
-            Mail::to($recipients)->queue(new PurchaseOrderCancellation($purchaseOrder));
+            Mail::to($recipients)->queue((new PurchaseOrderCancellation($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
         } catch (\Exception $e) {
             return [
                 'success' => false,
