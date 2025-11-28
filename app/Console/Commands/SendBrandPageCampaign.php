@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\NewsletterSubscriber;
+use App\Services\MailerLiteService;
 use App\Utilities\BrandPageUtility;
 use Illuminate\Console\Command;
 use MailerSend\MailerSend;
@@ -30,11 +31,18 @@ class SendBrandPageCampaign extends Command
      */
     public function handle()
     {
+        // Settings
+        $baseCampaignName = 'Black Friday 2025';
+
+        $mailerLiteService = new MailerLiteService();
+
+
         $subscribers = NewsletterSubscriber::all()->groupBy('source');
 
-        $mailersend = new MailerSend(['api_key' => env('MAILERSEND_API_TOKEN')]);
-
         foreach ($subscribers as $source => $items) {
+            $campaignName = $baseCampaignName . ' - ' . $source;
+            $subject = '🖤 Black Friday – 20% off everything in our store 🖤';
+
             try {
                 $brandingData = BrandPageUtility::getBrandingData($source);
                 if (!$brandingData['is_brand']) continue;
@@ -42,32 +50,33 @@ class SendBrandPageCampaign extends Command
                 continue;
             }
 
-            $subject = '🖤 Black Friday – 20% off everything in our store 🖤';
+            // Fetch the group
+            $group = $mailerLiteService->getGroupByName($source);
+            if (!$group) continue; // Failed to fetch or create group
 
-            // Send in chunks of 50
-            $chunks = $items->chunk(50);
-            foreach ($chunks as $chunk) {
-
-                $recipients = [];
-                foreach ($chunk as $item) {
-                    $recipients[] = new Recipient($item->email, null);
-                }
-
-                $bulkEmailParams = [];
-
-                $bulkEmailParams[] = (new EmailParams())
-                    ->setFrom('noreply@vendora.se')
-                    ->setFromName($brandingData['brand_name'])
-                    ->setRecipients($recipients)
-                    ->setSubject($subject)
-                    ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
-
-                $response = $mailersend->bulkEmail->send($bulkEmailParams);
-                dump($response);
-
-                sleep(10);
-
+            // Fetch or create the campaign
+            $campaign = $mailerLiteService->getDraftCampaignByName($campaignName);
+            if (!isset($campaign['id'])) {
+                $campaign = $mailerLiteService->createCampaign([
+                    'type' => 'regular',
+                    'name' => $campaignName,
+                    'emails' => [
+                        [
+                            'subject' => $subject,
+                            'from_name' => $brandingData['brand_name'],
+                            'from' => 'no-reply@vendora.se',
+                            'content' => view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render(),
+                            'groups' => [$group['id']]
+                        ]
+                    ],
+                    'filter' => [],
+                ]);
             }
+
+            if (!$campaign) continue; // Failed to create or fetch campaign
+
+
+            // TODO: Send the campaign
         }
     }
 }

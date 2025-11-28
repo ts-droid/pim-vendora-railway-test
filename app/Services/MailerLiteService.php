@@ -15,6 +15,8 @@ class MailerLiteService
     {
         $this->token = env('MAILERLITE_API_TOKEN');
         $this->mailerLite = new MailerLite(['api_key' => $this->token]);
+
+        $this->mailerLite->campaigns->get();
     }
 
     public function addSubscriber(string $email, ?string $groupName = null): ?array
@@ -47,5 +49,28 @@ class MailerLiteService
 
         $response = $this->mailerLite->groups->create(['name' => $groupName]);
         return $response['body']['data'] ?? null;
+    }
+
+    public function getDraftCampaignByName(string $name): ?array
+    {
+        $response = $this->mailerLite->campaigns->get([
+            'filter' => ['status' => 'draft'],
+            'limit' => 100
+        ]);
+
+        $campaigns = $response['body']['data'] ?? [];
+        foreach ($campaigns as $campaign) {
+            if ($campaign['name'] == $name) {
+                return $campaign;
+            }
+        }
+
+        return null;
+    }
+
+    public function createCampaign(array $data): ?array
+    {
+        $response = $this->mailerLite->campaigns->create($data);
+        $campaign = $response['body']['data'] ?? null;
     }
 }
