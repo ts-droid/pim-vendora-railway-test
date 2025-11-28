@@ -66,9 +66,9 @@ class SendBrandPageCampaign extends Command
                             'from_name' => $brandingData['brand_name'],
                             'from' => 'no-reply@vendora.se',
                             'content' => view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render(),
-                            'groups' => [$group['id']]
                         ]
                     ],
+                    'groups' => [$group['id']],
                     'filter' => [],
                 ]);
             }
