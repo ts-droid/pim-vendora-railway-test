@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Mail\BrandPageDiscountCode;
 use App\Models\NewsletterSubscriber;
+use App\Services\MailerCheckService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -58,7 +59,6 @@ class NewsletterController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-
             return ApiResponseController::error($errors[0]);
         }
 
@@ -66,6 +66,11 @@ class NewsletterController extends Controller
         $source = mb_strtolower($request->input('source'));
         $discountCode = $request->input('discount_code');
         $locale = $request->input('locale', 'en');
+
+        $mailerCheck = new MailerCheckService();
+        $validEmail = $mailerCheck->checkSingle($email);
+
+        if (!$validEmail) ApiResponseController::error('Invalid email address.');
 
         $existingSubscriber = NewsletterSubscriber::where('email', $email)
             ->where('source', $request->input('source', $source))
