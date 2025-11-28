@@ -48,6 +48,8 @@ class SendBrandPageCampaign extends Command
             ->setSubject($subject)
             ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
 
-        $mailersend->bulkEmail->send($bulkEmailParams);
+        $response = $mailersend->bulkEmail->send($bulkEmailParams);
+
+        dd($response);
     }
 }
