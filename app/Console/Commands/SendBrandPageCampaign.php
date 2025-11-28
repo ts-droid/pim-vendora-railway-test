@@ -44,23 +44,30 @@ class SendBrandPageCampaign extends Command
 
             $subject = '🖤 Black Friday – 20% off everything in our store 🖤';
 
-            $recipients = [];
-            foreach ($items as $item) {
-                $recipients[] = new Recipient($item->email, null);
+            // Send in chunks of 50
+            $chunks = $items->chunk(50);
+            foreach ($chunks as $chunk) {
+
+                $recipients = [];
+                foreach ($chunk as $item) {
+                    $recipients[] = new Recipient($item->email, null);
+                }
+
+                $bulkEmailParams = [];
+
+                $bulkEmailParams[] = (new EmailParams())
+                    ->setFrom('noreply@vendora.se')
+                    ->setFromName($brandingData['brand_name'])
+                    ->setRecipients($recipients)
+                    ->setSubject($subject)
+                    ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
+
+                $response = $mailersend->bulkEmail->send($bulkEmailParams);
+                dump($response);
+
+                sleep(10);
+
             }
-
-            $bulkEmailParams = [];
-
-            $bulkEmailParams[] = (new EmailParams())
-                ->setFrom('noreply@vendora.se')
-                ->setFromName($brandingData['brand_name'])
-                ->setRecipients($recipients)
-                ->setSubject($subject)
-                ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
-
-            $response = $mailersend->bulkEmail->send($bulkEmailParams);
-
-            dump($response);
         }
     }
 }
