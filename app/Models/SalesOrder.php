@@ -87,6 +87,21 @@ class SalesOrder extends Model
         });
     }
 
+    public function getOrderSubtotal(): float
+    {
+        $subTotal = 0;
+
+        if ($this->lines) {
+            foreach ($this->lines as $salesOrderLine) {
+                if (in_array($salesOrderLine->article_number, ['SHIP25', 'DISC25'])) continue;
+
+                $subTotal += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
+            }
+        }
+
+        return $subTotal;
+    }
+
     public function getOrderTotalWithVat(): float
     {
         $total = 0;
