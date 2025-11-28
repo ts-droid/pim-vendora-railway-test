@@ -15,8 +15,6 @@ class MailerLiteService
     {
         $this->token = env('MAILERLITE_API_TOKEN');
         $this->mailerLite = new MailerLite(['api_key' => $this->token]);
-
-        $this->mailerLite->campaigns->get();
     }
 
     public function addSubscriber(string $email, ?string $groupName = null): ?array
@@ -71,6 +69,6 @@ class MailerLiteService
     public function createCampaign(array $data): ?array
     {
         $response = $this->mailerLite->campaigns->create($data);
-        $campaign = $response['body']['data'] ?? null;
+        return $response['body']['data'] ?? null;
     }
 }
