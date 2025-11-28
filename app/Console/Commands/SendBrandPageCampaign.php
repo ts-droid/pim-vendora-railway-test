@@ -42,7 +42,7 @@ class SendBrandPageCampaign extends Command
         $bulkEmailParams = [];
 
         $bulkEmailParams[] = (new EmailParams())
-            ->setFrom('noreply@vendora.se.com')
+            ->setFrom('noreply@vendora.se')
             ->setFromName($brandingData['brand_name'])
             ->setRecipients($recipients)
             ->setSubject($subject)
