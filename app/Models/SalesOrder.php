@@ -93,7 +93,7 @@ class SalesOrder extends Model
 
         if ($this->lines) {
             foreach ($this->lines as $salesOrderLine) {
-                if (in_array($salesOrderLine->article_number, ['SHIP25', 'DISC25'])) continue;
+                if (in_array($salesOrderLine->article_number, ['DISC25'])) continue;
 
                 $subTotal += add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate);
             }
