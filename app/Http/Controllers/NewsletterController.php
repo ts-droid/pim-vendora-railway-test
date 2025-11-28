@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Mail\BrandPageDiscountCode;
 use App\Models\NewsletterSubscriber;
 use App\Services\MailerCheckService;
+use App\Services\MailerLiteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -88,6 +89,9 @@ class NewsletterController extends Controller
             'last_name' => $request->input('last_name', ''),
             'tag' => $request->input('tag', 'form'),
         ]);
+
+        $mailerLiteService = new MailerLiteService();
+        $mailerLiteService->addSubscriber($email, $source);
 
         if ($discountCode) {
             (new BrandPageDiscountCode)->execute($source, $locale, $email, $discountCode);
