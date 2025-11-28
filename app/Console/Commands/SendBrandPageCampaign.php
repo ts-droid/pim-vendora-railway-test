@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\NewsletterSubscriber;
 use App\Utilities\BrandPageUtility;
 use Illuminate\Console\Command;
 use MailerSend\MailerSend;
@@ -29,27 +30,37 @@ class SendBrandPageCampaign extends Command
      */
     public function handle()
     {
-        $subject = '🖤 Black Friday – 20% off everything in our store 🖤';
-        $brandingData = BrandPageUtility::getBrandingData('satechi.se');
+        $subscribers = NewsletterSubscriber::all()->groupBy('source');
 
         $mailersend = new MailerSend(['api_key' => env('MAILERSEND_API_TOKEN')]);
 
-        $recipients = [
-            new Recipient('anton@scriptsector.se', null),
-            new Recipient('anton@vendora.se', null),
-        ];
+        foreach ($subscribers as $source => $items) {
+            try {
+                $brandingData = BrandPageUtility::getBrandingData($source);
+                if (!$brandingData['is_brand']) continue;
+            } catch (\Throwable $e) {
+                continue;
+            }
 
-        $bulkEmailParams = [];
+            $subject = '🖤 Black Friday – 20% off everything in our store 🖤';
 
-        $bulkEmailParams[] = (new EmailParams())
-            ->setFrom('noreply@vendora.se')
-            ->setFromName($brandingData['brand_name'])
-            ->setRecipients($recipients)
-            ->setSubject($subject)
-            ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
+            $recipients = [];
+            foreach ($items as $item) {
+                $recipients[] = new Recipient($item->email, null);
+            }
 
-        $response = $mailersend->bulkEmail->send($bulkEmailParams);
+            $bulkEmailParams = [];
 
-        dd($response);
+            $bulkEmailParams[] = (new EmailParams())
+                ->setFrom('noreply@vendora.se')
+                ->setFromName($brandingData['brand_name'])
+                ->setRecipients($recipients)
+                ->setSubject($subject)
+                ->setHtml(view('emails.brandPages.campaign', ['emailSubject' => $subject, 'brandingData' => $brandingData])->render());
+
+            $response = $mailersend->bulkEmail->send($bulkEmailParams);
+
+            dump($response);
+        }
     }
 }
