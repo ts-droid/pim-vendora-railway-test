@@ -160,6 +160,9 @@ if ($salesOrder->lines ?? false) {
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->postal_code }} {{ $salesOrder->billingAddress->city }}</p>
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->country_code }}</p>
                                         @endif
+                                        @if($salesOrder->vat_number)
+                                            <p style="margin:0;">{{ $salesOrder->vat_number }}</p>
+                                        @endif
                                     </td>
                                 </tr>
                             </table>
