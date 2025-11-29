@@ -111,14 +111,14 @@ if ($salesOrder->lines ?? false) {
                                 @if($shipping !== 0)
                                     <tr>
                                         <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_shipping') }}</td>
-                                        <td align="right" style="padding-bottom: 4px;">{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                        <td align="right" style="padding-bottom: 4px;">+{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                     </tr>
                                 @endif
 
                                 @if($discount !== 0)
                                     <tr>
                                         <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_discount') }}</td>
-                                        <td align="right" style="padding-bottom: 4px;">{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
+                                        <td align="right" style="padding-bottom: 4px;">-{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                     </tr>
                                 @endif
 
