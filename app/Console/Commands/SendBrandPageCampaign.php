@@ -32,7 +32,7 @@ class SendBrandPageCampaign extends Command
     public function handle()
     {
         // Settings
-        $baseCampaignName = 'Black Friday 2025';
+        $baseCampaignName = 'Black Friday 2025 (2)';
 
         $mailerLiteService = new MailerLiteService();
 
