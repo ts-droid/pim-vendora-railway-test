@@ -107,7 +107,8 @@ class VismaNetArticleService extends VismaNetApiService
                 'countryOfOrigin' => ['value' => $article->origin_country],
             ],
             'packaging' => [
-                'baseItemWeight' => ['value' => $article->weight]
+                'baseItemWeight' => ['value' => $article->weight],
+                'weightUOM' => ['value' => 'GRAM']
             ],
             'attributeLines' => [
                 /*[
