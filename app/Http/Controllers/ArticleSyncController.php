@@ -35,8 +35,8 @@ class ArticleSyncController extends Controller
         // Remove all jobs
         DB::table('jobs')->where('queue', 'article-sync')->delete();
 
-        // Clear sync status
-        DB::table('articles')->where('is_syncing', 1)->update(['is_syncing' => 0]);
+        // Set sync status
+        DB::table('articles')->where('is_syncing', 1)->update(['is_syncing' => 1]);
 
         // Queue all articles
         $articleIDs = DB::table('articles')
