@@ -17,7 +17,7 @@ class GenerateArticleTitles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    const BASE_LANGUAGE = 'en';
+    const BASE_LANGUAGE = 'sv';
 
     const FIELD_MAPPING = [
         'long_title' => 'shop_title',
@@ -49,21 +49,38 @@ class GenerateArticleTitles implements ShouldQueue
         $updates = $this->handleLongTitle();
         $allUpdates = array_merge($allUpdates, $updates);
 
-        $updates = $this->handleMeta();
+        $updates = $this->handlePremiumIntroText();
         $allUpdates = array_merge($allUpdates, $updates);
 
-        $updates = $this->handleMarketing();
-        return array_merge($allUpdates, $updates);
+        $updates = $this->handleSellingPoints();
+        $allUpdates = array_merge($allUpdates, $updates);
+
+        $updates = $this->handleMetaTitle();
+        $allUpdates = array_merge($allUpdates, $updates);
+
+        $updates = $this->handleMetaDescription();
+        $allUpdates = array_merge($allUpdates, $updates);
+
+        return $allUpdates;
     }
 
-    public function handleMarketing(): array
+    public function handlePremiumIntroText(): array
     {
-        $response = $this->executePrompt('article_titles_marketing', ['premium_introtext', 'selling_points']);
+        $response = $this->executePrompt('article_titles_premium_intro_text', ['premium_introtext']);
 
         $updates = [
             'premium_introtext_' . self::BASE_LANGUAGE => $response['premium_introtext'],
         ];
         $updates = $this->translateValues($updates, ['premium_introtext']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    public function handleSellingPoints(): array
+    {
+        $response = $this->executePrompt('article_titles_selling_points', ['selling_points']);
 
         $sellingPoints = [
             self::BASE_LANGUAGE => $response['selling_points']
@@ -77,6 +94,7 @@ class GenerateArticleTitles implements ShouldQueue
             $sellingPoints[$language->language_code] = $translationController->translate($sellingPoints[self::BASE_LANGUAGE], self::BASE_LANGUAGE, $language->language_code);
         }
 
+        $updates = [];
         foreach ($sellingPoints as $languageCode => $points) {
             $html = '<ul>';
             foreach ($points as $point) {
@@ -92,15 +110,28 @@ class GenerateArticleTitles implements ShouldQueue
         return $updates;
     }
 
-    public function handleMeta(): array
+    public function handleMetaTitle(): array
     {
-        $response = $this->executePrompt('article_titles_meta', ['meta_title', 'meta_description']);
+        $response = $this->executePrompt('article_titles_meta_title', ['meta_title']);
 
         $updates = [
             'meta_title_' . self::BASE_LANGUAGE => $response['meta_title'],
-            'meta_description_' . self::BASE_LANGUAGE => $response['meta_description']
         ];
-        $updates = $this->translateValues($updates, ['meta_title', 'meta_description']);
+        $updates = $this->translateValues($updates, ['meta_title']);
+
+        $this->update($updates);
+
+        return $updates;
+    }
+
+    public function handleMetaDescription(): array
+    {
+        $response = $this->executePrompt('article_titles_meta_description', ['meta_description']);
+
+        $updates = [
+            'meta_description_' . self::BASE_LANGUAGE => $response['meta_description'],
+        ];
+        $updates = $this->translateValues($updates, ['meta_description']);
 
         $this->update($updates);
 
