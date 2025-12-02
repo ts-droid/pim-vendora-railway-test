@@ -26,9 +26,9 @@ class RawDataController extends Controller
     {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
-        $html = '<h1>' . $article->shop_title_en . '</h1>' . PHP_EOL . PHP_EOL .
-                '<h2>' . $article->shop_marketing_description_en . '</h2>' . PHP_EOL . PHP_EOL .
-                '<section id="description">' . $article->shop_description_en . '</section>';
+        $html = '<h1>' . $article->shop_title_sv . '</h1>' . PHP_EOL . PHP_EOL .
+                '<h2>' . $article->shop_marketing_description_sv . '</h2>' . PHP_EOL . PHP_EOL .
+                '<section id="description">' . $article->shop_description_sv . '</section>';
 
         if ($article->google_product_category) {
             $googleCategories = get_google_product_categories();
@@ -44,8 +44,8 @@ class RawDataController extends Controller
 
             foreach ($faqEntries as $faqEntry) {
                 $html .= '<div>
-                            <h3>' . $faqEntry->question_en . '</h3>
-                            <p>' . $faqEntry->answer_en . '</p>
+                            <h3>' . $faqEntry->question_sv . '</h3>
+                            <p>' . $faqEntry->answer_sv . '</p>
                           </div>';
             }
 
