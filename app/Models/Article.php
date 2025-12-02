@@ -8,6 +8,7 @@ use App\Services\ArticleQuantityCalculator;
 use App\Services\EcbService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
+use App\Utilities\ArticleTitleUtility;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -115,10 +116,15 @@ class Article extends Model
         static::updated(function ($article) {
             $changes = $article->getChanges();
 
+            if (isset($changes['description'])) {
+                ArticleTitleUtility::translateTitles($article);
+            }
+
             (new DispatchArticleUpdate)->execute($article->id, false, $changes);
         });
 
         static::created(function ($article) {
+            ArticleTitleUtility::translateTitles($article);
             (new DispatchArticleUpdate)->execute($article->id, true, []);
         });
     }

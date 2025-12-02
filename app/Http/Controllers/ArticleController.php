@@ -29,6 +29,7 @@ use App\Services\Todo\TodoItemService;
 use App\Services\TranslationServiceManager;
 use App\Services\VismaNet\VismaNetArticleService;
 use App\Services\WMS\StockItemService;
+use App\Utilities\ArticleTitleUtility;
 use App\Utilities\ImageBackgroundAnalyzer;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
@@ -1416,7 +1417,6 @@ class ArticleController extends Controller
 
             GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
         }
-
 
         return ApiResponseController::success([$article->toArray()]);
     }

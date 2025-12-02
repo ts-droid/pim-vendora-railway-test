@@ -7,6 +7,7 @@ use App\Http\Controllers\PromptController;
 use App\Http\Controllers\RawDataController;
 use App\Http\Controllers\TranslationController;
 use App\Models\Article;
+use App\Utilities\ArticleTitleUtility;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -155,6 +156,8 @@ class GenerateArticleTitles implements ShouldQueue
         $response = $this->executePrompt('article_titles_short_title', ['short_title']);
         $updates = ['description' => $response['short_title']];
         $this->update($updates);
+
+        ArticleTitleUtility::translateTitles($this->article);
 
         return $updates;
     }
