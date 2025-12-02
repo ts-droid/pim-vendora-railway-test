@@ -35,15 +35,15 @@ class RawDataController extends Controller
 
         $html = '';
 
-        if (!$includeShortTitle) {
+        if ($includeShortTitle) {
             $html .= '<b>Produktnamn:</b> ' . ArticleTitleUtility::getTitle($article, $locale) . PHP_EOL . PHP_EOL;
         }
 
-        if (!$includeShopTitle) {
+        if ($includeShopTitle) {
             $html .= '<h1>' . $article->{'shop_title_' . $locale} . '</h1>' . PHP_EOL . PHP_EOL;
         }
 
-        if (!$includeMarketingDescription) {
+        if ($includeMarketingDescription) {
             $html .= '<h2>' . $article->{'shop_marketing_description_' . $locale} . '</h2>' . PHP_EOL . PHP_EOL;
         }
 
