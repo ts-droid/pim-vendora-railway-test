@@ -16,5 +16,6 @@ class Prompt extends Model
         'system',
         'message',
         'inputs',
+        'parent'
     ];
 }

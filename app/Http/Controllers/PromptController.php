@@ -52,7 +52,8 @@ class PromptController extends Controller
         string $name,
         string $system,
         string $message,
-        array $inputs = []
+        array $inputs = [],
+        string $parent = ''
     ): Prompt
     {
         $prompt = Prompt::where('id', $promptID)->first();
@@ -67,6 +68,7 @@ class PromptController extends Controller
         $prompt->system = $system;
         $prompt->message = $message;
         $prompt->inputs = json_encode(array_filter($inputs));
+        $prompt->parent = $parent;
         $prompt->save();
 
         return $prompt;

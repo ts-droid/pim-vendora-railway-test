@@ -101,7 +101,8 @@ class PromptAPIController extends Controller
                 $request->input('name'),
                 $request->input('system'),
                 $request->input('message'),
-                $inputs
+                $inputs,
+                (string) $request->input('parent'),
             );
 
             return ApiResponseController::success($prompt->toArray());
