@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\LaravelQueues;
 use App\Models\Article;
 use Illuminate\Console\Command;
 
@@ -51,7 +52,7 @@ class GenerateArticleTitles extends Command
         }
 
         foreach ($articles as $article) {
-            \App\Jobs\GenerateArticleTitles::dispatch($article);
+            \App\Jobs\GenerateArticleTitles::dispatch($article)->onQueue(LaravelQueues::GENERATION->value);
         }
     }
 }
