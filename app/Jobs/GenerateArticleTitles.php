@@ -41,10 +41,10 @@ class GenerateArticleTitles implements ShouldQueue
 
         $allUpdates = [];
 
-        $updates = $this->handleColor();
+        $updates = $this->handleShortTitle();
         $allUpdates = array_merge($allUpdates, $updates);
 
-        $updates = $this->handleShortTitle();
+        $updates = $this->handleColor();
         $allUpdates = array_merge($allUpdates, $updates);
 
         $updates = $this->handleLongTitle();
@@ -67,7 +67,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handlePremiumIntroText(): array
     {
-        $response = $this->executePrompt('article_titles_premium_intro_text', ['premium_introtext']);
+        $response = $this->executePrompt('article_titles_premium_intro_text', ['premium_introtext'], true);
 
         $updates = [
             'premium_introtext_' . self::BASE_LANGUAGE => $response['premium_introtext'],
@@ -81,7 +81,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleSellingPoints(): array
     {
-        $response = $this->executePrompt('article_titles_selling_points', ['selling_points']);
+        $response = $this->executePrompt('article_titles_selling_points', ['selling_points'], true);
 
         $sellingPoints = [
             self::BASE_LANGUAGE => $response['selling_points']
@@ -113,7 +113,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleMetaTitle(): array
     {
-        $response = $this->executePrompt('article_titles_meta_title', ['meta_title']);
+        $response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
 
         $updates = [
             'meta_title_' . self::BASE_LANGUAGE => $response['meta_title'],
@@ -127,7 +127,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleMetaDescription(): array
     {
-        $response = $this->executePrompt('article_titles_meta_description', ['meta_description']);
+        $response = $this->executePrompt('article_titles_meta_description', ['meta_description'], true);
 
         $updates = [
             'meta_description_' . self::BASE_LANGUAGE => $response['meta_description'],
@@ -141,7 +141,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleLongTitle(): array
     {
-        $response = $this->executePrompt('article_titles_long_title', ['long_title']);
+        $response = $this->executePrompt('article_titles_long_title', ['long_title'], true);
 
         $updates = ['long_title_' . self::BASE_LANGUAGE => $response['long_title']];
         $updates = $this->translateValues($updates, ['long_title']);
@@ -164,7 +164,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleColor(): array
     {
-        $response = $this->executePrompt('article_titles_color', ['color']);
+        $response = $this->executePrompt('article_titles_color', ['color'], true);
 
         $updates = ['color_' . self::BASE_LANGUAGE => $response['color']];
         $updates = $this->translateValues($updates, ['color']);
@@ -206,14 +206,14 @@ class GenerateArticleTitles implements ShouldQueue
         return $array;
     }
 
-    private function executePrompt(string $systemCode, array $arrayKeys): array
+    private function executePrompt(string $systemCode, array $arrayKeys, bool $includeShortTitle = false): array
     {
         $promptController = new PromptController();
         $prompt = $promptController->getBySystemCode($systemCode);
 
         $rawResponse = $promptController->execute(
             $prompt->id,
-            ['raw_data' => RawDataController::getArticleRaw($this->article, true)]
+            ['raw_data' => RawDataController::getArticleRaw($this->article, $includeShortTitle, false, false)]
         );
 
         if (!$rawResponse) throw new \Exception('Empty response from AI service.');

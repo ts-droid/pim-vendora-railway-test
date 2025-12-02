@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
+use App\Utilities\ArticleTitleUtility;
 use Illuminate\Http\Request;
 
 class RawDataController extends Controller
@@ -22,14 +23,21 @@ class RawDataController extends Controller
         return view('raw.article', compact('html'));
     }
 
-    public static function getArticleRaw(Article $article, bool $simple = false)
+    public static function getArticleRaw(Article $article, bool $includeShortTitle = true, bool $includeShopTitle = true, bool $includeMarketingDescription = true)
     {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
         $html = '';
 
-        if (!$simple) {
+        if (!$includeShortTitle) {
+            $html .= '<b>Produktnamn:</b> ' . ArticleTitleUtility::getTitle($article, 'sv') . PHP_EOL . PHP_EOL;
+        }
+
+        if (!$includeShopTitle) {
             $html .= '<h1>' . $article->shop_title_sv . '</h1>' . PHP_EOL . PHP_EOL;
+        }
+
+        if (!$includeMarketingDescription) {
             $html .= '<h2>' . $article->shop_marketing_description_sv . '</h2>' . PHP_EOL . PHP_EOL;
         }
 
