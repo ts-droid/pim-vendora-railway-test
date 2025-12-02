@@ -12,6 +12,7 @@ use App\Models\Article;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Services\SupplierArticlePriceService;
+use App\Utilities\ArticleTitleUtility;
 use App\Utilities\ImageComparisonUtility;
 use App\Utilities\PurchaseOrderHelper;
 
@@ -296,7 +297,7 @@ class WgrArticleService
         // Add language fields
         $languages = (new LanguageController())->getAllLanguages();
         foreach ($languages as $language) {
-            $postData['title_' . $language->language_code] = trim((string) $article->{'shop_title_' . $language->language_code});
+            $postData['title_' . $language->language_code] = ArticleTitleUtility::getTitle($article, $language->language_code);
             $postData['description_' . $language->language_code] = trim((string) $article->{'shop_description_' . $language->language_code});
 
             if (in_array($language->language_code, LanguageController::REQUIRED_EXTERNAL_LANGUAGES['wgr'])) {

@@ -22,13 +22,18 @@ class RawDataController extends Controller
         return view('raw.article', compact('html'));
     }
 
-    public static function getArticleRaw(Article $article)
+    public static function getArticleRaw(Article $article, bool $simple = false)
     {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
-        $html = '<h1>' . $article->shop_title_sv . '</h1>' . PHP_EOL . PHP_EOL .
-                '<h2>' . $article->shop_marketing_description_sv . '</h2>' . PHP_EOL . PHP_EOL .
-                '<section id="description">' . $article->shop_description_sv . '</section>';
+        $html = '';
+
+        if (!$simple) {
+            $html .= '<h1>' . $article->shop_title_sv . '</h1>' . PHP_EOL . PHP_EOL;
+            $html .= '<h2>' . $article->shop_marketing_description_sv . '</h2>' . PHP_EOL . PHP_EOL;
+        }
+
+        $html .= '<section id="description">' . $article->shop_description_sv . '</section>';
 
         if ($article->google_product_category) {
             $googleCategories = get_google_product_categories();

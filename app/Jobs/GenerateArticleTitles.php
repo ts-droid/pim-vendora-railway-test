@@ -213,7 +213,7 @@ class GenerateArticleTitles implements ShouldQueue
 
         $rawResponse = $promptController->execute(
             $prompt->id,
-            ['raw_data' => RawDataController::getArticleRaw($this->article)]
+            ['raw_data' => RawDataController::getArticleRaw($this->article, true)]
         );
 
         if (!$rawResponse) throw new \Exception('Empty response from AI service.');

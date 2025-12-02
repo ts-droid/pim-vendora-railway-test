@@ -9,6 +9,28 @@ use Illuminate\Support\Facades\DB;
 
 class ArticleTitleUtility
 {
+    public static function getTitle(int|Article $article, string $locale): string
+    {
+        if (is_int($article)) {
+            $article = Article::find($article);
+        }
+
+        if (!$article) return '';
+
+        $color = $article->{'color_' . $locale} ?? '';
+
+        $title = DB::table('article_titles')
+            ->where('article_id', $article->id)
+            ->where('locale', $locale)
+            ->value('title');
+
+        if (!$title) {
+            $title = $article->description;
+        }
+
+        return $title . ($color ? (' - ' . $color) : '');
+    }
+
     public static function translateTitles(int|Article $article): void
     {
         if (is_int($article)) {
