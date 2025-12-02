@@ -17,7 +17,7 @@ class UpdateArticleJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private int $articleID;
-    private bool $isNew = false;
+    private bool $isNew;
 
     /**
      * Create a new job instance.
