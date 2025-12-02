@@ -34,7 +34,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handle(): array
     {
-        if (!$this->article->brand || !$this->article->shop_title_en || !$this->article->shop_description_en) {
+        if (!$this->article->brand || !$this->article->shop_title_sv || !$this->article->shop_description_sv) {
             throw new \Exception('Missing required article data.');
         }
 
