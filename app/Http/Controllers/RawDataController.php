@@ -23,25 +23,31 @@ class RawDataController extends Controller
         return view('raw.article', compact('html'));
     }
 
-    public static function getArticleRaw(Article $article, bool $includeShortTitle = true, bool $includeShopTitle = true, bool $includeMarketingDescription = true)
+    public static function getArticleRaw(
+        Article $article,
+        bool $includeShortTitle = true,
+        bool $includeShopTitle = true,
+        bool $includeMarketingDescription = true,
+        string $locale = 'sv'
+    )
     {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
         $html = '';
 
         if (!$includeShortTitle) {
-            $html .= '<b>Produktnamn:</b> ' . ArticleTitleUtility::getTitle($article, 'sv') . PHP_EOL . PHP_EOL;
+            $html .= '<b>Produktnamn:</b> ' . ArticleTitleUtility::getTitle($article, $locale) . PHP_EOL . PHP_EOL;
         }
 
         if (!$includeShopTitle) {
-            $html .= '<h1>' . $article->shop_title_sv . '</h1>' . PHP_EOL . PHP_EOL;
+            $html .= '<h1>' . $article->{'shop_title_' . $locale} . '</h1>' . PHP_EOL . PHP_EOL;
         }
 
         if (!$includeMarketingDescription) {
-            $html .= '<h2>' . $article->shop_marketing_description_sv . '</h2>' . PHP_EOL . PHP_EOL;
+            $html .= '<h2>' . $article->{'shop_marketing_description_' . $locale} . '</h2>' . PHP_EOL . PHP_EOL;
         }
 
-        $html .= '<section id="description">' . $article->shop_description_sv . '</section>';
+        $html .= '<section id="description">' . $article->{'shop_description_' . $locale} . '</section>';
 
         if ($article->google_product_category) {
             $googleCategories = get_google_product_categories();
@@ -57,8 +63,8 @@ class RawDataController extends Controller
 
             foreach ($faqEntries as $faqEntry) {
                 $html .= '<div>
-                            <h3>' . $faqEntry->question_sv . '</h3>
-                            <p>' . $faqEntry->answer_sv . '</p>
+                            <h3>' . $faqEntry->{'question_' . $locale} . '</h3>
+                            <p>' . $faqEntry->{'answer_' . $locale} . '</p>
                           </div>';
             }
 

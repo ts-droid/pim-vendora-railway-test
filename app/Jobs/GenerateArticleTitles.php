@@ -153,7 +153,7 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleShortTitle(): array
     {
-        $response = $this->executePrompt('article_titles_short_title', ['short_title']);
+        $response = $this->executePrompt('article_titles_short_title', ['short_title'], false, 'en');
         $updates = ['description' => $response['short_title']];
         $this->update($updates);
 
@@ -206,14 +206,14 @@ class GenerateArticleTitles implements ShouldQueue
         return $array;
     }
 
-    private function executePrompt(string $systemCode, array $arrayKeys, bool $includeShortTitle = false): array
+    private function executePrompt(string $systemCode, array $arrayKeys, bool $includeShortTitle = false, string $locale = 'sv'): array
     {
         $promptController = new PromptController();
         $prompt = $promptController->getBySystemCode($systemCode);
 
         $rawResponse = $promptController->execute(
             $prompt->id,
-            ['raw_data' => RawDataController::getArticleRaw($this->article, $includeShortTitle, false, false)]
+            ['raw_data' => RawDataController::getArticleRaw($this->article, $includeShortTitle, false, false, $locale)]
         );
 
         if (!$rawResponse) throw new \Exception('Empty response from AI service.');
