@@ -10,8 +10,21 @@ class PromptController extends Controller
 {
     public function execute(int $promptID, array $inputs = [], string $customInstructions = '', string $model = '', string $imageURL = ''): string
     {
+        // Load main prompt
         $prompt = $this->get($promptID);
 
+        // Load and merge parent prompt if exists
+        // TODO: Handle multiple levels of parents
+        if ($prompt->parent) {
+            $parentPrompt = $this->getBySystemCode($prompt->parent);
+            if ($parentPrompt) {
+
+                $prompt->system = $parentPrompt->system . PHP_EOL . PHP_EOL . $prompt->system;
+                $prompt->message = $parentPrompt->message . PHP_EOL . PHP_EOL . $prompt->message;
+            }
+        }
+
+        // Replace variables
         $prompt->system = $this->replaceInputs($prompt->system, $inputs);
         $prompt->message = $this->replaceInputs($prompt->message, $inputs);
 
