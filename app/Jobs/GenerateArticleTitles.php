@@ -139,14 +139,16 @@ class GenerateArticleTitles implements ShouldQueue
         return $updates;
     }
 
-    public function handleLongTitle(): array
+    public function handleLongTitle(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_long_title', ['long_title'], true);
 
         $updates = ['long_title_' . self::BASE_LANGUAGE => $response['long_title']];
         $updates = $this->translateValues($updates, ['long_title']);
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }

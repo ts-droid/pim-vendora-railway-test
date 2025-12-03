@@ -6,6 +6,7 @@ use App\Actions\DispatchArticleUpdate;
 use App\Actions\UploadArticlePackageImage;
 use App\Enums\LaravelQueues;
 use App\Jobs\CategorizeArticle;
+use App\Jobs\GenerateArticleTitles;
 use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
@@ -1686,8 +1687,11 @@ class ArticleController extends Controller
 
     public function getNewShopTitle(Request $request, Article $article)
     {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleLongTitle(true);
+
         return ApiResponseController::success([
-            'value' => ''
+            'value' => ($updates['long_title_en'] ?? '')
         ]);
     }
 
