@@ -336,6 +336,7 @@ class ArticleController extends Controller
         $columns = $request->input('columns', ['*']);
         $currency = $request->input('currency');
         $articleNumber = $request->input('article_number');
+        $page = $request->input('page', 0);
 
         if (!in_array('*', $columns) && !in_array('created_at', $columns)) {
             $columns[] = 'created_at';
@@ -470,7 +471,13 @@ class ArticleController extends Controller
         }
 
         // Execute query
-        $articles = $query->orderBy('created_at', 'DESC')->get()->toArray();
+        $query->orderBy('created_at', 'DESC');
+
+        if ($page > 0) {
+            $query->limit(500)->offset(($page - 1) * 500);
+        }
+
+        $articles = $query->get()->toArray();
 
         // Convert article objects into an array
         $articles = array_map(function ($article) {
