@@ -166,7 +166,7 @@ class GenerateArticleTitles implements ShouldQueue
     {
         $response = $this->executePrompt('article_titles_color', ['color'], true);
 
-        $updates = ['color_' . self::BASE_LANGUAGE => $response['color']];
+        $updates = ['color_' . self::BASE_LANGUAGE => mb_ucfirst($response['color'])];
         $updates = $this->translateValues($updates, ['color']);
 
         $this->update($updates);
