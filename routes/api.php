@@ -275,9 +275,13 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
         Route::get('/{article}/job/google-product-category', [ArticleController::class, 'getGoogleProductCategory']);
 
+        Route::get('/{article}/job/short-title', [ArticleController::class, 'getNewShortTitle']);
         Route::get('/{article}/job/shop-title', [ArticleController::class, 'getNewShopTitle']);
+        Route::get('/{article}/job/color', [ArticleController::class, 'getNewColor']);
         Route::get('/{article}/job/marketing-description', [ArticleController::class, 'getNewMarketingDescription']);
         Route::get('/{article}/job/short-description', [ArticleController::class, 'getNewShortDescription']);
+        Route::get('/{article}/job/meta-title', [ArticleController::class, 'getNewMetaTitle']);
+        Route::get('/{article}/job/meta-description', [ArticleController::class, 'getNewMetaDescription']);
 
         Route::post('/{article}/todo/stock-keep', [ArticleController::class, 'createStockKeepTodo']);
         Route::post('/{article}/todo/measurement', [ArticleController::class, 'createMeasurementTodo']);

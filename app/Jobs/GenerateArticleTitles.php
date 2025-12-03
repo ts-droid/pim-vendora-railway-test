@@ -65,7 +65,7 @@ class GenerateArticleTitles implements ShouldQueue
         return $allUpdates;
     }
 
-    public function handlePremiumIntroText(): array
+    public function handlePremiumIntroText(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_premium_intro_text', ['premium_introtext'], true);
 
@@ -74,12 +74,14 @@ class GenerateArticleTitles implements ShouldQueue
         ];
         $updates = $this->translateValues($updates, ['premium_introtext']);
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }
 
-    public function handleSellingPoints(): array
+    public function handleSellingPoints(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_selling_points', ['selling_points'], true);
 
@@ -106,12 +108,14 @@ class GenerateArticleTitles implements ShouldQueue
             $updates['short_description_' . $languageCode] = $html;
         }
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }
 
-    public function handleMetaTitle(): array
+    public function handleMetaTitle(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
 
@@ -120,12 +124,14 @@ class GenerateArticleTitles implements ShouldQueue
         ];
         $updates = $this->translateValues($updates, ['meta_title']);
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }
 
-    public function handleMetaDescription(): array
+    public function handleMetaDescription(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_meta_description', ['meta_description'], true);
 
@@ -134,7 +140,9 @@ class GenerateArticleTitles implements ShouldQueue
         ];
         $updates = $this->translateValues($updates, ['meta_description']);
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }
@@ -153,25 +161,29 @@ class GenerateArticleTitles implements ShouldQueue
         return $updates;
     }
 
-    public function handleShortTitle(): array
+    public function handleShortTitle(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_short_title', ['short_title'], false, 'en');
         $updates = ['description' => $response['short_title']];
-        $this->update($updates);
 
-        ArticleTitleUtility::translateTitles($this->article);
+        if (!$returnOnly) {
+            $this->update($updates);
+            ArticleTitleUtility::translateTitles($this->article);
+        }
 
         return $updates;
     }
 
-    public function handleColor(): array
+    public function handleColor(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_color', ['color'], true);
 
         $updates = ['color_' . self::BASE_LANGUAGE => mb_ucfirst($response['color'])];
         $updates = $this->translateValues($updates, ['color']);
 
-        $this->update($updates);
+        if (!$returnOnly) {
+            $this->update($updates);
+        }
 
         return $updates;
     }

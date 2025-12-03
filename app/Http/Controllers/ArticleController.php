@@ -1685,6 +1685,16 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function getNewShortTitle(Request $request, Article $article)
+    {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleShortTitle(true);
+
+        return ApiResponseController::success([
+            'value' => ($updates['description'] ?? '')
+        ]);
+    }
+
     public function getNewShopTitle(Request $request, Article $article)
     {
         $job = new GenerateArticleTitles($article);
@@ -1695,17 +1705,53 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function getNewColor(Request $request, Article $article)
+    {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleColor(true);
+
+        return ApiResponseController::success([
+            'value' => ($updates['color_en'] ?? '')
+        ]);
+    }
+
     public function getNewMarketingDescription(Request $request, Article $article)
     {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handlePremiumIntroText(true);
+
         return ApiResponseController::success([
-            'value' => ''
+            'value' => ($updates['premium_introtext_en'] ?? '')
         ]);
     }
 
     public function getNewShortDescription(Request $request, Article $article)
     {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleSellingPoints(true);
+
         return ApiResponseController::success([
-            'value' => ''
+            'value' => ($updates['short_description_en'] ?? '')
+        ]);
+    }
+
+    public function getNewMetaTitle(Request $request, Article $article)
+    {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleMetaTitle(true);
+
+        return ApiResponseController::success([
+            'value' => ($updates['meta_title_en'] ?? '')
+        ]);
+    }
+
+    public function getNewMetaDescription(Request $request, Article $article)
+    {
+        $job = new GenerateArticleTitles($article);
+        $updates = $job->handleMetaDescription(true);
+
+        return ApiResponseController::success([
+            'value' => ($updates['meta_description_en'] ?? '')
         ]);
     }
 
