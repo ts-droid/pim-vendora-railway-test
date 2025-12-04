@@ -8,7 +8,6 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderException;
 use App\Models\PurchaseOrderLine;
 use App\Models\PurchaseOrderShipment;
-use App\Models\SalesOrder;
 use App\Models\Shipment;
 use App\Models\StockPlace;
 use App\Models\StockPlaceCompartment;
@@ -17,7 +16,6 @@ use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 
@@ -142,7 +140,7 @@ class PurchaseOrderService
             );
 
             if (!$response['success']) {
-                ErrorNotification::send(
+                NotificationService::sendMail(
                     'Failed to create purchase order receipt',
                     'Failed to create purchase order receipt for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
                 );
@@ -171,7 +169,7 @@ class PurchaseOrderService
                 ]);
 
                 if (!$response['success']) {
-                    ErrorNotification::send(
+                    NotificationService::sendMail(
                         'Failed to create INLEV',
                         'Failed to create the stock place INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
                     );
@@ -204,7 +202,7 @@ class PurchaseOrderService
             }
 
             if (!$indeliveryCompartment) {
-                ErrorNotification::send(
+                NotificationService::sendMail(
                     'Failed to create INLEV compartment',
                     'Failed to create the compartment for INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
                 );

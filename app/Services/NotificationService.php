@@ -2,24 +2,23 @@
 
 namespace App\Services;
 
+use App\Enums\LaravelQueues;
+use App\Mail\RawMail;
 use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
-
     public static function sendMail(string $subject, string $body, string|array $to = null): void
     {
-        $recipients = $to ?? config('notifications.admin_emails', []);
-
+        $recipients = $to ?? config('app.developer_emails', []);
         if (is_string($recipients)) {
             $recipients = [$recipients];
         }
 
-        foreach ($recipients as $email) {
-            Mail::raw($body, function($message) use ($subject, $email) {
-                $message->to($email)->subject($subject);
-            });
-        }
+        $mail = (new RawMail($subject, $body, 'noreply@vendora.se', 'Vendora PIMP'))
+            ->onQueue(LaravelQueues::MAIL->value);
+
+        Mail::to($recipients)->queue($mail);
     }
 
 }

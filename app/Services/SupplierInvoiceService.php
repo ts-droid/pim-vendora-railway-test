@@ -40,7 +40,7 @@ class SupplierInvoiceService
 
         // Send email to Vendora with the invoice
         if (App::isLocal()) {
-            Mail::to('anton@scriptsector.se')->send(
+            Mail::to(config('app.developer_emails'))->send(
                 new \App\Mail\SupplierInvoice($purchaseOrder, $invoiceLineIDs, $fileUrl)
             );
         } else {

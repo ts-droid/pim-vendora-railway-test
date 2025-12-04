@@ -187,4 +187,8 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'developer_emails' => [
+        'anton@scriptsector.se'
+    ]
+
 ];
