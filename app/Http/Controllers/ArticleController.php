@@ -1340,6 +1340,12 @@ class ArticleController extends Controller
             $data['meta_description_' . $locale->language_code] = (string) ($request->{'meta_description_' . $locale->language_code} ?? '');
         }
 
+        // Make sure article number is unique
+        if (DB::table('articles')->where('article_number', $data['article_number'])->exists()) {
+            return ApiResponseController::error('Article number already exists.');
+        }
+
+
         $article = Article::create($data);
 
         // Log the stock
@@ -1386,6 +1392,9 @@ class ArticleController extends Controller
 
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
         $allowedUpdates = $this->formatPostData($request, $allowedUpdates);
+
+        // Never allow updating these fields
+        unset($allowedUpdates['article_number']);
 
         $alternatives = null;
         if (isset($allowedUpdates['alternatives'])) {
@@ -1488,6 +1497,9 @@ class ArticleController extends Controller
 
         $updates = $request->all();
 
+        // Never allow updating these fields
+        unset($updates['article_number']);
+
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
 
         $article->update($allowedUpdates);
@@ -1499,7 +1511,7 @@ class ArticleController extends Controller
 
                 $supplierPriceService = new SupplierArticlePriceService();
                 $supplierPriceService->createSupplierArticlePrice([
-                    'article_number' => (string) $article['article_number'],
+                    'article_number' => (string) $article->article_number,
                     'price' => (float) $updates['current_cost'],
                     'currency' => (string) $supplier->currency,
                 ]);
