@@ -19,7 +19,7 @@ class CustomerReviewController extends Controller
 
         App::setLocale($lang);
 
-        return view('customerReviews.review', compact('article', 'rating'));
+        return view('customerReviews.review', compact('article', 'rating', 'lang'));
     }
 
     public function submit(Request $request)
@@ -32,6 +32,7 @@ class CustomerReviewController extends Controller
         $rating = (int) $request->input('rating', 5);
         $name = trim((string) $request->input('name', ''));
         $review = trim((string) $request->input('review', ''));
+        $locale = (string) ($request->input('locale') ?: 'en');
 
         if (!$rating || !$name) {
             return redirect()->back();
@@ -42,6 +43,7 @@ class CustomerReviewController extends Controller
             'rating' => $rating,
             'name' => $name,
             'review' => $review,
+            'locale' => $locale
         ]);
 
         return redirect()->route('customer.review.done', ['lang' => $lang]);

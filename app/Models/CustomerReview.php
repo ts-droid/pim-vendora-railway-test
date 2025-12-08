@@ -14,6 +14,7 @@ class CustomerReview extends Model
         'rating',
         'name',
         'review',
+        'locale'
     ];
 
     public function article()

@@ -101,6 +101,7 @@
 
         <input type="hidden" id="article-id" name="article_id" value="{{ $article->id }}">
         <input type="hidden" id="rating" name="rating" value="{{ $rating }}">
+        <input type="hidden" id="locale" name="locale" value="{{ $lang }}">
 
         <div class="stars">
             @for($i = 1;$i <= 5;$i++)

@@ -1463,6 +1463,7 @@ class ArticleController extends Controller
             'rating' => (int) $request->input('rating'),
             'name' => (string) $request->input('name'),
             'review' => (string) $request->input('review'),
+            'locale' => (string) ($request->input('locale') ?: 'en'),
         ]);
 
         return ApiResponseController::success();
