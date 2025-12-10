@@ -69,7 +69,7 @@ class GenerateArticleTitles implements ShouldQueue
         $response = $this->executePrompt('article_titles_premium_intro_text', ['shop_marketing_description'], true);
 
         $updates = [
-            'shop_marketing_description' . self::BASE_LANGUAGE => $response['shop_marketing_description'],
+            'shop_marketing_description_' . self::BASE_LANGUAGE => $response['shop_marketing_description'],
         ];
         $updates = $this->translateValues($updates, ['shop_marketing_description']);
 
@@ -150,7 +150,7 @@ class GenerateArticleTitles implements ShouldQueue
     {
         $response = $this->executePrompt('article_titles_long_title', ['shop_title'], true);
 
-        $updates = ['shop_title' . self::BASE_LANGUAGE => $response['shop_title']];
+        $updates = ['shop_title_' . self::BASE_LANGUAGE => $response['shop_title']];
         $updates = $this->translateValues($updates, ['shop_title']);
 
         if (!$returnOnly) {
