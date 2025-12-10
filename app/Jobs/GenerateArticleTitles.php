@@ -21,8 +21,7 @@ class GenerateArticleTitles implements ShouldQueue
     const BASE_LANGUAGE = 'sv';
 
     const FIELD_MAPPING = [
-        'long_title' => 'shop_title',
-        'premium_introtext' => 'shop_marketing_description',
+        'article_name' => 'description',
     ];
 
     /**
@@ -67,12 +66,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handlePremiumIntroText(bool $returnOnly = false): array
     {
-        $response = $this->executePrompt('article_titles_premium_intro_text', ['premium_introtext'], true);
+        $response = $this->executePrompt('article_titles_premium_intro_text', ['shop_marketing_description'], true);
 
         $updates = [
-            'premium_introtext_' . self::BASE_LANGUAGE => $response['premium_introtext'],
+            'shop_marketing_description' . self::BASE_LANGUAGE => $response['shop_marketing_description'],
         ];
-        $updates = $this->translateValues($updates, ['premium_introtext']);
+        $updates = $this->translateValues($updates, ['shop_marketing_description']);
 
         if (!$returnOnly) {
             $this->update($updates);
@@ -83,10 +82,10 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleSellingPoints(bool $returnOnly = false): array
     {
-        $response = $this->executePrompt('article_titles_selling_points', ['selling_points'], true);
+        $response = $this->executePrompt('article_titles_selling_points', ['short_description'], true);
 
         $sellingPoints = [
-            self::BASE_LANGUAGE => $response['selling_points']
+            self::BASE_LANGUAGE => $response['short_description']
         ];
 
         $translationController = new TranslationController();
@@ -149,10 +148,10 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleLongTitle(bool $returnOnly = false): array
     {
-        $response = $this->executePrompt('article_titles_long_title', ['long_title'], true);
+        $response = $this->executePrompt('article_titles_long_title', ['shop_title'], true);
 
-        $updates = ['long_title_' . self::BASE_LANGUAGE => $response['long_title']];
-        $updates = $this->translateValues($updates, ['long_title']);
+        $updates = ['shop_title' . self::BASE_LANGUAGE => $response['shop_title']];
+        $updates = $this->translateValues($updates, ['shop_title']);
 
         if (!$returnOnly) {
             $this->update($updates);
@@ -163,8 +162,8 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleShortTitle(bool $returnOnly = false): array
     {
-        $response = $this->executePrompt('article_titles_short_title', ['short_title'], false, 'en');
-        $updates = ['description' => $response['short_title']];
+        $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
+        $updates = ['description' => $response['article_name']];
 
         if (!$returnOnly) {
             $this->update($updates);

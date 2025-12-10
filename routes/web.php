@@ -50,9 +50,15 @@ Route::get('/test-titles', function () {
     }
 
     $job = new \App\Jobs\GenerateArticleTitles($article);
-    $response = $job->handle();
+    $updates = $job->handle();
 
-    dd($response);
+    $formattedUpdates = [];
+    foreach ($updates as $key => $value) {
+        $key = str_replace('description', 'article_name', $key);
+        $formattedUpdates[$key] = $value;
+    }
+
+    dd($formattedUpdates);
 });
 
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');
