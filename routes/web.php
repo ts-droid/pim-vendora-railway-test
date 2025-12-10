@@ -54,7 +54,10 @@ Route::get('/test-titles', function () {
 
     $formattedUpdates = [];
     foreach ($updates as $key => $value) {
-        $key = str_replace('description', 'article_name', $key);
+        if ($key == 'description') {
+            $key = 'article_name';
+        }
+
         $formattedUpdates[$key] = $value;
     }
 
