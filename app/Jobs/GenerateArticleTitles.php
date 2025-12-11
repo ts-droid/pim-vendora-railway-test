@@ -227,7 +227,7 @@ class GenerateArticleTitles implements ShouldQueue
         $rawResponse = $promptController->execute(
             $prompt->id,
             [
-                'article_name' => ArticleTitleUtility::getTitle($this->article, $locale),
+                'article_name' => ArticleTitleUtility::getTitle($this->article, $locale, false),
                 'raw_data' => RawDataController::getArticleRaw($this->article, $includeShortTitle, false, false, $locale)
             ]
         );
