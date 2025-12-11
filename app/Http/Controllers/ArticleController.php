@@ -948,6 +948,16 @@ class ArticleController extends Controller
 
         }
 
+        if ($request->has('expand_article_name')) {
+            $languages = (new LanguageController())->getAllLanguages();
+
+            foreach ($articles as $article) {
+                foreach ($languages as $language) {
+                    $article['article_name_' . $language->language_code] = ArticleTitleUtility::getTitle($article['id'], $language->language_code, false);
+                }
+            }
+        }
+
         return ApiResponseController::success($articles);
     }
 
