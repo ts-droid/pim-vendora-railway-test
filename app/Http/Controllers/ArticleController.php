@@ -1438,7 +1438,7 @@ class ArticleController extends Controller
             foreach ($languages as $language) {
                 if (!isset($allowedUpdates['article_name_' . $language->language_code])) continue;
 
-                ArticleTitleUtility::setTitle($article->id, $allowedUpdates['article_name_' . $language->language_code], $language->language_code);
+                ArticleTitleUtility::setTitle($article, $allowedUpdates['article_name_' . $language->language_code], $language->language_code);
                 unset($allowedUpdates['article_name_' . $language->language_code]);
             }
         }
