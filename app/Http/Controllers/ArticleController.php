@@ -1227,12 +1227,18 @@ class ArticleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'article_number' => 'required|string',
-            'description' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return ApiResponseController::error($errors[0]);
+        }
+
+        $description = $request->input('description');
+        $articleName = $request->input('article_name_en');
+
+        if (!$description || !$articleName) {
+            return ApiResponseController::error('Missing required fields: description or article_name_en.');
         }
 
         // Make sure article number is not used
@@ -1243,6 +1249,11 @@ class ArticleController extends Controller
 
         $fillables = get_model_attributes(Article::class);
 
+        $languages = (new LanguageController())->getAllLanguages();
+        foreach ($languages as $language) {
+            $fillables[] = 'article_name_' . $language->language_code;
+        }
+
         $postData = $request->all();
 
         $storeData = array_intersect_key($postData, array_flip($fillables));
@@ -1252,6 +1263,11 @@ class ArticleController extends Controller
         if (isset($storeData['alternatives'])) {
             $alternatives = $storeData['alternatives'];
             unset($storeData['alternatives']);
+        }
+
+        // Handle description/article_name
+        if (!isset($storeData['description'])) {
+            $storeData['description'] = $storeData['article_name_en'];
         }
 
         $article = Article::create($storeData);
@@ -1398,6 +1414,11 @@ class ArticleController extends Controller
     {
         $fillables = get_model_attributes(Article::class);
 
+        $languages = (new LanguageController())->getAllLanguages();
+        foreach ($languages as $language) {
+            $fillables[] = 'article_name_' . $language->language_code;
+        }
+
         $updates = $request->all();
 
         $allowedUpdates = array_intersect_key($updates, array_flip($fillables));
@@ -1410,6 +1431,16 @@ class ArticleController extends Controller
         if (isset($allowedUpdates['alternatives'])) {
             $alternatives = $allowedUpdates['alternatives'];
             unset($allowedUpdates['alternatives']);
+        }
+
+        // Handle description/article_name
+        if (!isset($allowedUpdates['description'])) {
+            foreach ($languages as $language) {
+                if (!isset($allowedUpdates['article_name_' . $language->language_code])) continue;
+
+                ArticleTitleUtility::setTitle($article->id, $allowedUpdates['article_name_' . $language->language_code], $language->language_code);
+                unset($allowedUpdates['article_name_' . $language->language_code]);
+            }
         }
 
         $article->update($allowedUpdates);
@@ -1916,6 +1947,9 @@ class ArticleController extends Controller
 
         $languages = (new LanguageController())->getAllLanguages();
         foreach ($languages as $locale) {
+            if (array_key_exists('article_name_' . $locale->language_code, $data)) {
+                $data['article_name_' . $locale->language_code] = (string) $data['article_name_' . $locale->language_code];
+            }
             if (array_key_exists('shop_title_' . $locale->language_code, $data)) {
                 $data['shop_title_' . $locale->language_code] = (string) $data['shop_title_' . $locale->language_code];
             }

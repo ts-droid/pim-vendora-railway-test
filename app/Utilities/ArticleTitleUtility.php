@@ -35,6 +35,28 @@ class ArticleTitleUtility
         }
     }
 
+    public static function setTitle(int|Article $article, string $title, string $locale): void
+    {
+        if (is_int($article)) {
+            $articleID = Article::find($article)->value('id');
+        } else {
+            $articleID = $article->id;
+        }
+
+        if (!$articleID) return;
+
+        DB::table('article_titles')
+            ->where('article_id', $articleID)
+            ->where('locale', $locale)
+            ->delete();
+
+        DB::table('article_titles')->insert([
+            'article_id' => $articleID,
+            'title' => $title,
+            'locale' => $locale
+        ]);
+    }
+
     public static function translateTitles(int|Article $article): void
     {
         if (is_int($article)) {
