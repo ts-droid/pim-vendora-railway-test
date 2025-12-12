@@ -80,7 +80,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!$customer) {
             $salesOrder->update(['has_sync_error' => 1]);
 
-            $errorMessage = 'Failed to send purchase order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
+            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
 
             $salesOrderService->createLog($salesOrder->id, $errorMessage);
             NotificationService::sendMail('Failed to send order to Visma.net', $errorMessage);
@@ -94,7 +94,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if ($response['http_code'] !== 201) {
             $salesOrder->update(['has_sync_error' => 1]);
 
-            $errorMessage = 'Failed to send purchase order #' . $salesOrder->id . ' to Visma.net. Error: ' . ($response['response']['message'] ?? 'unknown-error');
+            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Error: ' . ($response['response']['message'] ?? 'unknown-error');
 
             $salesOrderService->createLog($salesOrder->id, $errorMessage);
             NotificationService::sendMail('Failed to send order to Visma.net', $errorMessage);
@@ -108,7 +108,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!$remoteLines) {
             $salesOrder->update(['has_sync_error' => 1]);
 
-            $errorMessage = 'Failed to send purchase order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
+            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
 
             $salesOrderService->createLog($salesOrder->id, $errorMessage);
             NotificationService::sendMail('Failed to send order to Visma.net', $errorMessage);
