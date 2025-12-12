@@ -55,8 +55,8 @@ class GenerateArticleTitles implements ShouldQueue
         $updates = $this->handleSellingPoints();
         $allUpdates = array_merge($allUpdates, $updates);
 
-        $updates = $this->handleMetaTitle();
-        $allUpdates = array_merge($allUpdates, $updates);
+        //$updates = $this->handleMetaTitle();
+        //$allUpdates = array_merge($allUpdates, $updates);
 
         $updates = $this->handleMetaDescription();
         $allUpdates = array_merge($allUpdates, $updates);
@@ -116,12 +116,13 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleMetaTitle(bool $returnOnly = false): array
     {
-        $response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
+        //$response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
+        $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
 
         $updates = [
-            'meta_title_' . self::BASE_LANGUAGE => $response['meta_title'],
+            'meta_title_en' => $response['article_name'],
         ];
-        $updates = $this->translateValues($updates, ['meta_title']);
+        $updates = $this->translateValues($updates, ['meta_title'], 'en');
 
         if (!$returnOnly) {
             $this->update($updates);
@@ -163,7 +164,13 @@ class GenerateArticleTitles implements ShouldQueue
     public function handleShortTitle(bool $returnOnly = false): array
     {
         $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
-        $updates = ['description' => $response['article_name']];
+
+        $updates = [
+            'description' => $response['article_name'],
+            'meta_title_en' => $response['article_name'],
+        ];
+
+        $updates = $this->translateValues($updates, ['meta_title'], 'en');
 
         if (!$returnOnly) {
             $this->update($updates);
@@ -203,16 +210,18 @@ class GenerateArticleTitles implements ShouldQueue
         }
     }
 
-    private function translateValues(array $array, array $keys): array
+    private function translateValues(array $array, array $keys, ?string $baseLocale = null): array
     {
         $translationController = new TranslationController();
         $languages = (new LanguageController())->getAllLanguages();
 
+        $baseLocale = $baseLocale ?: self::BASE_LANGUAGE;
+
         foreach ($languages as $language) {
-            if ($language->language_code == self::BASE_LANGUAGE) continue;
+            if ($language->language_code == $baseLocale) continue;
 
             foreach ($keys as $key) {
-                $array[$key . '_' . $language->language_code] = $translationController->translate([$array[$key . '_' . self::BASE_LANGUAGE]], self::BASE_LANGUAGE, $language->language_code)[0];
+                $array[$key . '_' . $language->language_code] = $translationController->translate([$array[$key . '_' . $baseLocale]], $baseLocale, $language->language_code)[0];
             }
         }
 
