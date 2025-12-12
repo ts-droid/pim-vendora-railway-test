@@ -1762,7 +1762,7 @@ class ArticleController extends Controller
         $updates = $job->handleLongTitle(true);
 
         return ApiResponseController::success([
-            'value' => ($updates['long_title_en'] ?? '')
+            'value' => ($updates['shop_title_en'] ?? '')
         ]);
     }
 
@@ -1782,7 +1782,7 @@ class ArticleController extends Controller
         $updates = $job->handlePremiumIntroText(true);
 
         return ApiResponseController::success([
-            'value' => ($updates['premium_introtext_en'] ?? '')
+            'value' => ($updates['shop_marketing_description_en'] ?? '')
         ]);
     }
 
