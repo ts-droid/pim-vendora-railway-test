@@ -1440,6 +1440,12 @@ class ArticleController extends Controller
 
                 ArticleTitleUtility::setTitle($article, $allowedUpdates['article_name_' . $language->language_code], $language->language_code);
                 unset($allowedUpdates['article_name_' . $language->language_code]);
+
+                if ($language->language_code == 'en') {
+                    DB::table('articles')
+                        ->where('id', $article->id)
+                        ->update(['description' => $allowedUpdates['article_name_' . $language->language_code]]);
+                }
             }
         }
 
