@@ -253,6 +253,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/stock-data', [ArticleController::class, 'getStockData'])->name('articles.getStockData');
         Route::get('/order-row', [ArticleController::class, 'getDataForOrderRow'])->name('articles.getDataForOrderRow');
 
+        Route::get('/set-marked', [ArticleController::class, 'setMarked']);
+
         Route::post('/relate', [ArticleController::class, 'relateArticles'])->name('articles.relateArticles');
         Route::post('/relate/suggest', [ArticleController::class, 'getRelateArticlesSuggestions'])->name('articles.getRelateArticlesSuggestions');
         Route::post('/relate/delete', [ArticleController::class, 'deleteRelateArticles'])->name('articles.deleteRelateArticles');

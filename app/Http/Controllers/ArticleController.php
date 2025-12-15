@@ -238,6 +238,29 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function setMarked(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+        $flag = (bool) $request->input('flag');
+
+        if (!$articleIDs) {
+            return ApiResponseController::success();
+        }
+
+        if ($flag) {
+            foreach ($articleIDs as $articleID) {
+                DB::table('marked_articles')->updateOrInsert(
+                    ['article_id' => $articleID],
+                    ['updated_at' => now()]
+                );
+            }
+        } else {
+            DB::table('marked_articles')->whereIn('article_id', $articleIDs)->delete();
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function relateArticles(Request $request)
     {
         $articleIDs = $request->input('article_ids', []);
@@ -371,6 +394,14 @@ class ArticleController extends Controller
                     $query->whereIn($filter[0], $filter[1]);
                 }
             }
+        }
+
+        if ($request->input('only_marked', false)) {
+            $markedArticleIDs = DB::table('marked_articles')
+                ->pluck('article_id')
+                ->toArray();
+
+            $query->whereIn('id', $markedArticleIDs);
         }
 
         if ($request->input('only_uncompleted')) {
