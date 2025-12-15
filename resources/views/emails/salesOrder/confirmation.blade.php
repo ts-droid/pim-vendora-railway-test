@@ -94,7 +94,7 @@ if ($salesOrder->lines ?? false) {
                                     {{ $salesOrder->shippingAddress->street_line_2 }}<br>
                                 @endif
                                 {{ $salesOrder->shippingAddress->postal_code }} {{ $salesOrder->shippingAddress->city }}<br>
-                                {{ $salesOrder->shippingAddress->country_code }}
+                                {{ get_country_name($salesOrder->shippingAddress->country_code, app()->getLocale()) }}
                             @endif
                         </td>
                     </tr>
@@ -158,7 +158,7 @@ if ($salesOrder->lines ?? false) {
                                                 <p style="margin:0;">{{ $salesOrder->billingAddress->street_line_2 }}</p>
                                             @endif
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->postal_code }} {{ $salesOrder->billingAddress->city }}</p>
-                                            <p style="margin:0;">{{ $salesOrder->billingAddress->country_code }}</p>
+                                            <p style="margin:0;">{{ get_country_name($salesOrder->billingAddress->country_code, app()->getLocale()) }}</p>
                                         @endif
                                         @if($salesOrder->vat_number)
                                             <p style="margin:0;">{{ $salesOrder->vat_number }}</p>

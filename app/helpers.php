@@ -4,6 +4,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Intl\Countries;
 
+if (!function_exists('get_country_name')) {
+    function get_country_name(string $countryCode, string $locale = 'en'): string
+    {
+        return \Symfony\Component\Intl\Countries::getName($countryCode, $locale);
+    }
+}
+
 if (!function_exists('get_google_product_categories')) {
     function get_google_product_categories()
     {
