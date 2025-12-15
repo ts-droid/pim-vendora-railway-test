@@ -121,6 +121,14 @@ class AppShipmentController extends Controller
     {
         $shipment->load('address', 'lines', 'lines.article');
 
+        if ($shipment->address) {
+            if ($shipment->address->country_code) {
+                $shipment->address->country_name = get_country_name($shipment->address->country_code, 'en');
+            } else {
+                $shipment->address->country_name = '';
+            }
+        }
+
         foreach ($shipment->lines as &$line) {
             $line->order_quantity = $line->orderQuantity();
 
