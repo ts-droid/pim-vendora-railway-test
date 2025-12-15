@@ -1268,7 +1268,7 @@ class ArticleController extends Controller
         $description = $request->input('description');
         $articleName = $request->input('article_name_en');
 
-        if (!$description || !$articleName) {
+        if (!$description && !$articleName) {
             return ApiResponseController::error('Missing required fields: description or article_name_en.');
         }
 
