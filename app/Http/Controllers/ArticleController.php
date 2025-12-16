@@ -1306,6 +1306,14 @@ class ArticleController extends Controller
             return ApiResponseController::error('Failed to create article.');
         }
 
+        // Store attributes
+        foreach ($request->all() as $key => $value) {
+            if (!str_starts_with($key, 'attribute_')) continue;
+
+            $value = (string) $value;
+            $article->storeAttribute($key, $value);
+        }
+
         if ($alternatives !== null) {
             $this->updateAlternatives($article, $alternatives);
         }
@@ -1482,6 +1490,14 @@ class ArticleController extends Controller
         }
 
         $article->update($allowedUpdates);
+
+        // Update attributes
+        foreach ($request->all() as $key => $value) {
+            if (!str_starts_with($key, 'attribute_')) continue;
+
+            $value = (string) $value;
+            $article->storeAttribute($key, $value);
+        }
 
         trigger_stock_sync($article->article_number);
 

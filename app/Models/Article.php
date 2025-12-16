@@ -12,6 +12,7 @@ use App\Utilities\ArticleTitleUtility;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 class Article extends Model
 {
@@ -142,6 +143,33 @@ class Article extends Model
     public function faqEntries()
     {
         return $this->hasMany(ArticleFaqEntry::class, 'article_id', 'id');
+    }
+
+    public function attributes()
+    {
+        return $this->hasMany(ArticleAttribute::class, 'article_id', 'id');
+    }
+
+    public function storeAttribute(string $attribute, string $value)
+    {
+        if ($value) {
+            DB::table('article_attributes')->updateOrInsert(
+                [
+                    'article_id' => $this->id,
+                    'attribute' => $attribute,
+                ],
+                [
+                    'value' => $value,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        } else {
+            DB::table('article_attributes')
+                ->where('article_id', $this->id)
+                ->where('attribute', $attribute)
+                ->delete();
+        }
     }
 
     public function getAttribute($key)
