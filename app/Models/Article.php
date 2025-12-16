@@ -145,7 +145,7 @@ class Article extends Model
         return $this->hasMany(ArticleFaqEntry::class, 'article_id', 'id');
     }
 
-    public function attributes()
+    public function articleAttributes()
     {
         return $this->hasMany(ArticleAttribute::class, 'article_id', 'id');
     }
@@ -157,7 +157,7 @@ class Article extends Model
                 ->where('article_id', $articleID)
                 ->get();
         } else {
-            $attributes = $this->attributes;
+            $attributes = $this->articleAttributes;
         }
 
         $array = [];
