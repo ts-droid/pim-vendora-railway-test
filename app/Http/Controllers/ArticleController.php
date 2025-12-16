@@ -1497,8 +1497,6 @@ class ArticleController extends Controller
             }
         }
 
-        $article->update($allowedUpdates);
-
         // Update attributes
         foreach ($request->all() as $key => $value) {
             if (!str_starts_with($key, 'attribute_')) continue;
@@ -1508,6 +1506,8 @@ class ArticleController extends Controller
 
             $article->storeAttribute($key, $value);
         }
+
+        $article->update($allowedUpdates);
 
         trigger_stock_sync($article->article_number);
 

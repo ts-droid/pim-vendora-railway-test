@@ -188,6 +188,8 @@ class Article extends Model
                 ->where('attribute', $attribute)
                 ->delete();
         }
+
+        (new DispatchArticleUpdate)->execute($this->id, false, [], true);
     }
 
     public function getAttribute($key)
