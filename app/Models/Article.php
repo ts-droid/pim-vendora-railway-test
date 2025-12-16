@@ -150,6 +150,16 @@ class Article extends Model
         return $this->hasMany(ArticleAttribute::class, 'article_id', 'id');
     }
 
+    public function getAttributesArray()
+    {
+        $array = [];
+        foreach ($this->attributes as $attribute) {
+            $array[$attribute->attribute] = $attribute->value;
+        }
+
+        return $array;
+    }
+
     public function storeAttribute(string $attribute, string $value)
     {
         if ($value) {

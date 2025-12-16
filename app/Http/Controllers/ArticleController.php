@@ -551,6 +551,12 @@ class ArticleController extends Controller
             }
         }
 
+        if ($request->has('expand_attributes') && $articles) {
+            foreach($articles as &$article) {
+                $article['attributes'] = $article->getAttributesArray();
+            }
+        }
+
         // Use different translations?
         $translationServiceID = translation_service();
         if ($translationServiceID) {
