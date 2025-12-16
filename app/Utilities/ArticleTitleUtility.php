@@ -28,6 +28,11 @@ class ArticleTitleUtility
             $title = $article->description;
         }
 
+        $articleAttributes = $article->getAttributesArray();
+        if ($articleAttributes['exclude_color'] ?? false) {
+            $includeColor = false;
+        }
+
         if ($includeColor) {
             return $title . ($color ? (' - ' . $color) : '');
         } else {

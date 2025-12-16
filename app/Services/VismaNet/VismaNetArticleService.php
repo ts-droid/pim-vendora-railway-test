@@ -96,8 +96,10 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function getPostData(Article $article, bool $isNewArticle = false): array
     {
+        $articleAttributes = $article->getAttributesArray();
+
         $description = $article->description;
-        if ($article->color_en ?? '') {
+        if (($article->color_en ?? '') && !($articleAttributes['exclude_color'] ?? false)) {
             $description = $description . ' - ' . $article->color_en;
         }
         $description = preg_replace('/[^a-zA-Z0-9\s\-åäöÅÄÖ()]/u', '', $description);
