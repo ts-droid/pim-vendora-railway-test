@@ -1316,7 +1316,9 @@ class ArticleController extends Controller
         foreach ($request->all() as $key => $value) {
             if (!str_starts_with($key, 'attribute_')) continue;
 
+            $key = str_replace('attribute_', '', $key);
             $value = (string) $value;
+
             $article->storeAttribute($key, $value);
         }
 
@@ -1501,7 +1503,9 @@ class ArticleController extends Controller
         foreach ($request->all() as $key => $value) {
             if (!str_starts_with($key, 'attribute_')) continue;
 
+            $key = str_replace('attribute_', '', $key);
             $value = (string) $value;
+
             $article->storeAttribute($key, $value);
         }
 
