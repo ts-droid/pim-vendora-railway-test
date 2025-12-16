@@ -553,7 +553,7 @@ class ArticleController extends Controller
 
         if ($request->has('expand_attributes') && $articles) {
             foreach($articles as &$article) {
-                $article['attributes'] = $article->getAttributesArray($article['id']);
+                $article['attributes'] = (new Article())->getAttributesArray($article['id']);
             }
         }
 
