@@ -150,10 +150,18 @@ class Article extends Model
         return $this->hasMany(ArticleAttribute::class, 'article_id', 'id');
     }
 
-    public function getAttributesArray()
+    public function getAttributesArray(int $articleID = 0)
     {
+        if ($articleID) {
+            $attributes = DB::table('article_attributes')
+                ->where('article_id', $articleID)
+                ->get();
+        } else {
+            $attributes = $this->attributes;
+        }
+
         $array = [];
-        foreach ($this->attributes as $attribute) {
+        foreach ($attributes as $attribute) {
             $array[$attribute->attribute] = $attribute->value;
         }
 

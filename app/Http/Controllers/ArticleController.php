@@ -508,15 +508,7 @@ class ArticleController extends Controller
             $query->limit(500)->offset(($page - 1) * 500);
         }
 
-        $articles = $query->get();
-
-        if ($request->has('expand_attributes') && $articles) {
-            foreach($articles as &$article) {
-                $article->attributes = $article->getAttributesArray();
-            }
-        }
-
-        $articles = $articles->toArray();
+        $articles = $query->get()->toArray();
 
         // Convert article objects into an array
         $articles = array_map(function ($article) {
@@ -556,6 +548,12 @@ class ArticleController extends Controller
                 foreach ($languages as $language) {
                     $article['article_name_' . $language->language_code] = ArticleTitleUtility::getTitle($article['id'], $language->language_code, false);
                 }
+            }
+        }
+
+        if ($request->has('expand_attributes') && $articles) {
+            foreach($articles as &$article) {
+                $article['attributes'] = $article->getAttributesArray($article['id']);
             }
         }
 
