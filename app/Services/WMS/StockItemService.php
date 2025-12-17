@@ -103,7 +103,7 @@ class StockItemService
         try {
             $oldStockPlaceCompartment = StockPlaceCompartment::find($stockItem->stock_place_compartment_id);
 
-            if (!$storeLog) {
+            if ($storeLog) {
                 $this->logChange($stockItem->article_number, $stockItem->stock_place_compartment_id, -1, $signature, $source);
                 $this->logChange($stockItem->article_number, $stockPlaceCompartment->id, 1, $signature, $source);
             }
