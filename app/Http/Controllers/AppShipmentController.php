@@ -250,128 +250,133 @@ class AppShipmentController extends Controller
 
     public function pick(Request $request, Shipment $shipment)
     {
-        // Make sure there is not another request currently ongoing for the same shipment
         $lockKey = 'shipment:pick:' . $shipment->id;
+        $lock = Cache::lock($lockKey, 900); // 15 minutes lock
 
-        $lock = Cache::lock($lockKey, 120);
         if (!$lock->get()) {
             return ApiResponseController::error('Shipment is currently being picked by another user. Please try again later.');
         }
 
         try {
-            // Make sure that the shipment is not already picked
-            if ($shipment->internal_status != ShipmentInternalStatus::OPEN) {
-                return ApiResponseController::error('Shipment is not in a valid state for picking.');
-            }
-
             $displayName = get_display_name();
-
-            $lines = $request->input('lines');
-            if (!is_array($lines)) {
-                $lines = json_decode($lines, true);
-            }
-
-            if ($lines && is_array($lines)) {
-                foreach ($lines as $line) {
-                    $lineID = $line['id'] ?? 0;
-                    $quantity = $line['quantity'] ?? 0;
-                    $pickingLocations = $line['picking_locations'] ?? ['--'];
-                    $pickingLocationQuantity = $line['picking_location_quantity'] ?? [];
-
-                    $serialNumbers = $line['serial_numbers'] ?? '';
-                    $serialNumbers = explode(',', $serialNumbers);
-                    $serialNumbers = array_map('trim', $serialNumbers);
-                    $serialNumbers = array_filter($serialNumbers);
-
-                    $shipmentLine = ShipmentLine::where('shipment_id', '=', $shipment->id)
-                        ->where('id', '=', $lineID)
-                        ->first();
-
-                    if (!$shipmentLine) continue;
-
-                    $articleData = DB::table('articles')
-                        ->select('serial_number_management')
-                        ->where('article_number', '=', $shipmentLine->article_number)
-                        ->first();
-
-                    $serialNumberManagement = $articleData->serial_number_management ?? 0;
-
-                    if ($serialNumberManagement && count($serialNumbers) != $quantity) {
-                        return ApiResponseController::error('Missing serial numbers for all articles (' . $shipmentLine->article_number . ').');
-                    }
-
-                    $shipmentLine->update([
-                        'picked_quantity' => $quantity,
-                        'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : '',
-                        'picking_location' => json_encode($pickingLocations),
-                        'picking_location_quantity' => json_encode($pickingLocationQuantity),
-                    ]);
-                }
-            }
-
             $stockItemService = new StockItemService();
             $stockPlaceService = new StockPlaceService();
 
-            // Get fresh pair of shipment lines
-            $shipmentLines = ShipmentLine::where('shipment_id', '=', $shipment->id)->get();
+            return DB::transaction(function () use ($request, $shipment, $displayName, $stockItemService, $stockPlaceService) {
+                $lockedShipment = Shipment::whereKey($shipment->id)->lockForUpdate()->first();
+                $lockedShipment->refresh();
 
-            $markForInvestigation = false;
+                if ($lockedShipment->internal_status !== ShipmentInternalStatus::OPEN) {
+                    return ApiResponseController::error('Shipment is not in a valid state for picking.');
+                }
 
-            if ($shipmentLines) {
+                $lines = $request->input('lines');
+                if (!is_array($lines)) {
+                    $lines = json_decode($lines, true);
+                }
+
+                if ($lines && is_array($lines)) {
+                    foreach ($lines as $line) {
+                        $lineID = $line['id'] ?? 0;
+                        $quantity = $line['quantity'] ?? 0;
+                        $pickingLocations = $line['picking_locations'] ?? ['--'];
+                        $pickingLocationQuantity = $line['picking_location_quantity'] ?? [];
+
+                        $serialNumbers = array_filter(array_map('trim', explode(',', $line['serial_numbers'] ?? '')));
+
+                        $shipmentLine = ShipmentLine::where('shipment_id', $lockedShipment->id)
+                            ->where('id', $lineID)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if (!$shipmentLine) {
+                            continue;
+                        }
+
+                        $articleData = DB::table('articles')
+                            ->select('serial_number_management')
+                            ->where('article_number', '=', $shipmentLine->article_number)
+                            ->first();
+
+                        $serialNumberManagement = $articleData->serial_number_management ?? 0;
+                        if ($serialNumberManagement && count($serialNumbers) !== $quantity) {
+                            return ApiResponseController::error('Missing serial numbers for all articles (' . $shipmentLine->article_number . ').');
+                        }
+
+                        $shipmentLine->update([
+                            'picked_quantity' => $quantity,
+                            'serial_number' => $serialNumbers ? implode(',', $serialNumbers) : '',
+                            'picking_location' => json_encode($pickingLocations),
+                            'picking_location_quantity' => json_encode($pickingLocationQuantity),
+                        ]);
+                    }
+                }
+
+                $shipmentLines = ShipmentLine::where('shipment_id', $lockedShipment->id)->lockForUpdate()->get();
+                $markForInvestigation = false;
+                $utlevCompartment = $stockPlaceService->getCompartmentByIdentifier('UTLEV:1');
+
+                if (!$utlevCompartment) {
+                    return ApiResponseController::error('Destination compartment UTLEV:1 is missing.');
+                }
+
                 foreach ($shipmentLines as $shipmentLine) {
-                    $pickingLocations = json_decode($shipmentLine->picking_location, true);
-                    $pickingLocationQuantities = json_decode($shipmentLine->picking_location_quantity, true);
+                    $pickingLocations = json_decode($shipmentLine->picking_location, true) ?: [];
+                    $pickingLocationQuantities = json_decode($shipmentLine->picking_location_quantity, true) ?: [];
 
                     if ($shipmentLine->shipped_quantity != $shipmentLine->picked_quantity) {
                         $markForInvestigation = true;
                     }
 
-                    for ($i = 0;$i < count($pickingLocations);$i++) {
-                        $pickingLocation = $pickingLocations[$i];
-                        $qty = $pickingLocationQuantities[$i] ?? 0;
-
-                        if ($pickingLocation == '--') {
+                    foreach ($pickingLocations as $index => $identifier) {
+                        if ($identifier === '--') {
                             continue;
                         }
 
-                        $compartment = $stockPlaceService->getCompartmentByIdentifier($pickingLocation);
-                        $newCompartment = $stockPlaceService->getCompartmentByIdentifier('UTLEV:1');
+                        $qty = (int) ($pickingLocationQuantities[$index] ?? 0);
+                        if ($qty <= 0) {
+                            continue;
+                        }
 
-                        if ($newCompartment) {
-                            $stockItemService->moveStockItems(
-                                $shipmentLine->article_number,
-                                $qty,
-                                $compartment,
-                                $newCompartment,
-                                $displayName,
-                                ('Picked shipment #' . $shipment->id)
-                            );
+                        $fromCompartment = $stockPlaceService->getCompartmentByIdentifier($identifier);
+                        if (!$fromCompartment) {
+                            return ApiResponseController::error('Invalid picking location: ' . $identifier);
+                        }
+
+                        $result = $stockItemService->moveStockItems(
+                            $shipmentLine->article_number,
+                            $qty,
+                            $fromCompartment,
+                            $utlevCompartment,
+                            $displayName,
+                            'Picked shipment #' . $lockedShipment->id
+                        );
+
+                        if (!$result['success']) {
+                            return ApiResponseController::error($result['message']);
                         }
                     }
                 }
-            }
 
-            // Mark as picked
-            $shipment->update([
-                'pick_signature' => $displayName,
-                'internal_status' => $markForInvestigation ? ShipmentInternalStatus::INVESTIGATE : ShipmentInternalStatus::PICKED,
-                'ping_at' => 0
-            ]);
+                $lockedShipment->update([
+                    'pick_signature' => $displayName,
+                    'internal_status' => $markForInvestigation ? ShipmentInternalStatus::INVESTIGATE : ShipmentInternalStatus::PICKED,
+                    'ping_at' => 0,
+                ]);
 
-            $shipment->load('address', 'lines', 'lines.article');
-
-            // Update order status
-            if ($shipment->order_numbers) {
-                foreach ($shipment->order_numbers as $orderNumber) {
-                    $salesOrder = SalesOrder::where('order_number', '=', $orderNumber)->first();
-
-                    if (!$salesOrder) continue;
-
-                    $salesOrder->update(['status_shipment_picked' => 1,]);
+                if ($lockedShipment->order_numbers) {
+                    foreach ($lockedShipment->order_numbers as $orderNumber) {
+                        $salesOrder = SalesOrder::where('order_number', $orderNumber)->first();
+                        if ($salesOrder) {
+                            $salesOrder->update(['status_shipment_picked' => 1]);
+                        }
+                    }
                 }
-            }
 
-            return ApiResponseController::success($shipment->toArray());
+                $lockedShipment->load('address', 'lines', 'lines.article');
+
+                return ApiResponseController::success($lockedShipment->toArray());
+            });
         } finally {
             $lock->release();
         }
