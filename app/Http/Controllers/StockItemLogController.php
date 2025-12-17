@@ -27,7 +27,7 @@ class StockItemLogController extends Controller
                 }
             }
 
-            $stockLogsQuery->orderBy('created_at', 'desc');
+            $stockLogsQuery->orderBy('created_at', 'desc')->orderBy('id', 'DESC');
 
             $stockLogs = $stockLogsQuery->get();
         }
