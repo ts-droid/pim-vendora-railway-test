@@ -9,6 +9,8 @@ class StockOptimizationController extends Controller
 {
     public function optimizeStock()
     {
+        return ApiResponseController::error('Disabled');
+
         OptimizeStock::dispatch()->onQueue('main');
 
         return ApiResponseController::success();
