@@ -224,6 +224,8 @@ class WarehouseHelper
                             $layer = 2;
                         } elseif (str_contains($template->name, 'LVL3')) {
                             $layer = 3;
+                        } elseif (str_contains($template->name, 'LVL4')) {
+                            $layer = 4;
                         }
                     }
                 }
