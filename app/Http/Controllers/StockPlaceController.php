@@ -298,6 +298,9 @@ class StockPlaceController extends Controller
             if (str_contains($template->name, 'LVL3')) {
                 $compartmentsLevel = 3;
             }
+            if (str_contains($template->name, 'LVL4')) {
+                $compartmentsLevel = 4;
+            }
 
             foreach ($template->data as $templateData) {
                 $compartmentsData[] = [
