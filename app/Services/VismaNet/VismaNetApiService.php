@@ -195,7 +195,7 @@ class VismaNetApiService
      * @param array $params
      * @return array
      */
-    protected function getPagedResult(string $endpoint, array $params = []): array
+    public function getPagedResult(string $endpoint, array $params = []): array
     {
         $params['pageSize'] = $this->defaultPageSize;
 
