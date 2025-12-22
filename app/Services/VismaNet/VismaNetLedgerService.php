@@ -48,7 +48,7 @@ class VismaNetLedgerService extends VismaNetApiService
 
         $externalId = ($transaction['refNumber'] ?? '') . '-' . ($transaction['lineNumber'] ?? '');
 
-        $trans = DB::table('ledger_transactions')->where('external_id', $externalId)->first();
+        $trans = DB::table('ledger_account_transactions')->where('external_id', $externalId)->first();
 
         $transactionData = [
             'external_id' => $externalId,
@@ -64,12 +64,12 @@ class VismaNetLedgerService extends VismaNetApiService
         ];
 
         if ($trans) {
-            DB::table('ledger_transactions')
+            DB::table('ledger_account_transactions')
                 ->where('external_id', $externalId)
                 ->update($transactionData);
         } else {
             $transactionData['created_at'] = now();
-            DB::table('ledger_transactions')->insert($transactionData);
+            DB::table('ledger_account_transactions')->insert($transactionData);
         }
     }
 

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('ledger_transactions', function (Blueprint $table) {
+        Schema::create('ledger_account_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('external_id')->unique()->index();
             $table->string('account_number')->index();
