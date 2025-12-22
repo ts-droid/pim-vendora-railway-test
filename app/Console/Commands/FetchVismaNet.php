@@ -11,6 +11,7 @@ use App\Services\VismaNet\VismaNetCustomerPaymentService;
 use App\Services\VismaNet\VismaNetInventoryAdjustmentService;
 use App\Services\VismaNet\VismaNetInventoryIssueService;
 use App\Services\VismaNet\VismaNetInventoryTransferService;
+use App\Services\VismaNet\VismaNetLedgerService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\VismaNet\VismaNetTransactionService;
@@ -84,6 +85,11 @@ class FetchVismaNet extends Command
                 $vismaNetController->fetchCustomerCreditNotes();
                 break;
 
+            case 'ledger-transactions':
+                $ledgerService = new VismaNetLedgerService();
+                $ledgerService->fetchTransactions();
+                break;
+
             case 'purchase-orders':
                 $vismaNetController->fetchPurchaseOrders();
                 break;
@@ -152,6 +158,9 @@ class FetchVismaNet extends Command
             case 'hourly':
                 $this->info('Fetching credit notes...');
                 Process::timeout(3600)->run('php artisan visma:fetch credit-notes');
+
+                // $this->info('Fetching ledger transactions...');
+                // Process::timeout(3600)->run('php artisan visma:fetch ledger-transactions');
                 break;
 
             case 'quick':
