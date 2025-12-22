@@ -13,10 +13,12 @@ class VismaNetLedgerService extends VismaNetApiService
         $fetchedData = false;
 
         $params = [
+            'ledger' => '1', // Redovisning
             'pageSize' => 1000
         ];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_ledger_transactions_fetch');
+        $updatedAfter = $updatedAfter ?: '2024-01-01 00:00:00';
 
         if ($updatedAfter) {
             $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-10 minutes', strtotime($updatedAfter)));
