@@ -22,17 +22,22 @@ class AdminReportControll extends Controller
         $report = [];
         foreach ($accountPlan as $accountGroup) {
             $accounts = [];
+            $totalBalance = 0;
+
             foreach ($accountGroup['accounts'] as $accountNumber) {
                 $accounts[] = [
                     'number' => $accountNumber,
                     'description' => 'tba',
                     'balance' => 0
                 ];
+
+                $totalBalance += 0;
             }
 
             $report[] = [
                 'name' => $accountGroup['name'] ?? '',
                 'accounts' => $accounts,
+                'balance' => $totalBalance,
             ];
         }
 
