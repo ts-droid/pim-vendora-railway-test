@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminReportControll extends Controller
 {
@@ -25,13 +26,23 @@ class AdminReportControll extends Controller
             $totalBalance = 0;
 
             foreach ($accountGroup['accounts'] as $accountNumber) {
+                $accountDescription = DB::table('ledger_account')
+                    ->where('number', $accountNumber)
+                    ->value('description');
+
+                $accountBalance = (float) DB::table('ledger_account_transactions')
+                    ->where('account_number', $accountNumber)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->selectRaw('SUM(debit - credit) AS balance')
+                    ->value('balance');
+
                 $accounts[] = [
                     'number' => $accountNumber,
-                    'description' => 'tba',
-                    'balance' => 0
+                    'description' => $accountDescription,
+                    'balance' => $accountBalance
                 ];
 
-                $totalBalance += 0;
+                $totalBalance += $accountBalance;
             }
 
             $report[] = [
