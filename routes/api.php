@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminReportControll;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\Api\SalesOrderApiController;
 use App\Http\Controllers\Api\TodoController;
@@ -407,6 +408,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/top-articles', [TopArticlesController::class, 'index'])->name('reports.topArticles');
         Route::get('/top-customers', [TopCustomersController::class, 'index'])->name('reports.topCustomers');
         Route::get('/top-sales-persons', [TopSalesPersonsController::class, 'index'])->name('reports.topSalesPersons');
+
+        Route::get('/admin-report', [AdminReportControll::class, 'index']);
 
         Route::get('/payment-report', [PaymentReportController::class, 'index']);
 
