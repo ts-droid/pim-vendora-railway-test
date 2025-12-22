@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ledger_account', function (Blueprint $table) {
-            $table->string('number')->unique();
+            $table->string('number')->unique()->index();
             $table->string('type')->nullable();
             $table->string('description')->nullable();
             $table->timestamps();
@@ -20,9 +20,9 @@ return new class extends Migration
 
         Schema::create('ledger_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('external_id')->unique();
-            $table->string('account_number');
-            $table->string('date');
+            $table->string('external_id')->unique()->index();
+            $table->string('account_number')->index();
+            $table->string('date')->index();
             $table->string('period');
             $table->string('module')->nullable();
             $table->string('description')->nullable();
