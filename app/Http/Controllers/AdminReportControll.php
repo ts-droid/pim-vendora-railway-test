@@ -16,33 +16,42 @@ class AdminReportControll extends Controller
             return ApiResponseController::error('Start date and end date are required.');
         }
 
-
         $accountPlan = ConfigController::getConfig('admin_report_account_plan', '[]');
         $accountPlan = json_decode($accountPlan, true);
+
+        // Flatten all account numbers from the plan
+        $allAccounts = collect($accountPlan)
+            ->flatMap(fn ($g) => $g['accounts'] ?? [])
+            ->unique()
+            ->values()
+            ->all();
+
+        // One query: balances + descriptions
+        $rows = DB::table('ledger_account_transactions as t')
+            ->join('ledger_account as a', 'a.number', '=', 't.account_number')
+            ->whereBetween('t.date', [$startDate, $endDate])
+            ->whereIn('t.account_number', $allAccounts)
+            ->groupBy('t.account_number', 'a.description')
+            ->selectRaw('t.account_number, a.description, SUM(t.debit - t.credit) as balance')
+            ->get();
+
+        $byAccount = $rows->keyBy('account_number');
 
         $report = [];
         foreach ($accountPlan as $accountGroup) {
             $accounts = [];
-            $totalBalance = 0;
+            $totalBalance = 0.0;
 
-            foreach ($accountGroup['accounts'] as $accountNumber) {
-                $accountDescription = DB::table('ledger_account')
-                    ->where('number', $accountNumber)
-                    ->value('description');
+            foreach (($accountGroup['accounts'] ?? []) as $accountNumber) {
+                $row = $byAccount->get($accountNumber);
 
-                $accountBalance = (float) DB::table('ledger_account_transactions')
-                    ->where('account_number', $accountNumber)
-                    ->whereBetween('date', [$startDate, $endDate])
-                    ->selectRaw('SUM(debit - credit) AS balance')
-                    ->value('balance');
-
+                $balance = (float) ($row->balance ?? 0);
                 $accounts[] = [
                     'number' => $accountNumber,
-                    'description' => $accountDescription,
-                    'balance' => $accountBalance
+                    'description' => $row->description ?? '',
+                    'balance' => $balance
                 ];
-
-                $totalBalance += $accountBalance;
+                $totalBalance += $balance;
             }
 
             $report[] = [
