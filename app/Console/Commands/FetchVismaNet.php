@@ -159,8 +159,8 @@ class FetchVismaNet extends Command
                 $this->info('Fetching credit notes...');
                 Process::timeout(3600)->run('php artisan visma:fetch credit-notes');
 
-                // $this->info('Fetching ledger transactions...');
-                // Process::timeout(3600)->run('php artisan visma:fetch ledger-transactions');
+                $this->info('Fetching ledger transactions...');
+                Process::timeout(3600)->run('php artisan visma:fetch ledger-transactions');
                 break;
 
             case 'quick':
