@@ -32,7 +32,7 @@ class AdminReportControll extends Controller
             ->whereBetween('t.date', [$startDate, $endDate])
             ->whereIn('t.account_number', $allAccounts)
             ->groupBy('t.account_number', 'a.description')
-            ->selectRaw('t.account_number, a.description, SUM(t.debit - t.credit) as balance')
+            ->selectRaw('t.account_number, a.description, SUM(t.credit - t.debit) as balance')
             ->get();
 
         $byAccount = $rows->keyBy('account_number');
