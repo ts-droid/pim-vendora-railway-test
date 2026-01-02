@@ -6,6 +6,27 @@ use App\Services\AI\OpenAIService;
 
 class ProductImageGenerator
 {
+    const MODEL = 'gpt-5.2-2025-12-11';
+    const IMAGE_MODEL = 'gpt-image-1.5';
+
+    public function generateLifestyleImageQuick(
+        string $productDescription,
+        string $productImageURL,
+        string $prompt = ''
+    ): ?string
+    {
+        $prompt = $prompt . PHP_EOL . PHP_EOL . 'Product description:' . PHP_EOL . $productDescription;
+
+        $imageMime = $this->getImageMimeTypeByExtension($productImageURL);
+        $imageBase64 = base64_encode(file_get_contents($productImageURL));
+        $imageBase64 = 'data:' . $imageMime . ';base64,' . $imageBase64;
+
+        $openAiService = new OpenAIService(self::MODEL);
+        $response = $openAiService->generateImageV2($prompt, $imageBase64, $imageMime, self::IMAGE_MODEL);
+
+        return $this->getImageFromResponse($response);
+    }
+
     public function generateLifestyleImage(
         string $productDescription,
         string $productImageURL,
@@ -14,7 +35,7 @@ class ProductImageGenerator
         string $imageGenerationPrompt = ''
     ): ?string
     {
-        $openAiService = new OpenAIService('gpt-5.2-2025-12-11');
+        $openAiService = new OpenAIService(self::MODEL);
 
 
         // First generate a description of the product image
@@ -34,12 +55,16 @@ class ProductImageGenerator
         $imageGenerationPrompt .= PHP_EOL . PHP_EOL . 'Product webshop description: ' . PHP_EOL . $productDescription;
 
         $imageMime = $this->getImageMimeTypeByExtension($productImageURL);
-
         $imageBase64 = base64_encode(file_get_contents($productImageURL));
         $imageBase64 = 'data:' . $imageMime . ';base64,' . $imageBase64;
 
-        $response = $openAiService->generateImageV2($imageGenerationPrompt, $imageBase64, $imageMime, 'gpt-image-1.5');
+        $response = $openAiService->generateImageV2($imageGenerationPrompt, $imageBase64, $imageMime, self::IMAGE_MODEL);
 
+        return $this->getImageFromResponse($response);
+    }
+
+    private function getImageFromResponse(mixed$response): ?string
+    {
         $outputImageBase64 = null;
 
         if (!empty($response['data'][0]['b64_json'])) {
