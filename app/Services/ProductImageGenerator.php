@@ -7,8 +7,6 @@ use PHPUnit\Event\Runtime\PHP;
 
 class ProductImageGenerator
 {
-    const MODEL = 'gpt-4o';
-
     public function generateLifestyleImage(
         string $productDescription,
         string $productImageURL,
@@ -17,7 +15,8 @@ class ProductImageGenerator
         string $imageGenerationPrompt = ''
     ): ?string
     {
-        $openAiService = new OpenAIService(self::MODEL);
+        $defaultModel = default_ai_model();
+        $openAiService = new OpenAIService($defaultModel);
 
 
         // First generate a description of the product image
@@ -41,21 +40,16 @@ class ProductImageGenerator
         $imageBase64 = base64_encode(file_get_contents($productImageURL));
         $imageBase64 = 'data:' . $imageMime . ';base64,' . $imageBase64;
 
-        $response = $openAiService->generateImage($imageGenerationPrompt, $imageBase64);
+        $response = $openAiService->generateImageV2($imageGenerationPrompt, $imageBase64, 'gpt-image-1.5-2025-12-16');
 
         $outputImageBase64 = null;
 
-        if (isset($response['output'])) {
-            foreach ($response['output'] as $output) {
-                if ($output['type'] == 'image_generation_call') {
-                    $outputImageBase64 = 'data:' . $imageMime . ';base64,' . $output['result'];
-                    break;
-                }
-            }
+        if (!empty($response['data'][0]['b64_json'])) {
+            $imageMime = 'image/png';
+            $outputImageBase64 = 'data:' . $imageMime . ';base64,' . $response['data'][0]['b64_json'];
         }
 
         return $outputImageBase64;
-
     }
 
     private function getImageMimeTypeByExtension(string $path)

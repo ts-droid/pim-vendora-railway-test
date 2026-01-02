@@ -40,6 +40,29 @@ class OpenAIService implements AIInterface
         ]);
     }
 
+    public function generateImageV2(string $prompt, string $imageBase64, string $model): array
+    {
+        if (str_contains($imageBase64, ',')) {
+            [, $imageBase64] = explode(',', $imageBase64, 2);
+        }
+
+        $imageBinary = base64_decode($imageBase64);
+
+        $attachments = [
+            [
+                'name' => 'image',
+                'contents' => $imageBinary,
+            ]
+        ];
+
+        $body = [
+            'model' => $model,
+            'prompt' => $prompt,
+        ];
+
+        return $this->callAPI('POST', '/images/generations', $body, $attachments);
+    }
+
     public function getEmbedding(string $text): array
     {
         $response = $this->callAPI('POST', '/embeddings', [
@@ -80,13 +103,24 @@ class OpenAIService implements AIInterface
         ];
     }
 
-    public function callAPI(string $method, string $endpoint, array $data = []): array
+    public function callAPI(string $method, string $endpoint, array $data = [], array $attachments = []): array
     {
         $url = $this->apiURL . $endpoint;
 
         $request = Http::withHeaders($this->getHeaders())
             ->connectTimeout(10)
             ->timeout(600);
+
+        if (!empty($attachments)) {
+            foreach ($attachments as $attachment) {
+                $request = $request->attach(
+                    $attachment['name'],
+                    $attachment['contents'],
+                    $attachment['filename'] ?? 'file',
+                    $attachment['headers'] ?? [],
+                );
+            }
+        }
 
         switch (strtoupper($method)) {
             case 'POST':
