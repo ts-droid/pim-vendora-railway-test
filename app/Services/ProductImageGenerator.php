@@ -40,7 +40,7 @@ class ProductImageGenerator
         $imageBase64 = base64_encode(file_get_contents($productImageURL));
         $imageBase64 = 'data:' . $imageMime . ';base64,' . $imageBase64;
 
-        $response = $openAiService->generateImageV2($imageGenerationPrompt, $imageBase64, 'gpt-image-1.5-2025-12-16');
+        $response = $openAiService->generateImageV2($imageGenerationPrompt, $imageBase64, $imageMime, 'gpt-image-1.5-2025-12-16');
 
         $outputImageBase64 = null;
 

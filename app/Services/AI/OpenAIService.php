@@ -40,7 +40,7 @@ class OpenAIService implements AIInterface
         ]);
     }
 
-    public function generateImageV2(string $prompt, string $imageBase64, string $model): array
+    public function generateImageV2(string $prompt, string $imageBase64, string $mimeType, string $model): array
     {
         if (str_contains($imageBase64, ',')) {
             [, $imageBase64] = explode(',', $imageBase64, 2);
@@ -52,6 +52,7 @@ class OpenAIService implements AIInterface
             [
                 'name' => 'image',
                 'contents' => $imageBinary,
+                'headers' => ['Content-Type' => $mimeType]
             ]
         ];
 
@@ -60,7 +61,7 @@ class OpenAIService implements AIInterface
             'prompt' => $prompt,
         ];
 
-        return $this->callAPI('POST', '/images/generations', $body, $attachments);
+        return $this->callAPI('POST', '/images/edits', $body, $attachments);
     }
 
     public function getEmbedding(string $text): array
@@ -107,11 +108,14 @@ class OpenAIService implements AIInterface
     {
         $url = $this->apiURL . $endpoint;
 
-        $request = Http::withHeaders($this->getHeaders())
+        $hasAttachments = !empty($attachments);
+
+        $request = Http::withHeaders($this->getHeaders(!$hasAttachments))
             ->connectTimeout(10)
             ->timeout(600);
 
-        if (!empty($attachments)) {
+        if ($hasAttachments) {
+            $request = $request->asMultipart();
             foreach ($attachments as $attachment) {
                 $request = $request->attach(
                     $attachment['name'],
@@ -133,6 +137,8 @@ class OpenAIService implements AIInterface
                 break;
         }
 
+        dd($response->body());
+
         if (!$response->successful()) {
             return [];
         }
@@ -140,12 +146,17 @@ class OpenAIService implements AIInterface
         return $response->json();
     }
 
-    private function getHeaders(): array
+    private function getHeaders($json = true): array
     {
-        return [
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $this->apiKey,
+        $headers = [
+            'Authorization' => 'Bearer ' . $this->apiKey
         ];
+
+        if ($json) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        return $headers;
     }
 
     private function getChatCompletionBody(string $system, string $message, ?float $temperature = null, ?string $imageURL = ''): array

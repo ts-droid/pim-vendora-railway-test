@@ -20,6 +20,7 @@ use App\Models\Article;
 use App\Models\NewsletterSubscriber;
 use App\Models\SalesOrder;
 use App\Services\AI\AIService;
+use App\Services\AI\OpenAIService;
 use App\Services\BrandPageService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,18 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
+});
+
+Route::get('/image', function() {
+    $productImageURL = 'https://vendora.ams3.digitaloceanspaces.com/pim/1-TS_PowerBug-Slate.png';
+    $imageBase64 = base64_encode(file_get_contents($productImageURL));
+
+    $defaultModel = default_ai_model();
+    $openAiService = new OpenAIService($defaultModel);
+
+    $response = $openAiService->generateImageV2('Add a red background to the image.', $imageBase64, 'image/png', 'gpt-image-1.5');
+
+    dd($response);
 });
 
 Route::get('/test-titles', function () {
