@@ -137,8 +137,6 @@ class OpenAIService implements AIInterface
                 break;
         }
 
-        dd($response->body());
-
         if (!$response->successful()) {
             return [];
         }

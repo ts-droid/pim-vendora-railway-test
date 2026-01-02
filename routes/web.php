@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiResponseController;
 use App\Http\Controllers\ArticleSyncController;
 use App\Http\Controllers\CustomerReviewController;
 use App\Http\Controllers\EmailViewController;
@@ -22,6 +23,7 @@ use App\Models\SalesOrder;
 use App\Services\AI\AIService;
 use App\Services\AI\OpenAIService;
 use App\Services\BrandPageService;
+use App\Services\ProductImageGenerator;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -42,15 +44,69 @@ Route::get('/', function () {
 });
 
 Route::get('/image', function() {
-    $productImageURL = 'https://vendora.ams3.digitaloceanspaces.com/pim/1-TS_PowerBug-Slate.png';
-    $imageBase64 = base64_encode(file_get_contents($productImageURL));
+    $product_description = 'PowerBug is the sleek, space-saving way to charge your iPhone and more. Snap your MagSafe or Qi2-compatible phone into place for hands-free charging and StandBy mode, while a high-power USB-C port fast-charges a second device. With foldable prongs and a compact footprint, it turns any outlet into an elegant charging dock at home or on the go.
+<ul>
+	<li>Turns any outlet into a magnetic charging dock</li>
+	<li>35 W USB-C PD fast charging with PPS</li>
+	<li>Charge two devices at once: 15 W wireless plus 20 W USB-C</li>
+	<li>StandBy-ready magnetic mount for hands-free viewing</li>
+	<li>Compact design with foldable Type A prongs</li>
+</ul>
+<strong>Turns any outlet into a magnetic charging dock</strong><br />
+Lift your phone off the counter and clear the clutter. PowerBug magnetically holds your MagSafe or Qi2-compatible phone in view while it charges, transforming a plain wall outlet into a tidy, functional charging station for kitchens, bedrooms, offices, and more.<br />
+<br />
+<strong>35 W USB-C PD fast charging with PPS</strong><br />
+Give your devices the power they deserve. The built-in USB-C port delivers up to 35 W with Power Delivery 3.0 and PPS support, providing fast, efficient charging for tablets, earbuds, and compatible smartphones.<br />
+<br />
+<strong>Charge two devices at once: 15 W wireless plus 20 W USB-C</strong><br />
+Top up your iPhone wirelessly at up to 15 W while simultaneously powering a second device via USB-C at up to 20 W. It is an effortless 2-in-1 solution that keeps your daily carry ready without extra bricks or cables.<br />
+<br />
+<strong>StandBy-ready magnetic mount for hands-free viewing</strong><br />
+Snap your iPhone into place and turn on iOS StandBy to see the time, photos, calendars, and widgets across the room. It is perfect for bedside alarms, cooking timers, quick FaceTime calls, and controlling smart home devices.<br />
+<br />
+<strong>Compact design with foldable Type A prongs</strong><br />
+Designed for everyday spaces and easy travel, PowerBug&rsquo;s compact body and foldable prongs slip neatly into a bag or drawer. Universal 100 to 240 V input makes it a great companion at home or abroad with the appropriate plug adapter.<br />
+<br />
+<strong>Package includes</strong>
 
-    $defaultModel = default_ai_model();
-    $openAiService = new OpenAIService($defaultModel);
+<ul>
+	<li>PowerBug with Type A prong - Slate</li>
+	<li>Manual</li>
+</ul>
+<strong>Product specifications</strong>
 
-    $response = $openAiService->generateImageV2('Add a red background to the image.', $imageBase64, 'image/png', 'gpt-image-1.5');
+<ul>
+	<li>Colour: Slate</li>
+	<li>Dimensions: 60 x 60 x 29.18 mm</li>
+	<li>Weight: 0.095 kg</li>
+	<li>Input: 100 to 240 V, 50 to 60 Hz, 1.0 A max</li>
+	<li>Wireless charging: Qi2 up to 15 W</li>
+	<li>USB-C output: Up to 35 W, PD 3.0 and PPS</li>
+	<li>Dual output: 20 W via USB-C plus 15 W via Qi2, 35 W max combined</li>
+	<li>Compatibility: All Qi2 and MagSafe enabled smartphones</li>
+	<li>USB-C devices: iPad, AirPods, Android phones and tablets, and more</li>
+	<li>iOS StandBy mode supported</li>
+	<li>Prongs: Foldable Type A design</li>
+</ul>';
 
-    dd($response);
+    $image_url = 'https://vendora.ams3.digitaloceanspaces.com/pim/1-TS_PowerBug-Slate.png';
+
+    $description_prompt = 'Describe this image.';
+    $setting_prompt = 'Jag ska göra en bild av den här produkten.
+Jag har produktbilden, men jag vill ha den i olikasituationer, till exempel på ett skrivbord eller i hallen eller vad det nu än må vara.
+Läs igenom texten nedan och gör en anpassa bild-prompt för att skapa en bild av produkten i en miljö som är relevant för produkten.';
+    $generation_prompt = 'Skapa ett professionellt foto i utseende som man gör i en annons, fotostudio med proffskamera, perfekt ljussättning.
+Bilden MÅSTE vara 1024x1024.';
+
+    try {
+        $productImageGenerator = new ProductImageGenerator();
+        $imageBase64 = $productImageGenerator->generateLifestyleImage($product_description, $image_url, $description_prompt, $setting_prompt, $generation_prompt);
+    } catch (\Throwable $e) {
+        return ApiResponseController::error($e->getMessage());
+    }
+
+    dd($imageBase64);
+
 });
 
 Route::get('/test-titles', function () {
