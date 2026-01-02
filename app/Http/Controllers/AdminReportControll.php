@@ -56,6 +56,7 @@ class AdminReportControll extends Controller
 
             $report[] = [
                 'name' => $accountGroup['name'] ?? '',
+                'group' => $accountGroup['group'] ?? '',
                 'accounts' => $accounts,
                 'balance' => $totalBalance,
             ];
