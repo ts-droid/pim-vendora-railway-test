@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Services\AI\OpenAIService;
-use PHPUnit\Event\Runtime\PHP;
 
 class ProductImageGenerator
 {
@@ -15,8 +14,7 @@ class ProductImageGenerator
         string $imageGenerationPrompt = ''
     ): ?string
     {
-        $defaultModel = default_ai_model();
-        $openAiService = new OpenAIService($defaultModel);
+        $openAiService = new OpenAIService('gpt-5.2-2025-12-11');
 
 
         // First generate a description of the product image
