@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('notify-failed-jobs')->dailyAt('05:00');
 
             // TODO: Can me moved to long loved processes
-            $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
+            // $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
 
