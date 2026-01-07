@@ -78,14 +78,15 @@ class LanguageFieldTranslator
         $attributes = $object->attributesToArray();
 
         $languageAttributes = array_filter($attributes, function ($key) {
-            return str_contains($key, ('_' . self::DEFAULT_LANGUAGE));
+            return str_ends_with($key, ('_' . self::DEFAULT_LANGUAGE));
         }, ARRAY_FILTER_USE_KEY);
 
         // Remove language suffix from attributes
         $result = [];
 
         foreach ($languageAttributes as $key => $value) {
-            $result[] = str_replace(('_' . self::DEFAULT_LANGUAGE), '', $key);
+            // remove the last 3 characters
+            $result[] = substr($key, 0, -3);
         }
 
         return $result;
