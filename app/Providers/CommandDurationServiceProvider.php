@@ -79,7 +79,16 @@ class CommandDurationServiceProvider extends ServiceProvider
             }
 
             if (!is_null($value)) {
-                $command .= ' ' . $value;
+                if (is_array($value)) {
+                    foreach ($value as $item) {
+                        if (is_null($item)) {
+                            continue;
+                        }
+                        $command .= ' ' . (string) $item;
+                    }
+                } else {
+                    $command .= ' ' . (string) $value;
+                }
             }
         }
 

@@ -33,7 +33,7 @@ class RawDataController extends Controller
     {
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
-        $html = '';
+        $html = 'Varumärke: ' . $article->brand . PHP_EOL . PHP_EOL;
 
         if ($includeShortTitle) {
             $html .= '<b>Produktnamn:</b> ' . ArticleTitleUtility::getTitle($article, $locale) . PHP_EOL . PHP_EOL;
