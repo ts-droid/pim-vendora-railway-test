@@ -26,6 +26,8 @@ class WorkTranslations extends Command
      */
     public function handle()
     {
+        return;
+
         $manager = new TranslationServiceManager();
 
         while(true) {
