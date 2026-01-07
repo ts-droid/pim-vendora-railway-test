@@ -45,11 +45,11 @@ Route::get('/', function () {
 
 Route::get('/test-titles', function () {
 
-    action_log('This is a test log', [
+    /*action_log('This is a test log', [
         'another_key' => 'another_value',
     ]);
 
-    return response()->json(['done' => true]);
+    return response()->json(['done' => true]);*/
 
     $articleNumber = request()->get('article_number');
     $article = Article::where('article_number', $articleNumber)->first();
