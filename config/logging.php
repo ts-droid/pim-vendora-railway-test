@@ -168,7 +168,7 @@ return [
 
         'actions' => [
             'driver' => 'stack',
-            'channels' => ['actions_file', 'papertrail'],
+            'channels' => ['actions_file'], // TODO: Add graylog channel here
             'ignore_exceptions' => false,
         ]
 
