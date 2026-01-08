@@ -14,6 +14,13 @@ class EmailImageService
 
     public static function prepareImageForEmail(string $url): ?string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         if (App::environment('local')) {
             return $url;
         }
@@ -62,6 +69,13 @@ class EmailImageService
 
     public static function prepareBase64ImageForEmail(string $base64): ?string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         if (App::environment('local')) {
             return $base64;
         }
@@ -97,6 +111,13 @@ class EmailImageService
 
     public static function cleanupOldImages(int $olderThanMinutes = 1440): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         $files = Storage::disk('public')->files(self::$directory);
 
         foreach ($files as $file) {

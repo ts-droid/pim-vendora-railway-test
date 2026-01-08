@@ -14,6 +14,14 @@ class EsignRecipientController extends Controller
 {
     public function document(SignDocument $document, string $secret)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
             ->where('access_key', $secret)
             ->first();
@@ -34,6 +42,14 @@ class EsignRecipientController extends Controller
 
     public function signDocument(Request $request, SignDocument $document, string $secret)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
             ->where('access_key', $secret)
             ->first();
@@ -135,6 +151,14 @@ class EsignRecipientController extends Controller
 
     public function downloadDocument(SignDocument $document, string $secret)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $recipient = SignDocumentRecipient::where('sign_document_id', $document->id)
             ->where('access_key', $secret)
             ->first();

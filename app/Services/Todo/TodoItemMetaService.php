@@ -12,6 +12,13 @@ class TodoItemMetaService
 {
     public function getMeta(TodoType $type, array $data): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         switch ($type) {
             case TodoType::CollectArticle:
                 return $this->getCollectArticleMeta($data);

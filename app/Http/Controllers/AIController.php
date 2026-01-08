@@ -11,6 +11,14 @@ class AIController extends Controller
 {
     public function stream(Request $request): StreamedResponse
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         set_time_limit(0);
 
         while (ob_get_level() > 0) {
@@ -92,6 +100,14 @@ class AIController extends Controller
 
     public function generateLifestyleImage(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $productDescription = (string) $request->input('product_description', '');
         $imageUrl = (string) $request->input('image_url', '');
         $descriptionPrompt = (string) $request->input('description_prompt', '');

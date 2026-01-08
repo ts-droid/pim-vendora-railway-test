@@ -16,6 +16,14 @@ class EsignController extends Controller
 {
     public function getTemplates()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $templates = SignTemplate::all();
 
         return ApiResponseController::success($templates->toArray());
@@ -23,6 +31,14 @@ class EsignController extends Controller
 
     public function storeTemplate(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
         ]);
@@ -41,6 +57,14 @@ class EsignController extends Controller
 
     public function getTemplate(SignTemplate $template)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $template->load('sections');
 
         return ApiResponseController::success($template->toArray());
@@ -48,6 +72,14 @@ class EsignController extends Controller
 
     public function updateTemplate(Request $request, SignTemplate $template)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $updates = [];
 
         if ($request->has('title')) {
@@ -61,6 +93,14 @@ class EsignController extends Controller
 
     public function deleteTemplate(Request $request, SignTemplate $template)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Delete all sections
         if ($template->sections) {
             foreach ($template->sections as $section) {
@@ -76,6 +116,14 @@ class EsignController extends Controller
 
     public function storeSection(Request $request, SignTemplate $template)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'content' => 'required|string',
@@ -97,6 +145,14 @@ class EsignController extends Controller
 
     public function updateSection(Request $request, SignTemplate $template, SignTemplateSection $section)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $updates = [];
 
         if ($request->has('title')) {
@@ -113,6 +169,14 @@ class EsignController extends Controller
 
     public function deleteSection(Request $request, SignTemplate $template, SignTemplateSection $section)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $section->delete();
 
         return ApiResponseController::success();
@@ -125,6 +189,14 @@ class EsignController extends Controller
 
     public function getDocuments(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $documentsQuery = SignDocument::orderBy('id', 'DESC')
             ->with('customer', 'recipients');
 
@@ -151,6 +223,14 @@ class EsignController extends Controller
 
     public function storeDocument(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = $request->only([
             'tab_id',
             'customer_id',
@@ -172,6 +252,14 @@ class EsignController extends Controller
 
     public function uploadDocument(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|mimes:pdf',
         ]);
@@ -201,6 +289,14 @@ class EsignController extends Controller
 
     public function getDocument(SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $document->load('customer', 'recipients');
 
         $allowEdit = $document->allowEdit();
@@ -213,6 +309,14 @@ class EsignController extends Controller
 
     public function deleteDocument(Request $request, SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         SignDocumentRecipient::where('sign_document_id', $document->id)->delete();
 
         if ($document->filename) {
@@ -226,6 +330,14 @@ class EsignController extends Controller
 
     public function updateDocument(Request $request, SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$document->allowEdit()) {
             // Limit what data can be updated
             $document->update($request->only([
@@ -253,6 +365,14 @@ class EsignController extends Controller
 
     public function previewDocument(SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $signService = new EsignService();
         $content = $signService->getDocumentFileContent($document);
 
@@ -267,6 +387,14 @@ class EsignController extends Controller
 
     public function sendDocument(SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
@@ -284,6 +412,14 @@ class EsignController extends Controller
 
     public function addRecipient(Request $request, SignDocument $document)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
@@ -317,6 +453,14 @@ class EsignController extends Controller
 
     public function setMainRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
@@ -331,6 +475,14 @@ class EsignController extends Controller
 
     public function deleteRecipient(SignDocument $document, SignDocumentRecipient $recipient)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$document->allowEdit()) {
             return ApiResponseController::error('Document can not be modified.');
         }
@@ -355,6 +507,14 @@ class EsignController extends Controller
 
     public function getCollectables()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $collectablesJSON = ConfigController::getConfig('esign_collectables') ?: '[]';
         $collectables = json_decode($collectablesJSON, true);
 
@@ -369,6 +529,14 @@ class EsignController extends Controller
 
     public function setCollectables(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $collectables = $request->input('collectables') ?: '[]';
         $collectables = json_decode($collectables, true);
 
@@ -416,6 +584,14 @@ class EsignController extends Controller
 
     public function getVariables()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $json = ConfigController::getConfig('esign_variables') ?: '[]';
         $array = json_decode($json, true);
 
@@ -424,6 +600,14 @@ class EsignController extends Controller
 
     public function setVariables(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $variables = $request->input('variables') ?: '[]';
         $variables = json_decode($variables, true);
 
@@ -443,6 +627,14 @@ class EsignController extends Controller
 
     public function getTabs()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $tabs = SignTab::all();
 
         return ApiResponseController::success($tabs->toArray());
@@ -450,6 +642,14 @@ class EsignController extends Controller
 
     public function storeTab(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $tab = SignTab::create($request->only([
             'name'
         ]));
@@ -459,6 +659,14 @@ class EsignController extends Controller
 
     public function updateTab(Request $request, SignTab $tab)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $tab->update($request->only([
             'name'
         ]));
@@ -468,6 +676,14 @@ class EsignController extends Controller
 
     public function deleteTab(SignTab $tab)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         SignDocument::where('tab_id', $tab->id)->update(['tab_id' => 0]);
 
         $tab->delete();

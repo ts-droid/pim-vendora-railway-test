@@ -12,6 +12,13 @@ class TodoService
 {
     public function getQueueCount(TodoQueue $queue): int
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return (int) TodoItem::where('queue', $queue)
             ->where('on_hold', 0)
             ->whereNull('reserved_at')
@@ -20,6 +27,13 @@ class TodoService
 
     public function getQueueItems(TodoQueue $queue, int $limit = 0, int $page = 1)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $query = TodoItem::where('queue', $queue)
             ->where('on_hold', 0)
             ->whereNull('reserved_at')
@@ -49,6 +63,13 @@ class TodoService
 
     public function getItem(int $itemID): ?array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $item = TodoItem::where('id', $itemID)->first();
         if (!$item) {
             return null;
@@ -65,6 +86,13 @@ class TodoService
 
     public function reserveItem(TodoItem $todoItem, int $reservedBy): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Check if this item is already reserved
         $isReserved = TodoItem::where('id', $todoItem->id)
             ->whereNotNull('reserved_at')
@@ -98,6 +126,13 @@ class TodoService
 
     public function unreserveItem(TodoItem $todoItem)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($todoItem->completed_at) {
             return [
                 'success' => false,
@@ -123,11 +158,25 @@ class TodoService
 
     public function deleteItem(TodoItem $todoItem): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $todoItem->delete();
     }
 
     public function unreserveOldItems(int $thresholdMinutes = 30)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $todoItems = TodoItem::whereNull('completed_at')
             ->where('reserved_at', '<', date('Y-m-d H:i:s', strtotime('-' . $thresholdMinutes . ' minutes')))
             ->orderBy('reserved_at', 'DESC')
@@ -160,6 +209,13 @@ class TodoService
 
     public function submitItem(TodoItem $todoItem, Request|array $data): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = [
             'success' => false,
             'error' => 'Unknown error',
@@ -181,6 +237,13 @@ class TodoService
 
     public function deleteTmpItems()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $todoItems = TodoItem::where('source', 'tmp')
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-1 hour')))
             ->get();

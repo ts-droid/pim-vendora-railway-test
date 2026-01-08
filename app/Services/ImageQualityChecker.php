@@ -38,6 +38,13 @@ class ImageQualityChecker
 
     public function __construct(float $blurThreshold = 4000.0, int $minResolution = 50000, int $sharpnessThreshold = 70)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->blurThreshold = $blurThreshold;
         $this->minResolution = $minResolution;
         $this->sharpnessThreshold = $sharpnessThreshold;
@@ -51,6 +58,13 @@ class ImageQualityChecker
      */
     public function isBlurry(string $imagePath): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         try {
             $imagick = new Imagick($imagePath);
 
@@ -102,6 +116,13 @@ class ImageQualityChecker
      */
     public function isHighResolution(string $imagePath): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         try {
             $imagick = new Imagick($imagePath);
             $width = $imagick->getImageWidth();
@@ -119,6 +140,13 @@ class ImageQualityChecker
 
     public function isSharp(string $imagePath): int
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Upload the image to storage and get the URL
         $imageContent = @file_get_contents($imagePath);
         if ($imageContent === false) {
@@ -197,6 +225,13 @@ class ImageQualityChecker
      */
     public function isGoodQuality(string $imagePath): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return (!$this->isBlurry($imagePath)
             && $this->isHighResolution($imagePath)
             && $this->isSharp($imagePath));
@@ -210,6 +245,13 @@ class ImageQualityChecker
      */
     public function setBlurThreshold(float $threshold): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->blurThreshold = $threshold;
     }
 
@@ -221,6 +263,13 @@ class ImageQualityChecker
      */
     public function setMinResolution(int $resolution): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->minResolution = $resolution;
     }
 }

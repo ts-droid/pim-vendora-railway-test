@@ -10,6 +10,13 @@ class NotificationService
 {
     public static function sendMail(string $subject, string $body, string|array $to = null): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         $recipients = $to ?? config('app.developer_emails', []);
         if (is_string($recipients)) {
             $recipients = [$recipients];

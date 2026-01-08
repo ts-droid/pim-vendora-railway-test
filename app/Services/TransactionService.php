@@ -17,6 +17,13 @@ class TransactionService
      */
     public function getPeriodSummary(string $accountNumber, string $startDate, string $endDate): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $transactions = LedgerTransaction::where('account', $accountNumber)
             ->where('date', '>=', $startDate)
             ->where('date', '<=', $endDate)
@@ -46,6 +53,13 @@ class TransactionService
      */
     public function saveTransaction($transactionData): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $validator = Validator::make($transactionData, [
             'transaction_id' => 'required|string',
             'date' => 'required|string',

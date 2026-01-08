@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\DoSpacesController;
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Jobs\AnalyzeImage;
 use App\Models\ArticleImage;
 use App\Utilities\ImageBackgroundAnalyzer;
@@ -10,6 +10,8 @@ use Illuminate\Console\Command;
 
 class UpdateImageBackgroundCheck extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -29,10 +31,19 @@ class UpdateImageBackgroundCheck extends Command
      */
     public function handle()
     {
-        $images = ArticleImage::all();
-
         $processType = $this->argument('processType') ?? '';
         $processType = $processType ?: 'advanced';
+
+        action_log('Starting image background check queue.', $this->commandLogContext([
+            'process_type' => $processType,
+        ]));
+
+        $images = ArticleImage::all();
+
+        if (!$images->count()) {
+            action_log('No article images found for background check.', $this->commandLogContext(), 'warning');
+            return;
+        }
 
         $count = 0;
 
@@ -42,5 +53,9 @@ class UpdateImageBackgroundCheck extends Command
         }
 
         $this->info('Queue ' . $count . ' items for analyzing.');
+        action_log('Queued images for background check.', $this->commandLogContext([
+            'process_type' => $processType,
+            'queued' => $count,
+        ]));
     }
 }

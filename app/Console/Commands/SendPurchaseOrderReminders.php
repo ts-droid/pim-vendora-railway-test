@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\PurchaseOrderEmailer;
 use Illuminate\Console\Command;
 
 class SendPurchaseOrderReminders extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,6 +29,8 @@ class SendPurchaseOrderReminders extends Command
      */
     public function handle()
     {
+        action_log('Starting purchase order reminder evaluation.', $this->commandLogContext());
+
         $emailer = new PurchaseOrderEmailer();
 
         // TODO: Send draft reminders
@@ -40,5 +45,7 @@ class SendPurchaseOrderReminders extends Command
 
 
         // TODO: Implement PurchaseOrderController.php::sendV2
+
+        action_log('Finished purchase order reminder evaluation (no emails sent).', $this->commandLogContext());
     }
 }

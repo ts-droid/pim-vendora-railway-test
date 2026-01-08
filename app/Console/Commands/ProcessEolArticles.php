@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\ArticleEolHandler;
 use Illuminate\Console\Command;
 
 class ProcessEolArticles extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,10 +30,12 @@ class ProcessEolArticles extends Command
     public function handle()
     {
         $this->line('Deactivating EOL articles...');
+        action_log('Starting EOL article processing.', $this->commandLogContext());
 
         $eolHandler = new ArticleEolHandler();
         $eolHandler->inactivateArticles();
 
         $this->info('Done!');
+        action_log('Finished EOL article processing.', $this->commandLogContext());
     }
 }

@@ -41,6 +41,14 @@ class ArticleController extends Controller
 {
     public function getBrands()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $brands = DB::table('articles')
             ->pluck('brand')
             ->toArray();
@@ -55,6 +63,14 @@ class ArticleController extends Controller
 
     public function getEditData()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Suppliers
         $suppliers = Supplier::all();
 
@@ -90,6 +106,14 @@ class ArticleController extends Controller
 
     public function unspscCategories()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categories = UnspscCategory::orderBy('commodity_title', 'ASC')->get();
 
         return ApiResponseController::success($categories->toArray());
@@ -97,6 +121,14 @@ class ArticleController extends Controller
 
     public function getStockData()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockData = DB::table('articles')
             ->select('article_number', 'stock')
             ->where('status', '!=', 'Inactive')
@@ -108,6 +140,14 @@ class ArticleController extends Controller
 
     public function getSimple(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $query = DB::table('articles')
             ->select('id', 'article_number', 'description', 'inner_box', 'master_box');
 
@@ -168,6 +208,14 @@ class ArticleController extends Controller
 
     public function getDataForOrderRow(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = $request->input('article_number');
 
         $article = DB::table('articles')
@@ -188,6 +236,14 @@ class ArticleController extends Controller
 
     public function getRelateArticlesSuggestions(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleIDs = $request->input('article_ids', []);
 
         $articles = DB::table('articles')
@@ -219,6 +275,14 @@ class ArticleController extends Controller
 
     public function getRelateArticles(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumbers = $request->input('article_numbers', []);
 
         $articles = Article::toBase()
@@ -240,6 +304,14 @@ class ArticleController extends Controller
 
     public function setMarked(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleIDs = $request->input('article_ids', []);
         $flag = (bool) $request->input('flag');
 
@@ -263,6 +335,14 @@ class ArticleController extends Controller
 
     public function relateArticles(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleIDs = $request->input('article_ids', []);
 
         if ($articleIDs && is_array($articleIDs)) {
@@ -275,6 +355,14 @@ class ArticleController extends Controller
 
     public function deleteRelateArticles(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleIDs = $request->input('article_ids', []);
 
         if ($articleIDs && is_array($articleIDs)) {
@@ -287,6 +375,14 @@ class ArticleController extends Controller
 
     public function setSingleArticles(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleIDs = $request->input('article_ids', []);
         $flag = (bool) $request->input('flag');
 
@@ -299,6 +395,14 @@ class ArticleController extends Controller
 
     public function search(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $searchQuery = (string) $request->input('search', '');
 
         $articles = DB::table('articles')
@@ -341,6 +445,14 @@ class ArticleController extends Controller
 
     public function getUngrouped(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplierNumber = $request->input('supplier_number', '');
 
         $count = Article::where('supplier_number', '=', $supplierNumber)
@@ -354,6 +466,14 @@ class ArticleController extends Controller
 
     public function getBasic(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Get input parameters
         $filters = $request->input('filter');
         $columns = $request->input('columns', ['*']);
@@ -695,6 +815,14 @@ class ArticleController extends Controller
 
     public function getReviews(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $reviews = ArticleReview::where('article_number', $article->article_number)
             ->orderBy('created_at', 'DESC')
             ->get();
@@ -704,6 +832,14 @@ class ArticleController extends Controller
 
     public function getFAQ(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)
             ->orderBy('created_at', 'ASC')
             ->get();
@@ -713,6 +849,14 @@ class ArticleController extends Controller
 
     public function getArticleWmsData(Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleData = DB::table('articles')
             ->select('id', 'article_number', 'description', 'ean', 'stock_manageable')
             ->where('article_number', '=', $article->article_number)
@@ -733,6 +877,14 @@ class ArticleController extends Controller
 
     public function stockKeepArticle(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $signature = get_display_name();
 
         try {
@@ -871,6 +1023,14 @@ class ArticleController extends Controller
 
     public function getCategories(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categories = [];
 
         if ($article->category_ids && is_array($article->category_ids)) {
@@ -883,6 +1043,14 @@ class ArticleController extends Controller
 
     public function generateCategories(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categories = $request->get('categories', '');
         $categories = explode(',', $categories);
         $categories = array_filter($categories);
@@ -936,6 +1104,14 @@ class ArticleController extends Controller
 
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(Article::class, $request);
 
         $query = $this->getQueryWithFilter(Article::class, $filter);
@@ -1000,6 +1176,14 @@ class ArticleController extends Controller
 
     public function setImageListOrder(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $imageIDs = $request->input('image_ids', []);
         if (is_string($imageIDs)) {
             $imageIDs = explode(',', $imageIDs);
@@ -1031,6 +1215,14 @@ class ArticleController extends Controller
 
     public function getAllImages(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplierID = (int) $request->get('supplier_id', 0);
         $articleNumber = $request->get('article_number', '');
 
@@ -1062,6 +1254,14 @@ class ArticleController extends Controller
 
     public function getFiles(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $files = ArticleFile::where('article_id', $article->id)
             ->orderBy('filename', 'ASC')
             ->get();
@@ -1071,6 +1271,14 @@ class ArticleController extends Controller
 
     public function uploadFile(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$request->hasFile('file')) {
             return ApiResponseController::error('No file uploaded');
         }
@@ -1098,6 +1306,14 @@ class ArticleController extends Controller
 
     public function deleteFile(Request $request, Article $article, ArticleFile $articleFile)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         DoSpacesController::delete($articleFile->filename);
         $articleFile->delete();
 
@@ -1108,6 +1324,14 @@ class ArticleController extends Controller
 
     public function getSubData(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $images = ArticleImage::select(
                 'id', 'article_id', 'filename', 'path_url', 'size', 'solid_background',
                 'list_order', 'hash', 'created_at', 'updated_at'
@@ -1138,6 +1362,14 @@ class ArticleController extends Controller
 
     public function getImagesBasic(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $images = ArticleImage::select(
                 'id', 'article_id', 'filename', 'path_url', 'size', 'solid_background',
                 'list_order', 'hash', 'created_at', 'updated_at'
@@ -1151,6 +1383,14 @@ class ArticleController extends Controller
 
     public function getImages(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $images = ArticleImage::where('article_id', $article->id)
             ->orderBy('list_order', 'ASC')
             ->get();
@@ -1160,6 +1400,14 @@ class ArticleController extends Controller
 
     public function uploadPackageImages(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $frontImage = $request->file('front');
         $backImage = $request->file('back');
 
@@ -1196,6 +1444,14 @@ class ArticleController extends Controller
 
     public function uploadImage(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$request->hasFile('image')) {
             return ApiResponseController::error('No image uploaded');
         }
@@ -1231,6 +1487,14 @@ class ArticleController extends Controller
 
     public function updateImage(Request $request, Article $article, ArticleImage $articleImage)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languages = (new LanguageController())->getAllLanguages();
 
         foreach ($languages as $locale) {
@@ -1246,6 +1510,14 @@ class ArticleController extends Controller
 
     public function updateImageSolid(Request $request, Article $article, ArticleImage $articleImage)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleImage->update([
             'solid_background' => (int) $request->input('solid_background', 0),
         ]);
@@ -1255,6 +1527,14 @@ class ArticleController extends Controller
 
     public function deleteImage(Request $request, Article $article, ArticleImage $articleImage)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->deleteArticleImage($articleImage);
 
         return ApiResponseController::success();
@@ -1262,6 +1542,14 @@ class ArticleController extends Controller
 
     public function storeV2(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'article_number' => 'required|string',
         ]);
@@ -1345,6 +1633,14 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'external_id' => 'required|string',
             'article_number' => 'required|string',
@@ -1430,6 +1726,14 @@ class ArticleController extends Controller
 
     public function updateMany(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articles = $request->get('articles');
 
         if ($articles) {
@@ -1459,6 +1763,14 @@ class ArticleController extends Controller
 
     public function updateV2(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = get_model_attributes(Article::class);
 
         $languages = (new LanguageController())->getAllLanguages();
@@ -1545,6 +1857,14 @@ class ArticleController extends Controller
 
     public function customerReviews()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerReviews = CustomerReview::query()->orderBy('created_at', 'DESC')->get();
 
         if ($customerReviews) {
@@ -1563,6 +1883,14 @@ class ArticleController extends Controller
 
     public function customerReviewsStore(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         CustomerReview::create([
             'article_number' => (string) $request->input('article_number'),
             'rating' => (int) $request->input('rating'),
@@ -1576,6 +1904,14 @@ class ArticleController extends Controller
 
     public function customerReviewsUpdate(Request $request, CustomerReview $customerReview)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerReview->update([
             'article_number' => (string) $request->input('article_number'),
             'rating' => (int) $request->input('rating'),
@@ -1588,17 +1924,41 @@ class ArticleController extends Controller
 
     public function customerReviewsDelete(Request $request, CustomerReview $customerReview)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerReview->delete();
 
         return ApiResponseController::success();
     }
     public function getArticle(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return ApiResponseController::success($article->toArray());
     }
 
     public function update(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = get_model_attributes(Article::class);
 
         $updates = $request->all();
@@ -1659,6 +2019,14 @@ class ArticleController extends Controller
 
     public function uploadArticleImage(Article $article, string $url, int $listOrder = 0): string
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Extract the filename from the URL
         $path = parse_url(trim($url), PHP_URL_PATH);
         $filename = $article->id . basename($path);
@@ -1707,6 +2075,14 @@ class ArticleController extends Controller
 
     public function deleteArticleImage(ArticleImage $articleImage): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         DoSpacesController::delete($articleImage->filename);
 
         $articleImage->delete();
@@ -1714,6 +2090,14 @@ class ArticleController extends Controller
 
     public function updateEmptyImageHashes()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleImages = ArticleImage::whereNull('hash')->get();
 
         foreach ($articleImages as $articleImage) {
@@ -1740,6 +2124,14 @@ class ArticleController extends Controller
 
 	public function getRetailers(Request $request, Article $article)
 	{
+	    if ($this->shouldLogControllerMethod()) {
+
+	        $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+	        action_log('Invoked controller method.', $__controllerLogContext);
+
+	    }
+
 		$days = (int) $request->get('days', 60);
 
         $customerNumbers = DB::table('sales_order_lines')
@@ -1771,6 +2163,14 @@ class ArticleController extends Controller
 
     public function createStockKeepTodo(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $hasTodo = StockKeepTodo::where('type', 'article')
             ->where('reference', $article->article_number)
             ->exists();
@@ -1789,6 +2189,14 @@ class ArticleController extends Controller
 
     public function createMeasurementTodo(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $service = new TodoItemService();
         $service->createCollectArticle(
             $article->id,
@@ -1802,6 +2210,14 @@ class ArticleController extends Controller
 
     public function getGoogleProductCategory(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new CategorizeArticle($article, true);
         $categoryID = $job->handle();
 
@@ -1812,6 +2228,14 @@ class ArticleController extends Controller
 
     public function getNewShortTitle(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleShortTitle(true);
 
@@ -1822,6 +2246,14 @@ class ArticleController extends Controller
 
     public function getNewShopTitle(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleLongTitle(true);
 
@@ -1832,6 +2264,14 @@ class ArticleController extends Controller
 
     public function getNewColor(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleColor(true);
 
@@ -1842,6 +2282,14 @@ class ArticleController extends Controller
 
     public function getNewMarketingDescription(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handlePremiumIntroText(true);
 
@@ -1852,6 +2300,14 @@ class ArticleController extends Controller
 
     public function getNewShortDescription(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleSellingPoints(true);
 
@@ -1862,6 +2318,14 @@ class ArticleController extends Controller
 
     public function getNewMetaTitle(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleMetaTitle(true);
 
@@ -1872,6 +2336,14 @@ class ArticleController extends Controller
 
     public function getNewMetaDescription(Request $request, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $job = new GenerateArticleTitles($article);
         $updates = $job->handleMetaDescription(true);
 

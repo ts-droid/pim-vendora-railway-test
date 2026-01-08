@@ -11,6 +11,13 @@ class AIService
 
     public function __construct(string $model = '')
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $model = $model ?: default_ai_model();
 
         if (str_starts_with($model, 'claude')) {
@@ -29,16 +36,37 @@ class AIService
 
     public function chatCompletion(string $system, string $message, ?float $temperature = null, $imageURL = ''): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return $this->aiService->chatCompletion($system, $message, $temperature, $imageURL);
     }
 
     public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return $this->aiService->streamChatCompletion($system, $message, $imageURL);
     }
 
     public function translate(string $text, string $fromLocale, string $toLocale): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Fetch languages
         $languageController = new LanguageController();
         $fromLanguage = $languageController->getLanguageByCode($fromLocale);
@@ -63,6 +91,13 @@ class AIService
 
     public function chatCompletionWithTranslations(string $system, string $message, string $baseLocale): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Generate base translation
         $text = $this->chatCompletion($system, $message);
         $text = trim($text, '"');

@@ -12,6 +12,14 @@ class SalesPersonController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(SalesPerson::class, $request);
 
         $query = $this->getQueryWithFilter(SalesPerson::class, $filter);
@@ -23,6 +31,14 @@ class SalesPersonController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'external_id' => 'required|string',
             'name' => 'required|string'
@@ -44,6 +60,14 @@ class SalesPersonController extends Controller
 
     public function getOne(Request $request, SalesPerson $salesPerson)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $salesPersonArray = $salesPerson->toArray();
 
         if ($request->get('extended_data') == '1') {
@@ -116,6 +140,14 @@ class SalesPersonController extends Controller
 
     public function update(Request $request, SalesPerson $salesPerson)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new SalesPerson)->getFillable();
 
         foreach ($request->all() as $key => $value) {
@@ -131,6 +163,14 @@ class SalesPersonController extends Controller
 
     public function allBudget(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $year = $request->input('year') ?: date('Y');
 
         $budget = [];
@@ -150,6 +190,14 @@ class SalesPersonController extends Controller
 
     public function budget(Request $request, SalesPerson $salesPerson)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $year = $request->input('year') ?: date('Y');
 
         $budgetService = new SalesBudgetService();
@@ -160,6 +208,14 @@ class SalesPersonController extends Controller
 
     public function saveBudget(Request $request, SalesPerson $salesPerson)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Save sales person data
         $updateData = [];
 

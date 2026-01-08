@@ -151,7 +151,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/actions.log'),
             'level' => env('ACTIONS_LOG_LEVEL', 'info'),
-            'days' => env('ACTIONS_LOG_DAYS', 30),
+            'days' => env('ACTIONS_LOG_DAYS', 5),
         ],
 
         'papertrail' => [

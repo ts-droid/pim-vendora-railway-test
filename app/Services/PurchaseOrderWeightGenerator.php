@@ -12,6 +12,13 @@ class PurchaseOrderWeightGenerator
 
     public function generateMonthWeights()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->loadQuantityPerMonth();
 
         $normalizedQuantities = weight_array($this->quantityPerMonth);
@@ -30,6 +37,13 @@ class PurchaseOrderWeightGenerator
      */
     public function loadQuantityPerMonth()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $year = date('Y', strtotime('-1 year'));
 
         if ($year <= 2022) {

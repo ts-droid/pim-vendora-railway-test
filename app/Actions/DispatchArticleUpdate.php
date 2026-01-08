@@ -57,6 +57,9 @@ class DispatchArticleUpdate
 
         if ($isSyncing) {
             // It's already in the queue for syncing, so we don't need to queue it again
+            action_log('Skipped dispatching article update because article is already syncing.', [
+                'article_id' => $articleID,
+            ]);
             return;
         }
 
@@ -67,6 +70,10 @@ class DispatchArticleUpdate
             UpdateArticleJob::dispatch($articleID, true)
                 ->delay(now()->addSeconds(30))
                 ->onQueue('article-sync');
+
+            action_log('Dispatched article update for new article.', [
+                'article_id' => $articleID,
+            ]);
         }
         else {
             // Check if changes only contain ignored fields
@@ -83,6 +90,18 @@ class DispatchArticleUpdate
                 UpdateArticleJob::dispatch($articleID, false)
                     ->delay(now()->addSeconds(30))
                     ->onQueue('article-sync');
+
+                action_log('Dispatched article update for existing article.', [
+                    'article_id' => $articleID,
+                    'force' => $force,
+                    'has_changes' => $hasChanges,
+                    'changed_fields' => array_keys($changes)
+                ]);
+            } else {
+                action_log('Skipped dispatching article update because only ignored fields changed.', [
+                    'article_id' => $articleID,
+                    'changed_fields' => array_keys($changes)
+                ]);
             }
         }
     }

@@ -10,6 +10,14 @@ class PurchaseOrderConfirmController extends Controller
 {
     public function confirm(PurchaseOrder $purchaseOrder, string $hash)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($hash !== $purchaseOrder->getHash()) {
             abort(404);
         }
@@ -23,6 +31,14 @@ class PurchaseOrderConfirmController extends Controller
 
     public function postConfirm(Request $request, PurchaseOrder $purchaseOrder, string $hash)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($hash !== $purchaseOrder->getHash()) {
             return response()->json([
                 'success' => false,

@@ -18,11 +18,23 @@ class CreateSalesOrderShipmentJob implements ShouldQueue
 
     public function __construct(SalesOrder $salesOrder)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->salesOrder = $salesOrder;
     }
 
     public function handle()
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         // Create shipment in Visma.net
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();
         $vismaNetSalesOrderService->createShipment($this->salesOrder);

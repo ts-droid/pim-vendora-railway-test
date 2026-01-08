@@ -16,6 +16,13 @@ class ArticleCategorizeService
 
     public function categorizeArticle(Article $article, bool $returnOnly = false)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->generateEmbeddings();
 
         $productDescription = $article->shop_description_en ?? '';

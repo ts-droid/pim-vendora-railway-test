@@ -10,6 +10,13 @@ class VismaNetInventoryAdjustmentService extends VismaNetApiService
 {
     public function fetchInventoryAdjustments(string $updatedAfter = ''): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -43,6 +50,13 @@ class VismaNetInventoryAdjustmentService extends VismaNetApiService
 
     public function importAdjustment(array $adjustment): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $data = [
             'reference_number' => (string) ($adjustment['referenceNumber'] ?? ''),
             'status' => (string) ($adjustment['status'] ?? ''),

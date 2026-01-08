@@ -11,6 +11,14 @@ class MarketingContentController extends Controller
 {
     public function articleGet(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(ArticleMarketingContent::class, $request);
 
         $query = $this->getQueryWithFilter(ArticleMarketingContent::class, $filter);
@@ -22,6 +30,14 @@ class MarketingContentController extends Controller
 
     public function articleStore(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = [
             'system' => ($request->system ?? ''),
             'message' => ($request->message ?? ''),
@@ -40,6 +56,14 @@ class MarketingContentController extends Controller
 
     public function articleUpdate(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = get_model_attributes(ArticleMarketingContent::class);
 
         foreach ($request->all() as $key => $value) {
@@ -55,6 +79,14 @@ class MarketingContentController extends Controller
 
     public function articleDelete(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleMarketingContent->delete();
 
         return ApiResponseController::success();
@@ -62,6 +94,14 @@ class MarketingContentController extends Controller
 
     public function reviewPostStream(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         set_time_limit(0);
 
         while(ob_get_level() > 0) {
@@ -143,6 +183,14 @@ class MarketingContentController extends Controller
 
     public function blogPostStream(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         set_time_limit(0);
 
         while(ob_get_level() > 0) {
@@ -224,6 +272,14 @@ class MarketingContentController extends Controller
 
     public function articleStream(Request $request, ArticleMarketingContent $articleMarketingContent)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         set_time_limit(0);
 
         while (ob_get_level() > 0) {

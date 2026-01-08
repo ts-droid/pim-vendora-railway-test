@@ -21,6 +21,13 @@ class TranslationServiceManager
      */
     public function executeBatch(int $batchSize): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $batchCount = 0;
 
         $services = $this->getAllServices();
@@ -86,6 +93,13 @@ class TranslationServiceManager
 
     public function translateAndStore(string $table, string $field, int $tableID, string $languageCode, TranslationService $service, string $text): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         switch ($service->name) {
             case 'openai':
                 $AIService = new AIService('gpt-4o');
@@ -113,6 +127,13 @@ class TranslationServiceManager
 
     public function storeTranslation(string $table, string $field, int $tableID, string $translatedText, string $languageCode, int $serviceID)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $translation = self::getTranslation($table, $field, $tableID, $languageCode, $serviceID);
 
         if ($translation) {
@@ -132,11 +153,25 @@ class TranslationServiceManager
 
     public function getAllServices()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return TranslationService::all();
     }
 
     public static function getTranslation(string $table, string $field, string $tableID, string $languageCode, int $serviceID)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         return Translation::where('table', $table)
             ->where('table_id', $tableID)
             ->where('field', $field)

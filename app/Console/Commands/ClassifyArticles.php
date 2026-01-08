@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\ConfigController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class ClassifyArticles extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -31,19 +34,33 @@ class ClassifyArticles extends Command
     {
         $type = $this->argument('type') ?: 'all';
 
+        action_log('Starting article classification.', $this->commandLogContext([
+            'type' => $type,
+        ]));
+
         $this->loadConfig();
+
+        $executed = [];
 
         if ($type == 'all' || $type == 'salesvolume') {
             $this->classifySalesVolume();
+            $executed[] = 'salesvolume';
         }
         if ($type == 'all' || $type == 'volume') {
             $this->classifyVolume();
+            $executed[] = 'volume';
         }
         if ($type == 'all' || $type == 'wms') {
             $this->classifyWMS();
+            $executed[] = 'wms';
         }
 
         $this->info('Updated article classifications');
+
+        action_log('Finished article classification.', $this->commandLogContext([
+            'type' => $type,
+            'executed_steps' => $executed,
+        ]));
     }
 
     private function loadConfig()

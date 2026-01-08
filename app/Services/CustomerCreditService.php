@@ -15,6 +15,13 @@ class CustomerCreditService
 {
     public function getOpenCreditInvoiceAmount(string $customerNumber): float
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return (float) CreditNote::where('customer_number', $customerNumber)
             ->where('status', 'Open')
             ->sum('amount');
@@ -22,6 +29,13 @@ class CustomerCreditService
 
     public function getAmountDue(string $customerNumber): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $dueInvoices = CustomerInvoice::where('status', 'Open')
             ->where('customer_number', $customerNumber)
             ->whereNull('paid_at')
@@ -36,6 +50,13 @@ class CustomerCreditService
 
     public function getAveragePaymentDays(string $customerNumber, int $period): int
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $customer = Customer::where('customer_number', $customerNumber)
             ->select('average_payment_days')
             ->first();
@@ -51,6 +72,13 @@ class CustomerCreditService
 
     public function getWorstPaymentDays(string $customerNumber, int $period): int
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $customer = Customer::where('customer_number', $customerNumber)
             ->select('worst_payment_days')
             ->first();
@@ -66,12 +94,26 @@ class CustomerCreditService
 
     public function calculateVendoraRating(Customer $customer): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // TODO: Implement this method
         return;
     }
 
     public function calculatePaymentDays(Customer $customer)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $periods = [3, 6, 12, 24];
         $maxPeriod = max($periods);
 
@@ -160,6 +202,13 @@ class CustomerCreditService
      */
     public function calculateCustomerCreditBalance(Customer $customer): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $vismaAPI = new VismaNetApiService();
 
         // Fetch balance from Visma.net

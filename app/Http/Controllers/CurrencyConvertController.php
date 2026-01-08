@@ -12,6 +12,14 @@ class CurrencyConvertController extends Controller
 
     public function convertArray(array &$array, array $keys, string $fromCurrency, string $toCurrency, string $date = ''): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         foreach ($array as $key => $value) {
             if (!in_array($key, $keys)) {
                 continue;
@@ -25,6 +33,14 @@ class CurrencyConvertController extends Controller
 
     public function convert(float $value, string $fromCurrency, string $toCurrency, string $date = ''): float
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$date) {
             $date = date('Y-m-d');
         }

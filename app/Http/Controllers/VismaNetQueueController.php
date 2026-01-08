@@ -10,6 +10,14 @@ class VismaNetQueueController extends Controller
 {
     public function queue(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'type' => 'required',
             'method' => 'required',

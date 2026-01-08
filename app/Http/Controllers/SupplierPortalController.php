@@ -17,6 +17,14 @@ class SupplierPortalController extends Controller
 {
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $search = $request->input('search', '');
 
         $supplier = SupplierPortalAccessService::getActiveSupplier();
@@ -56,6 +64,14 @@ class SupplierPortalController extends Controller
 
     public function order(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
@@ -94,6 +110,14 @@ class SupplierPortalController extends Controller
 
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
@@ -131,6 +155,14 @@ class SupplierPortalController extends Controller
 
     public function uploadInvoice(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
@@ -159,6 +191,14 @@ class SupplierPortalController extends Controller
 
     public function deleteInvoice(Request $request, PurchaseOrder $purchaseOrder, SupplierInvoice $supplierInvoice)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);
@@ -179,6 +219,14 @@ class SupplierPortalController extends Controller
 
     public function createShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier = SupplierPortalAccessService::getActiveSupplier();
         if (!App::environment('local') && $supplier->number !== $purchaseOrder->supplier_number) {
             abort(404);

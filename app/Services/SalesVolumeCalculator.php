@@ -9,6 +9,13 @@ class SalesVolumeCalculator
 {
     public function calculateTotalSales(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $salesData = DB::table('customer_invoice_lines')
             ->select('article_number', DB::raw('SUM(quantity) as total_sales'))
             ->groupBy('article_number')
@@ -28,6 +35,13 @@ class SalesVolumeCalculator
      */
     public function calculateArticles(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $currentYear = date('Y');
         $lastYear = $currentYear - 1;
         $twoYearsAgo = $currentYear - 2;

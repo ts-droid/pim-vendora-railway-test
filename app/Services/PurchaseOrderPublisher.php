@@ -23,6 +23,13 @@ class PurchaseOrderPublisher
      */
     public function send(PurchaseOrder $purchaseOrder)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!$purchaseOrder->is_draft) {
             // Order is not a draft
             return ['success' => false, 'message' => 'Order is not a draft.'];
@@ -52,6 +59,13 @@ class PurchaseOrderPublisher
      */
     public function publishOrder(PurchaseOrder $purchaseOrder, array $items): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($purchaseOrder->published_at) {
             // Order is not a draft
             return ['success' => false, 'message' => 'Order is already published.'];
@@ -117,6 +131,13 @@ class PurchaseOrderPublisher
      */
     public function updateOrder(PurchaseOrder $purchaseOrder, array $items): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($purchaseOrder->is_draft) {
             // Can't update a draft order
             return ['success' => false, 'message' => 'Order is a draft.'];

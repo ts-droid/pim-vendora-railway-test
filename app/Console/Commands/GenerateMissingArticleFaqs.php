@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Enums\LaravelQueues;
 use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class GenerateMissingArticleFaqs extends Command
 {
+    use ProvidesCommandLogContext;
+
     const BATCH_SIZE = 50;
 
     /**
@@ -32,6 +35,10 @@ class GenerateMissingArticleFaqs extends Command
      */
     public function handle()
     {
+        action_log('Starting missing article FAQ generation batch.', $this->commandLogContext([
+            'batch_size' => self::BATCH_SIZE,
+        ]));
+
         $articles = Article::where('status', '!=', 'Inactive')
             ->where('shop_description_en', '!=', '')
             ->whereNotNull('shop_description_en')
@@ -44,11 +51,16 @@ class GenerateMissingArticleFaqs extends Command
             ->get();
 
         if (!$articles->count()) {
+            action_log('No articles require FAQ generation.', $this->commandLogContext());
             return;
         }
 
         foreach ($articles as $article) {
             GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
         }
+
+        action_log('Queued FAQ generation jobs.', $this->commandLogContext([
+            'queued_articles' => $articles->count(),
+        ]));
     }
 }

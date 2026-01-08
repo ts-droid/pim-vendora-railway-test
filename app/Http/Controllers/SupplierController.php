@@ -15,6 +15,14 @@ class SupplierController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(Supplier::class, $request);
 
         $query = $this->getQueryWithFilter(Supplier::class, $filter);
@@ -26,6 +34,14 @@ class SupplierController extends Controller
 
     public function getBasic(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filters = $request->input('filter');
         $columns = $request->input('columns', ['*']);
 
@@ -76,6 +92,14 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'number' => 'required|string',
             'name' => 'required|string',
@@ -112,6 +136,14 @@ class SupplierController extends Controller
 
     public function getSupplier(Supplier $supplier)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplier->load('contacts');
 
         return ApiResponseController::success($supplier->toArray());
@@ -119,6 +151,14 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new Supplier)->getFillable();
 
         $updateData = [];
@@ -136,6 +176,14 @@ class SupplierController extends Controller
 
     public function updateMany(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'id' => 'required'
         ]);
@@ -173,6 +221,14 @@ class SupplierController extends Controller
 
     public function markSuppliers()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return;
 
         $suppliers = Supplier::all();
@@ -195,6 +251,14 @@ class SupplierController extends Controller
 
     public function storeContact(Request $request, Supplier $supplier)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $contact = SupplierContact::create([
             'supplier_id' => $supplier->id,
             'name' => (string) $request->input('name'),
@@ -212,6 +276,14 @@ class SupplierController extends Controller
 
     public function updateContact(Request $request, Supplier $supplier, SupplierContact $supplierContact)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = $request->all();
 
         foreach ($data as $key => $value) {
@@ -227,6 +299,14 @@ class SupplierController extends Controller
 
     public function deleteContact(Request $request, Supplier $supplier, SupplierContact $supplierContact)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplierContact->delete();
 
         return ApiResponseController::success();

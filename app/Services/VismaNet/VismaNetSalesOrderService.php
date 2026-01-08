@@ -18,6 +18,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 {
     public function createShipment(SalesOrder $salesOrder, bool $isDirectDelivery = false)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $salesOrderService = new SalesOrderService();
 
         $postData = [
@@ -48,6 +55,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function resetSalesOrder(SalesOrder $salesOrder): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $cancelResponse = $this->cancelSalesOrder($salesOrder);
         $cancelSuccess = $cancelResponse['success'];
 
@@ -64,6 +78,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function sendSalesOrder(SalesOrder $salesOrder): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Check if order already exists in Visma.net
         $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
         if (!empty($response['response']['orderNo'])) {
@@ -136,6 +157,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function updateSalesOrder(SalesOrder $salesOrder): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Check if the order exists in Visma.net
         $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
         if (empty($response['response']['orderNo'])) {
@@ -167,6 +195,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function cancelSalesOrder(SalesOrder $salesOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchResponse = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
         if (empty($fetchResponse['response']['orderNo'])) {
             return [
@@ -196,6 +231,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function fetchSalesOrder(string $orderNumber): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('GET', '/v2/salesorder/' . $orderNumber);
 
         if (!$response['success']) {
@@ -212,6 +254,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function fetchSalesOrders(string $updatedAfter = ''): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -359,6 +408,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function getOrderData(SalesOrder $salesOrder, string $customerNumber, bool $isUpdate = false): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $orderData = [
             'orderType' => ['value' => $salesOrder->order_type],
             'orderNumber' => ['value' => $salesOrder->order_number],

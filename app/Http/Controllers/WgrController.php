@@ -21,6 +21,14 @@ class WgrController extends Controller
 
     function __construct()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->apiDomain = env('WGR_API_DOMAIN', '');
         $this->apiUsername = env('WGR_API_USERNAME', '');
         $this->apiPassword = env('WGR_API_PASSWORD', '');
@@ -35,6 +43,14 @@ class WgrController extends Controller
      */
     public function fetchAll(bool $forceAll = false, bool $skipImages = false): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         /*$this->fetchProductData(
             ($forceAll ? '' : null),
             $skipImages
@@ -55,6 +71,14 @@ class WgrController extends Controller
 
     public function fetchFiles()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Fetch all products
         $products = $this->makeRequest('Article.get');
         $products = $products[0]['result'] ?? [];
@@ -94,6 +118,14 @@ class WgrController extends Controller
 
     public function fetchOrders($createdAfter = null)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [];
@@ -120,6 +152,14 @@ class WgrController extends Controller
 
     public function fetchReviews($updatedAfter = null)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [];
@@ -160,6 +200,14 @@ class WgrController extends Controller
      */
     public function fetchPriceLists(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return;
 
         $priceService = new ArticlePriceService();
@@ -205,6 +253,14 @@ class WgrController extends Controller
 
     public function fetchCategories()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [
@@ -223,6 +279,14 @@ class WgrController extends Controller
 
     public function fetchBasicProductData(mixed $updatedAfter = null): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $products = $this->makeRequest('Article.get');
         $products = $products[0]['result'] ?? [];
 
@@ -254,6 +318,14 @@ class WgrController extends Controller
      */
     public function fetchProductData(mixed $updatedAfter = null, bool $skipImages = false): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [
@@ -352,6 +424,14 @@ class WgrController extends Controller
 
     public function importCategories(array $categories, int $parentID = 0)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categoryController = new ArticleCategoryController();
 
         $categoryIDs = [];
@@ -380,6 +460,14 @@ class WgrController extends Controller
 
     public function createArticleImageFromURL(int $productID, string $filename, string $url)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->makeRequest('ProductImage.createurl', [
             'productId' => $productID,
             'filename' => $filename,
@@ -389,6 +477,14 @@ class WgrController extends Controller
 
     public function deleteArticleImage(int $imageID)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->makeRequest('ProductImage.delete', [
             'imageId' => $imageID
         ]);
@@ -396,12 +492,28 @@ class WgrController extends Controller
 
     public function getArticleFiles(int $productID)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $response = $this->makeRequest('ProductFile.get', ['productID' => $productID]);
         return $response[0]['result'] ?? [];
     }
 
     public function getArticleImages(string $articleNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $imagesResponse = $this->makeRequest('ProductImage.get', [
             'articleNumber' => $articleNumber
         ]);
@@ -417,6 +529,14 @@ class WgrController extends Controller
      */
     public function createArticle(array $data): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->makeRequest('Article.create', $data);
     }
 
@@ -428,12 +548,28 @@ class WgrController extends Controller
      */
     public function updateArticle(string $articleNumber, array $data = [])
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $params = array_merge(['articleNumber' => $articleNumber], $data);
         return $this->makeRequest('Article.set', $params);
     }
 
     public function getArticle(string $articleNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $response = $this->makeRequest('Article.get', ['articleNumber' => $articleNumber]);
         $articles = $response[0]['result'] ?? null;
 
@@ -446,6 +582,14 @@ class WgrController extends Controller
 
     public function getCategories(): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $response = $this->makeRequest('Category.get');
 
         $categories = [];
@@ -480,6 +624,14 @@ class WgrController extends Controller
      */
     public function makeRequest(string $method, array $params = []): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $request = [
             [
                 'jsonrpc' => '2.0',

@@ -13,6 +13,13 @@ class ImageBackgroundAnalyzer
      */
     public static function hasSolidBackgroundAdvanced(string $content, int $sideBarWidth = 10, float $sidebarLength = 0.6): bool
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         $image = @imagecreatefromstring($content);
         if (!$image) {
             return false;
@@ -120,6 +127,13 @@ class ImageBackgroundAnalyzer
      */
     public static function hasSolidBackground(string $content, $checkType = 'corners'): bool
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         $image = @imagecreatefromstring($content);
 
         if (!$image) {

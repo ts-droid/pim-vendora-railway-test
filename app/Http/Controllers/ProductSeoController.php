@@ -11,6 +11,14 @@ class ProductSeoController extends Controller
 {
     public function queueImageData(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $imageIDs = $request->input('image_ids', '');
         $imageIDs = explode(',', $imageIDs);
         $imageIDs = array_map('intval', $imageIDs);
@@ -25,6 +33,14 @@ class ProductSeoController extends Controller
 
     public function queueBrandImageData(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $supplierID = $request->input('supplier_id', 0);
         if (!$supplierID) {
             return ApiResponseController::error('Parameter "supplier_id" is required');

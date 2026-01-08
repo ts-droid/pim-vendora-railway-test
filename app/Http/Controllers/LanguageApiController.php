@@ -15,6 +15,14 @@ class LanguageApiController extends Controller
      */
     public function getAll(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageController = new LanguageController();
 
         $languages = $languageController->getAllLanguages();
@@ -30,6 +38,14 @@ class LanguageApiController extends Controller
      */
     public function getActive(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageController = new LanguageController();
 
         $languages = $languageController->getActiveLanguages();
@@ -46,6 +62,14 @@ class LanguageApiController extends Controller
      */
     public function getByCode(Request $request, string $languageCode)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageController = new LanguageController();
 
         $language = $languageController->getLanguageByCode($languageCode);
@@ -64,6 +88,14 @@ class LanguageApiController extends Controller
      */
     public function activateLanguage(Request $request, string $languageCode)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageController = new LanguageController();
 
         $language = $languageController->getLanguageByCode($languageCode);
@@ -86,6 +118,14 @@ class LanguageApiController extends Controller
      */
     public function deactivateLanguage(Request $request, string $languageCode)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageController = new LanguageController();
 
         $language = $languageController->getLanguageByCode($languageCode);
@@ -107,6 +147,14 @@ class LanguageApiController extends Controller
      */
     public function createLanguage(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'language_code' => 'required|string',
             'title' => 'required|string',

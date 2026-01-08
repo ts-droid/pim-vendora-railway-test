@@ -16,6 +16,13 @@ class EsignService
 {
     public function generateFile(SignDocument $document)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($document->filename) {
             // Generate new file and replace the old one
             $this->generateDocument($document, $document->filename);
@@ -32,6 +39,13 @@ class EsignService
 
     public function sendDocument(SignDocument $document, bool $forceMain = false)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($document->sent_at && !$forceMain) {
             // Send to secondary recipients
             return $this->sendDocumentSecondary($document);
@@ -111,6 +125,13 @@ class EsignService
 
     public function appendCertificate(SignDocument $document): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $documentContent = $document->getDocumentContent();
 
         $certificatePdf = Pdf::loadView('esign.sign_certificate', compact('document'));
@@ -125,6 +146,13 @@ class EsignService
 
     public function getDocumentFileContent(SignDocument $document)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Generate the base document
         $pdf = Pdf::loadView('esign.document', compact('document'));
         $pdf->setPaper('A4', 'portrait');

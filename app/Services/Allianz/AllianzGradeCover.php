@@ -8,6 +8,13 @@ class AllianzGradeCover extends AllianzApiService
 {
     public function getCustomerGrade(Customer $customer): mixed
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return \App\Models\AllianzGradeCover::select('grade')
             ->where('customer_id', '=', $customer->id)
             ->orderBy('created_at', 'DESC')
@@ -16,6 +23,13 @@ class AllianzGradeCover extends AllianzApiService
 
     public function getCustomerGradeData(Customer $customer): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $grades = \App\Models\AllianzGradeCover::where('customer_id', '=', $customer->id)
             ->orderBy('created_at', 'DESC')
             ->get();
@@ -38,6 +52,13 @@ class AllianzGradeCover extends AllianzApiService
 
     public function importGradeCover(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $results = $this->gradeSearch();
 
         if (!$results) {
@@ -60,6 +81,13 @@ class AllianzGradeCover extends AllianzApiService
 
     public function gradeSearch(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $policies = [];
 
         $contracts = config('allianz.contracts');

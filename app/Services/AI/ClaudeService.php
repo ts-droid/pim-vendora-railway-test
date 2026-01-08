@@ -13,6 +13,13 @@ class ClaudeService implements AIInterface
 
     public function __construct(string $model)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->model = $model;
 
         $this->apiKey = env('CLAUDE_KEY', '');
@@ -25,6 +32,13 @@ class ClaudeService implements AIInterface
 
     public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('POST', '/v1/messages', $this->getChatCompletionBody($system, $message));
 
         return $response['content'][0]['text'] ?? '';
@@ -32,6 +46,13 @@ class ClaudeService implements AIInterface
 
     public function streamChatCompletion(string $system, string $message): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $requestBody = $this->getChatCompletionBody($system, $message);
         $requestBody['stream'] = true;
 

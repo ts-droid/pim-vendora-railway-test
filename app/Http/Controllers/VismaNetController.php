@@ -62,6 +62,14 @@ class VismaNetController extends Controller
      */
     function __construct()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->clientID = env('VISMA_CLIENT_ID', '');
         $this->clientSecret = env('VISMA_CLIENT_SECRET', '');
 
@@ -79,6 +87,14 @@ class VismaNetController extends Controller
      */
     public function fetchAll(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->fetchCustomers();
 
         $this->fetchSalesPersons();
@@ -109,6 +125,14 @@ class VismaNetController extends Controller
      */
     public function fetchCurrencyRates(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $rows = $this->getPagedResult('/v2/currencyrate');
 
         if (!$rows) {
@@ -155,6 +179,14 @@ class VismaNetController extends Controller
      */
     public function fetchInventoryReceipts(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -223,6 +255,14 @@ class VismaNetController extends Controller
 
     public function fetchPurchaseReceipts(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
 
         $params = [];
@@ -273,6 +313,14 @@ class VismaNetController extends Controller
      */
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -378,6 +426,14 @@ class VismaNetController extends Controller
 
     public function fetchCustomerCreditNotes(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -456,6 +512,14 @@ class VismaNetController extends Controller
      */
     public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -582,6 +646,14 @@ class VismaNetController extends Controller
      */
     public function fetchSuppliers(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -685,6 +757,14 @@ class VismaNetController extends Controller
      */
     public function fetchSalesPersons(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -757,6 +837,14 @@ class VismaNetController extends Controller
      */
     public function fetchCustomers(string $updatedAfter = ''): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -822,6 +910,14 @@ class VismaNetController extends Controller
      */
     public function getShipment(string $shipmentNumber): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->callAPI('GET', '/v1/shipment/' . $shipmentNumber);
     }
 
@@ -832,6 +928,14 @@ class VismaNetController extends Controller
      */
     public function getCustomer(string $customerNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->callAPI('GET', '/v1/customer/' . $customerNumber);
     }
 
@@ -842,6 +946,14 @@ class VismaNetController extends Controller
      */
     public function getInventoryItem(string $articleNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return $this->callAPI('GET', '/v1/inventory/' . $articleNumber);
     }
 
@@ -853,6 +965,14 @@ class VismaNetController extends Controller
      */
     public function getSalesOrder(string $orderType, string $orderNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $endpoint = '/v1/salesorder/' . $orderNumber;
         if ($orderType) {
             $endpoint = '/v1/salesorder/' . $orderType . '/' . $orderNumber;
@@ -869,6 +989,14 @@ class VismaNetController extends Controller
      */
     public function authCallback(Request $request): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $authCode = $request->code ?? null;
         if (!$authCode) {
             return array(false, 'No auth code provided in the request.');
@@ -890,6 +1018,14 @@ class VismaNetController extends Controller
      */
     public function getAuthURL()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return 'https://connect.visma.com/connect/authorize?' . http_build_query([
                 'client_id' => $this->clientID,
                 'scope' => implode(' ', self::APP_SCOPE),
@@ -906,6 +1042,14 @@ class VismaNetController extends Controller
      */
     public function isActive(): bool
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = $this->getPagedResult('/v1/organization');
 
         $orgName = $data[0]['name'] ?? '';
@@ -926,6 +1070,14 @@ class VismaNetController extends Controller
      */
     public function getPagedResult(string $endpoint, array $params = []): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $params['pageSize'] = self::PAGE_SIZE;
 
         if (!isset($params['pageNumber'])) {
@@ -961,6 +1113,14 @@ class VismaNetController extends Controller
      */
     public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($this->callCount > 0) {
             sleep(self::SLEEP_TIME);
         }

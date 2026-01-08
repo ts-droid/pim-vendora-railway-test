@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Models\TodoItem;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class HoldTodoItems extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,13 +30,19 @@ class HoldTodoItems extends Command
      */
     public function handle()
     {
+        action_log('Starting TODO hold evaluation.', $this->commandLogContext());
+
         $activeItems = TodoItem::whereNull('reserved_at')
             ->whereNull('completed_at')
             ->get();
 
-        if (!$activeItems) {
+        if (!$activeItems->count()) {
+            action_log('No active TODO items to evaluate.', $this->commandLogContext());
             return;
         }
+
+        $held = 0;
+        $released = 0;
 
         foreach ($activeItems as $item) {
             $articleID = $item->data['article_id'] ?? null;
@@ -48,14 +57,22 @@ class HoldTodoItems extends Command
                     if ($article->stock <= 0 || in_array($article->status, ['NoPurchases', 'Inactive'])) {
                         // Hold item
                         $item->update(['on_hold' => 1]);
+                        $held++;
                     }
                     else {
                         // Unhold item
                         $item->update(['on_hold' => 0]);
+                        $released++;
                     }
                 }
             }
 
         }
+
+        action_log('Finished TODO hold evaluation.', $this->commandLogContext([
+            'items_checked' => $activeItems->count(),
+            'items_held' => $held,
+            'items_released' => $released,
+        ]));
     }
 }

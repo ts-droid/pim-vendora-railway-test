@@ -6,6 +6,13 @@ class VendoraAdminTaskService extends VendoraAdminService
 {
     public function createTask(string $taskType, array $data): int
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $postData = $data;
         $postData['type'] = $taskType;
 

@@ -15,6 +15,14 @@ class AppMetaDataController extends Controller
 {
     public function getVersion()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $version = ConfigController::getConfig('app_latest_version');
         $buildNumber = ConfigController::getConfig('app_latest_build_number');
 
@@ -26,6 +34,14 @@ class AppMetaDataController extends Controller
 
     public function getTabCounts()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $counts = [
             'picking' => 0,
             'todo' => 0,

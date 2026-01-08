@@ -11,11 +11,25 @@ class MailerCheckService
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->token = env('MAILERCHECK_API_TOKEN');
     }
 
     public function checkSingle(string $email): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return false;
 
         $response = $this->callAPI('POST', '/check/single', [
@@ -29,6 +43,13 @@ class MailerCheckService
 
     public function callAPI(string $method, string $endpoint, array $params = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $headers = [
             'Authorization' => 'Bearer ' . $this->token,
             'Accept' => 'application/json',

@@ -8,6 +8,13 @@ class VismaNetInventoryIssueService extends VismaNetApiService
 {
     public function fetchInventoryIssues(string $updatedAfter = ''): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -41,6 +48,13 @@ class VismaNetInventoryIssueService extends VismaNetApiService
 
     public function importIssue(array $issue): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         foreach ($issue['issueLines'] as $line) {
             $articleNumber = $line['inventoryItem']['number'] ?? '';
 

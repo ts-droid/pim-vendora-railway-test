@@ -8,6 +8,13 @@ class TranslateExcludeService
 {
     public static function getAll(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         return DB::table('translate_excludes')
             ->pluck('value')
             ->toArray();
@@ -15,6 +22,13 @@ class TranslateExcludeService
 
     public static function add(string $value): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         $value = trim($value);
         if (!$value) return;
 
@@ -29,6 +43,13 @@ class TranslateExcludeService
 
     public static function remove(string $value): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         $value = trim($value);
         if (!$value) return;
 

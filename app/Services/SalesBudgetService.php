@@ -8,6 +8,13 @@ class SalesBudgetService
 {
     public function setBudget(int $salesPersonID, int $year, int $month, int $turnover): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $exists = DB::table('sales_person_budget')
             ->where('sales_person_id', $salesPersonID)
             ->where('year', $year)
@@ -35,6 +42,13 @@ class SalesBudgetService
 
     public function getBudgetForYear(array $salesPersonIDs, int $year)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $budget = [];
 
         $rows = DB::table('sales_person_budget')

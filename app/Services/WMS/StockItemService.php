@@ -13,6 +13,13 @@ class StockItemService
 {
     public function getStockItemsFromCompartment(StockPlaceCompartment $stockPlaceCompartment, string $articleNumber, int $quantity)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return StockItem::where('stock_place_compartment_id', $stockPlaceCompartment->id)
             ->where('article_number', $articleNumber)
             ->limit($quantity)
@@ -21,6 +28,13 @@ class StockItemService
 
     public function addStockItem(string $articleNumber, int $quantity, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         DB::beginTransaction();
 
         try {
@@ -56,6 +70,13 @@ class StockItemService
 
     public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = '', string $source = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $stockItems = StockItem::where('article_number', $articleNumber)
             ->where('stock_place_compartment_id', $fromStockPlaceCompartment->id)
             ->limit($quantity)
@@ -96,6 +117,13 @@ class StockItemService
 
     public function moveStockItem(StockItem $stockItem, StockPlaceCompartment $stockPlaceCompartment, string $signature = '', string $source = '', bool $storeLog = true): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         DB::beginTransaction();
 
         $log = [];
@@ -139,6 +167,13 @@ class StockItemService
 
     public function removeStockItems($stockItems, string $signature = '', $source = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         DB::beginTransaction();
 
         try {
@@ -192,6 +227,13 @@ class StockItemService
 
     public function allocateStockItem(StockItem $stockItem, string $allocationType, string $allocationReference, string $allocationDate = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($stockItem->allocation_type) {
             return [
                 'success' => false,
@@ -213,6 +255,13 @@ class StockItemService
 
     public function deallocateStockItem(StockItem $stockItem): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $stockItem->update([
             'allocation_type' => null,
             'allocation_reference' => null,
@@ -227,6 +276,13 @@ class StockItemService
 
     public function updateAllStockMovements()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $stockPlaceCompartments = StockPlaceCompartment::all();
 
         $array = [];

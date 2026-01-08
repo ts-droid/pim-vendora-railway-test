@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\PurchaseOrderWeightGenerator;
 use Illuminate\Console\Command;
 
 class GeneratePurchaseOrderWeights extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,7 +29,11 @@ class GeneratePurchaseOrderWeights extends Command
      */
     public function handle()
     {
+        action_log('Starting purchase order weight generation.', $this->commandLogContext());
+
         $service = new PurchaseOrderWeightGenerator();
         $service->generateMonthWeights();
+
+        action_log('Finished purchase order weight generation.', $this->commandLogContext());
     }
 }

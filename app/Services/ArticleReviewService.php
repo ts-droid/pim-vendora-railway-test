@@ -9,6 +9,13 @@ class ArticleReviewService
 {
     public function store(array $data): ?ArticleReview
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articleNumber = $data['article_number'];
         $name = $data['name'];
         $content = $data['content'];
@@ -64,6 +71,13 @@ class ArticleReviewService
 
     public function update(ArticleReview $articleReview, array $data): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articleReview->update($data);
 
         // Update review in external services
@@ -87,6 +101,13 @@ class ArticleReviewService
 
     public function delete(ArticleReview $articleReview): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articleReview->delete();
 
         // Delete review in external services

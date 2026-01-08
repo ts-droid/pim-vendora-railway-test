@@ -24,12 +24,24 @@ class UpdateArticleJob implements ShouldQueue
      */
     public function __construct(int $articleID, bool $isNew = false)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->articleID = $articleID;
         $this->isNew = $isNew;
     }
 
     public function middleware()
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         return [new ArticleSyncControl];
     }
 
@@ -38,6 +50,12 @@ class UpdateArticleJob implements ShouldQueue
      */
     public function handle(ArticleService $articleService): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $article = Article::where('id', '=', $this->articleID)->first();
         if (!$article) {
             return;

@@ -12,6 +12,13 @@ class MailerSendApiService
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->apiUrl = env('MAILERSEND_API_URL');
         $this->apiToken = env('MAILERSEND_API_TOKEN');
         $this->domainId = env('MAILERSEND_DOMAIN_ID');
@@ -19,6 +26,13 @@ class MailerSendApiService
 
     public function getPages(string $method, string $endpoint, array $params = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $data = [];
 
         $page = 1;
@@ -43,6 +57,13 @@ class MailerSendApiService
 
     public function callAPI(string $method, string $endpoint, array $params = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $headers = [
             'Authorization' => 'Bearer ' . $this->apiToken,
             'Accept' => 'application/json',

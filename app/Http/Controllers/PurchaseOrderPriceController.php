@@ -12,6 +12,14 @@ class PurchaseOrderPriceController extends Controller
 {
     public function confirm(Request $request, PurchaseOrder $purchaseOrder, string $hash)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($hash !== $purchaseOrder->getHash()) {
             abort(404);
         }
@@ -49,6 +57,14 @@ class PurchaseOrderPriceController extends Controller
 
     public function reject(Request $request, PurchaseOrder $purchaseOrder, string $hash)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($hash !== $purchaseOrder->getHash()) {
             abort(404);
         }

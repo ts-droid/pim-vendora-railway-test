@@ -22,13 +22,25 @@ class MarkArticleEOL implements ShouldQueue
     public function __construct(
         public array $articleNumbers
     )
-    {}
+    {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+    }
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         if (!$this->articleNumbers) {
             return;
         }

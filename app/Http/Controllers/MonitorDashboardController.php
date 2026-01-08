@@ -9,6 +9,14 @@ class MonitorDashboardController extends Controller
 {
     public function index()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $forgeServerService = new ForgeServerService();
         $servers = $forgeServerService->getServers();
 
@@ -61,6 +69,9 @@ class MonitorDashboardController extends Controller
 
     public static function getStateBadge(string $state)
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         if ($state == 'CRITICAL') {
             return '<span class="badge bg-danger">' . $state . '</span>';
         }

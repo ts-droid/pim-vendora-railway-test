@@ -8,6 +8,13 @@ class AddressService
 {
     public function createAddress(array $data): Address
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return Address::create([
             'full_name' => $data['full_name'] ?? null,
             'first_name' => $data['first_name'] ?? null,
@@ -23,6 +30,13 @@ class AddressService
 
     public function updateAddress(Address $address, array $data): Address
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $updateData = [];
 
         if (isset($data['full_name'])) {

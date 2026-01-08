@@ -9,6 +9,13 @@ class VismaNetLedgerService extends VismaNetApiService
 {
     public function fetchTransactions(string $updatedAfter = '')
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -46,6 +53,13 @@ class VismaNetLedgerService extends VismaNetApiService
 
     public function importTransaction(array $transaction)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->importAccount($transaction);
 
         $externalId = ($transaction['refNumber'] ?? '') . '-' . ($transaction['lineNumber'] ?? '');
@@ -77,6 +91,13 @@ class VismaNetLedgerService extends VismaNetApiService
 
     public function importAccount(array $transaction)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $accountNumber = (string) $transaction['account']['number'] ?? '';
 
         $account = DB::table('ledger_account')->where('number', $accountNumber)->first();

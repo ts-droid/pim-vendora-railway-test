@@ -8,12 +8,26 @@ class AllianzCustomerSearch extends AllianzApiService
 {
     public function getCompany(string $companyID): ?array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $result = $this->makeRequest('POST', 'find_companies', [$companyID]);
         return $result['companies'][0] ?? null;
     }
 
     public function getLocalCustomer(string $companyID, string $companyName): ?Customer
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // First try to check existing company id
         $customer = Customer::where('allianz_company_id', $companyID)->first();
         if ($customer) {

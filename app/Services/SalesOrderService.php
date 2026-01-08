@@ -24,6 +24,13 @@ class SalesOrderService
 {
     public function updateSalesOrder(SalesOrder $salesOrder, array $data): SalesOrder
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $addressService = new AddressService();
 
         // Update shipping address
@@ -182,6 +189,13 @@ class SalesOrderService
 
     public function createSalesOrder(array $data): SalesOrder
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $currencyConverter = new CurrencyConvertController();
         $addressService = new AddressService();
 
@@ -285,6 +299,13 @@ class SalesOrderService
 
     public function cancelSalesOrder(SalesOrder $salesOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $salesOrderService = new SalesOrderService();
 
         if ($salesOrder->status_shipment_sent) {
@@ -329,6 +350,13 @@ class SalesOrderService
 
     public function createLog(int $salesOrderID, string $description, ?int $emailID = null)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         SalesOrderLog::create([
             'sales_order_id' => $salesOrderID,
             'description' => $description,

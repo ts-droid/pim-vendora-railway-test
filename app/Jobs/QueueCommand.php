@@ -21,13 +21,25 @@ class QueueCommand implements ShouldQueue
         public string $command,
         public array $arguments = []
     )
-    {}
+    {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+    }
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         Artisan::call($this->command, $this->arguments);
     }
 }

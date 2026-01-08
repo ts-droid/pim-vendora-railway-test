@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Enums\LaravelQueues;
 use App\Jobs\CategorizeArticle;
 use App\Models\Article;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class CategorizeArticles extends Command
 {
+    use ProvidesCommandLogContext;
+
     const BATCH_SIZE = 50;
 
     /**
@@ -32,6 +35,10 @@ class CategorizeArticles extends Command
      */
     public function handle()
     {
+        action_log('Starting article categorization batch.', $this->commandLogContext([
+            'batch_size' => self::BATCH_SIZE,
+        ]));
+
         $articles = Article::where('status', '!=', 'Inactive')
             ->where('is_webshop', '1')
             ->where('google_product_category', '=', 0)
@@ -45,11 +52,16 @@ class CategorizeArticles extends Command
             ->get();
 
         if (!$articles->count()) {
+            action_log('No articles eligible for categorization.', $this->commandLogContext());
             return;
         }
 
         foreach ($articles as $article) {
             CategorizeArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
         }
+
+        action_log('Queued articles for categorization.', $this->commandLogContext([
+            'dispatched' => $articles->count(),
+        ]));
     }
 }

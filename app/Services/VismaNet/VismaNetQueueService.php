@@ -10,6 +10,13 @@ class VismaNetQueueService extends VismaNetApiService
 
     public function queue(string $type, string $orderNumber, string $externalOrderNumber, string $method, string $endpoint, string $body, string $processAt)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         DB::table('vismanet_queue')->insert([
             'type' => $type,
             'order_number' => $orderNumber,
@@ -25,6 +32,13 @@ class VismaNetQueueService extends VismaNetApiService
 
     public function processQueue()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $rows = DB::table('vismanet_queue')->where('process_at', '<=', now())
             ->orderBy('process_at', 'asc')
             ->limit(10)

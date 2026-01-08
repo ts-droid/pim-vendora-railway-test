@@ -10,6 +10,13 @@ class ArticlePriceService
 {
     public function getPrice(string $articleNumber, int $customerID, string $currency)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $retailPrice = (float) DB::table('articles')
             ->select('retail_price_' . $currency)
             ->where('article_number', $articleNumber)
@@ -34,6 +41,13 @@ class ArticlePriceService
 
     public function getPriceList(int $customerID, string $currency, string $supplierNumber = '', string $sorting = '', string $articleNumber = '', string $eolStatus = '')
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articlesQuery = DB::table('articles')
             ->select(
                 'article_number', 'description', 'stock', 'external_cost', 'cost_price_avg',
@@ -134,6 +148,13 @@ class ArticlePriceService
 
     public function setPrice(string $articleNumber, int $customerID, float $percent, float $percentInner, float $percentMaster): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articlePrice = ArticlePrice::where('article_number', $articleNumber)
             ->where('customer_id', $customerID)
             ->first();

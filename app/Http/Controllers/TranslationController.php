@@ -21,10 +21,26 @@ class TranslationController extends Controller
 
     function __construct()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->translator = new Translator(config('services.deepl.api_key'));
     }
 
     public function getEngines() {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $manager = new TranslationServiceManager();
         $services = $manager->getAllServices();
 
@@ -39,6 +55,14 @@ class TranslationController extends Controller
      */
     public function translateRequest(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'strings' => 'required',
             'source_lang' => 'required|string',
@@ -107,6 +131,14 @@ class TranslationController extends Controller
      */
     public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         /*Log::channel('deepl')->info(json_encode([
             'strings' => $strings,
             'sourceLang' => $sourceLang,
@@ -338,6 +370,14 @@ class TranslationController extends Controller
 
     public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);

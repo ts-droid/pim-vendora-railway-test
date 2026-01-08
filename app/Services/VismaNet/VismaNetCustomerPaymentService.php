@@ -13,6 +13,13 @@ class VismaNetCustomerPaymentService extends VismaNetApiService
 {
     public function fetchCustomerPayments(string $updatedAfter = ''): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 

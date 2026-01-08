@@ -18,11 +18,23 @@ class OrderUpdatedJob implements ShouldQueue
 
     public function __construct(SalesOrder $salesOrder)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->salesOrder = $salesOrder;
     }
 
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         // Send to Visma.net
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();
         $vismaNetSalesOrderService->updateSalesOrder($this->salesOrder);

@@ -19,11 +19,27 @@ class SalesOrderApiController
 
     public function __construct(SalesOrderService $orderService)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->orderService = $orderService;
     }
 
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $perPage = $request->get('per_page', 20);
         $page = $request->get('page', 1);
 
@@ -50,6 +66,14 @@ class SalesOrderApiController
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'order_type' => 'required|string|max:255',
             'order_number' => 'sometimes|string|max:255',
@@ -116,6 +140,14 @@ class SalesOrderApiController
 
     public function show(SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
          try {
              $salesOrder->load('customer', 'lines', 'billingAddress', 'shippingAddress', 'logs');
 
@@ -129,6 +161,14 @@ class SalesOrderApiController
 
     public function update(Request $request, SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'order_type' => 'sometimes|string|max:255',
             'sales_person' => 'sometimes|string|max:255',
@@ -188,6 +228,14 @@ class SalesOrderApiController
 
     public function cancel(SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $salesOrderService = new SalesOrderService();
         $response = $salesOrderService->cancelSalesOrder($salesOrder);
 
@@ -200,6 +248,14 @@ class SalesOrderApiController
 
     public function resetSync(SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();
         $success = $vismaNetSalesOrderService->resetSalesOrder($salesOrder);
 
@@ -219,6 +275,14 @@ class SalesOrderApiController
 
     public function createShipment(SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             $vismaNetSalesOrderService = new VismaNetSalesOrderService();
             $vismaNetSalesOrderService->createShipment($salesOrder);

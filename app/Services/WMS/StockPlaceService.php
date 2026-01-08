@@ -10,6 +10,13 @@ class StockPlaceService
 {
     public function getCompartmentByIdentifier(string $identifier): ?StockPlaceCompartment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $split = explode(':', $identifier);
         $stockPlaceIdentifier = $split[0];
         $compartmentIdentifier = $split[1];
@@ -32,6 +39,13 @@ class StockPlaceService
 
     public function createStockPlace(array $data): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (empty($data['identifier'])) {
             return array('success' => false, 'message' => 'Identifier is required');
         }
@@ -59,6 +73,13 @@ class StockPlaceService
 
     public function updateStockPlace(StockPlace $stockPlace, array $data): StockPlace
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (isset($data['identifier'])) {
             if (StockPlace::where('identifier', $data['identifier'])->exists()) {
                 unset($data['identifier']);
@@ -72,6 +93,13 @@ class StockPlaceService
 
     public function deleteStockPlace(StockPlace $stockPlace): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($stockPlace->compartments) {
             foreach ($stockPlace->compartments as $compartment) {
                 if ($compartment->stockItems()->exists()) {
@@ -98,6 +126,13 @@ class StockPlaceService
 
     public function createStockPlaceCompartment(StockPlace $stockPlace, array $data, int $compartmentsLevel = 1): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $minIdentifier = 1;
         $maxIdentifier = 19;
 
@@ -153,6 +188,13 @@ class StockPlaceService
 
     public function updateStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment, array $data): StockPlaceCompartment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $stockPlaceCompartment->update($data);
 
         return $stockPlaceCompartment;
@@ -160,6 +202,13 @@ class StockPlaceService
 
     public function deleteStockPlaceCompartment(StockPlaceCompartment $stockPlaceCompartment): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($stockPlaceCompartment->stockItems()->exists()) {
             return [
                 'success' => false,

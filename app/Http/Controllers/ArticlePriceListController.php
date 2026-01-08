@@ -10,6 +10,14 @@ class ArticlePriceListController extends Controller
 {
     public function customer(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerID = (int) $request->input('customer_id');
         $currency = (string) $request->input('currency');
         $brandName = (string) $request->input('brand_name');

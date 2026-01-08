@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Models\Customer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class CalculateCustomerReturnRate extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,10 +30,14 @@ class CalculateCustomerReturnRate extends Command
      */
     public function handle()
     {
+        action_log('Starting customer return rate calculation.', $this->commandLogContext());
+
         $startDate = '2023-01-01';
         $endDate = date('Y-m-d');
 
         $customers = Customer::all();
+        $processed = 0;
+        $zeroRevenue = 0;
 
         foreach ($customers as $customer) {
             $revenue = DB::table('sales_orders')
@@ -42,6 +49,7 @@ class CalculateCustomerReturnRate extends Command
 
             if (!$revenue) {
                 $customer->update(['return_rate' => 0]);
+                $zeroRevenue++;
                 continue;
             }
 
@@ -55,6 +63,16 @@ class CalculateCustomerReturnRate extends Command
             $customer->update([
                 'return_rate' => round($returnValue / $revenue * 100, 2)
             ]);
+
+            $processed++;
         }
+
+        action_log('Finished customer return rate calculation.', $this->commandLogContext([
+            'customers' => $customers->count(),
+            'processed' => $processed,
+            'zero_revenue_customers' => $zeroRevenue,
+            'period_start' => $startDate,
+            'period_end' => $endDate,
+        ]));
     }
 }

@@ -21,6 +21,14 @@ class StockKeepController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $page = $request->input('page', 1);
         $pageSize = $request->input('page_size', 50);
 
@@ -67,6 +75,14 @@ class StockKeepController extends Controller
 
     public function archivedDates()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $dates = DB::table('stock_keep_transactions')
             ->select(DB::raw('DATE(created_at) as date'))
             ->where('is_archived', '=', 1)
@@ -78,6 +94,14 @@ class StockKeepController extends Controller
 
     public function archive(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $ids = $request->input('ids');
         $ids = explode(',', $ids);
 
@@ -92,6 +116,14 @@ class StockKeepController extends Controller
 
     public function recheck(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $ids = $request->input('ids');
         $ids = explode(',', $ids);
 
@@ -111,6 +143,14 @@ class StockKeepController extends Controller
 
     public function stockPlace(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($request->input('is_movement')) {
             return $this->stockPlaceMovement($request);
         }
@@ -352,6 +392,14 @@ class StockKeepController extends Controller
 
     public function getStockPlaceItems(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceIdentifier = $request->input('stock_place_identifier');
         $stockPlaceSplit = explode(':', $stockPlaceIdentifier);
         $stockPlace = $stockPlaceSplit[0] ?? null;
@@ -417,6 +465,14 @@ class StockKeepController extends Controller
 
     public function getUnmanaged()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumbers = DB::table('articles')
             ->select('article_number')
             ->where('stock_manageable', '>', 0)
@@ -456,6 +512,14 @@ class StockKeepController extends Controller
 
     public function createBrandTodo(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $brand = $request->input('brand');
 
         $articleNumbers = DB::table('articles')
@@ -487,6 +551,14 @@ class StockKeepController extends Controller
 
     public function createArticleTodo(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = $request->input('article_number');
 
         $article = Article::where('article_number', $articleNumber)->first();
@@ -512,6 +584,14 @@ class StockKeepController extends Controller
 
     public function createCompartmentTodo(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceIdentifier = $request->input('stock_place');
         $compartmentIdentifier = $request->input('compartment');
 
@@ -555,6 +635,14 @@ class StockKeepController extends Controller
 
     public function getTodo()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $todos = StockKeepTodo::orderBy('created_at', 'ASC')->get();
 
         if ($todos) {

@@ -8,6 +8,13 @@ class BrandPageUtility
 {
     public static function getBrandingData(string $domain): array
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         $endpoint = 'https://' . $domain . '/api/v1/pages/site/get-by-domain';
 
         $brandPageService = new BrandPageService();

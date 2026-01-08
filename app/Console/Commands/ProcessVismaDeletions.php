@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\VismaNet\VismaDeletionService;
 use Illuminate\Console\Command;
 
 class ProcessVismaDeletions extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,7 +29,13 @@ class ProcessVismaDeletions extends Command
      */
     public function handle()
     {
+        action_log('Starting Visma deletion processing.', $this->commandLogContext());
+
         $deletionService = new VismaDeletionService();
-        $deletionService->deletePurchaseOrders();
+        $deleted = $deletionService->deletePurchaseOrders();
+
+        action_log('Finished Visma deletion processing.', $this->commandLogContext([
+            'deleted_purchase_orders' => $deleted,
+        ]));
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\VismaAdminController;
 use Illuminate\Console\Command;
 
 class FetchVismaAdmin extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,6 +31,10 @@ class FetchVismaAdmin extends Command
     {
         $type = $this->argument('type') ?: 'all';
 
+        action_log('Starting Visma Admin fetch.', $this->commandLogContext([
+            'type' => $type,
+        ]));
+
         $vismaAdminController = new VismaAdminController();
 
         switch ($type) {
@@ -40,5 +47,9 @@ class FetchVismaAdmin extends Command
                 $vismaAdminController->fetchAll();
                 break;
         }
+
+        action_log('Finished Visma Admin fetch.', $this->commandLogContext([
+            'type' => $type,
+        ]));
     }
 }

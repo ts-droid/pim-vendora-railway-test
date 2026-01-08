@@ -15,6 +15,14 @@ class ApiKeyController extends Controller
      */
     public function validateKey(string $apiKey): bool
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return ApiKey::where('api_key', $apiKey)
             ->where(function($query) {
                 $query->where('expires_at', '>', date('Y-m-d H:i:s'))
@@ -31,6 +39,14 @@ class ApiKeyController extends Controller
      */
     public function generate(string $expiresAt = ''): string
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $key = implode('-', str_split(substr(strtolower(md5(microtime().rand(1000, 9999))), 0, 30), 6));
 
         ApiKey::create([

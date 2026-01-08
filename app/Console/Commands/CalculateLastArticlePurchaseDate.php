@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class CalculateLastArticlePurchaseDate extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,14 +29,19 @@ class CalculateLastArticlePurchaseDate extends Command
      */
     public function handle()
     {
+        action_log('Starting last article purchase date calculation.', $this->commandLogContext());
+
         $articleNumbers = DB::table('articles')
             ->select('article_number')
             ->get()
             ->pluck('article_number');
 
-        if (!$articleNumbers) {
+        if (!$articleNumbers->count()) {
+            action_log('No article numbers found for purchase date calculation.', $this->commandLogContext(), 'warning');
             return;
         }
+
+        $updated = 0;
 
         foreach ($articleNumbers as $articleNumber) {
             $lastPurchaseDate = (string) DB::table('purchase_order_lines')
@@ -48,6 +56,13 @@ class CalculateLastArticlePurchaseDate extends Command
             DB::table('articles')
                 ->where('article_number', '=', $articleNumber)
                 ->update(['last_purchase_date' => $lastPurchaseDate]);
+
+            $updated++;
         }
+
+        action_log('Finished last article purchase date calculation.', $this->commandLogContext([
+            'articles_processed' => $articleNumbers->count(),
+            'articles_updated' => $updated,
+        ]));
     }
 }

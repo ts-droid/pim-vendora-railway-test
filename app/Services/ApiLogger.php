@@ -12,6 +12,13 @@ class ApiLogger
 
     public static function log(int $type, string $url, array $params, string $method, array $response, array $metaData = []): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         DB::table('api_logs')->insert([
             'type' => $type,
             'url' => $url,
@@ -26,6 +33,13 @@ class ApiLogger
 
     public static function cleanup(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         DB::table('api_logs')
             ->where('created_at', '<', date('Y-m-d H:i:s', strtotime('-' . self::STORAGE_TIME . ' day')))
             ->delete();
