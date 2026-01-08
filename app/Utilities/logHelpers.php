@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 if (!defined('ACTION_LOG_VALUE_LIMIT')) {
-    define('ACTION_LOG_VALUE_LIMIT', 500);
+    define('ACTION_LOG_VALUE_LIMIT', 100);
 }
 
 if (!function_exists('action_log')) {
