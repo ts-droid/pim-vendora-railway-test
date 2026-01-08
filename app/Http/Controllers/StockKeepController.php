@@ -671,4 +671,47 @@ class StockKeepController extends Controller
 
         return ApiResponseController::success($todos->toArray());
     }
+
+    public function getReport(Request $request)
+    {
+        $startDate = $request->input('start_date', '');
+        $endDate = $request->input('end_date', '');
+
+        if (!$startDate || !$endDate) {
+            return ApiResponseController::error('Start date or end date is required');
+        }
+
+        $startDate .= ' 00:00:00';
+        $endDate .= ' 23:59:59';
+
+        $articles = [];
+
+        $stockKeepTransactions = DB::table('stock_keep_transactions')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+
+        foreach ($stockKeepTransactions as $transaction) {
+            $identifiers = explode(',', $transaction->identifiers);
+            $values = explode(',', $transaction->values);
+
+            if (!isset($articles[$transaction->article_number])) {
+                $articles[$transaction->article_number] = [];
+            }
+
+            for ($i = 0;$i < count($identifiers);$i++) {
+                $identifier = $identifiers[$i];
+                $value = $values[$i] ?? 0;
+
+                if (!isset($articles[$transaction->article_number][$identifier])) {
+                    $articles[$transaction->article_number][$identifier] = 0;
+                }
+
+                $articles[$transaction->article_number][$identifier] += $value;
+            }
+        }
+
+        return ApiResponseController::success([
+            'inventoried' => $articles,
+        ]);
+    }
 }
