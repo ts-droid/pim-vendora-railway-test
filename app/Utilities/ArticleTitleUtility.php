@@ -11,13 +11,6 @@ class ArticleTitleUtility
 {
     public static function getTitle(int|Article $article, string $locale, bool $includeColor = true): string
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         if (is_int($article)) {
             $article = Article::find($article);
         }

@@ -10,13 +10,6 @@ class PurchaseOrderHelper
 {
     public static function getArticleETA(string $articleNumber)
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         return DB::table('purchase_order_lines')
             ->select(
                 'promised_date',
@@ -37,13 +30,6 @@ class PurchaseOrderHelper
 
     public static function getCCRecipients()
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $string = (string)ConfigController::getConfig('purchase_system_cc_emails');
 
         $emails = explode(',', $string);
@@ -56,13 +42,6 @@ class PurchaseOrderHelper
 
     public static function getSupplierPortalUrl(Supplier $supplier)
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         return 'https://api.vendora.se/supplier-portal/purchase-order?access_key=' . $supplier->access_key;
     }
 }

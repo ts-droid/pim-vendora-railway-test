@@ -11,14 +11,6 @@ class MarketingContentController extends Controller
 {
     public function articleGet(Request $request)
     {
-        if ($this->shouldLogControllerMethod()) {
-
-            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
-            action_log('Invoked controller method.', $__controllerLogContext);
-
-        }
-
         $filter = $this->getModelFilter(ArticleMarketingContent::class, $request);
 
         $query = $this->getQueryWithFilter(ArticleMarketingContent::class, $filter);

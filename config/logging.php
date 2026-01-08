@@ -32,6 +32,7 @@ return [
     */
 
     'controller_actions_enabled' => env('ACTION_LOG_CONTROLLERS', true),
+    'action_log_max_keys' => env('ACTION_LOG_MAX_KEYS', 10),
 
     /*
     |--------------------------------------------------------------------------

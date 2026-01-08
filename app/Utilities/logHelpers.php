@@ -15,6 +15,10 @@ if (!function_exists('action_log')) {
             'server' => env('LOG_SERVER_NAME') ?: gethostname(),
         ], $context);
 
+        if (should_skip_action_log($message, $context)) {
+            return;
+        }
+
         if (
             isset($context['controller'], $context['action']) &&
             !config('logging.controller_actions_enabled', true)
@@ -30,6 +34,81 @@ if (!function_exists('action_log')) {
     }
 }
 
+if (!function_exists('should_skip_action_log')) {
+    function should_skip_action_log(string $message, array $context): bool
+    {
+        $method = $context['action'] ?? $context['method'] ?? null;
+
+        if (isset($context['controller']) && is_read_only_method_name($method)) {
+            if (
+                str_contains($message, 'Invoked controller') ||
+                str_contains($message, 'Handling controller action.')
+            ) {
+                return true;
+            }
+        }
+
+        if (
+            isset($context['service']) &&
+            str_contains($message, 'Invoked service') &&
+            is_read_only_method_name($method)
+        ) {
+            return true;
+        }
+
+        if (
+            isset($context['utility']) &&
+            str_contains($message, 'Invoked utility') &&
+            is_read_only_method_name($method)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('is_read_only_method_name')) {
+    function is_read_only_method_name(?string $method): bool
+    {
+        if (!$method) {
+            return false;
+        }
+
+        $method = Str::snake($method);
+        $tokens = [
+            'get',
+            'fetch',
+            'list',
+            'show',
+            'index',
+            'search',
+            'count',
+            'find',
+            'load',
+            'view',
+            'display',
+            'preview',
+            'check',
+            'status',
+            'history',
+            'report',
+        ];
+
+        foreach ($tokens as $token) {
+            if (
+                Str::startsWith($method, $token) ||
+                Str::endsWith($method, $token) ||
+                Str::contains($method, '_' . $token . '_')
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 if (!function_exists('sanitize_action_log_value')) {
     function sanitize_action_log_value(mixed $value)
     {
@@ -42,8 +121,21 @@ if (!function_exists('sanitize_action_log_value')) {
         }
 
         if (is_array($value)) {
+            $limit = (int) config('logging.action_log_max_keys', 10);
+            $limit = $limit > 0 ? $limit : 0;
+            $truncatedCount = 0;
+
+            if ($limit > 0 && count($value) > $limit) {
+                $truncatedCount = count($value) - $limit;
+                $value = array_slice($value, 0, $limit, true);
+            }
+
             foreach ($value as $key => $item) {
                 $value[$key] = sanitize_action_log_value($item);
+            }
+
+            if ($truncatedCount > 0) {
+                $value['__truncated__'] = "... (truncated {$truncatedCount} keys)";
             }
 
             return $value;

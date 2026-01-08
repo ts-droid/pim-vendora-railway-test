@@ -11,14 +11,6 @@ class SalesOrderController extends Controller
 {
     public function get(Request $request)
     {
-        if ($this->shouldLogControllerMethod()) {
-
-            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
-            action_log('Invoked controller method.', $__controllerLogContext);
-
-        }
-
         $filter = $this->getModelFilter(SalesOrder::class, $request);
 
         $query = $this->getQueryWithFilter(SalesOrder::class, $filter);

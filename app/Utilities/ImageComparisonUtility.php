@@ -8,26 +8,12 @@ class ImageComparisonUtility
 {
     public static function isBase64ImageSimilar($base64Image1, $base64Image2, $threshold = 100): bool
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $similarity = self::compareBase64Images($base64Image1, $base64Image2);
         return $similarity >= $threshold;
     }
 
     public static function compareBase64Images($base64Image1, $base64Image2): float
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         try {
             $image1 = self::base64ToImage($base64Image1);
             $image2 = self::base64ToImage($base64Image2);
