@@ -15,6 +15,13 @@ if (!function_exists('action_log')) {
             'server' => env('LOG_SERVER_NAME') ?: gethostname(),
         ], $context);
 
+        if (
+            isset($context['controller'], $context['action']) &&
+            !config('logging.controller_actions_enabled', true)
+        ) {
+            return;
+        }
+
         foreach ($context as $key => $value) {
             $context[$key] = sanitize_action_log_value($value);
         }

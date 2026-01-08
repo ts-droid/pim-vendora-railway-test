@@ -23,6 +23,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Controller Action Log Toggle
+    |--------------------------------------------------------------------------
+    |
+    | Allows controller-level action_log() calls to be globally enabled or
+    | disabled without impacting logs emitted from other layers.
+    |
+    */
+
+    'controller_actions_enabled' => env('ACTION_LOG_CONTROLLERS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Deprecations Log Channel
     |--------------------------------------------------------------------------
     |
