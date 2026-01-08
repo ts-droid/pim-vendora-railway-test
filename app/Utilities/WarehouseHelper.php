@@ -13,13 +13,6 @@ class WarehouseHelper
 {
     public static function getPickedStock(string $articleNumber): int
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         return (int) DB::table('shipment_lines')
             ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
             ->select('shipment_lines.picked_quantity')
@@ -32,13 +25,6 @@ class WarehouseHelper
 
     public static function getReservedStock(string $articleNumber): int
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         return (int) DB::table('shipment_lines')
             ->join('shipments', 'shipments.id', '=', 'shipment_lines.shipment_id')
             ->select('shipment_lines.quantity')
@@ -50,13 +36,6 @@ class WarehouseHelper
 
     public static function articleHasPlacement(string $articleNumber, array $classes): bool
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $colors = [];
         foreach ($classes as $class) {
             $colors[] = self::classToColor($class);
@@ -87,13 +66,6 @@ class WarehouseHelper
 
     public static function getStockPlaceAndCompartment(string $identifier): array|bool
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         if (!str_contains($identifier, ':')) {
             return false;
         }
@@ -123,13 +95,6 @@ class WarehouseHelper
 
     public static function getArticleStockAtLocation(string $articleNumber, string $identifier): int
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $identifierData = self::getStockPlaceAndCompartment($identifier);
         $stockPlaceCompartment = $identifierData['stock_place_compartment'] ?? null;
 
@@ -145,13 +110,6 @@ class WarehouseHelper
 
     public static function getUnmanagedStock(string $articleNumber): int
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $locations = self::getArticleLocationsWithStock($articleNumber);
 
         foreach ($locations as $location) {
@@ -165,13 +123,6 @@ class WarehouseHelper
 
     public static function getArticleLocationsWithStock(string $articleNumber): array
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $articleStock = (int) DB::table('articles')
             ->select('stock_manageable')
             ->where('article_number', $articleNumber)
@@ -218,13 +169,6 @@ class WarehouseHelper
 
     public static function getArticleLocations(string $articleNumber, int $quantity): array
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         $pickedStock = self::getPickedStock($articleNumber);
 
         $colors = [
@@ -449,13 +393,6 @@ class WarehouseHelper
 
     public static function lastInventoryDate(string $articleNumber, string $identifier): string
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         return (string) DB::table('stock_keep_transactions')
             ->select('created_at')
             ->where('article_number', '=', $articleNumber)
@@ -467,13 +404,6 @@ class WarehouseHelper
 
     public static function colorToClass(string $color): string
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         switch ($color) {
             case '#50f25b':
                 return 'A';
@@ -490,13 +420,6 @@ class WarehouseHelper
 
     public static function classToColor(string $class): string
     {
-        $__utilityLogContext = [
-            'utility' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked utility static method.', $__utilityLogContext);
-
         switch ($class) {
             case 'A':
                 return '#50f25b';

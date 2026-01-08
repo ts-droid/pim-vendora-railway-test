@@ -12,13 +12,6 @@ class ArticleQuantityCalculator
 {
     public static function getIncomingByDate(string $articleNumber): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $incomingByDate = self::getIncomingByDateQuantities();
 
         return $incomingByDate[$articleNumber] ?? [];
@@ -26,13 +19,6 @@ class ArticleQuantityCalculator
 
     public static function getIncomingByDateQuantities(): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         // Try to get the results from the cache
         $incomingByDateQuantities = Cache::get('incoming_by_date');
 
@@ -73,13 +59,6 @@ class ArticleQuantityCalculator
      */
     public static function getIncoming(string $articleNumber): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $incomingQuantities = self::getIncomingQuantities();
 
         return $incomingQuantities[$articleNumber] ?? 0;
@@ -87,13 +66,6 @@ class ArticleQuantityCalculator
 
     public static function getIncomingQuantities(): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         // Try to get the results from the cache
         $incomingQuantities = Cache::get('incoming_quantities');
 
@@ -124,13 +96,6 @@ class ArticleQuantityCalculator
 
     public static function getOnOrderByDate(string $articleNumber): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $onOrderByDate = self::getOnOrderByDateQuantities();
 
         return $onOrderByDate[$articleNumber] ?? [];
@@ -138,13 +103,6 @@ class ArticleQuantityCalculator
 
     public static function getOnOrderByDateQuantities(): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         // Try to get the results from the cache
         $onOrderByDateQuantities = Cache::get('on_order_by_date');
 
@@ -199,13 +157,6 @@ class ArticleQuantityCalculator
      */
     public static function getOnOrder(string $articleNumber): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $onOrderQuantities = self::getOnOrderQuantities();
 
         return $onOrderQuantities[$articleNumber] ?? 0;
@@ -213,13 +164,6 @@ class ArticleQuantityCalculator
 
     public static function getOnOrderQuantities(): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         // Try to get the results from the cache
         $onOrderQuantities = Cache::get('on_order_quantities');
 
@@ -254,13 +198,6 @@ class ArticleQuantityCalculator
      */
     public static function getOnOrderQueue(string $articleNumber): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $inQueueQuantities = Cache::get('wgr_in_queue_quantities', function() {
             $WGRService = new WGROrderQueueService();
             $inQueueQuantities = $WGRService->getQuantityInQueue();
@@ -291,13 +228,6 @@ class ArticleQuantityCalculator
      */
     public static function getNetStock(string $articleNumber): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $stock = Article::where('article_number', $articleNumber)->pluck('stock_on_hand')->first();
         $incoming = self::getIncoming($articleNumber);
         $onOrder = self::getOnOrder($articleNumber);
@@ -317,13 +247,6 @@ class ArticleQuantityCalculator
      */
     public static function getSalesPerMonth(string $articleNumber, string $startDate, string $endDate): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $salesPerMonthQuantities = self::getSalesPerMonthQuantities($startDate, $endDate);
 
         $articleSalesPerMonth = $salesPerMonthQuantities[$articleNumber] ?? 0;
@@ -345,13 +268,6 @@ class ArticleQuantityCalculator
 
     public static function getSalesPerMonthQuantities(string $startDate, string $endDate): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         // Try to get the results from the cache
         $salesPerMonthQuantities = Cache::get('sales_per_month_quantities_' . $startDate . $endDate);
 
@@ -389,13 +305,6 @@ class ArticleQuantityCalculator
      */
     public static function getStockTime(string $articleNumber): int
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service static method.', $__serviceLogContext);
-
         $salesPerMonth = self::getSalesPerMonth(
             $articleNumber,
             date('Y-m-d', strtotime('-6 months')),
