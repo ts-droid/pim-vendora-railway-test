@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Models\TodoItem;
 use App\Services\Todo\TodoItemService;
 use Illuminate\Console\Command;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class GenerateTodoItems extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,11 +31,17 @@ class GenerateTodoItems extends Command
      */
     public function handle()
     {
+        action_log('Starting TODO item generation.', $this->commandLogContext());
+
         // Generate collect article todos
-        $this->generateCollectArticleTodos();
+        $created = $this->generateCollectArticleTodos();
+
+        action_log('Finished TODO item generation.', $this->commandLogContext([
+            'collect_article_created' => $created,
+        ]));
     }
 
-    private function generateCollectArticleTodos()
+    private function generateCollectArticleTodos(): int
     {
         $existingTodoItems = TodoItem::whereNull('completed_at')
             ->where('type', '=', 'collect_article')
@@ -76,18 +85,22 @@ class GenerateTodoItems extends Command
                     ->orWhere('package_image_front', '=', '')
                     ->orWhereNull('package_image_front')
                     ->orWhere('package_image_back', '=', '')
-                    ->orWhereNull('package_image_back');
+            ->orWhereNull('package_image_back');
             })
             ->pluck('id');
 
         if (!$articleIDs) {
-            return;
+            return 0;
         }
 
         $todoItemService = new TodoItemService();
+        $created = 0;
 
         foreach ($articleIDs as $articleID) {
             $todoItemService->createCollectArticle($articleID, 'all', 0, 'system');
+            $created++;
         }
+
+        return $created;
     }
 }

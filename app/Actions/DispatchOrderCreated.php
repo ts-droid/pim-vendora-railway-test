@@ -13,5 +13,10 @@ class DispatchOrderCreated
         OrderCreatedJob::dispatch($salesOrder)
             ->delay(now()->addSeconds(10))
             ->onQueue(LaravelQueues::DEFAULT->value);
+
+        action_log('Dispatched order created job.', [
+            'sales_order_id' => $salesOrder->id,
+            'order_number' => $salesOrder->order_number,
+        ]);
     }
 }

@@ -14,7 +14,14 @@ class LanguageFieldTranslator
     function __construct(
         public int $batchLimit = 10
     )
-    {}
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+}
 
     /**
      * Fetches all models in the database
@@ -24,6 +31,13 @@ class LanguageFieldTranslator
      */
     public function translateDatabase(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Fetch all models
         $path = app_path('/Models');
         $models = $this->getModels($path);
@@ -41,6 +55,13 @@ class LanguageFieldTranslator
      */
     public function translateModel($model): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Load languages
         $languageController = new LanguageController();
         $languages = $languageController->getAllLanguages();

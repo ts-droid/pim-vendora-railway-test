@@ -8,6 +8,14 @@ class VismaNetApiController extends Controller
 {
     public function getShipment(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $shipmentNumber = $request->get('shipment_number');
 
         if (!$shipmentNumber) {
@@ -22,6 +30,14 @@ class VismaNetApiController extends Controller
 
     public function getCustomer(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = $request->get('customer_number');
 
         if (!$customerNumber) {
@@ -36,6 +52,14 @@ class VismaNetApiController extends Controller
 
     public function getInventoryItem(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = $request->get('article_number');
 
         if (!$articleNumber) {
@@ -50,6 +74,14 @@ class VismaNetApiController extends Controller
 
     public function getSalesOrder(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $orderType = $request->get('order_type');
         $orderNumber = $request->get('order_number');
 

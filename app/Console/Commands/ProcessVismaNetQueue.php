@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\VismaNet\VismaNetQueueService;
 use Illuminate\Console\Command;
 
 class ProcessVismaNetQueue extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,10 +30,12 @@ class ProcessVismaNetQueue extends Command
     public function handle()
     {
         $this->line('Processing Visma.net API queue...');
+        action_log('Starting Visma.net queue processing.', $this->commandLogContext());
 
         $service = new VismaNetQueueService();
         $service->processQueue();
 
         $this->info('Done processing Visma.net API queue.');
+        action_log('Finished Visma.net queue processing.', $this->commandLogContext());
     }
 }

@@ -9,6 +9,13 @@ class CreditNoteService
 {
     public function storeCreditNote(array $data): ?CreditNote
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $creditNote = CreditNote::create([
             'credit_number' => (string) ($data['credit_number'] ?? ''),
             'date' => (string) ($data['date'] ?? ''),
@@ -40,6 +47,13 @@ class CreditNoteService
 
     public function updateCreditNote(CreditNote $creditNote, array $data): CreditNote
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fillables = (new CreditNote)->getFillable();
         $fillablesLine = (new CreditNoteLine)->getFillable();
 

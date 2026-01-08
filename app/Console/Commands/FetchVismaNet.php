@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
 use App\Models\Customer;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Process;
 
 class FetchVismaNet extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -41,6 +44,10 @@ class FetchVismaNet extends Command
     public function handle()
     {
         $type = $this->argument('type') ?: 'none';
+
+        action_log('Starting Visma.net fetch.', $this->commandLogContext([
+            'type' => $type,
+        ]));
 
         $vismaNetController = new VismaNetController();
 
@@ -198,11 +205,18 @@ class FetchVismaNet extends Command
 
             default:
                 $this->error('Invalid fetch type.');
+                action_log('Invalid Visma.net fetch type.', $this->commandLogContext([
+                    'type' => $type,
+                ]), 'warning');
                 return;
                 break;
         }
 
         StatusIndicatorController::ping('Visma.net sync', 86400);
+
+        action_log('Finished Visma.net fetch.', $this->commandLogContext([
+            'type' => $type,
+        ]));
     }
 
     private function calculateCustomersCreditBalance()

@@ -30,6 +30,13 @@ class VismaNetApiService
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->baseUrl = 'https://api.finance.visma.net';
         $this->baseUrlV3 = 'https://salesorder.visma.net/api';
 
@@ -68,6 +75,13 @@ class VismaNetApiService
      */
     public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false, bool $logRequest = false): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($this->callCount > 0) {
             sleep($this->sleepTime);
         }
@@ -161,6 +175,13 @@ class VismaNetApiService
      */
     public function getIdFromLocation(string $location)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         preg_match('/.+\/(.+)$/', $location, $matches);
 
         if ($matches && $matches[1]) {
@@ -197,6 +218,13 @@ class VismaNetApiService
      */
     public function getPagedResult(string $endpoint, array $params = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $params['pageSize'] = $this->defaultPageSize;
 
         if (!isset($params['pageNumber'])) {

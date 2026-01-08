@@ -15,6 +15,13 @@ class ProductImageGenerator
         string $prompt = ''
     ): ?string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $prompt = $prompt . PHP_EOL . PHP_EOL . 'Product description:' . PHP_EOL . $productDescription;
 
         $imageMime = $this->getImageMimeTypeByExtension($productImageURL);
@@ -35,6 +42,13 @@ class ProductImageGenerator
         string $imageGenerationPrompt = ''
     ): ?string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $openAiService = new OpenAIService(self::MODEL);
 
 

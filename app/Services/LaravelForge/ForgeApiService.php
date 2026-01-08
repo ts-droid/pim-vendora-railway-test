@@ -11,6 +11,13 @@ class ForgeApiService
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->apiUrl = env('FORGE_API_URL');
         $this->apiToken = env('FORGE_API_TOKEN');
     }

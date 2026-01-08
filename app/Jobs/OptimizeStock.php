@@ -19,6 +19,12 @@ class OptimizeStock implements ShouldQueue
      */
     public function __construct()
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         //
     }
 
@@ -27,6 +33,12 @@ class OptimizeStock implements ShouldQueue
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $manager = new StockOptimizationManager();
         $success = $manager->optimize();
     }

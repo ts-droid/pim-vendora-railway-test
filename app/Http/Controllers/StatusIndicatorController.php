@@ -18,6 +18,9 @@ class StatusIndicatorController extends Controller
      */
     public static function ping(string $title, int $validForSeconds)
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $statusIndicator = StatusIndicator::where('title', $title)->first();
 
         if (!$statusIndicator) {
@@ -32,6 +35,14 @@ class StatusIndicatorController extends Controller
 
     public function pingRequest(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $title = $request->get('title');
         $validForSeconds = (int) $request->get('valid_for_seconds');
 
@@ -49,6 +60,14 @@ class StatusIndicatorController extends Controller
 
     public function getAll()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $statusIndicators = StatusIndicator::orderBy('title', 'ASC')->get();
 
         return ApiResponseController::success($statusIndicators->toArray());
@@ -56,6 +75,14 @@ class StatusIndicatorController extends Controller
 
     public function getArticleStatus()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $counts = Cache::remember('getArticleStatus', 300, function () {
             return [
                 'shop_title' => $this->getColumnCount('shop_title',  true),

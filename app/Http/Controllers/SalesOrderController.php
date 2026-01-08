@@ -11,6 +11,14 @@ class SalesOrderController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(SalesOrder::class, $request);
 
         $query = $this->getQueryWithFilter(SalesOrder::class, $filter);
@@ -23,6 +31,14 @@ class SalesOrderController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'order_type' => 'required|string',
             'order_number' => 'required|string',
@@ -90,6 +106,14 @@ class SalesOrderController extends Controller
 
     public function update(Request $request, SalesOrder $salesOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new SalesOrder)->getFillable();
         $lineFillables = (new SalesOrderLine)->getFillable();
 

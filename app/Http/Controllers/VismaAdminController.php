@@ -17,6 +17,14 @@ class VismaAdminController extends Controller
 
     function __construct()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->database = new RemoteDatabaseController(
             self::DB_HOST,
             self::DB_PORT,
@@ -28,6 +36,14 @@ class VismaAdminController extends Controller
 
     public function fetchAll(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->fetchCustomers();
         $this->fetchSuppliers();
         $this->fetchCustomerInvoices();
@@ -35,6 +51,14 @@ class VismaAdminController extends Controller
 
     public function fetchCustomerInvoices(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $documents = $this->database->fetchAll(
             'SELECT *
             FROM OOF
@@ -129,6 +153,14 @@ class VismaAdminController extends Controller
 
     public function fetchSuppliers(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $suppliers = $this->database->fetchAll('SELECT * FROM LEV');
 
         if (!$suppliers) {
@@ -171,6 +203,14 @@ class VismaAdminController extends Controller
 
     public function fetchCustomers(): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customers = $this->database->fetchAll('SELECT * FROM KUND');
 
         if (!$customers) {

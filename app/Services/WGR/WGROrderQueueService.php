@@ -8,6 +8,13 @@ class WGROrderQueueService
 {
     public function getQuantityInQueue(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $orderQueue = $this->getOrderQueue();
 
         $quantityInQueue = [];
@@ -27,6 +34,13 @@ class WGROrderQueueService
 
     public function getQuantityInQueueByDate(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $orderQueue = $this->getOrderQueue();
 
         $quantityInQueue = [];
@@ -57,6 +71,13 @@ class WGROrderQueueService
 
     public function getOrderQueue(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         try {
             $response = Http::timeout(10)
                 ->get('https://www.reseller.vendora.se/ajax/?action=order-queue');

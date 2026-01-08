@@ -13,6 +13,13 @@ class VismaNetShipmentService extends VismaNetApiService
 {
     public function fetchShipments(string $updatedAfter = ''): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -100,6 +107,13 @@ class VismaNetShipmentService extends VismaNetApiService
 
     public function completeShipment(Shipment $shipment, bool $isDirectDelivery = false): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $currentTime = microtime(true);
         $milliseconds = sprintf("%03d", ($currentTime - floor($currentTime)) * 1000);
         $date = date('Y-m-d\TH:i:s');
@@ -249,6 +263,13 @@ class VismaNetShipmentService extends VismaNetApiService
 
     public function cancelShipment(Shipment $shipment)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchResponse = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);
 
         if (empty($fetchResponse['response']['shipmentNumber'])) {
@@ -275,6 +296,13 @@ class VismaNetShipmentService extends VismaNetApiService
 
     public function deleteIfDeleted(Shipment $shipment)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('GET', '/v1/shipment/' . $shipment->number);
 
         if (isset($response['response']['shipmentNumber'])) {

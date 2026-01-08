@@ -10,6 +10,14 @@ class ApiArticleCategoryController extends Controller
 {
     public function getAll()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categoryController = new ArticleCategoryController();
 
         $categories = $categoryController->getCategoryTree(
@@ -21,6 +29,14 @@ class ApiArticleCategoryController extends Controller
 
     public function get(ArticleCategory $articleCategory)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $response = $articleCategory->toArray();
 
         $response['articles'] = Article::whereJsonContains('category_ids', $articleCategory->id)
@@ -32,6 +48,14 @@ class ApiArticleCategoryController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categoryController = new ArticleCategoryController();
 
         $articleCategory = $categoryController->createCategory(
@@ -44,6 +68,14 @@ class ApiArticleCategoryController extends Controller
 
     public function update(Request $request, ArticleCategory $articleCategory)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categoryController = new ArticleCategoryController();
 
         $articleCategory = $categoryController->updateCategory($articleCategory, $request->all());
@@ -53,6 +85,14 @@ class ApiArticleCategoryController extends Controller
 
     public function connect(Request $request, ArticleCategory $articleCategory)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $article = Article::find($request->input('article_id'));
         if (!$article) {
             return ApiResponseController::error('Article not found');
@@ -70,6 +110,14 @@ class ApiArticleCategoryController extends Controller
 
     public function disconnect(Request $request, ArticleCategory $articleCategory)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $article = Article::find($request->input('article_id'));
         if (!$article) {
             return ApiResponseController::error('Article not found');

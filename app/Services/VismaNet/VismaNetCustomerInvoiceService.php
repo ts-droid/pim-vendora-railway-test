@@ -11,6 +11,13 @@ class VismaNetCustomerInvoiceService extends VismaNetApiService
 {
     public function fetchCustomerInvoices(string $updatedAfter = '')
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
@@ -44,6 +51,13 @@ class VismaNetCustomerInvoiceService extends VismaNetApiService
 
     public function importCustomerInvoice(array $invoice)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $orderNumbers = [];
 
         if ($invoice['hold'] ?? false) {

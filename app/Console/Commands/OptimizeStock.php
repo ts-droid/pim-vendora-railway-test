@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\ConfigController;
 use App\Services\WMS\StockOptimizationManager;
 use Illuminate\Console\Command;
 
 class OptimizeStock extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -31,7 +34,14 @@ class OptimizeStock extends Command
         $lastRun = (int) ConfigController::getConfig('last_wms_optimize_stock');
         $schedule = ConfigController::getConfig('wms_movement_job_schedule');
 
+        action_log('Evaluating WMS stock optimization job.', $this->commandLogContext([
+            'is_production' => (bool) $isProduction,
+            'last_run' => $lastRun,
+            'schedule' => $schedule,
+        ]));
+
         if (!$isProduction) {
+            action_log('Skipping optimize stock because WMS is not in production mode.', $this->commandLogContext(), 'warning');
             return;
         }
 
@@ -54,10 +64,16 @@ class OptimizeStock extends Command
 
             case 'never':
             default:
+                action_log('Skipping optimize stock because schedule is set to never.', $this->commandLogContext([
+                    'schedule' => $schedule,
+                ]));
                 return;
         }
 
         if (time() < $nextRun) {
+            action_log('Skipping optimize stock because next run is in the future.', $this->commandLogContext([
+                'next_run' => $nextRun,
+            ]));
             return;
         }
 
@@ -66,6 +82,13 @@ class OptimizeStock extends Command
 
         if ($success) {
             ConfigController::setConfigs(['last_wms_optimize_stock' => time()]);
+            action_log('Completed WMS stock optimization run.', $this->commandLogContext([
+                'result' => 'success',
+            ]));
+        } else {
+            action_log('WMS stock optimization run failed.', $this->commandLogContext([
+                'result' => 'failed',
+            ]), 'warning');
         }
     }
 }

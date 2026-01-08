@@ -25,15 +25,15 @@ class DeleteArticlePackageImage
 
     private function deleteFrontImage(int $articleID): void
     {
-        $this->deleteImage($articleID, 'package_image_front', 'package_image_front_url');
+        $this->deleteImage($articleID, 'package_image_front', 'package_image_front_url', 'front');
     }
 
     private function deleteBackimage(int $articleID): void
     {
-        $this->deleteImage($articleID, 'package_image_back', 'package_image_back_url');
+        $this->deleteImage($articleID, 'package_image_back', 'package_image_back_url', 'back');
     }
 
-    private function deleteImage(int $articleID, string $column, string $urlColumn): void
+    private function deleteImage(int $articleID, string $column, string $urlColumn, string $imageType): void
     {
         $image = (string) DB::table('articles')
             ->select([$column])
@@ -49,6 +49,18 @@ class DeleteArticlePackageImage
                     $column => '',
                     $urlColumn => ''
                 ]);
+
+            action_log('Deleted article package image.', [
+                'article_id' => $articleID,
+                'column' => $column,
+                'image_type' => $imageType
+            ]);
+        } else {
+            action_log('No package image found to delete.', [
+                'article_id' => $articleID,
+                'column' => $column,
+                'image_type' => $imageType
+            ], 'warning');
         }
     }
 }

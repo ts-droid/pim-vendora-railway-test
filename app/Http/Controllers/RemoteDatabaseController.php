@@ -13,6 +13,14 @@ class RemoteDatabaseController extends Controller
 
     function __construct(string $host, string $port, string $database, string $username, string $password)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $this->db = new PDO(
             'mysql:host=' . $host . ';port=' . $port . ';dbname=' . $database,
             $username,
@@ -26,6 +34,14 @@ class RemoteDatabaseController extends Controller
 
     public function execute(string $sql, array $values = []): bool|PDOStatement
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $statement = $this->db->prepare($sql);
         $statement->execute($values);
         return $statement;
@@ -33,6 +49,14 @@ class RemoteDatabaseController extends Controller
 
     public function fetch(string $sql, array $values = [], int $fetchStyle = PDO::FETCH_OBJ)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $statement = $this->execute($sql, $values);
         $result = $statement->fetch($fetchStyle);
         $statement->closeCursor();
@@ -41,6 +65,14 @@ class RemoteDatabaseController extends Controller
 
     public function fetchAll(string $sql, array $values = [], int $fetchStyle = PDO::FETCH_OBJ)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $statement = $this->execute($sql, $values);
         $result = $statement->fetchAll($fetchStyle);
         $statement->closeCursor();

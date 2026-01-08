@@ -10,6 +10,13 @@ class PdfMerger
 {
     public function mergePdfs($pdfPath1, $pdfPath2, $outputPath)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Create an instance of FPDI
         $pdf = new Fpdi();
 
@@ -24,6 +31,13 @@ class PdfMerger
 
     public function mergePdfContents($pdfContent1, $pdfContent2)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $pdf = new Fpdi();
 
         // Add pages from the first PDF content

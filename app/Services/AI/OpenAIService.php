@@ -13,6 +13,13 @@ class OpenAIService implements AIInterface
 
     public function __construct(string $model)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->model = $model;
 
         $this->apiKey = config('services.openai.key', '');
@@ -25,6 +32,13 @@ class OpenAIService implements AIInterface
 
     public function generateImage(string $prompt, string $imageBase64): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return $this->callAPI('POST', '/responses', [
             'model' => $this->model,
             'input' => [
@@ -42,6 +56,13 @@ class OpenAIService implements AIInterface
 
     public function generateImageV2(string $prompt, string $imageBase64, string $mimeType, string $model): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (str_contains($imageBase64, ',')) {
             [, $imageBase64] = explode(',', $imageBase64, 2);
         }
@@ -66,6 +87,13 @@ class OpenAIService implements AIInterface
 
     public function getEmbedding(string $text): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('POST', '/embeddings', [
             'input' => $text,
             'model' => $this->model
@@ -76,6 +104,13 @@ class OpenAIService implements AIInterface
 
     public function chatCompletion(string $system, string $message, ?float $temperature = null, ?string $imageURL = ''): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message, $temperature, $imageURL));
 
         $chatResponse = '';
@@ -93,6 +128,13 @@ class OpenAIService implements AIInterface
 
     public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $requestBody = $this->getChatCompletionBody($system, $message, null, $imageURL);
         $requestBody['stream'] = true;
 
@@ -106,6 +148,13 @@ class OpenAIService implements AIInterface
 
     public function callAPI(string $method, string $endpoint, array $data = [], array $attachments = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $url = $this->apiURL . $endpoint;
 
         $hasAttachments = !empty($attachments);

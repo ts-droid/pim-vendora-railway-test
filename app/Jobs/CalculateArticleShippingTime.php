@@ -20,6 +20,12 @@ class CalculateArticleShippingTime implements ShouldQueue
      */
     public function __construct()
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         //
     }
 
@@ -28,6 +34,12 @@ class CalculateArticleShippingTime implements ShouldQueue
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         // Fetch all purchase orders the last 6 months
         $purchaseOrderLines = DB::table('purchase_order_lines')
             ->join('purchase_orders', 'purchase_order_lines.purchase_order_id', '=', 'purchase_orders.id')

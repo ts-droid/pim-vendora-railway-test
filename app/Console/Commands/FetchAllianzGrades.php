@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\Allianz\AllianzGradeCover;
 use Illuminate\Console\Command;
 
 class FetchAllianzGrades extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,7 +29,13 @@ class FetchAllianzGrades extends Command
      */
     public function handle()
     {
+        action_log('Starting Allianz grade fetch.', $this->commandLogContext());
+
         $allianz = new AllianzGradeCover();
-        $allianz->importGradeCover();
+        $result = $allianz->importGradeCover();
+
+        action_log('Finished Allianz grade fetch.', $this->commandLogContext([
+            'result' => $result,
+        ]));
     }
 }

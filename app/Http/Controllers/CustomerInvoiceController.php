@@ -14,6 +14,14 @@ class CustomerInvoiceController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $page = (int) $request->get('page', 1);
         $pageSize = (int) $request->get('page_size', 1000);
         $simpleData = (bool) $request->get('simple_data', 0);
@@ -53,6 +61,14 @@ class CustomerInvoiceController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'invoice_number' => 'required|string',
             'date' => 'required|string',
@@ -103,6 +119,14 @@ class CustomerInvoiceController extends Controller
 
     public function update(Request $request, CustomerInvoice $invoice)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new CustomerInvoice)->getFillable();
         $fillablesLine = (new CustomerInvoiceLine)->getFillable();
 

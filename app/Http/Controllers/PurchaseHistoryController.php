@@ -9,6 +9,14 @@ class PurchaseHistoryController extends Controller
 {
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = (string) $request->input('article_number');
 
         $orderLines = DB::table('purchase_order_lines')

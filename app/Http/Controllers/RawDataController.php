@@ -11,6 +11,14 @@ class RawDataController extends Controller
 {
     public function article(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = $request->input('article_number', '');
 
         $article = Article::where('article_number', $articleNumber)->first();
@@ -31,6 +39,9 @@ class RawDataController extends Controller
         string $locale = 'sv'
     )
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)->get();
 
         $html = 'Varumärke: ' . $article->brand . PHP_EOL . PHP_EOL;

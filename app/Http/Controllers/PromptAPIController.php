@@ -10,6 +10,14 @@ class PromptAPIController extends Controller
 {
     public function getExecutable(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'prompt' => 'required',
         ]);
@@ -49,6 +57,14 @@ class PromptAPIController extends Controller
 
     public function execute(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'prompt_id' => 'required',
         ]);
@@ -78,6 +94,14 @@ class PromptAPIController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             $validator = Validator::make($request->all(), [
                 'prompt_id' => 'required',
@@ -113,6 +137,14 @@ class PromptAPIController extends Controller
 
     public function getAll(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $prompts = Prompt::orderBy('group', 'ASC')
 			->orderBy('name', 'ASC')
             ->orderBy('id', 'ASC')
@@ -123,6 +155,14 @@ class PromptAPIController extends Controller
 
     public function get(Request $request, Prompt $prompt)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $promptController = new PromptController();
         $prompt = $promptController->get($prompt->id);
 
@@ -131,6 +171,14 @@ class PromptAPIController extends Controller
 
     public function delete(Request $request, Prompt $prompt)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $prompt->delete();
 
         return ApiResponseController::success();
@@ -138,6 +186,14 @@ class PromptAPIController extends Controller
 
     public function getBySystemCode(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'system_code' => 'required',
         ]);
@@ -158,6 +214,14 @@ class PromptAPIController extends Controller
 
     public function getGroup(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'group' => 'required',
         ]);

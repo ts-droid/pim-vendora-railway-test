@@ -28,6 +28,13 @@ class PurchaseOrderService
      */
     public function splitOrderLine(PurchaseOrderLine $purchaseOrderLine, int $newQuantity): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrderLine->refresh();
 
         if ($newQuantity <= 0) {
@@ -123,6 +130,13 @@ class PurchaseOrderService
 
     public function releasePurchaseOrderShipments(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $shipmentIDs = DB::table('purchase_order_shipment_queue')->pluck('purchase_order_shipment_id');
 
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
@@ -239,6 +253,13 @@ class PurchaseOrderService
      */
     public function deliverShipment(PurchaseOrderShipment $purchaseOrderShipment, array $quantities, string $comment = '', array $exceptions = [], array $images = []): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrderShipment->refresh();
 
         if (!$quantities) {
@@ -379,6 +400,13 @@ class PurchaseOrderService
 
     public function createEmptyShipment(PurchaseOrder $purchaseOrder): PurchaseOrderShipment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return PurchaseOrderShipment::create([
             'purchase_order_id' => $purchaseOrder->id,
             'receipt' => '',
@@ -394,6 +422,13 @@ class PurchaseOrderService
      */
     public function createShipment(PurchaseOrder $purchaseOrder, array $data = [], mixed $lines = [], array $quantities = []): PurchaseOrderShipment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrder->refresh();
 
         $receipt = $data['receipt'] ?? null;
@@ -444,6 +479,13 @@ class PurchaseOrderService
      */
     public function cancelPurchaseOrder(PurchaseOrder $purchaseOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // OBS! Visma.net API does not support deleting the whole order, so we have to delete each line separately
 
         // Delete all local order lines
@@ -474,6 +516,13 @@ class PurchaseOrderService
 
     public function cancelRow(int $lineID): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrderLine = PurchaseOrderLine::find($lineID);
         if (!$purchaseOrderLine) {
             return [
@@ -524,6 +573,13 @@ class PurchaseOrderService
      */
     public function indelivery(PurchaseOrder $purchaseOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Fetch the related sales order
         $salesOrder = $purchaseOrder->directOrder;
         if (!$salesOrder) {
@@ -584,6 +640,13 @@ class PurchaseOrderService
 
     public function autoDeliverPurchaseOrders(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')->get();
 
         foreach ($purchaseOrders as $purchaseOrder) {
@@ -629,6 +692,13 @@ class PurchaseOrderService
      */
     public static function setPurchaseOrderStatus(PurchaseOrder $purchaseOrder)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         $purchaseOrder->refresh();
 
         $providedShippingDetails = 1;

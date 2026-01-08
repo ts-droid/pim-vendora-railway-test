@@ -9,6 +9,13 @@ class EcbService
 {
     public function convertCurrency(float $number, string $fromCurrency, string $toCurrency, string $date = ''): float
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!$date) {
             $date = date('Y-m-d');
         }

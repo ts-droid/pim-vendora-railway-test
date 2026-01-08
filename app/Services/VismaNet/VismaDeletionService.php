@@ -10,6 +10,13 @@ class VismaDeletionService extends VismaNetApiService
 {
     public function deletePurchaseOrders(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrders = $this->getPagedResult('/v1/purchaseorderbasic');
 
         $orderNumbers = array_column($purchaseOrders, 'orderNbr');
@@ -35,6 +42,13 @@ class VismaDeletionService extends VismaNetApiService
 
     public function deleteShipments(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $shipments = Shipment::where('status', '=', 'Open')->get();
 
         if (!$shipments) {

@@ -23,6 +23,13 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
      */
     public function createPurchaseOrder(PurchaseOrder $purchaseOrder, bool $hold = false): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $lines = [];
 
         $orderLines = $purchaseOrder->lines;
@@ -101,6 +108,13 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
     public function unparkPurchaseOrder(PurchaseOrder $purchaseOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $data = [
             'hold' => ['value' => false]
         ];
@@ -128,6 +142,13 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
      */
     public function updatePurchaseOrder(PurchaseOrder $purchaseOrder, ?bool $onHold = null, bool $fetchAfterUpdate = true): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrder->refresh();
 
         // Fetch purchase order from Visma.net so that we can detect changes
@@ -221,6 +242,13 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = '')
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // TODO: Move the called function to this service class
         $vismaNetController = new VismaNetController();
         $vismaNetController->fetchPurchaseOrders($updatedAfter, $orderNumber);
@@ -228,11 +256,25 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
     public function releasePurchaseOrderReceipt(string $receiptNumber): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return $this->callAPI('POST', '/v1/PurchaseReceipt/' . $receiptNumber . '/action/release');
     }
 
     public function createPurchaseOrderReceipt(PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment, string $comment = ''): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $purchaseOrderShipment->refresh();
 
         $postData = [

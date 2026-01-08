@@ -9,6 +9,13 @@ class PurchaseOrderMotivator
 {
     public function motivateQuantity(array $data): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         return 'demo content';
 
         $systemVariables = [

@@ -17,6 +17,13 @@ class TodoItemService extends TodoService
 
     public function createCollectArticle(int $articleID, string $variant, int $createdBy, string $source): TodoItem
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $article = DB::table('articles')->select('article_number')->where('id', $articleID)->first();
         $articleNumber = $article->article_number ?? '';
 
@@ -70,6 +77,13 @@ class TodoItemService extends TodoService
 
     public function submitCollectArticle(TodoItem $todoItem, Request|array $data): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $dataArray = $data instanceof Request ? $data->all() : $data;
 
         $packageImageFront = $data->hasFile('package_image_front') ? $data->file('package_image_front') : null;

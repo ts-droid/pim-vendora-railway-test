@@ -51,6 +51,13 @@ class SendSalesOrderConfirmation
 
         // Log the event to the sales order
         (new SalesOrderService())->createLog($salesOrder->id, 'Sent order confirmation email.', $emailLog->id);
+
+        action_log('Queued sales order confirmation email.', [
+            'sales_order_id' => $salesOrder->id,
+            'order_number' => $salesOrder->order_number,
+            'email' => $salesOrder->email,
+            'email_log_id' => $emailLog->id,
+        ]);
     }
 
 

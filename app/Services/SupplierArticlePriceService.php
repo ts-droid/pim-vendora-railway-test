@@ -10,6 +10,13 @@ class SupplierArticlePriceService
 {
     public function getUnitCostForSupplier(string $articleNumber, Supplier $supplier): float
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $supplierPrice = $this->getSupplierArticlePrice($articleNumber);
 
         if (!$supplierPrice) {
@@ -29,6 +36,13 @@ class SupplierArticlePriceService
 
     public function getSupplierArticlePrice(string $articleNumber): ?SupplierArticlePrice
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $supplierArticlePrice = SupplierArticlePrice::where('article_number', $articleNumber)->first();
 
         if (!$supplierArticlePrice) {
@@ -40,6 +54,13 @@ class SupplierArticlePriceService
 
     public function createSupplierArticlePrice(array $attributes): SupplierArticlePrice
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         SupplierArticlePrice::where('article_number', $attributes['article_number'])->delete();
 
         return SupplierArticlePrice::create($attributes);
@@ -47,6 +68,13 @@ class SupplierArticlePriceService
 
     public function updateSupplierArticlePrice(SupplierArticlePrice $supplierArticlePrice, array $attributes): SupplierArticlePrice
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $supplierArticlePrice->update($attributes);
         return $supplierArticlePrice;
     }

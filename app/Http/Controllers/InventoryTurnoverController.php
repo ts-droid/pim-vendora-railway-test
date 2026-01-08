@@ -11,6 +11,14 @@ class InventoryTurnoverController extends Controller
 {
     public function brands(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $period = (int) $request->input('period', 3);
         $period = max(1, $period);
 
@@ -213,6 +221,14 @@ class InventoryTurnoverController extends Controller
 
     public function article(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $period = (int) $request->input('period', 3);
         $period = max(1, $period);
 
@@ -272,6 +288,14 @@ class InventoryTurnoverController extends Controller
 
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $period = (int) $request->input('period', 3);
         $period = max(1, $period);
 

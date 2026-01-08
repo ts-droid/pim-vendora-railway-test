@@ -17,6 +17,9 @@ class DoSpacesController extends Controller
      */
     public static function store(string $filename, string $content, bool $isPublic = false): string
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $filename = self::getUniqueFilename($filename);
@@ -41,6 +44,9 @@ class DoSpacesController extends Controller
      */
     public static function update(string $filename, string $content, bool $isPublic = false): void
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -60,6 +66,9 @@ class DoSpacesController extends Controller
      */
     public static function getContent(string $filename): ?string
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -75,6 +84,9 @@ class DoSpacesController extends Controller
      */
     public static function getURL(string $filename): string
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -90,6 +102,9 @@ class DoSpacesController extends Controller
      */
     public static function getSignedURL(string $filename): string
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -107,6 +122,9 @@ class DoSpacesController extends Controller
      */
     public static function setPublic(string $filename): void
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -122,6 +140,9 @@ class DoSpacesController extends Controller
      */
     public static function setPrivate(string $filename): void
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -137,6 +158,9 @@ class DoSpacesController extends Controller
      */
     public static function getSize(string $filename): int
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -151,6 +175,9 @@ class DoSpacesController extends Controller
      */
     public static function delete(string $filename): void
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $folder = config('filesystems.disks.do.folder');
 
         $path = $folder . '/' . ltrim($filename, '/');
@@ -165,6 +192,9 @@ class DoSpacesController extends Controller
      */
     public static function storeLocalFiles(): void
     {
+        $__controllerLogContext = static::controllerStaticLogContext(__FUNCTION__, func_get_args());
+        action_log('Invoked controller static method.', $__controllerLogContext);
+
         $filePaths = self::listFilesRecursively(storage_path('app'));
 
         foreach ($filePaths as $filePath) {

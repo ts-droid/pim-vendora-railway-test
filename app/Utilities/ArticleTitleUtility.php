@@ -11,6 +11,13 @@ class ArticleTitleUtility
 {
     public static function getTitle(int|Article $article, string $locale, bool $includeColor = true): string
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         if (is_int($article)) {
             $article = Article::find($article);
         }
@@ -42,6 +49,13 @@ class ArticleTitleUtility
 
     public static function setTitle(Article $article, string $title, string $locale): void
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         DB::table('article_titles')
             ->where('article_id', $article->id)
             ->where('locale', $locale)
@@ -56,6 +70,13 @@ class ArticleTitleUtility
 
     public static function translateTitles(int|Article $article): void
     {
+        $__utilityLogContext = [
+            'utility' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked utility static method.', $__utilityLogContext);
+
         if (is_int($article)) {
             $article = Article::find($article);
         }

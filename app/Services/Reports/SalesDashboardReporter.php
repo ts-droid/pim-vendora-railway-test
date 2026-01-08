@@ -31,6 +31,13 @@ class SalesDashboardReporter
         private readonly bool $addShipping = false
     )
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!$this->addShipping || $this->salesPersonIDs || $this->customerNumber || $this->supplierNumber) {
             $this->excludeShipping = true;
         }
@@ -40,6 +47,13 @@ class SalesDashboardReporter
 
     public function getCharts(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $turnoverChart = [
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
             'datasets' => [
@@ -106,6 +120,13 @@ class SalesDashboardReporter
 
     public function getSummary(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Load sales data
         $periodSummary = [
             'current' => $this->getSalesData(
@@ -388,6 +409,13 @@ class SalesDashboardReporter
 
     public function getTopBrands(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $invoiceLines = $this->getInvoiceLines(
             date('Y-m-01 00:00:00', strtotime($this->period[0])),
             date('Y-m-d 23:59:59', strtotime($this->period[1]))
@@ -518,6 +546,13 @@ class SalesDashboardReporter
 
     public function getTopArticles(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $invoiceLines = $this->getInvoiceLines(
             date('Y-m-01 00:00:00', strtotime($this->period[0])),
             date('Y-m-d 23:59:59', strtotime($this->period[1]))
@@ -614,6 +649,13 @@ class SalesDashboardReporter
 
     public function getTopCustomers(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $invoiceLines = $this->getInvoiceLines(
             date('Y-m-01 00:00:00', strtotime($this->period[0])),
             date('Y-m-d 23:59:59', strtotime($this->period[1]))
@@ -714,6 +756,13 @@ class SalesDashboardReporter
 
     public function getEarnings(): ?array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (empty($this->salesPersonIDs) || count($this->salesPersonIDs) != 1) {
             return null;
         }
@@ -740,6 +789,13 @@ class SalesDashboardReporter
 
     public function getOrderPipeline(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $orderQueueService = new WGROrderQueueService();
         $orderQueue = $orderQueueService->getOrderQueue();
         $orders = $orderQueue['queue'];
@@ -772,6 +828,13 @@ class SalesDashboardReporter
 
     public function getSalesPersonsToplist(): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $invoiceLines = $this->getInvoiceLines(
             date('Y-m-01 00:00:00', strtotime($this->period[0])),
             date('Y-m-d 23:59:59', strtotime($this->period[1]))
@@ -861,6 +924,13 @@ class SalesDashboardReporter
 
     public function getCountryChart(array $topCustomers): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Generate country chart
         $countryChart = [];
         $totalCountryAmount = 0;

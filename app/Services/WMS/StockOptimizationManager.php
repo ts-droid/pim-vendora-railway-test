@@ -30,6 +30,13 @@ class StockOptimizationManager
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->config = [
             'wms_max_fill_size' => (int)ConfigController::getConfig('wms_max_fill_size', 100),
             'wms_min_fill_size' => (int)ConfigController::getConfig('max_volume_class_size_b', 0),
@@ -43,6 +50,13 @@ class StockOptimizationManager
 
     public function optimize(): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->printLine('Starting optimize()');
 
         $isRunning = ConfigController::getConfig('optimize_stock_running', 0);
@@ -456,6 +470,13 @@ class StockOptimizationManager
 
     public function makeStockMovement(string $articleNumber, int $fromStockPlaceCompartmentID, int $toStockPlaceCompartmentID, int $quantity, string $type): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->printLine('Making stock movement for ' . $articleNumber . ' from ' . $fromStockPlaceCompartmentID . ' to ' . $toStockPlaceCompartmentID . ' (Pcs: ' . $quantity . ') (Type: ' . $type . ')');
 
         $stockItemMovement = StockItemMovement::create([

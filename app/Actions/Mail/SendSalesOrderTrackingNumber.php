@@ -49,5 +49,13 @@ class SendSalesOrderTrackingNumber
 
         // Log the event to the sales order
         (new SalesOrderService())->createLog($salesOrder->id, 'Sent tracking email to customer.', $emailLog->id);
+
+        action_log('Queued sales order tracking email.', [
+            'sales_order_id' => $salesOrder->id,
+            'order_number' => $salesOrder->order_number,
+            'email' => $salesOrder->email,
+            'tracking_number' => $trackingNumber,
+            'email_log_id' => $emailLog->id,
+        ]);
     }
 }

@@ -9,6 +9,14 @@ class PushNotificationController extends Controller
 {
     public function setPushToken(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $displayName = get_display_name();
         $token = $request->input('token');
 

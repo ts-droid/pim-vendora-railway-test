@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Models\Customer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class CalculateCustomerRevenue extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,6 +30,8 @@ class CalculateCustomerRevenue extends Command
      */
     public function handle()
     {
+        action_log('Starting customer revenue calculation.', $this->commandLogContext());
+
         $startDate = date('Y-01-01');
         $endDate = date('Y-m-d');
 
@@ -58,5 +63,12 @@ class CalculateCustomerRevenue extends Command
             $customer->revenue = (int) $revenue;
             $customer->save();
         }
+
+        action_log('Finished customer revenue calculation.', $this->commandLogContext([
+            'period_start' => $startDate,
+            'period_end' => $endDate,
+            'invoice_count' => $invoices->count(),
+            'customers_with_revenue' => count($customerRevenues),
+        ]));
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\BestsellerCalculator;
 use Illuminate\Console\Command;
 
 class CalculateBestsellers extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,7 +29,11 @@ class CalculateBestsellers extends Command
      */
     public function handle()
     {
+        action_log('Starting bestseller calculation.', $this->commandLogContext());
+
         $calculator = new BestsellerCalculator();
         $calculator->calculateBestsellers();
+
+        action_log('Finished bestseller calculation.', $this->commandLogContext());
     }
 }

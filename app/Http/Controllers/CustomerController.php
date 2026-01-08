@@ -18,6 +18,14 @@ class CustomerController extends Controller
 {
     public function topList(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $limit = (int) $request->get('limit', 10);
         $articleNumber = $request->get('article_number');
 
@@ -46,6 +54,14 @@ class CustomerController extends Controller
 
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(Customer::class, $request);
 
         $query = $this->getQueryWithFilter(Customer::class, $filter);
@@ -90,6 +106,14 @@ class CustomerController extends Controller
 
     public function getCustomer(Request $request, Customer $customer)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerArray = $customer->toArray();
 
         $customerCreditService = new CustomerCreditService();
@@ -100,6 +124,14 @@ class CustomerController extends Controller
 
     public function getCustomerAllianz(Request $request, Customer $customer)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $gradeCoverService = new AllianzGradeCover();
         $gradeData = $gradeCoverService->getCustomerGradeData($customer);
 
@@ -108,6 +140,14 @@ class CustomerController extends Controller
 
     public function getCustomerSales(Request $request, Customer $customer)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
@@ -399,6 +439,14 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'external_id' => 'required|string',
             'customer_number' => 'required|string',
@@ -443,6 +491,14 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new Customer)->getFillable();
 
         foreach ($request->all() as $key => $value) {
@@ -477,6 +533,14 @@ class CustomerController extends Controller
 
     public function VATNumberToCustomerNumber(array $VATNumbers)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $VATNumbers = array_filter($VATNumbers);
 
         if (!$VATNumbers) {
@@ -492,6 +556,14 @@ class CustomerController extends Controller
 
     public function calculateSales()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customers = Customer::all();
 
         if (!$customers) {

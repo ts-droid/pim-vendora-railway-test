@@ -10,11 +10,27 @@ class ArticleCategoryController extends Controller
 {
     public function getAllCategoryIDs()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return ArticleCategory::pluck('id')->toArray();
     }
 
     public function getCategoryPaths()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $categories = \App\Models\ArticleCategory::all()->toArray();
 
         // Build a map of categories
@@ -37,6 +53,14 @@ class ArticleCategoryController extends Controller
 
     public function getCategoryTree(array $categoryIDs, int $parentID = 0)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $allCategories = ArticleCategory::whereIn('id', $categoryIDs)
             ->orderBy('parent_id')
             ->get()
@@ -62,6 +86,14 @@ class ArticleCategoryController extends Controller
 
     public function getCategoryByTitle(string $title, int $parentID = 0)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleCategory = ArticleCategory::where('title_en', $title)
             ->where('parent_id', $parentID)
             ->first();
@@ -71,6 +103,14 @@ class ArticleCategoryController extends Controller
 
     public function createCategory(array $data, int $parentID)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $createData = [
             'parent_id' => $parentID,
         ];
@@ -90,6 +130,14 @@ class ArticleCategoryController extends Controller
 
     public function updateCategory(ArticleCategory $category, array $data)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $updateData = [];
 
         $languages = (new LanguageController())->getAllLanguages();

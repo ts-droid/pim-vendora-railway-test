@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Enums\LaravelQueues;
 use App\Mail\NotifyPurchaseOrderExceptions;
 use App\Models\PurchaseOrderException;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 
 class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -33,7 +36,14 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
     {
         $unhandledExceptions = PurchaseOrderException::whereNull('handled_at')->get();
 
-        if (!$unhandledExceptions->count()) return;
+        if (!$unhandledExceptions->count()) {
+            action_log('No purchase order exceptions to handle.', $this->commandLogContext());
+            return;
+        }
+
+        action_log('Handling purchase order exceptions.', $this->commandLogContext([
+            'exceptions' => $unhandledExceptions->count(),
+        ]));
 
         $groupedExceptions = [];
         foreach ($unhandledExceptions as $exception) {
@@ -47,6 +57,8 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
 
             $groupedExceptions[$exception->purchase_order_shipment_id]['exceptions'][] = $exception;
         }
+
+        $shipmentsHandled = 0;
 
         foreach ($groupedExceptions as $data) {
             $email = $data['email'];
@@ -68,6 +80,13 @@ class HandlePurchaseOrderExceptions extends Command implements ShouldBeUnique
             foreach ($exceptions as $exception) {
                 $exception->update(['handled_at' => now()]);
             }
+
+            $shipmentsHandled++;
         }
+
+        action_log('Finished handling purchase order exceptions.', $this->commandLogContext([
+            'exceptions' => $unhandledExceptions->count(),
+            'shipments_notified' => $shipmentsHandled,
+        ]));
     }
 }

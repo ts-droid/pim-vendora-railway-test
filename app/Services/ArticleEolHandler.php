@@ -15,6 +15,13 @@ class ArticleEolHandler
      * @return void
      */
     public function inactivateArticles() {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articleNumbers = DB::table('articles')
             ->select('article_number')
             ->where('status', 'NoPurchases')
@@ -39,6 +46,13 @@ class ArticleEolHandler
      */
     public function inactivateArticle(string $articleNumber)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $article = Article::where('article_number', $articleNumber)->first();
 
         if (!$article) {

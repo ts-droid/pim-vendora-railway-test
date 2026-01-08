@@ -22,6 +22,12 @@ class GeneratePurchaseOrders implements ShouldQueue
      */
     public function __construct(int $supplierID, int $isEmpty)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->supplierID = $supplierID;
         $this->isEmpty = $isEmpty;
     }
@@ -31,6 +37,12 @@ class GeneratePurchaseOrders implements ShouldQueue
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $purchaseOrderGenerator = new PurchaseOrderGenerator();
 
         $purchaseOrderGenerator->generate(

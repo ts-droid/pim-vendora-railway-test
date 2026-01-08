@@ -14,6 +14,13 @@ class VismaNetTransactionService extends VismaNetApiService
      */
     public function fetchTransactions(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->fetchTransactionsForAccount(4092);
     }
 
@@ -25,6 +32,13 @@ class VismaNetTransactionService extends VismaNetApiService
      */
     public function fetchTransactionsForAccount(int $accountNumber): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $getParams = [
             'ledger' => 1, // Redovisning
             'fromPeriod' => '202001',

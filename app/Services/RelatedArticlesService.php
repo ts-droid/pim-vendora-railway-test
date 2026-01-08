@@ -10,6 +10,13 @@ class RelatedArticlesService
 {
     public function connectGroup(array $identifiers, bool $byArticleNumber): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articles = $this->fetchArticles($identifiers, $byArticleNumber);
 
         if ($articles->count() < 2) {
@@ -52,6 +59,13 @@ class RelatedArticlesService
 
     public function disconnectSubset(array $identifiers, bool $byArticleNumber = false): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articles = $this->fetchArticles($identifiers, $byArticleNumber);
         if ($articles->isEmpty()) return;
 
@@ -67,6 +81,13 @@ class RelatedArticlesService
 
     public function syncGroup(array $identifiers, bool $byArticleNumber = false): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articles = $this->fetchArticles($identifiers, $byArticleNumber);
         if ($articles->count() < 2) {
             $this->disconnectSubset($identifiers, $byArticleNumber);

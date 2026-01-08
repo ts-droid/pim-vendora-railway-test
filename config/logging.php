@@ -151,7 +151,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/actions.log'),
             'level' => env('ACTIONS_LOG_LEVEL', 'info'),
-            'days' => env('ACTIONS_LOG_DAYS', 30),
+            'days' => env('ACTIONS_LOG_DAYS', 5),
         ],
 
         'papertrail' => [
@@ -168,7 +168,7 @@ return [
 
         'actions' => [
             'driver' => 'stack',
-            'channels' => ['actions_file', 'papertrail'],
+            'channels' => ['actions_file'], // TODO: Add graylog channel here
             'ignore_exceptions' => false,
         ]
 

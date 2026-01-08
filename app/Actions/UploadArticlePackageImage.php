@@ -46,5 +46,12 @@ class UploadArticlePackageImage
                 $column => $remoteFilename,
                 $urlColumn => DoSpacesController::getURL($remoteFilename)
             ]);
+
+        action_log('Uploaded article package image.', [
+            'article_id' => $articleID,
+            'column' => $column,
+            'remote_filename' => $remoteFilename,
+            'replaced_existing' => (bool) $oldImage
+        ]);
     }
 }

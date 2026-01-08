@@ -23,6 +23,11 @@ class BrandPageDiscountCode
         ]);
 
         if (!($response['success'] ?? false)) {
+            action_log('Failed to fetch brand page data for discount code email.', [
+                'source' => $source,
+                'endpoint' => $endpoint,
+                'response' => $response,
+            ], 'warning');
             return;
         }
 
@@ -51,5 +56,13 @@ class BrandPageDiscountCode
             ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($email)->queue($mail);
+
+        action_log('Queued brand page discount code email.', [
+            'source' => $source,
+            'language' => $language,
+            'email' => $email,
+            'discount_code' => $discountCode,
+            'brand_page_domain' => $site['domain'] ?? null,
+        ]);
     }
 }

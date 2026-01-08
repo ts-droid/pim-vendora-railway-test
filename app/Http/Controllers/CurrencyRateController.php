@@ -10,6 +10,14 @@ class CurrencyRateController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(CurrencyRate::class, $request);
 
         $query = $this->getQueryWithFilter(CurrencyRate::class, $filter);
@@ -21,6 +29,14 @@ class CurrencyRateController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'external_id' => 'required|string',
             'from_currency' => 'required|string',
@@ -54,6 +70,14 @@ class CurrencyRateController extends Controller
 
     public function update(Request $request, CurrencyRate $currencyRate)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $fillables = (new CurrencyRate())->getFillable();
 
         foreach ($request->all() as $key => $value) {

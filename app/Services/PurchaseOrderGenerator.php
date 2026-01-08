@@ -30,6 +30,13 @@ class PurchaseOrderGenerator
      */
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->settings = [
             'last_7_days_weight' => ConfigController::getConfig('purchase_system_7_day_weight', 0.2),
             'last_30_days_weight' => ConfigController::getConfig('purchase_system_30_day_weight', 0.3),
@@ -57,6 +64,13 @@ class PurchaseOrderGenerator
      */
     public function generate(int $supplierID = 0, int $isEmpty = 0): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $suppliers = collect();
 
         if ($supplierID) {
@@ -77,6 +91,13 @@ class PurchaseOrderGenerator
 
     public function generateDirect(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $salesOrders = SalesOrder::whereIn('status', ['Open', 'Shipping'])->get();
 
         if (!$salesOrders->count()) {
@@ -175,6 +196,13 @@ class PurchaseOrderGenerator
      */
     public function regenerate(PurchaseOrder $purchaseOrder): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!$purchaseOrder->is_draft) {
             return [
                 'success' => false,
@@ -206,6 +234,13 @@ class PurchaseOrderGenerator
      */
     public function generateSupplierPurchaseOrder(Supplier $supplier, int $isEmpty): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $generatePurchaseOrder = true;
 
         // Check if the supplier has an open suggestion
@@ -250,6 +285,13 @@ class PurchaseOrderGenerator
      */
     public function createSupplierOrder(Supplier $supplier, Collection $vipSalesOrders = null, int $isEmpty = 0): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($vipSalesOrders === null) {
             $vipSalesOrders = collect();
         }
@@ -417,6 +459,13 @@ class PurchaseOrderGenerator
      */
     public function getOrderLines(Supplier $supplier, Collection $vipSalesOrders, int $foresightDays, array $allowedArticleNumbers = [], array $excludeArticleNumbers = [])
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articles = Article::where('supplier_number', $supplier->number)
             ->where('status', 'Active')
             ->get();
@@ -512,6 +561,13 @@ class PurchaseOrderGenerator
      */
     public function getQuantityToOrder(Article $article, Collection $vipSalesOrders, int $foresightDays): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $hasPurchaseOrders = PurchaseOrderLine::where('article_number', $article->article_number)->exists();
 
         $periods = [

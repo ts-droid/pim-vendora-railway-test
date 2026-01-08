@@ -2,12 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\ArticleController;
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\SalesVolumeCalculator;
 use Illuminate\Console\Command;
 
 class CalculateArticleSalesVolume extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,8 +29,12 @@ class CalculateArticleSalesVolume extends Command
      */
     public function handle()
     {
+        action_log('Starting article sales volume calculation.', $this->commandLogContext());
+
         $calculator = new SalesVolumeCalculator();
         $calculator->calculateTotalSales();
         $calculator->calculateArticles();
+
+        action_log('Finished article sales volume calculation.', $this->commandLogContext());
     }
 }

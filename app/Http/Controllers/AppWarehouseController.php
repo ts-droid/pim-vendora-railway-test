@@ -21,6 +21,14 @@ class AppWarehouseController extends Controller
 {
     public function getMovements()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockItemMovements = StockItemMovement::with(
                 'fromStockPlaceCompartment',
                 'fromStockPlaceCompartment.stockPlace',
@@ -43,6 +51,14 @@ class AppWarehouseController extends Controller
 
     public function createMovement(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             $signature = get_display_name();
 
@@ -150,6 +166,14 @@ class AppWarehouseController extends Controller
 
     public function getMovement(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockItemMovement = StockItemMovement::with(
                 'fromStockPlaceCompartment',
                 'fromStockPlaceCompartment.stockPlace',
@@ -169,6 +193,14 @@ class AppWarehouseController extends Controller
 
     public function confirmMovement(Request $request, StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $signature = get_display_name();
 
         $stockItemService = new StockItemService();
@@ -237,6 +269,14 @@ class AppWarehouseController extends Controller
 
     public function investigateMovement(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockItemMovement->update(['is_investigation' => 1]);
 
         // Remove old reservations
@@ -253,6 +293,14 @@ class AppWarehouseController extends Controller
 
     public function stockKeepTodo(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         StockKeepService::makeTodo(
             $stockItemMovement->article_number,
             StockKeepService::TODO_TYPE_ARTICLE
@@ -265,6 +313,14 @@ class AppWarehouseController extends Controller
 
     public function measurementTodo(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleID = (int) DB::table('articles')
             ->select('id')
             ->where('article_number', $stockItemMovement->article_number)
@@ -289,6 +345,14 @@ class AppWarehouseController extends Controller
 
     public function unleashArticles(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $signature = get_display_name();
 
         $articles = $request->input('articles');
@@ -335,6 +399,14 @@ class AppWarehouseController extends Controller
 
     public function pingMovement(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockItemMovement->update(['ping_at' => time()]);
 
         return ApiResponseController::success();
@@ -342,6 +414,14 @@ class AppWarehouseController extends Controller
 
     public function unpingMovement(StockItemMovement $stockItemMovement)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockItemMovement->update(['ping_at' => 0]);
 
         return ApiResponseController::success();

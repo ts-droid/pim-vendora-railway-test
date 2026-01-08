@@ -9,6 +9,13 @@ class AllianzApiService
 {
     public function makeRequest(string $method, string $endpoint, array $params = [])
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $headers = [
             'Authorization' => 'Bearer ' . $this->getToken(),
             'Accept' => 'application/json',

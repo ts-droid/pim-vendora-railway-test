@@ -20,6 +20,13 @@ class WgrArticleService
 {
     public function createArticle(Article $article): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if (!in_array($article->status, ['Active'])) {
             return;
         }
@@ -73,6 +80,13 @@ class WgrArticleService
 
     public function updateArticle(Article $article): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $wgrController = new WgrController();
 
         // Make sure the article exists in WGR
@@ -201,6 +215,13 @@ class WgrArticleService
 
     public function getPostData(Article $article): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $postData = [
             'isBackOrder' => (bool) $article->is_backorder,
             'reviewLinksJSON' => (string) $article->review_links ?: '[]',

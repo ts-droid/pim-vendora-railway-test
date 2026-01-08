@@ -11,6 +11,14 @@ class CustomerReviewController extends Controller
 {
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleID = $request->get('article_id', 0);
         $rating = $request->get('rating', 5);
         $lang = $request->get('lang', 'en');
@@ -24,6 +32,14 @@ class CustomerReviewController extends Controller
 
     public function submit(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleID = $request->get('article_id', 0);
         $lang = $request->get('lang', 'en');
 
@@ -51,6 +67,14 @@ class CustomerReviewController extends Controller
 
     public function done(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lang = $request->get('lang', 'en');
         App::setLocale($lang);
 

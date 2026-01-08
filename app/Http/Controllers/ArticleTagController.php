@@ -11,6 +11,14 @@ class ArticleTagController extends Controller
 {
     public function get()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleTags = ArticleTag::orderBy('title_en', 'ASC')->get();
 
         return ApiResponseController::success($articleTags->toArray());
@@ -18,6 +26,14 @@ class ArticleTagController extends Controller
 
     public function getTag(ArticleTag $articleTag)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleTag->article_ids = DB::table('article_tag_connections')
             ->where('article_tag_id', $articleTag->id)
             ->pluck('article_id')
@@ -34,6 +50,14 @@ class ArticleTagController extends Controller
 
     public function connections()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $connections = DB::table('article_tag_connections')
             ->join('articles', 'articles.id', '=', 'article_tag_connections.article_id')
             ->select('article_id', 'article_tag_id', 'article_number')
@@ -44,6 +68,14 @@ class ArticleTagController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = [];
 
         $languages = (new LanguageController())->getAllLanguages();
@@ -59,6 +91,14 @@ class ArticleTagController extends Controller
 
     public function update(Request $request, ArticleTag $articleTag)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleTag->update($request->all());
 
         return ApiResponseController::success($articleTag->toArray());
@@ -66,6 +106,14 @@ class ArticleTagController extends Controller
 
     public function delete(Request $request, ArticleTag $articleTag)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         DB::table('article_tag_connections')
             ->where('article_tag_id', $articleTag->id)
             ->delete();
@@ -77,6 +125,14 @@ class ArticleTagController extends Controller
 
     public function connect(Request $request, ArticleTag $articleTag, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         DB::table('article_tag_connections')->insert([
             'article_id' => $article->id,
             'article_tag_id' => $articleTag->id,
@@ -87,6 +143,14 @@ class ArticleTagController extends Controller
 
     public function disconnect(ArticleTag $articleTag, Article $article)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         DB::table('article_tag_connections')
             ->where('article_id', $article->id)
             ->where('article_tag_id', $articleTag->id)

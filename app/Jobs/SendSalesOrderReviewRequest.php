@@ -26,6 +26,12 @@ class SendSalesOrderReviewRequest implements ShouldQueue
      */
     public function __construct(SalesOrder $salesOrder)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->salesOrder = $salesOrder;
     }
 
@@ -34,6 +40,12 @@ class SendSalesOrderReviewRequest implements ShouldQueue
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $brandingData = $this->salesOrder->getBrandingDate();
 
         App::setLocale($this->salesOrder->language ?: 'en');

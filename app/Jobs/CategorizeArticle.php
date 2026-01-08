@@ -19,13 +19,26 @@ class CategorizeArticle implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected Article $article, protected bool $returnOnly = false) {}
+    public function __construct(protected Article $article, protected bool $returnOnly = false)
+    {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+    }
 
     /**
      * Execute the job.
      */
     public function handle(): int
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         if (!$this->article->shop_description_en) {
             return 0;
         }

@@ -12,6 +12,14 @@ class SalesDataController extends Controller
 {
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Required parameters
         $startDate = $request->get('start_date', '');
         $endDate = $request->get('end_date', '');

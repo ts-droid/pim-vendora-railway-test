@@ -9,6 +9,14 @@ class StockLogController extends Controller
 {
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = $this->getModelFilter(StockLog::class, $request);
 
         $query = $this->getQueryWithFilter(StockLog::class, $filter);
@@ -20,6 +28,14 @@ class StockLogController extends Controller
 
     public function logStock(string $articleNumber, int $stock): void
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Do not log if the stock is the same
         if ($stock == $this->getCurrentStock($articleNumber)) {
             return;
@@ -33,6 +49,14 @@ class StockLogController extends Controller
 
     public function getCurrentStock(string $articleNumber): int
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockLog = StockLog::where('article_number', $articleNumber)
             ->orderBy('created_at', 'desc')
             ->first();
@@ -42,6 +66,14 @@ class StockLogController extends Controller
 
     public function getStockByDate(string $articleNumber, string $date): int
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $date = date('Y-m-d 23:59:59', strtotime($date));
 
         $stockLog = StockLog::where('article_number', $articleNumber)
@@ -54,6 +86,14 @@ class StockLogController extends Controller
 
     public function getAverageStock(string $articleNumber, string $startDate, string $endDate): int
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $startDate = date('Y-m-d 00:00:00', strtotime($startDate));
         $endDate = date('Y-m-d 23:59:59', strtotime($endDate));
 

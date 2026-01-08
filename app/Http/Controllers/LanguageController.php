@@ -29,6 +29,14 @@ class LanguageController extends Controller
      */
     public function getAllLanguages()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Language::all();
     }
 
@@ -39,6 +47,14 @@ class LanguageController extends Controller
      */
     public function getActiveLanguages()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Language::where('is_active', 1)->get();
     }
 
@@ -50,6 +66,14 @@ class LanguageController extends Controller
      */
     public function getLanguageByCode(string $languageCode)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Language::where('language_code', $languageCode)->first();
     }
 
@@ -61,6 +85,14 @@ class LanguageController extends Controller
      */
     public function activateLanguage(Language $language)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $language->is_active = 1;
         $language->save();
 
@@ -80,6 +112,14 @@ class LanguageController extends Controller
      */
     public function deactivateLanguage(Language $language)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $language->is_active = 0;
         $language->save();
 
@@ -103,6 +143,14 @@ class LanguageController extends Controller
      */
     public function createLanguage(string $languageCode, string $title, string $titleLocal, string $defaultCurrency, string $countryCode): Language|bool
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $languageCodeExists = Language::where('language_code', $languageCode)->exists();
 
         if ($languageCodeExists) {
@@ -131,6 +179,14 @@ class LanguageController extends Controller
      */
     public function setupLanguageColumns(string $languageCode)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Collect all language columns in the database
         $languageColumns = [];
 

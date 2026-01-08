@@ -18,6 +18,13 @@ class PurchaseOrderDeletionService
      */
     public function delete(PurchaseOrder $purchaseOrder): bool
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($purchaseOrder->is_draft) {
             // Only delete the order locally
             if ($purchaseOrder->lines) {
@@ -46,6 +53,13 @@ class PurchaseOrderDeletionService
      */
     public function deleteLines(array $orderLineIDs): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Remove all duplicate order line IDs
         $orderLineIDs = array_unique($orderLineIDs);
 

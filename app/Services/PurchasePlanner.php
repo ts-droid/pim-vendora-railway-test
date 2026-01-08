@@ -30,6 +30,13 @@ class PurchasePlanner
 
 	public function getQuantityToOrder(Article $article, int $foresightDays): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$today = new DateTimeImmutable();
 		$horizonEnd = $today->add(new DateInterval("P{$foresightDays}D"));
 
@@ -161,6 +168,13 @@ class PurchasePlanner
 
 	public function removeOutliersAndFlags(array $dailyTotals, DateTimeInterface $startDate, DateTimeInterface $endDate): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$filtered = array_filter(
 			$dailyTotals,
 			fn(DaySale $row) => !$row->exclude_from_trend || $row->override_include
@@ -202,6 +216,13 @@ class PurchasePlanner
 
 	public function trimmedMean(array $dailyTotals, int $days): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		if ($days === 0) return 0.0;
 		$slice = array_slice($dailyTotals, -$days, $days, true);
 		if (!$slice) return 0.0;
@@ -225,6 +246,13 @@ class PurchasePlanner
 		float   $avgLY90
 	): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		// A) Standard formulas
 		if ($articleAgeDays > self::MIN_ARTICLE_DAYS && $avgLY90 > 0) {
 			$trend = $avg90 / $avgLY90;
@@ -254,6 +282,13 @@ class PurchasePlanner
 	/* -------------- SALES SERVICE -------------- */
 	public function getDailyTotals(array $articles, DateTimeInterface $from, DateTimeInterface $to, bool $includePlanned = false): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$articleNumbers = $this->getArticleNumbers($articles);
 
 		$rows = SalesOrder::query()
@@ -289,6 +324,13 @@ class PurchasePlanner
 
 	public function getPlannedOrderQty(array $articles, DateTimeInterface $from, DateTimeInterface $to): int
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$articleNumbers = $this->getArticleNumbers($articles);
 
         $qty = 0;
@@ -304,6 +346,13 @@ class PurchasePlanner
 	/* -------------- INVENTORY SERVICE -------------- */
 	public function getOnHandQty(array $articles): int
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$stock = 0;
 
 		foreach ($articles as $article) {
@@ -315,6 +364,13 @@ class PurchasePlanner
 
 	public function getIncomingQty(array $articles, DateTimeInterface $from, DateTimeInterface $to): int
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
         $articleNumbers = $this->getArticleNumbers($articles);
 
         $qty = 0;
@@ -330,6 +386,13 @@ class PurchasePlanner
 	/* -------------- TREND SERVICE -------------- */
 	public function fallbackTrend(Article $article, int $articleAgeDays): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		// Use default trend if article is older than X days
 		if ($article->publish_at && $articleAgeDays > self::FALLBACK_MIN_DAYS) {
 			return self::DEFAULT_TREND;
@@ -368,6 +431,13 @@ class PurchasePlanner
 
 	public function applyWeighting(Article $article, float $trend): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		return $trend;
 	}
 
@@ -375,6 +445,13 @@ class PurchasePlanner
 	/* -------------- SEASON SERVICE -------------- */
 	public function getWeightedIndex(Article $article, DateTimeInterface $start, int $days): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		if ($days <= 0) {
 			return self::SEASONALITY_DEFAULT;
 		}
@@ -402,6 +479,13 @@ class PurchasePlanner
 
 	public function getWeeklyIndexForArticle(Article $article): ?array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$bounds = $this->getBounds($article);
 		if (!$bounds) return null;
 		[$minDt, $maxDt] = $bounds;
@@ -502,6 +586,13 @@ class PurchasePlanner
 
 	public function getMonthlyIndexForArticle(Article $article): ?array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$bounds = $this->getBounds($article);
 		if (!$bounds) return null;
 		[$minDt, $maxDt] = $bounds;
@@ -600,6 +691,13 @@ class PurchasePlanner
 
 	public function getBounds(Article $article): ?array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$b = DB::table('sales_orders')
 			->join('sales_order_lines', 'sales_order_lines.sales_order_id', '=', 'sales_orders.id')
 			->selectRaw('MIN(DATE(sales_orders.date)) AS min_dt, MAX(DATE(sales_orders.date)) AS max_dt')
@@ -613,6 +711,13 @@ class PurchasePlanner
 
 	public function hasEnoughWeekly(?array $curve): bool
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		if (!$curve) return false;
 
 		$years = (int) ($curve['years'] ?? 0);
@@ -624,6 +729,13 @@ class PurchasePlanner
 
 	public function hasEnoughMonthly(?array $curve): bool
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		if (!$curve) return false;
 
 		$years = (int) ($curve['years'] ?? 0);
@@ -635,6 +747,13 @@ class PurchasePlanner
 
 	public function normalizeWeekly(array $w): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		for ($i = 1; $i <= 52; $i++) {
 			if (!array_key_exists($i, $w)) $w[$i] = 1.0;
 		}
@@ -651,6 +770,13 @@ class PurchasePlanner
 
 	public function normalizeMonthly(array $m): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		for ($i = 1; $i <= 12; $i++) {
 			if (!array_key_exists($i, $m)) $m[$i] = 1.0;
 		}
@@ -665,6 +791,13 @@ class PurchasePlanner
 
 	public function weightByWeeks(DateTimeImmutable $start, DateTimeImmutable $end, array $weekIdx): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$counts = []; // weekNo => days
 		for ($d = $start; $d < $end; $d = $d->add(new DateInterval('P1D'))) {
 			$w = (int)$d->format('W'); // ISO 01..53
@@ -684,6 +817,13 @@ class PurchasePlanner
 
 	public function weightByMonths(DateTimeImmutable $start, DateTimeImmutable $end, array $monthIdx): float
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$cursor    = $start;
 		$weighted  = 0.0;
 		$totalDays = 0;
@@ -715,6 +855,13 @@ class PurchasePlanner
     /* -------------- SUPPLIER SERVICE -------------- */
     public function getGrowthPct(Supplier $supplier): ?float // ex. 1.05 = +5 %
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
 		$multiplier = 1;
 
 		if ($supplier->calculated_growth) {
@@ -732,6 +879,13 @@ class PurchasePlanner
 
     public function getLegacyArticles(Article $article): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articles = [];
 
         if ($article->predecessor) {
@@ -747,6 +901,13 @@ class PurchasePlanner
 
 	public function getArticleNumbers(array $articles): array
 	{
+	    $__serviceLogContext = [
+	        'service' => static::class,
+	        'method' => __FUNCTION__,
+	        'args' => func_get_args(),
+	    ];
+	    action_log('Invoked service method.', $__serviceLogContext);
+
 		$articleNumbers = [];
 		foreach ($articles as $article) {
 			$articleNumbers[] = $article->article_number;
@@ -757,11 +918,25 @@ class PurchasePlanner
 
     public function addLog(string $message): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->log[] = $message;
     }
 
     public function saveLog(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $jsonLog = json_encode($this->log, JSON_PRETTY_PRINT);
 
         $filename = 'purchase_planner_log_' . now()->format('Y-m-d_H-i-s') . '_' . rand(10000000, 99999999) . '.json';
@@ -773,6 +948,13 @@ class PurchasePlanner
 
     public function clearLog(): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->log = [];
     }
 }
@@ -785,5 +967,12 @@ class DaySale
         public int $qty,
         public bool $exclude_from_trend = false,
         public bool $override_include = false,
-    ) {}
+    ) {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+}
 }

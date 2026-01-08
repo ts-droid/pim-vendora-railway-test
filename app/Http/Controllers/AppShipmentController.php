@@ -73,6 +73,14 @@ class AppShipmentController extends Controller
 
     public function listTabCount()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $shipments = DB::table('shipments')
             ->select('internal_status', DB::raw('count(*) as total'))
             ->where('status', 'Open')
@@ -91,6 +99,14 @@ class AppShipmentController extends Controller
 
     public function listHistory()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $shipments = Shipment::where('operation', 'Issue')
             ->where('internal_status', ShipmentInternalStatus::PACKED)
             ->where('completed_at', '>=', date('Y-m-d', strtotime('-2 month')))
@@ -119,6 +135,14 @@ class AppShipmentController extends Controller
 
     public function get(Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $shipment->load('address', 'lines', 'lines.article');
 
         if ($shipment->address) {
@@ -191,6 +215,14 @@ class AppShipmentController extends Controller
 
     public function ping(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($request->input('pingAll')) {
             Shipment::where('customer_number', '=', $shipment->customer_number)
                 ->whereNotIn('customer_number', self::GROUP_CUSTOMER_EXCLUDES)
@@ -206,6 +238,14 @@ class AppShipmentController extends Controller
 
     public function unping(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if ($request->input('pingAll')) {
             Shipment::where('customer_number', '=', $shipment->customer_number)
                 ->where('status', '=', 'Open')
@@ -220,6 +260,14 @@ class AppShipmentController extends Controller
 
     public function checkSerialNumber(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $serialNumber = trim($request->input('serial_number'));
         $excludeLineID = (int) $request->input('exclude_line_id');
 
@@ -250,6 +298,14 @@ class AppShipmentController extends Controller
 
     public function pick(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lockKey = 'shipment:pick:' . $shipment->id;
         $lock = Cache::lock($lockKey, 900); // 15 minutes lock
 
@@ -384,6 +440,14 @@ class AppShipmentController extends Controller
 
     public function updateNote(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $shipment->update([
             'note' => (string) $request->input('note', ''),
         ]);
@@ -393,6 +457,14 @@ class AppShipmentController extends Controller
 
     public function update(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         Log::channel('shipments')->info('Received request to update shipment', ['shipmentNumber' => $shipment->number]);
 
         $trackingNumber = (string) $request->input('tracking_number', '');
@@ -416,6 +488,14 @@ class AppShipmentController extends Controller
 
     public function updateLine(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lineID = (int) $request->input('line_id');
         $quantity = (int) $request->input('quantity');
         $serialNumbers = (string) $request->input('serial_numbers');
@@ -433,6 +513,14 @@ class AppShipmentController extends Controller
 
     public function updateComment(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lineID = (int) $request->input('line_id');
         $comment = (string) $request->input('comment');
         $sound = $request->file('sound');
@@ -469,6 +557,14 @@ class AppShipmentController extends Controller
 
     public function complete(Request $request, Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
 
         // Complete the shipment in Visma.net
@@ -540,6 +636,14 @@ class AppShipmentController extends Controller
 
     public function notifyTrackingNumber(Shipment $shipment, $trackingNumber)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         if (!$shipment->order_numbers) {
             Log::channel('shipments')->warning('Shipment has no order numbers. (Order numbers: {orderNumbersCount})', [
                 'shipmentNumber' => $shipment->number,
@@ -598,6 +702,14 @@ class AppShipmentController extends Controller
 
     public function clearVisma(Shipment $shipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $vismaNetShipmentService = new VismaNetShipmentService();
         $response = $vismaNetShipmentService->deleteIfDeleted($shipment);
 

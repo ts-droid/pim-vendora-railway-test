@@ -12,6 +12,13 @@ class DeepSeekService implements AIInterface
     private string $apiURL;
 
     public function __construct(string $model) {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->model = $model;
 
         $this->apiKey = env('DEEPSEEK_API_KEY', '');
@@ -24,6 +31,13 @@ class DeepSeekService implements AIInterface
 
     public function chatCompletion(string $system, string $message, ?float $temperature = null): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $response = $this->callAPI('POST', '/chat/completions', $this->getChatCompletionBody($system, $message));
 
         $chatResponse = '';
@@ -41,6 +55,13 @@ class DeepSeekService implements AIInterface
 
     public function streamChatCompletion(string $system, string $message): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $requestBody = $this->getChatCompletionBody($system, $message);
         $requestBody['stream'] = true;
 

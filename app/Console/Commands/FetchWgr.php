@@ -2,13 +2,15 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\ConfigController;
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\WgrController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
 class FetchWgr extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,8 +30,11 @@ class FetchWgr extends Command
      */
     public function handle()
     {
+        action_log('Starting WGR fetch.', $this->commandLogContext());
+
         if (!is_wgr_active()) {
             $this->info('WGR integration is not active');
+            action_log('WGR integration inactive, skipping fetch.', $this->commandLogContext(), 'warning');
             return;
         }
 
@@ -59,5 +64,11 @@ class FetchWgr extends Command
         else if ($data == 'orders') {
             $wgrController->fetchOrders();
         }
+
+        action_log('Finished WGR fetch.', $this->commandLogContext([
+            'type' => $type,
+            'skip_images' => $skipImages,
+            'data_group' => $data,
+        ]));
     }
 }

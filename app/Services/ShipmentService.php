@@ -9,6 +9,13 @@ class ShipmentService
 {
     public function createShipment(array $data): Shipment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $existingShipment = Shipment::where('number', $data['number'])->first();
         if ($existingShipment) {
             return $this->updateShipment($existingShipment, $data);
@@ -50,6 +57,13 @@ class ShipmentService
 
     public function updateShipment(Shipment $shipment, array $data): Shipment
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $shipment->update([
             'type' => $data['type'] ?? $shipment->type,
             'operation' => $data['operation'] ?? $shipment->operation,

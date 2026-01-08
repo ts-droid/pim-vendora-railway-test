@@ -20,6 +20,14 @@ class StockPlaceController extends Controller
 {
     public function getUnplacedArticles()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $data = Cache::remember('stock_place_controller:get_unplaced_articles', 60, function () {
             $result = [];
 
@@ -48,6 +56,14 @@ class StockPlaceController extends Controller
 
     public function getStockPlaces(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaces = StockPlace::with('compartments', 'compartments.sections')->get();
 
         $stockPlacesArray = [];
@@ -63,6 +79,14 @@ class StockPlaceController extends Controller
 
     public function setCompartmentListOrder(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $sortedIDs = (string) $request->input('sorted_ids', '');
 
         $sortedIDs = explode(',', $sortedIDs);
@@ -80,6 +104,14 @@ class StockPlaceController extends Controller
 
     public function getStockPlace(Request $request, StockPlace $stockPlace)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlace->load('compartments', 'compartments.sections');
 
         $stockPlaceArray = $stockPlace->toArray();
@@ -90,6 +122,14 @@ class StockPlaceController extends Controller
 
     public function getDetailedStockPlaces(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceIDs = $request->input('stock_place_ids');
         $stockPlaceIDs = explode(',', $stockPlaceIDs);
 
@@ -178,6 +218,14 @@ class StockPlaceController extends Controller
 
     public function storeStockPlace(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->createStockPlace($request->only(
             'identifier',
@@ -196,6 +244,14 @@ class StockPlaceController extends Controller
 
     public function updateStockPlace(Request $request, StockPlace $stockPlace)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
         $stockPlace = $stockPlaceService->updateStockPlace($stockPlace, $request->only(
             'identifier',
@@ -213,6 +269,14 @@ class StockPlaceController extends Controller
 
     public function copyStockPlace(Request $request, StockPlace $stockPlace)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $identifier = $request->input('identifier');
         if (!$identifier) {
             return ApiResponseController::error('Identifier is required');
@@ -265,6 +329,14 @@ class StockPlaceController extends Controller
 
     public function deleteStockPlace(Request $request, StockPlace $stockPlace)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->deleteStockPlace($stockPlace);
 
@@ -277,6 +349,14 @@ class StockPlaceController extends Controller
 
     public function storeStockPlaceCompartment(Request $request, StockPlace $stockPlace)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
 
         $compartmentsData = [];
@@ -339,6 +419,14 @@ class StockPlaceController extends Controller
 
     public function updateStockPlaceCompartment(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
         $stockPlaceCompartment = $stockPlaceService->updateStockPlaceCompartment($stockPlaceCompartment, $request->only(
             'volume_class',
@@ -359,6 +447,14 @@ class StockPlaceController extends Controller
 
     public function deleteStockPlaceCompartment(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceService = new StockPlaceService();
         $response = $stockPlaceService->deleteStockPlaceCompartment($stockPlaceCompartment);
 
@@ -371,6 +467,14 @@ class StockPlaceController extends Controller
 
     public function getCompartmentTemplates()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $templates = CompartmentsTemplate::orderBy('name', 'ASC')->get();
 
         return ApiResponseController::success($templates->toArray());
@@ -378,6 +482,14 @@ class StockPlaceController extends Controller
 
     public function getStockPlaceGroups()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceGroups = StockPlaceGroup::all();
 
         foreach ($stockPlaceGroups as &$stockPlaceGroup) {
@@ -389,6 +501,14 @@ class StockPlaceController extends Controller
 
     public function storeStockPlaceGroups(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             $stockPlaceIDs = (string) $request->input('stock_places');
             $stockPlaceIDs = explode(',', $stockPlaceIDs);
@@ -421,6 +541,14 @@ class StockPlaceController extends Controller
 
     public function updateStockPlaceGroup(Request $request, StockPlaceGroup $stockPlaceGroup)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $maxVolume = intval($request->input('max_volume', 0)) ?: 0;
         $minVolume = intval($request->input('min_volume', 0)) ?: 0;
 
@@ -434,6 +562,14 @@ class StockPlaceController extends Controller
 
     public function deleteStockPlaceGroup(StockPlaceGroup $stockPlaceGroup)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $stockPlaceGroup->delete();
 
         return ApiResponseController::success();
@@ -441,6 +577,14 @@ class StockPlaceController extends Controller
 
     public function storeCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $compartmentSection = CompartmentSection::create([
             'stock_place_compartment_id' => $stockPlaceCompartment->id
         ]);
@@ -450,6 +594,14 @@ class StockPlaceController extends Controller
 
     public function deleteCompartmentSection(Request $request, StockPlace $stockPlace, StockPlaceCompartment $stockPlaceCompartment, CompartmentSection $compartmentSection)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $compartmentSection->delete();
 
         return ApiResponseController::success();

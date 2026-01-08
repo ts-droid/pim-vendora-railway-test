@@ -16,6 +16,14 @@ class TodoController extends Controller
 {
     public function getQueues()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $queues = array_map(fn($case) => $case->value, TodoQueue::cases());
 
         return ApiResponseController::success($queues);
@@ -23,6 +31,14 @@ class TodoController extends Controller
 
     public function getQueue(Request $request, string $queue)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $queue = $this->getQueueEnum($queue);
         if ($queue === null) {
             return ApiResponseController::error('Invalid queue');
@@ -38,6 +54,14 @@ class TodoController extends Controller
 
     public function getQueueCount(Request $request, string $queue)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $queue = $this->getQueueEnum($queue);
         if ($queue === null) {
             return ApiResponseController::error('Invalid queue');
@@ -52,6 +76,14 @@ class TodoController extends Controller
 
     public function createItemCollectArticle(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $input = $request->input('input') ?: $request->input('ean');
         $variant = $request->input('variant', 'custom');
 
@@ -80,6 +112,14 @@ class TodoController extends Controller
 
     public function getItem(Request $request, string $queue, int $item)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $todoService = new TodoService();
         $todoItem = $todoService->getItem($item);
 
@@ -92,6 +132,14 @@ class TodoController extends Controller
 
     public function submitItem(Request $request, string $queue, int $item)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $todoItem = TodoItem::where('id', $item)->first();
         if (!$todoItem) {
             return ApiResponseController::error('Item not found');
@@ -118,6 +166,14 @@ class TodoController extends Controller
 
     public function reserveItem(Request $request, string $queue, int $item)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required'
         ]);
@@ -144,6 +200,14 @@ class TodoController extends Controller
 
     public function unreserveItem(Request $request, string $queue, int $item)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $todoItem = TodoItem::where('id', $item)->first();
         if (!$todoItem) {
             return ApiResponseController::error('Item not found');

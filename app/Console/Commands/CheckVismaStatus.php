@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\StatusIndicatorController;
 use App\Http\Controllers\VismaNetController;
 use Illuminate\Console\Command;
 
 class CheckVismaStatus extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -27,6 +30,8 @@ class CheckVismaStatus extends Command
      */
     public function handle()
     {
+        action_log('Checking Visma.net integration status.', $this->commandLogContext());
+
         $vismaController = new VismaNetController();
 
         $isActive = $vismaController->isActive();
@@ -35,8 +40,14 @@ class CheckVismaStatus extends Command
             StatusIndicatorController::ping('Visma.net integration', 300);
 
             $this->info('Visma.net integration is active.');
+            action_log('Visma.net integration is active.', $this->commandLogContext([
+                'is_active' => true,
+            ]));
         } else {
             $this->error('Visma.net integration is not active.');
+            action_log('Visma.net integration is not active.', $this->commandLogContext([
+                'is_active' => false,
+            ]), 'warning');
         }
     }
 }

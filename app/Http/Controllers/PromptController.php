@@ -10,6 +10,14 @@ class PromptController extends Controller
 {
     public function execute(int $promptID, array $inputs = [], string $customInstructions = '', string $model = '', string $imageURL = ''): string
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Load main prompt
         $prompt = $this->get($promptID);
 
@@ -42,6 +50,14 @@ class PromptController extends Controller
 
     public function getGroup(string $group)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Prompt::where('group', $group)
             ->orderBy('name', 'ASC')
             ->orderBy('id', 'ASC')
@@ -50,11 +66,27 @@ class PromptController extends Controller
 
     public function getBySystemCode(string $systemCode): Prompt|null
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Prompt::where('system_code', $systemCode)->first();
     }
 
     public function get(int $promptID): Prompt|null
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         return Prompt::where('id', $promptID)->first();
     }
 
@@ -69,6 +101,14 @@ class PromptController extends Controller
         string $parent = ''
     ): Prompt
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $prompt = Prompt::where('id', $promptID)->first();
 
         if (!$prompt) {
@@ -89,6 +129,14 @@ class PromptController extends Controller
 
     public function replaceInputs(string $string, array $inputs): string
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         foreach ($inputs as $key => $value) {
             $string = str_replace('{' . $key . '}', $value, $string);
         }

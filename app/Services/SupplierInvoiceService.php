@@ -14,6 +14,13 @@ class SupplierInvoiceService
 {
     public function uploadInvoice(PurchaseOrder $purchaseOrder, array $invoiceLineIDs, UploadedFile $file)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Make sure all invoice line ID's is an integer
         $invoiceLineIDs = array_map('intval', $invoiceLineIDs);
 
@@ -52,6 +59,13 @@ class SupplierInvoiceService
 
     public function deleteInvoice(SupplierInvoice $supplierInvoice)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Delete the invoice file from storage
         DoSpacesController::delete($supplierInvoice->filename);
 

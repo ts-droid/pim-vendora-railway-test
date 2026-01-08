@@ -12,6 +12,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function createArticle(Article $article, bool $firstCall = true): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         if ($article->brand) {
             $this->createBrand($article->brand);
         }
@@ -43,6 +50,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function updateArticle(Article $article, bool $firstCall = true): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Check if article exists in Visma.net
         if ($firstCall) {
             $checkResponse = $this->callAPI('GET', '/v1/inventory/' . $article->article_number);
@@ -96,6 +110,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function getPostData(Article $article, bool $isNewArticle = false): array
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $articleAttributes = $article->getAttributesArray();
 
         $description = $article->description;
@@ -213,6 +234,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function getAttributeValueID(string $attributeID, string $valueDescription): string
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $attributes = $this->getAttributes();
 
         $candidates = [];
@@ -252,6 +280,13 @@ class VismaNetArticleService extends VismaNetApiService
 
     public function createBrand(string $brand): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $attributes = $this->getAttributes();
 
         $attributeID = preg_replace('/\s+/', '', $brand);

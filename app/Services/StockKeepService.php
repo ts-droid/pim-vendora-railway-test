@@ -12,6 +12,13 @@ class StockKeepService
 
     public static function makeTodo(string $reference, string $type): StockKeepTodo
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         // Remove existing non-archived transactions under investigations
         if ($type === self::TODO_TYPE_ARTICLE) {
             StockKeepTransaction::where('article_number', '=', $reference)
@@ -37,6 +44,13 @@ class StockKeepService
 
     public static function makeTransaction($articleNumber, $identifier, $value, $diff, $investigate): StockKeepTransaction
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service static method.', $__serviceLogContext);
+
         // Remove existing non-archived investigations
         StockKeepTransaction::where('article_number', '=', $articleNumber)
             ->where('status', '=', 'investigation')

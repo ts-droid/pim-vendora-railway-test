@@ -31,6 +31,14 @@ class PurchaseOrderController extends Controller
 {
     public function getOngoing(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderLines = DB::table('purchase_order_lines')
             ->select(
                 'purchase_order_lines.*',
@@ -57,6 +65,14 @@ class PurchaseOrderController extends Controller
 
     public function getOngoingSent()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderLines = DB::table('purchase_order_lines')
             ->select(
                 'purchase_order_lines.*',
@@ -79,6 +95,14 @@ class PurchaseOrderController extends Controller
 
     public function getOngoingDeleted()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrders = PurchaseOrder::where('should_delete', '=', 1)
             ->where('purchase_orders.status', '=', 'Open')
             ->where(function ($query) {
@@ -93,6 +117,14 @@ class PurchaseOrderController extends Controller
 
     public function getShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderShipment->load('lines', 'lines.article');
 
         foreach ($purchaseOrderShipment->lines as &$line) {
@@ -107,6 +139,14 @@ class PurchaseOrderController extends Controller
 
     public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $quantities = json_decode($request->input('quantities', '[]'), true);
 
         if (!$quantities) {
@@ -166,6 +206,14 @@ class PurchaseOrderController extends Controller
 
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $images = [];
         foreach ($purchaseOrderShipment->lines as $line) {
             for ($i = 0;$i < 20;$i++) {
@@ -204,6 +252,14 @@ class PurchaseOrderController extends Controller
 
     public function submitExceptionRows(Request $request, PurchaseOrderShipment $purchaseOrderShipment)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         for ($i = 0;$i < 1000;$i++) {
             $ean = $request->input('exception-row-' . $i . '-ean');
             $exceptionType = $request->input('exception-row-' . $i . '-type');
@@ -250,6 +306,14 @@ class PurchaseOrderController extends Controller
 
     public function getQueuedShipments()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $queueCount = DB::table('purchase_order_shipment_queue')->count();
 
         return ApiResponseController::success([
@@ -259,6 +323,14 @@ class PurchaseOrderController extends Controller
 
     public function releaseShipments(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             $purchaseOrderService = new PurchaseOrderService();
             $purchaseOrderService->releasePurchaseOrderShipments();
@@ -271,6 +343,14 @@ class PurchaseOrderController extends Controller
 
     public function setLineAppState(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderLine->update([
             'app_state_quantity' => (int) $request->input('quantity', 0),
             'app_state_verified' => (int) $request->input('verified', 0),
@@ -281,6 +361,14 @@ class PurchaseOrderController extends Controller
 
     public function getOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $loadRelations = $request->input('load_relations', '0');
 
         if ($loadRelations) {
@@ -337,6 +425,14 @@ class PurchaseOrderController extends Controller
 
     public function get(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $loadRelations = $request->get('load_relations', '1');
 
         $filter = $this->getModelFilter(PurchaseOrder::class, $request);
@@ -390,6 +486,14 @@ class PurchaseOrderController extends Controller
 
     public function getWarehouse(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')
             ->orderByRaw('(promised_date IS NULL OR promised_date = "") ASC')
             ->orderBy('promised_date', 'ASC')
@@ -410,6 +514,14 @@ class PurchaseOrderController extends Controller
 
     public function getOpen(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
@@ -443,6 +555,14 @@ class PurchaseOrderController extends Controller
 
     public function getPending(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
@@ -476,6 +596,14 @@ class PurchaseOrderController extends Controller
 
     public function getClosed(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $perPage = $request->get('per_page', 30);
         $supplierNumber = $request->get('supplier_number', null);
         $isSent = (int) $request->get('is_sent', 0);
@@ -507,6 +635,14 @@ class PurchaseOrderController extends Controller
 
     public function search(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $perPage = $request->get('per_page', 30);
         $search = $request->get('search', '');
         $sort = $request->get('sort', 'id');
@@ -541,6 +677,14 @@ class PurchaseOrderController extends Controller
 
     public function generatingIds()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $ids = PurchaseOrder::where('is_generating', 1)->pluck('id');
 
         return ApiResponseController::success($ids->toArray());
@@ -548,6 +692,14 @@ class PurchaseOrderController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $validator = Validator::make($request->all(), [
             'order_number' => 'required|string',
             'date' => 'required|string',
@@ -593,6 +745,14 @@ class PurchaseOrderController extends Controller
 
     public function addRow(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $article = Article::where('article_number', $request->get('article_number'))->first();
 
         if (!$article) {
@@ -646,6 +806,14 @@ class PurchaseOrderController extends Controller
 
     public function update(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $requestData = $request->all();
 
         $fillables = (new PurchaseOrder)->getFillable();
@@ -752,6 +920,14 @@ class PurchaseOrderController extends Controller
 
     public function regenerate(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrder->update(['is_generating' => 1]);
 
         RegeneratePurchaseOrder::dispatch($purchaseOrder)->onQueue('high');
@@ -761,6 +937,14 @@ class PurchaseOrderController extends Controller
 
     public function cancelOrderLines(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderLineIDs = $request->post('purchase_order_line_ids');
 
         if (!$purchaseOrderLineIDs) {
@@ -780,6 +964,14 @@ class PurchaseOrderController extends Controller
 
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Send the order to external system
         $publisher = new PurchaseOrderPublisher();
         $response = $publisher->send($purchaseOrder);
@@ -819,6 +1011,14 @@ class PurchaseOrderController extends Controller
 
     public function publish(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderPublisher = new PurchaseOrderPublisher();
         $response = $purchaseOrderPublisher->publishOrder($purchaseOrder);
 
@@ -833,6 +1033,14 @@ class PurchaseOrderController extends Controller
 
     public function delete(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $deleteService = new PurchaseOrderDeletionService();
 
         $deleted = $deleteService->delete($purchaseOrder);
@@ -846,6 +1054,14 @@ class PurchaseOrderController extends Controller
 
     public function cancel(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->cancelPurchaseOrder($purchaseOrder);
 
@@ -858,6 +1074,14 @@ class PurchaseOrderController extends Controller
 
     public function cancelRow(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lineID = (int) $request->input('line_id');
 
         $purchaseOrderService = new PurchaseOrderService();
@@ -872,6 +1096,14 @@ class PurchaseOrderController extends Controller
 
     public function indelivery(PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrderService = new PurchaseOrderService();
         $response = $purchaseOrderService->indelivery($purchaseOrder);
 
@@ -884,6 +1116,14 @@ class PurchaseOrderController extends Controller
 
     public function userDelete(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $purchaseOrder->update([
             'user_deleted_at' => date('Y-m-d H:i:s'),
         ]);
@@ -893,6 +1133,14 @@ class PurchaseOrderController extends Controller
 
     public function copyLine(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $lineID = (int) $request->input('line_id');
         $quantity = (int) $request->input('quantity');
 

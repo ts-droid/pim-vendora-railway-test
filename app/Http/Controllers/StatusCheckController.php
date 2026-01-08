@@ -11,6 +11,14 @@ class StatusCheckController extends Controller
 {
     public function checkStatus()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $databaseOnline = (bool) (DB::connection()->getPdo());
 
         $status = [
@@ -32,6 +40,14 @@ class StatusCheckController extends Controller
 
     public function getStatusIndicators()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $statusIndicators = StatusIndicator::orderBy('title', 'ASC')->get();
 
         $response = [];
@@ -49,6 +65,14 @@ class StatusCheckController extends Controller
 
     public function checkCache()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             // Attempt to write and read from cache
             Cache::put('cache_test_key', 'test_value', 60); // Store a value for 60 seconds
@@ -66,6 +90,14 @@ class StatusCheckController extends Controller
 
     public function checkSession()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         try {
             // Attempt to write and read from the session
             session(['session_test_key' => 'test_value']);

@@ -24,6 +24,12 @@ class CompleteWgrOrder implements ShouldQueue
      */
     public function __construct(array $data)
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $this->wgrOrderID = (int) ($data['wgr_order_id'] ?? 0);
         $this->trackingNumber = (string) ($data['tracking_number'] ?? '');
     }
@@ -33,6 +39,12 @@ class CompleteWgrOrder implements ShouldQueue
      */
     public function handle(): void
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $wgrController = new WgrController();
 
         $response = $wgrController->makeRequest('order.setTrackingNumber', [

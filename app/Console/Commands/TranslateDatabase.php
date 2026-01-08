@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Services\LanguageFieldTranslator;
 use Illuminate\Console\Command;
 
 class TranslateDatabase extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -26,7 +29,11 @@ class TranslateDatabase extends Command
      */
     public function handle()
     {
+        action_log('Starting database translation.', $this->commandLogContext());
+
         $languageFieldTranslator = new LanguageFieldTranslator(50);
         $languageFieldTranslator->translateDatabase();
+
+        action_log('Finished database translation.', $this->commandLogContext());
     }
 }

@@ -11,6 +11,14 @@ class ArticleSyncController extends Controller
 {
     public function syncArticle(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $articleNumber = $request->get('articlenumber');
         if (!$articleNumber) {
             die('Missing parameter "articlenumber".');
@@ -32,6 +40,14 @@ class ArticleSyncController extends Controller
 
     public function syncAllArticles()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         // Remove all jobs
         DB::table('jobs')->where('queue', 'article-sync')->delete();
 

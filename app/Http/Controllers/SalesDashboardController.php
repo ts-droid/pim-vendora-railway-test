@@ -13,6 +13,14 @@ class SalesDashboardController extends Controller
 {
     public function index(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $salesPersonIDs = $request->input('sales_person_id');
         $salesPersonIDs = explode(',', $salesPersonIDs);
         $salesPersonIDs = array_filter($salesPersonIDs);
@@ -51,6 +59,14 @@ class SalesDashboardController extends Controller
 
     public function summary(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $period = [
             $request->input('start_date', date('Y-01-01')),
             $request->input('end_date', date('Y-m-d'))
@@ -63,6 +79,14 @@ class SalesDashboardController extends Controller
 
     public function eol(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = (string) $request->input('customer_number');
         $type = (string) $request->input('type');
 
@@ -105,6 +129,14 @@ class SalesDashboardController extends Controller
 
     public function intel(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = (string) $request->input('customer_number');
         $new = (bool) ($request->input('type') == 'new');
 
@@ -246,6 +278,14 @@ class SalesDashboardController extends Controller
 
     public function intelComplete(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = (string) $request->input('customer_number');
         $articleNumber = (string) $request->input('article_number');
         $isDone = (bool) $request->input('is_done', false);
@@ -279,6 +319,14 @@ class SalesDashboardController extends Controller
 
     public function suggestionsComplete(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = (string) $request->input('customer_number');
         $articleNumber = (string) $request->input('article_number');
         $isDone = (bool) $request->input('is_done', false);
@@ -312,6 +360,14 @@ class SalesDashboardController extends Controller
 
     public function suggestions(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $customerNumber = (string) $request->input('customer_number');
         $sorting = (string) $request->input('sorting', 'bestseller');
         $numProducts = (int) $request->input('num_products', 5);

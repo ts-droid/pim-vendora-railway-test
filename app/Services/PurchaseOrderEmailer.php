@@ -15,6 +15,13 @@ class PurchaseOrderEmailer
 {
     public function send(PurchaseOrder $purchaseOrder, bool $isReminder = false)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
         $recipients = array_map('trim', $recipients);
 
@@ -51,6 +58,13 @@ class PurchaseOrderEmailer
 
     public function sendNewOrder(PurchaseOrder $purchaseOrder)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         // Load the recipients for the purchase order
         $email = $purchaseOrder->email
             ?: $purchaseOrder->supplier->supplier_contact_email
@@ -87,6 +101,13 @@ class PurchaseOrderEmailer
 
     public function sendCancelRow(PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $email = $purchaseOrder->email
             ?: $purchaseOrder->supplier->supplier_contact_email
             ?: $purchaseOrder->supplier->main_contact_email
@@ -119,6 +140,13 @@ class PurchaseOrderEmailer
 
     public function sendCancelOrder(PurchaseOrder $purchaseOrder)
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $email = $purchaseOrder->email
             ?: $purchaseOrder->supplier->supplier_contact_email
             ?: $purchaseOrder->supplier->main_contact_email

@@ -16,6 +16,13 @@ class ArticleService
 {
     public function handleStore(Article $article): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         try {
             // Create in Visma.net
             $vismaNetArticleService = new VismaNetArticleService();
@@ -33,6 +40,13 @@ class ArticleService
 
     public function handleUpdate(Article $article): void
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         try {
             // Push update to Visma.net
             $vismaNetArticleService = new VismaNetArticleService();

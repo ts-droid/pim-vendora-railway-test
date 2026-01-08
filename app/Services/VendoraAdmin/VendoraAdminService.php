@@ -14,6 +14,13 @@ class VendoraAdminService
 
     public function __construct()
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $this->webUrl = env('VENDORA_ADMIN_WEB_URL', '');
         $this->apiUrl = env('VENDORA_ADMIN_API_URL', '');
         $this->apiKey = env('VENDORA_ADMIN_API_KEY', '');
@@ -33,6 +40,13 @@ class VendoraAdminService
      */
     public function callAPI(string $method, string $endpoint, array $params = [])
     {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
         $method = strtoupper($method);
 
         $getParams = [

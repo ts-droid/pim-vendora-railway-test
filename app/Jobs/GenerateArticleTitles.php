@@ -30,10 +30,22 @@ class GenerateArticleTitles implements ShouldQueue
     public function __construct(
         public Article $article
     )
-    {}
+    {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+    }
 
     public function handle(): array
     {
+        action_log('Executing job handle method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         if (!$this->article->brand || !$this->article->description || !$this->article->shop_description_sv) {
             throw new \Exception('Missing required article data.');
         }
@@ -66,6 +78,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handlePremiumIntroText(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_premium_intro_text', ['shop_marketing_description'], true);
 
         $updates = [
@@ -82,6 +100,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleSellingPoints(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_selling_points', ['short_description'], true);
 
         $sellingPoints = [
@@ -116,6 +140,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleMetaTitle(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         //$response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
         $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
 
@@ -133,6 +163,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleMetaDescription(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_meta_description', ['meta_description'], true);
 
         $updates = [
@@ -149,6 +185,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleLongTitle(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_long_title', ['shop_title'], true);
 
         $updates = ['shop_title_' . self::BASE_LANGUAGE => $response['shop_title']];
@@ -163,6 +205,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleShortTitle(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
 
         $updates = [
@@ -182,6 +230,12 @@ class GenerateArticleTitles implements ShouldQueue
 
     public function handleColor(bool $returnOnly = false): array
     {
+        action_log('Invoked job method.', [
+            'job' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ]);
+
         $response = $this->executePrompt('article_titles_color', ['color'], true);
 
         $updates = ['color_' . self::BASE_LANGUAGE => mb_ucfirst($response['color'])];

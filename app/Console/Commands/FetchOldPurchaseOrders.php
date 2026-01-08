@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\ProvidesCommandLogContext;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Models\Supplier;
 use App\Services\RemoteDatabaseService;
@@ -11,6 +12,8 @@ use Illuminate\Http\Request;
 
 class FetchOldPurchaseOrders extends Command
 {
+    use ProvidesCommandLogContext;
+
     /**
      * The name and signature of the console command.
      *
@@ -30,10 +33,20 @@ class FetchOldPurchaseOrders extends Command
      */
     public function handle()
     {
+        $host = (string) $this->argument('host');
+        $port = (string) $this->argument('port');
+        $databaseName = (string) $this->argument('database');
+
+        action_log('Starting old purchase order fetch.', $this->commandLogContext([
+            'remote_host' => $host,
+            'remote_port' => $port,
+            'remote_database' => $databaseName,
+        ]));
+
         $database = new RemoteDatabaseService(
-            (string) $this->argument('host'),
-            (string) $this->argument('port'),
-            (string) $this->argument('database'),
+            $host,
+            $port,
+            $databaseName,
             (string) $this->argument('username'),
             (string) $this->argument('password'),
         );
@@ -47,10 +60,15 @@ class FetchOldPurchaseOrders extends Command
 
         if (empty($orders)) {
             $this->error('No old purchase orders found.');
+            action_log('No old purchase orders found on remote source.', $this->commandLogContext([
+                'remote_host' => $host,
+            ]), 'warning');
             return;
         }
 
         $orderController = new PurchaseOrderController();
+        $imported = 0;
+        $skippedExisting = 0;
 
         foreach ($orders as $order) {
             $orderNumber = 'OLD-' . $order['BSTNR'];
@@ -58,6 +76,7 @@ class FetchOldPurchaseOrders extends Command
 
             // Check if the purchase order already exists in the local database
             if (DB::table('purchase_orders')->where('order_number', $orderNumber)->exists()) {
+                $skippedExisting++;
                 continue;
             }
 
@@ -108,6 +127,14 @@ class FetchOldPurchaseOrders extends Command
 
             // Import $orderData to the local database
             $orderController->store(new Request($orderData));
+            $imported++;
         }
+
+        action_log('Finished old purchase order import.', $this->commandLogContext([
+            'remote_host' => $host,
+            'orders_found' => count($orders),
+            'orders_imported' => $imported,
+            'orders_skipped_existing' => $skippedExisting,
+        ]));
     }
 }

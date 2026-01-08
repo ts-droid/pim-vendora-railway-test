@@ -9,6 +9,14 @@ class JobMonitorController extends Controller
 {
     public function dashboard()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $workload = DB::table('jobs')
             ->select('queue', DB::raw('count(*) as num_jobs'))
             ->groupBy('queue')
@@ -25,6 +33,14 @@ class JobMonitorController extends Controller
 
     public function queue()
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $jobs = DB::table('jobs')->get();
 
         if ($jobs) {
@@ -39,6 +55,14 @@ class JobMonitorController extends Controller
 
     public function failedJobs(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $filter = [
             'displayName' => $request->get('displayName'),
         ];
@@ -70,6 +94,14 @@ class JobMonitorController extends Controller
 
     public function retryJobs(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $jobIDs = $request->get('jobIDs', '');
         $jobIDs = explode(',', $jobIDs);
         $jobIDs = array_map('intval', $jobIDs);
@@ -84,6 +116,14 @@ class JobMonitorController extends Controller
 
     public function deleteJobs(Request $request)
     {
+        if ($this->shouldLogControllerMethod()) {
+
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+
+            action_log('Invoked controller method.', $__controllerLogContext);
+
+        }
+
         $jobIDs = $request->get('jobIDs', '');
         $jobIDs = explode(',', $jobIDs);
         $jobIDs = array_map('intval', $jobIDs);
