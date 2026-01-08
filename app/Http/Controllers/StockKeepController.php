@@ -684,6 +684,7 @@ class StockKeepController extends Controller
         $startDate .= ' 00:00:00';
         $endDate .= ' 23:59:59';
 
+        // Load inventories articles
         $articles = [];
 
         $stockKeepTransactions = DB::table('stock_keep_transactions')
@@ -710,8 +711,45 @@ class StockKeepController extends Controller
             }
         }
 
+
+        // Load non-inventoried articles
+        $unconfirmedArticles = [];
+
+        $articleNumbersWithStock = DB::table('articles')
+            ->select('article_number')
+            ->where('stock', '>', 0)
+            ->pluck('article_number');
+
+        foreach ($articleNumbersWithStock as $articleNumber) {
+            $locations = WarehouseHelper::getArticleLocationsWithStock($articleNumber);
+            $stockKeppLocations = $articles[$articleNumber] ?? [];
+
+            foreach ($locations as $location) {
+                $identifier = $location['identifier'];
+                $stock = $location['stock'];
+
+                if (!$stock) continue;
+
+                if (array_key_exists($identifier, $stockKeppLocations)) {
+                    // This location has been stock keept;
+                    continue;
+                }
+
+                if (!isset($unconfirmedArticles[$articleNumber])) {
+                    $unconfirmedArticles[$articleNumber] = [];
+                }
+
+                if (!isset($unconfirmedArticles[$articleNumber][$identifier])) {
+                    $unconfirmedArticles[$articleNumber][$identifier] = 0;
+                }
+
+                $unconfirmedArticles[$articleNumber][$identifier] += $stock;
+            }
+        }
+
         return ApiResponseController::success([
             'inventoried' => $articles,
+            'not_inventoried' => $unconfirmedArticles
         ]);
     }
 }
