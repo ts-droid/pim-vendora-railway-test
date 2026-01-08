@@ -44,9 +44,6 @@ Route::get('/', function () {
 });
 
 Route::get('/test-titles', function () {
-
-    action_log('XXXXXXXXXX');
-
     $articleNumber = request()->get('article_number');
     $article = Article::where('article_number', $articleNumber)->first();
 
