@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AI\AIService;
+use App\Services\AI\OpenAIService;
 use App\Services\ProductImageGenerator;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -96,6 +97,47 @@ class AIController extends Controller
         $response->headers->set('Connection', 'keep-alive');
 
         return $response;
+    }
+
+    public function modifyImage(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $model = (string) $request->input('model', 'gpt-image-1.5');
+        $prompt = (string) $request->input('prompt', '');
+        $base64 = (string) $request->input('base64');
+
+        if (!$prompt || !$base64) {
+            return ApiResponseController::error('Missing required parameters.');
+        }
+
+        try {
+            $imageMime = 'image/png';
+            if (preg_match('/^data:(image\/\w+);base64,/', $base64, $matches)) {
+                $imageMime = $matches[1];
+            }
+
+            $openAiService = new OpenAiService(default_ai_model());
+            $response = $openAiService->generateImageV2($prompt, $base64, $imageMime, $model);
+
+            $newImageBase64 = null;
+            if (!empty($response['data'][0]['b64_json'])) {
+                $newImageBase64 = 'data:image/png;base64,' . $response['data'][0]['b64_json'];
+            }
+        } catch (\Throwable $e) {
+            return ApiResponseController::error($e->getMessage());
+        }
+
+        if (!$newImageBase64) {
+            return ApiResponseController::error('Failed to modify image. Please try again.');
+        }
+
+        return ApiResponseController::success([
+            'image_base_64' => $newImageBase64
+        ]);
     }
 
     public function generateLifestyleImage(Request $request)
