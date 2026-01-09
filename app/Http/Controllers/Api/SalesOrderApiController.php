@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\LaravelQueues;
 use App\Http\Controllers\ApiResponseController;
+use App\Http\Controllers\Controller;
 use App\Jobs\OrderCreatedJob;
 use App\Models\Shipment;
 use App\Services\SalesOrderService;
@@ -13,7 +14,7 @@ use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
-class SalesOrderApiController
+class SalesOrderApiController extends Controller
 {
     protected SalesOrderService $orderService;
 
