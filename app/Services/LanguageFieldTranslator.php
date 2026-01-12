@@ -137,13 +137,15 @@ class LanguageFieldTranslator
         }
 
         // Fetch items that needs to be translated
+        $defaultCol = $languageAttribute . '_' . self::DEFAULT_LANGUAGE;
+
         $items = (new $model)
-            ->where($languageAttribute . '_' . self::DEFAULT_LANGUAGE, '!=', '')
-            ->where($languageAttribute . '_' . self::DEFAULT_LANGUAGE, '!=', null)
+            ->whereNotNull($defaultCol)
+            ->where($defaultCol, '!=', '')
             ->where(function ($subQuery) use ($attributes) {
                 foreach ($attributes as $attribute) {
-                    $subQuery->orWhere($attribute, '=', '');
-                    $subQuery->orWhere($attribute, '=', null);
+                    $subQuery->orWhereNull($attribute)
+                        ->orWhere($attribute, '=', '');
                 }
 
                 return $subQuery;
@@ -153,6 +155,10 @@ class LanguageFieldTranslator
 
         foreach ($items as $item) {
             foreach ($languages as $language) {
+                if ($language->language_code == self::DEFAULT_LANGUAGE
+                    || $language->language_code == 'is') {
+                    continue;
+                }
 
                 $field = $languageAttribute . '_' . $language->language_code;
 
