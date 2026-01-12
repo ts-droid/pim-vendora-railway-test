@@ -467,11 +467,8 @@ class ArticleController extends Controller
     public function getBasic(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         // Get input parameters
@@ -1445,11 +1442,8 @@ class ArticleController extends Controller
     public function uploadImage(Request $request, Article $article)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         if (!$request->hasFile('image')) {
