@@ -286,6 +286,22 @@ class PurchaseOrderService
 
         DB::beginTransaction();
 
+        $calculateQuantityReceived = function (int $lineID) use ($purchaseOrderShipment): int {
+            return (int) DB::table('purchase_order_shipment_lines')
+                ->join(
+                    'purchase_order_shipments',
+                    'purchase_order_shipment_lines.purchase_order_shipment_id',
+                    '=',
+                    'purchase_order_shipments.id'
+                )
+                ->where('purchase_order_shipment_lines.purchase_order_line_id', $lineID)
+                ->where(function ($query) use ($purchaseOrderShipment) {
+                    $query->where('purchase_order_shipments.is_completed', 1)
+                        ->orWhere('purchase_order_shipment_lines.purchase_order_shipment_id', $purchaseOrderShipment->id);
+                })
+                ->sum('purchase_order_shipment_lines.quantity');
+        };
+
         foreach ($lineIDs as $lineID) {
             $qty = (int) ($quantities[$lineID] ?? 0);
             $qty = max(0, $qty);
@@ -348,6 +364,14 @@ class PurchaseOrderService
                     'purchase_order_shipment_id' => 0
                 ]);
 
+                $quantityReceived = $calculateQuantityReceived($lineID);
+                $orderLine->update([
+                    'is_completed' => ($quantityReceived == $orderLine->quantity) ? 1 : 0,
+                    'quantity_received' => $quantityReceived,
+                    'app_state_quantity' => null,
+                    'app_state_verified' => 0
+                ]);
+
                 continue;
             }
 
@@ -357,7 +381,7 @@ class PurchaseOrderService
                 ->where('purchase_order_line_id', $lineID)
                 ->update(['quantity' => $qty]);
 
-            $quantityReceived = $orderLine->quantity_received + $qty;
+            $quantityReceived = $calculateQuantityReceived($lineID);
 
             $orderLine->update([
                 'is_completed' => ($quantityReceived == $orderLine->quantity) ? 1 : 0,
@@ -650,7 +674,10 @@ class PurchaseOrderService
         $purchaseOrders = PurchaseOrder::where('status', '!=', 'Closed')->get();
 
         foreach ($purchaseOrders as $purchaseOrder) {
-            $shipmentIDs = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->pluck('id')->toArray();
+            $shipmentIDs = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)
+                ->where('is_completed', 1)
+                ->pluck('id')
+                ->toArray();
 
             $deliveredQuantities = [];
 
