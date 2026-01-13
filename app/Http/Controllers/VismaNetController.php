@@ -326,7 +326,7 @@ class VismaNetController extends Controller
 
         if ($orderNumber) {
             // Fetch a specific order
-            $order = $this->callAPI('GET', '/v1/purchaseorder/' . $orderNumber);
+            $order = $this->callAPI('GET', '/v1/purchaseorder/' . rawurlencode($orderNumber));
 
             if (empty($order['orderNbr'])) {
                 log_data('Could not find order in visma.net with number ' . $orderNumber . '. Failed to fetch update. Response from Visma.net: ' . json_encode($order));
@@ -579,7 +579,7 @@ class VismaNetController extends Controller
                     $updateData['stock_manageable'] = 0;
                     $lookupFound = false;
 
-                    $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $updateData['article_number']);
+                    $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . rawurlencode($updateData['article_number']));
                     foreach ($detailedStock as $stock) {
                         $stockLocationName = trim($stock['location']['name'] ?? '');
 
@@ -915,7 +915,7 @@ class VismaNetController extends Controller
 
         }
 
-        return $this->callAPI('GET', '/v1/shipment/' . $shipmentNumber);
+        return $this->callAPI('GET', '/v1/shipment/' . rawurlencode($shipmentNumber));
     }
 
     /**
@@ -933,7 +933,7 @@ class VismaNetController extends Controller
 
         }
 
-        return $this->callAPI('GET', '/v1/customer/' . $customerNumber);
+        return $this->callAPI('GET', '/v1/customer/' . rawurlencode($customerNumber));
     }
 
     /**
@@ -951,7 +951,7 @@ class VismaNetController extends Controller
 
         }
 
-        return $this->callAPI('GET', '/v1/inventory/' . $articleNumber);
+        return $this->callAPI('GET', '/v1/inventory/' . rawurlencode($articleNumber));
     }
 
     /**
@@ -970,9 +970,9 @@ class VismaNetController extends Controller
 
         }
 
-        $endpoint = '/v1/salesorder/' . $orderNumber;
+        $endpoint = '/v1/salesorder/' . rawurlencode($orderNumber);
         if ($orderType) {
-            $endpoint = '/v1/salesorder/' . $orderType . '/' . $orderNumber;
+            $endpoint = '/v1/salesorder/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber);
         }
 
         return $this->callAPI('GET', $endpoint);
