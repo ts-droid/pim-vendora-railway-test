@@ -1163,7 +1163,7 @@ class VismaNetController extends Controller
                 return $this->callAPI($method, $endpoint, $params, $accessToken, $tries);
             }
 
-            return [];
+            throw new \Exception('Failed to call Visma.net API: ' . $e->getMessage());
         }
 
         $this->callCount++;
