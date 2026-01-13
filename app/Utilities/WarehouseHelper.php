@@ -397,7 +397,6 @@ class WarehouseHelper
             ->select('created_at')
             ->where('article_number', '=', $articleNumber)
             ->where('identifiers', 'LIKE', '%' . $identifier . '%')
-            ->where('status', '=', 'completed')
             ->orderBy('created_at', 'DESC')
             ->value('created_at');
     }
