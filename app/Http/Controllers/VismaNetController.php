@@ -513,11 +513,8 @@ class VismaNetController extends Controller
     public function fetchArticles(string $updatedAfter = '', bool $forceUpdate = false): void
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $fetchTime = date('Y-m-d H:i:s');

@@ -302,6 +302,38 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function postOutlet(Request $request)
+    {
+        $articleIDs = $request->input('article_ids', []);
+        $outletPrices = $request->input('outlet_prices', []);
+
+        for ($i = 0;$i < count($articleIDs);$i++) {
+            $articleID = (int) $articleIDs[$i];
+            $price = (float) ($outletPrices[$i] ?? 0);
+
+            if (!$price) continue;
+
+            Article::where('id', $articleID)->update([
+                'is_outlet' => 1,
+                'outlet_rounding' => 0,
+                'outlet_mode' => 'standard',
+                'outlet_discount' => 0,
+                'outlet_max_discount' => 0,
+                'outlet_min_margin' => 0,
+                'outlet_inner_weight' => 0,
+                'outlet_master_weight' => 0,
+                'outlet_price_mode' => 'Fixed price',
+                'outlet_price' => $price,
+                'outlet_max_price' => $price,
+                'outlet_price_fixed' => $price,
+                'outlet_inner_price_fixed' => $price,
+                'outlet_master_price_fixed' => $price,
+            ]);
+        }
+
+        return ApiResponseController::success();
+    }
+
     public function setMarked(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
