@@ -579,7 +579,9 @@ class VismaNetController extends Controller
                     $updateData['stock_manageable'] = 0;
                     $lookupFound = false;
 
-                    $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . rawurlencode($updateData['article_number']));
+                    $urlEncodedArticleNumber = 'b64(' . base64_encode($updateData['article_number']) . ')';
+
+                    $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $urlEncodedArticleNumber);
                     foreach ($detailedStock as $stock) {
                         $stockLocationName = trim($stock['location']['name'] ?? '');
 
