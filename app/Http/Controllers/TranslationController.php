@@ -153,15 +153,19 @@ class TranslationController extends Controller
         $globalExcludes = array_merge($globalExcludes, TranslateExcludeService::getAll());
 
         $variables = [];
+        $urls = [];
         for ($j = 0;$j < count($strings);$j++) {
             preg_match_all('/%[a-zA-Z0-9_]+%/', $strings[$j], $matches);
             $variables = array_merge($variables, $matches[0]);
 
             preg_match_all('/{[a-zA-Z0-9_]+}/', $strings[$j], $matches);
             $variables = array_merge($variables, $matches[0]);
+
+            preg_match_all('#https?://[^\s<]+#i', $strings[$j], $matches);
+            $urls = array_merge($urls, $matches[0]);
         }
 
-        $excludes = array_merge($excludes, $globalExcludes, $variables);
+        $excludes = array_merge($excludes, $globalExcludes, $variables, $urls);
         $excludes = array_unique($excludes);
         $excludes = array_filter($excludes);
 
