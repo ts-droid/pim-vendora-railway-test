@@ -191,7 +191,7 @@ class TranslationController extends Controller
 
         // Translate all the strings
         $options = [
-            'tag_handling' => 'xml',
+            'tag_handling' => 'html',
             'ignore_tags' => ['dnt'],
             'non_splitting_tags' => ['dnt'],
             'preserve_formatting' => true,
