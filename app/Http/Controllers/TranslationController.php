@@ -166,9 +166,26 @@ class TranslationController extends Controller
         $excludes = array_unique($excludes);
         $excludes = array_filter($excludes);
 
-        // Wrap excludes with <dnt> tags
-        for ($j = 0;$j < count($strings);$j++) {
-            $strings[$j] = $this->wrapExcludesWithDntHtml($strings[$j], $excludes);
+        // Replace excludes with placeholders
+        $excludeMap = [];
+        if (count($excludes) > 0) {
+            usort($excludes, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+            $tokenPrefix = '__DNT_' . bin2hex(random_bytes(4)) . '_';
+            $tokenIndex = 0;
+
+            foreach ($excludes as $term) {
+                if ($term === '') {
+                    continue;
+                }
+
+                $token = $tokenPrefix . $tokenIndex . '__';
+                $excludeMap[$token] = $term;
+                $tokenIndex++;
+
+                for ($j = 0;$j < count($strings);$j++) {
+                    $strings[$j] = str_replace($term, $token, $strings[$j]);
+                }
+            }
         }
 
 
@@ -205,6 +222,14 @@ class TranslationController extends Controller
             // Remove <dnt> tags from the text
             $original = $originalStrings[$j] ?? '';
             $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
+
+            if (count($excludeMap) > 0) {
+                $translations[$j] = str_replace(
+                    array_keys($excludeMap),
+                    array_values($excludeMap),
+                    $translations[$j]
+                );
+            }
 
             // Fix HTML entities
             $translations[$j] = html_entity_decode($translations[$j]);
@@ -249,8 +274,8 @@ class TranslationController extends Controller
             usort($dntRanges, fn ($a, $b) => $a[0] <=> $b[0]);
         }
 
-        $html = preg_replace('/(\s)<dnt>/u', '&#160;<dnt>', $html);
-        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&#160;', $html);
+        $html = preg_replace('/(\s)<dnt>/u', '&nbsp;<dnt>', $html);
+        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&nbsp;', $html);
 
         return $html;
     }
