@@ -220,8 +220,8 @@ class TranslationController extends Controller
 
         for ($j = 0;$j < count($translations);$j++) {
             // Remove <dnt> tags from the text
-            $original = $originalStrings[$j] ?? '';
-            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
+            // $original = $originalStrings[$j] ?? '';
+            // $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
 
             if (count($excludeMap) > 0) {
                 $translations[$j] = str_replace(
