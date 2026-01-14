@@ -129,11 +129,8 @@ class TranslationController extends Controller
     public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         /*Log::channel('deepl')->info(json_encode([
@@ -252,8 +249,8 @@ class TranslationController extends Controller
             usort($dntRanges, fn ($a, $b) => $a[0] <=> $b[0]);
         }
 
-        $html = preg_replace('/(\s)<dnt>/u', '&nbsp;<dnt>', $html);
-        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&nbsp;', $html);
+        $html = preg_replace('/(\s)<dnt>/u', '&#160;<dnt>', $html);
+        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&#160;', $html);
 
         return $html;
     }
