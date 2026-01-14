@@ -166,32 +166,15 @@ class TranslationController extends Controller
         $excludes = array_unique($excludes);
         $excludes = array_filter($excludes);
 
-        // Replace excludes with placeholders
-        $excludeMap = [];
-        if (count($excludes) > 0) {
-            usort($excludes, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
-            $tokenPrefix = '__DNT_' . bin2hex(random_bytes(4)) . '_';
-            $tokenIndex = 0;
-
-            foreach ($excludes as $term) {
-                if ($term === '') {
-                    continue;
-                }
-
-                $token = $tokenPrefix . $tokenIndex . '__';
-                $excludeMap[$token] = $term;
-                $tokenIndex++;
-
-                for ($j = 0;$j < count($strings);$j++) {
-                    $strings[$j] = str_replace($term, $token, $strings[$j]);
-                }
-            }
+        // Wrap excludes with <dnt> tags
+        for ($j = 0;$j < count($strings);$j++) {
+            $strings[$j] = $this->wrapExcludesWithDntHtml($strings[$j], $excludes);
         }
 
 
         // Translate all the strings
         $options = [
-            'tag_handling' => 'xml',
+            'tag_handling' => 'html',
             'ignore_tags' => ['dnt'],
             'non_splitting_tags' => ['dnt'],
             'preserve_formatting' => true,
@@ -220,18 +203,8 @@ class TranslationController extends Controller
 
         for ($j = 0;$j < count($translations);$j++) {
             // Remove <dnt> tags from the text
-            if (str_contains($translations[$j], '<dnt>')) {
-                $original = $originalStrings[$j] ?? '';
-                $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
-            }
-
-            if (count($excludeMap) > 0) {
-                $translations[$j] = str_replace(
-                    array_keys($excludeMap),
-                    array_values($excludeMap),
-                    $translations[$j]
-                );
-            }
+            $original = $originalStrings[$j] ?? '';
+            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
 
             // Fix HTML entities
             $translations[$j] = html_entity_decode($translations[$j]);
