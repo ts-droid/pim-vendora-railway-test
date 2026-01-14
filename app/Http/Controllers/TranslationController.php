@@ -141,6 +141,8 @@ class TranslationController extends Controller
             'excludes' => $excludes
         ]));*/
 
+        $originalStrings = $strings;
+
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
@@ -164,9 +166,26 @@ class TranslationController extends Controller
         $excludes = array_unique($excludes);
         $excludes = array_filter($excludes);
 
-        // Wrap excludes with <dnt> tags
-        for ($j = 0;$j < count($strings);$j++) {
-            $strings[$j] = $this->wrapExcludesWithDntHtml($strings[$j], $excludes);
+        // Replace excludes with placeholders
+        $excludeMap = [];
+        if (count($excludes) > 0) {
+            usort($excludes, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+            $tokenPrefix = '__DNT_' . bin2hex(random_bytes(4)) . '_';
+            $tokenIndex = 0;
+
+            foreach ($excludes as $term) {
+                if ($term === '') {
+                    continue;
+                }
+
+                $token = $tokenPrefix . $tokenIndex . '__';
+                $excludeMap[$token] = $term;
+                $tokenIndex++;
+
+                for ($j = 0;$j < count($strings);$j++) {
+                    $strings[$j] = str_replace($term, $token, $strings[$j]);
+                }
+            }
         }
 
 
@@ -183,7 +202,6 @@ class TranslationController extends Controller
         foreach ($strings as $string) {
 			$string = preg_replace( '/\r|\n/', '', $string);
 			$string = preg_replace('/<br\s*>/i', '<br/>', $string);
-            $string = '<root>' . $string . '</root>';
 
             try {
                 $translation = (string) $this->translator->translateText(
@@ -202,8 +220,16 @@ class TranslationController extends Controller
 
         for ($j = 0;$j < count($translations);$j++) {
             // Remove <dnt> tags from the text
-            $translations[$j] = preg_replace('/^<root>|<\/root>$/u', '', $translations[$j]);
-            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j]);
+            $original = $originalStrings[$j] ?? '';
+            $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j], $original);
+
+            if (count($excludeMap) > 0) {
+                $translations[$j] = str_replace(
+                    array_keys($excludeMap),
+                    array_values($excludeMap),
+                    $translations[$j]
+                );
+            }
 
             // Fix HTML entities
             $translations[$j] = html_entity_decode($translations[$j]);
@@ -248,6 +274,9 @@ class TranslationController extends Controller
             usort($dntRanges, fn ($a, $b) => $a[0] <=> $b[0]);
         }
 
+        $html = preg_replace('/(\s)<dnt>/u', '&nbsp;<dnt>', $html);
+        $html = preg_replace('/<\/dnt>(\s)/u', '</dnt>&nbsp;', $html);
+
         return $html;
     }
 
@@ -268,10 +297,17 @@ class TranslationController extends Controller
         return $opened > $closed;
     }
 
-    private function stripDntAndFixHtmlSpacing(string $s): string
+    private function stripDntAndFixHtmlSpacing(string $s, string $original = ''): string
     {
+        if ($original !== '') {
+            $s = $this->restoreWhitespaceAroundDnt($s, $original);
+        }
+
+        // 1) Drop the <dnt> tags
         $s = preg_replace('/<\/?dnt>/iu', '', $s);
 
+        // 2) Convert our &nbsp; sentinels back to normal spaces
+        //    (use a conservative replace so real non-breaking spaces elsewhere remain)
         $s = str_replace(
             [
                 "\u{00A0}", // regular NBSP
@@ -285,7 +321,75 @@ class TranslationController extends Controller
             $s
         );
 
+        // 3) Fix “</tag>word” and “word<tag>” glue where both sides are letters/digits
+        //    a) ...X</b>Y... → ...X</b> Y...
+        $s = preg_replace('/(\pL|\pN)(<\/[^>]+>)(\pL|\pN)/u', '$1$2 $3', $s);
+        //    b) ...X(<tag> or </tag>)Y... → ...X $2 Y...  [rare but safe]
+        $s = preg_replace('/(\pL|\pN)(<[^>]+>)(\pL|\pN)/u', '$1 $2 $3', $s);
+
+        // 4) Collapse excessive whitespace (not newlines)
+        $s = preg_replace('/[^\S\r\n]+/u', ' ', $s);
+
         return $s;
+    }
+
+    private function restoreWhitespaceAroundDnt(string $translated, string $original): string
+    {
+        $cursor = 0;
+        $originalCursor = 0;
+        $originalLength = mb_strlen($original, 'UTF-8');
+
+        while (($tagStart = strpos($translated, '<dnt>', $cursor)) !== false) {
+            $tagEnd = strpos($translated, '</dnt>', $tagStart);
+            if ($tagEnd === false) {
+                break;
+            }
+
+            $termStart = $tagStart + 5;
+            $term = substr($translated, $termStart, $tagEnd - $termStart);
+
+            if ($term === '') {
+                $cursor = $tagEnd + 6;
+                continue;
+            }
+
+            $origPos = mb_strpos($original, $term, $originalCursor, 'UTF-8');
+            if ($origPos === false) {
+                $originalCursor = 0;
+                $origPos = mb_strpos($original, $term, $originalCursor, 'UTF-8');
+                if ($origPos === false) {
+                    $cursor = $tagEnd + 6;
+                    continue;
+                }
+            }
+
+            $termLength = mb_strlen($term, 'UTF-8');
+            $originalCursor = $origPos + $termLength;
+
+            $hasSpaceBefore = $origPos > 0 && preg_match('/\s/u', mb_substr($original, $origPos - 1, 1, 'UTF-8'));
+            $hasSpaceAfter = $originalCursor < $originalLength && preg_match('/\s/u', mb_substr($original, $originalCursor, 1, 'UTF-8'));
+
+            if ($hasSpaceBefore) {
+                if ($tagStart === 0 || !preg_match('/\s/u', substr($translated, $tagStart - 1, 1))) {
+                    $translated = substr_replace($translated, ' ', $tagStart, 0);
+                    $tagStart += 1;
+                    $tagEnd += 1;
+                    $termStart += 1;
+                }
+            }
+
+            if ($hasSpaceAfter) {
+                $afterPos = $tagEnd + 6;
+                if ($afterPos >= strlen($translated) || !preg_match('/\s/u', substr($translated, $afterPos, 1))) {
+                    $translated = substr_replace($translated, ' ', $afterPos, 0);
+                    $tagEnd += 1;
+                }
+            }
+
+            $cursor = $tagEnd + 6;
+        }
+
+        return $translated;
     }
 
     public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
