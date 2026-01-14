@@ -56,11 +56,8 @@ class TranslationController extends Controller
     public function translateRequest(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $validator = Validator::make($request->all(), [
@@ -186,6 +183,7 @@ class TranslationController extends Controller
 
         foreach ($strings as $string) {
 			$string = preg_replace( '/\r|\n/', '', $string);
+			$string = preg_replace('/<br\s*>/i', '<br/>', $string);
 
             try {
                 $translation = (string) $this->translator->translateText(
