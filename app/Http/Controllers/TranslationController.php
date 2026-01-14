@@ -172,7 +172,7 @@ class TranslationController extends Controller
 
         // Translate all the strings
         $options = [
-            'tag_handling' => 'html',
+            'tag_handling' => 'xml',
             'ignore_tags' => ['dnt'],
             'non_splitting_tags' => ['dnt'],
             'preserve_formatting' => true,
@@ -183,6 +183,7 @@ class TranslationController extends Controller
         foreach ($strings as $string) {
 			$string = preg_replace( '/\r|\n/', '', $string);
 			$string = preg_replace('/<br\s*>/i', '<br/>', $string);
+            $string = '<root>' . $string . '</root>';
 
             try {
                 $translation = (string) $this->translator->translateText(
@@ -201,6 +202,7 @@ class TranslationController extends Controller
 
         for ($j = 0;$j < count($translations);$j++) {
             // Remove <dnt> tags from the text
+            $translations[$j] = preg_replace('/^<root>|<\/root>$/u', '', $translations[$j]);
             $translations[$j] = $this->stripDntAndFixHtmlSpacing($translations[$j]);
 
             // Fix HTML entities
