@@ -42,17 +42,11 @@ class TranslationController extends Controller
         return ApiResponseController::success($services->toArray());
     }
 
-    public function translateRequestStream(Request $request)
+    public function getPrompt(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
             action_log('Invoked controller method.', $__controllerLogContext);
-        }
-
-        set_time_limit(0);
-
-        while (ob_get_level() > 0) {
-            ob_end_clean();
         }
 
         $string = $request->string;
@@ -92,47 +86,7 @@ class TranslationController extends Controller
         $prompt->system = $promptController->replaceInputs($prompt->system, $inputs);
         $prompt->message = $promptController->replaceInputs($prompt->message, $inputs);
 
-        $aiService = new AIService('gpt-5-mini-2025-08-07');
-        $streamData = $aiService->streamChatCompletion($prompt->system, $prompt->message);
-
-        $headers = [];
-        foreach ($streamData['headers'] as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        $streamData['headers'] = $headers;
-
-        $response = new StreamedResponse(function () use ($streamData) {
-            $ch = curl_init($streamData['url']);
-
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $streamData['headers']);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($streamData['body']));
-            curl_setopt($ch, CURLOPT_WRITEFUNCTION, function ($ch, $data) {
-                echo $data;
-                if (ob_get_length() !== false) {
-                    ob_flush();
-                    flush();
-                }
-
-                return strlen($data);
-            });
-
-            curl_exec($ch);
-
-            if (curl_errno($ch)) {
-                throw new \Exception('Curl error: ' . curl_error($ch));
-            }
-
-            curl_close($ch);
-        });
-
-        $response->headers->set('Content-Type', 'text/event-stream');
-        $response->headers->set('Cache-Control', 'no-cache');
-        $response->headers->set('Connection', 'keep-alive');
-
-        return $response;
+        return ApiResponseController::success($prompt->toArray());
     }
 
     /**
