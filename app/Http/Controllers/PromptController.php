@@ -11,11 +11,8 @@ class PromptController extends Controller
     public function execute(int $promptID, array $inputs = [], string $customInstructions = '', string $model = '', string $imageURL = ''): string
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         // Load main prompt
@@ -51,11 +48,8 @@ class PromptController extends Controller
     public function getGroup(string $group)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         return Prompt::where('group', $group)

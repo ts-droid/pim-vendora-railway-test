@@ -22,11 +22,8 @@ class TranslationController extends Controller
     function __construct()
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $this->translator = new Translator(config('services.deepl.api_key'));
@@ -34,11 +31,8 @@ class TranslationController extends Controller
 
     public function getEngines() {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $manager = new TranslationServiceManager();
@@ -88,21 +82,11 @@ class TranslationController extends Controller
         $excludes = array_filter($excludes);
         $excludes = array_unique($excludes);
 
-
         if (!is_array($strings)) {
             $strings = [$strings];
         }
 
-        if (!$engine || $engine == 'deepl') {
-            $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes);
-        }
-        else {
-            $translationService = TranslationService::where('name', $engine)->first();
-            $defaultModel = (string) ($translationService->default_model ?? '');
-
-            $translations = $this->translateAI($strings, $sourceLang, $targetLang, $excludes, $defaultModel);
-        }
-
+        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes, $engine);
 
         // Replace language URLs
         $languageController = new LanguageController();
@@ -126,22 +110,17 @@ class TranslationController extends Controller
      * @param bool $isHTML
      * @return array
      */
-    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = []): array
+    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = [], ?string $engine = null): array
     {
         if ($this->shouldLogControllerMethod()) {
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
-        /*Log::channel('deepl')->info(json_encode([
-            'strings' => $strings,
-            'sourceLang' => $sourceLang,
-            'targetLang' => $targetLang,
-            'isHTML' => $isHTML,
-            'excludes' => $excludes
-        ]));*/
-
-        $originalStrings = $strings;
+        // Normalize engine
+        if (!in_array($engine, ['deepl', 'openai'])) {
+            $engine = 'deepl'; // This is the default engine
+        }
 
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
@@ -188,33 +167,13 @@ class TranslationController extends Controller
             }
         }
 
-
         // Translate all the strings
-        $options = [
-            'tag_handling' => 'html',
-            'tag_handling_version' => 'v2',
-            'ignore_tags' => ['dnt'],
-            'non_splitting_tags' => ['dnt'],
-            'preserve_formatting' => true,
-        ];
-
         $translations = [];
-
         foreach ($strings as $string) {
-			$string = preg_replace( '/\r|\n/', '', $string);
-			$string = preg_replace('/<br\s*>/i', '<br/>', $string);
-
-            try {
-                $translation = (string) $this->translator->translateText(
-                    $string,
-                    $this->formatLanguageCode($sourceLang),
-                    $this->formatLanguageCode($targetLang, true),
-                    $options
-                );
-
-                $translations[] = $translation;
-            } catch (Exception $e) {
-                $translations[] = '';
+            if ($engine === 'deepl') {
+                $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
+            } elseif ($engine === 'openai') {
+                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang);
             }
         }
 
@@ -237,6 +196,58 @@ class TranslationController extends Controller
         }
 
         return $translations;
+    }
+
+    private function translateDeepl(string $string, string $sourceLang, string $targetLang): string
+    {
+        $options = [
+            'tag_handling' => 'html',
+            'tag_handling_version' => 'v2',
+            'ignore_tags' => ['dnt'],
+            'non_splitting_tags' => ['dnt'],
+            'preserve_formatting' => true,
+        ];
+
+        try {
+            $string = preg_replace( '/\r|\n/', '', $string);
+            $string = preg_replace('/<br\s*>/i', '<br/>', $string);
+
+            return (string) $this->translator->translateText(
+                $string,
+                $this->formatLanguageCode($sourceLang),
+                $this->formatLanguageCode($targetLang, true),
+                $options
+            );
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
+    private function translateOpenAI(string $string, string $sourceLang, string $targetLang): string
+    {
+        try {
+            $languages = (new LanguageController())->getAllLanguages();
+            foreach ($languages as $language) {
+                if ($language->language_code == $sourceLang) {
+                    $sourceLang = $language->title;
+                }
+                if ($language->language_code == $targetLang) {
+                    $targetLang = $language->title;
+                }
+            }
+
+            $promptController = new PromptController();
+            $prompt = $promptController->getBySystemCode('translation_ai_prompt');
+
+            return $promptController->execute(
+                $prompt->id,
+                ['string' => $string, 'sourceLang' => $sourceLang, 'targetLang' => $targetLang],
+                '',
+                'gpt-5-mini-2025-08-07',
+            );
+        } catch (Exception $e) {
+            return '';
+        }
     }
 
     private function wrapExcludesWithDntHtml(string $html, array $excludes): string
