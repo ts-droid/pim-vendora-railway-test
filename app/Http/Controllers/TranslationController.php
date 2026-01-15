@@ -42,53 +42,6 @@ class TranslationController extends Controller
         return ApiResponseController::success($services->toArray());
     }
 
-    public function getPrompt(Request $request)
-    {
-        if ($this->shouldLogControllerMethod()) {
-            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-            action_log('Invoked controller method.', $__controllerLogContext);
-        }
-
-        $string = $request->string;
-        $sourceLang = $request->source_lang;
-        $targetLang = $request->target_lang;
-
-        $languages = (new LanguageController())->getAllLanguages();
-        foreach ($languages as $language) {
-            if ($language->language_code == $sourceLang) {
-                $sourceLang = $language->title;
-            }
-            if ($language->language_code == $targetLang) {
-                $targetLang = $language->title;
-            }
-        }
-
-        $excludes = [];
-        if ($request->has('excludes')) {
-            $excludes = $request->excludes ?: [];
-        }
-
-        $excludes = array_merge($excludes, TranslateExcludeService::getAll());
-        $excludes = array_map('trim', $excludes);
-        $excludes = array_filter($excludes);
-        $excludes = array_unique($excludes);
-
-        $promptController = new PromptController();
-        $prompt = $promptController->getBySystemCode('translation_ai_prompt');
-
-        $inputs = [
-            'string' => $string,
-            'sourceLang' => $sourceLang,
-            'targetLang' => $targetLang,
-            'excludes' => implode(PHP_EOL, $excludes)
-        ];
-
-        $prompt->system = $promptController->replaceInputs($prompt->system, $inputs);
-        $prompt->message = $promptController->replaceInputs($prompt->message, $inputs);
-
-        return ApiResponseController::success($prompt->toArray());
-    }
-
     /**
      * API call to translate
      *
