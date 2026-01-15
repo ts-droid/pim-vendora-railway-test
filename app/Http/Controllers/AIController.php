@@ -13,11 +13,8 @@ class AIController extends Controller
     public function stream(Request $request): StreamedResponse
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         set_time_limit(0);
