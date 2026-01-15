@@ -68,11 +68,8 @@ class SalesOrderApiController extends Controller
     public function store(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $validator = Validator::make($request->all(), [
@@ -122,6 +119,7 @@ class SalesOrderApiController extends Controller
             'lines.*.quantity_on_shipments' => 'nullable|integer|min:0',
             'lines.*.quantity_open' => 'nullable|integer|min:0',
             'lines.*.unit_price' => 'required|numeric',
+            'lines.*.active_unit_price' => 'sometimes|numeric',
             'lines.*.description' => 'nullable|string|max:255',
         ]);
 

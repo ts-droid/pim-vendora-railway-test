@@ -398,6 +398,9 @@ class SalesOrderService
             }
         }
 
+        $unitPrice = (float) ($line['unit_price'] ?? 0);
+        $activeUnitPrice = (float) ($line['active_unit_price'] ?? $unitPrice);
+
         return SalesOrderLine::create([
             'sales_order_id' => $salesOrderID,
             'line_number' => $line['line_number'],
@@ -408,7 +411,8 @@ class SalesOrderService
             'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
             'quantity_open' => (int) ($line['quantity_open'] ?? 0),
             'unit_cost' => $unitCost ?: 0,
-            'unit_price' => (float) ($line['unit_price'] ?? 0),
+            'unit_price' => $unitPrice,
+            'active_unit_price' => $activeUnitPrice,
             'description' => (string) $line['description'] ?? '',
             'unbilled_amount' => (float) ($line['unbilled_amount'] ?? 0),
             'is_completed' => (int) ($line['is_completed'] ?? 0),

@@ -21,6 +21,7 @@ class SalesOrderLine extends Model
         'quantity_open',
         'unit_cost',
         'unit_price',
+        'active_unit_price',
         'description',
         'is_completed',
         'vat_rate',
