@@ -88,5 +88,7 @@
     "request_review_review_button": "Submit Review",
     "request_review_done_title": "Thank you for your review!",
     "request_review_done_heading": "Review submitted",
-    "request_review_done_text": "Thank you for your review"
+    "request_review_done_text": "Thank you for your review",
+
+    "you_save": "You save"
 }

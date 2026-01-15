@@ -88,5 +88,7 @@
     "request_review_review_button": "Indsend anmeldelse",
     "request_review_done_title": "Tak for din anmeldelse!",
     "request_review_done_heading": "Anmeldelse indsendt",
-    "request_review_done_text": "Tak for din anmeldelse"
+    "request_review_done_text": "Tak for din anmeldelse",
+
+    "you_save": "Du sparer"
 }

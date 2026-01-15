@@ -69,10 +69,19 @@ if ($salesOrder->lines ?? false) {
                                             <td style="vertical-align: top;width: 90px;padding-top: 8px;">
                                                 <img src="{{ get_article_image($salesOrderLine->article_number) }}" style="background-color: #F5F5F5;height: 75px;width: 75px;" height="75" width="75" />
                                             </td>
-                                            <td style="vertical-align: top;padding-top: 8px;">
+                                            <td style="vertical-align: top;padding-top: 8px;padding-right: 8px;">
                                                 {{ $salesOrderLine->description }}<br>
                                                 {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
                                             </td>
+
+                                            @if($salesOrderLine->active_unit_price > 0 && $salesOrderLine->active_unit_price < $salesOrderLine->unit_price)
+                                                <div style="text-wrap: nowrap;font-size:0.85rem;text-decoration: line-through;">{{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
+                                                <div style="text-wrap: nowrap;">{{ number_format((add_vat($salesOrderLine->active_unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
+                                                <div style="text-wrap: nowrap;font-size:0.85rem;color: #146E01;">({{ __('you_save') }} {{ number_format((add_vat(($salesOrderLine->unit_price - $salesOrderLine->active_unit_price) * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }})</div>
+                                            @else
+                                                <div style="text-wrap: nowrap;">{{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
+                                            @endif
+
                                             <td style="vertical-align: top;text-align: end;padding-top: 8px;">
                                                 {{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}
                                             </td>

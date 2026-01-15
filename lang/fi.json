@@ -88,5 +88,7 @@
     "request_review_review_button": "Lähetä arvostelu",
     "request_review_done_title": "Kiitos arvostelustasi!",
     "request_review_done_heading": "Arvostelu lähetetty",
-    "request_review_done_text": "Kiitos arvostelustasi"
+    "request_review_done_text": "Kiitos arvostelustasi",
+
+    "you_save": "Säästät"
 }

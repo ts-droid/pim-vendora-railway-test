@@ -43,30 +43,6 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
-Route::get('/test-titles', function () {
-    $articleNumber = request()->get('article_number');
-    $article = Article::where('article_number', $articleNumber)->first();
-
-    if (!$article) {
-        echo 'Article not found';
-        return;
-    }
-
-    $job = new \App\Jobs\GenerateArticleTitles($article);
-    $updates = $job->handle();
-
-    $formattedUpdates = [];
-    foreach ($updates as $key => $value) {
-        if ($key == 'description') {
-            $key = 'article_name';
-        }
-
-        $formattedUpdates[$key] = $value;
-    }
-
-    dd($formattedUpdates);
-});
-
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');
 
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
