@@ -15,6 +15,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\EcbController;
 use App\Http\Controllers\EsignController;
+use App\Http\Controllers\EventLogController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\InventoryTurnoverController;
 use App\Http\Controllers\LanguageApiController;
@@ -80,6 +81,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/', [TranslateExcludeController::class, 'store']);
         Route::post('/delete', [TranslateExcludeController::class, 'delete']);
     });
+
+    Route::get('/event-logs', [EventLogController::class, 'get']);
 
     Route::prefix('/sales-order')->group(function() {
         Route::get('/', [SalesOrderApiController::class, 'index'])->name('salesOrder.index');
