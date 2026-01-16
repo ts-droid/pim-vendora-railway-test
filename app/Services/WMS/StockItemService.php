@@ -6,6 +6,7 @@ use App\Models\StockItem;
 use App\Models\StockItemLog;
 use App\Models\StockItemMovement;
 use App\Models\StockPlaceCompartment;
+use App\Utilities\EventLogger;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Support\Facades\DB;
 
@@ -68,7 +69,7 @@ class StockItemService
         }
     }
 
-    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = '', string $source = ''): array
+    public function moveStockItems(string $articleNumber, int $quantity, StockPlaceCompartment $fromStockPlaceCompartment, StockPlaceCompartment $toStockPlaceCompartment, string $signature = '', string $source = '', bool $logEvent = true): array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -107,6 +108,21 @@ class StockItemService
 
         foreach ($log as $compartmentID => $movedQty) {
             $this->logChange($articleNumber, $compartmentID, $movedQty, $signature, $source);
+
+            if ($logEvent) {
+                $fromIdentifier = ($fromStockPlaceCompartment->stockPlace->identifier ?? '') . ':' . $fromStockPlaceCompartment->identifier;
+                $toIdentifier = ($toStockPlaceCompartment->stockPlace->identifier ?? '') . ':' . $toStockPlaceCompartment->identifier;
+
+                EventLogger::logAction(
+                    $signature . ' moved ' . $movedQty . ' pcs of ' . $articleNumber . ' from ' . $fromIdentifier . ' to ' . $toIdentifier,
+                    $signature,
+                    [
+                        'article_number' => $articleNumber,
+                        'from_compartment_id' => $fromStockPlaceCompartment->id,
+                        'to_compartment_id' => $toStockPlaceCompartment->id
+                    ]
+                );
+            }
         }
 
         return [
@@ -165,7 +181,7 @@ class StockItemService
         }
     }
 
-    public function removeStockItems($stockItems, string $signature = '', $source = ''): array
+    public function removeStockItems($stockItems, string $signature = '', $source = '', bool $storeLog = true): array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -199,6 +215,20 @@ class StockItemService
             foreach ($totalRemoved as $articleNumber => $groups) {
                 foreach ($groups as $stockPlaceCompartmentId => $quantity) {
                     $this->logChange($articleNumber, $stockPlaceCompartmentId, (-1 * $quantity), $signature, $source);
+
+                    if ($storeLog) {
+                        $stockPlaceCompartment = StockPlaceCompartment::find($stockPlaceCompartmentId);
+                        $identifier = ($stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockPlaceCompartment->identifier ?? '');
+
+                        EventLogger::logAction(
+                            $signature . ' removed ' . $quantity . ' pcs of ' . $articleNumber . ' from ' . $identifier,
+                            $signature,
+                            [
+                                'article_number' => $articleNumber,
+                                'from_compartment_id' => $stockPlaceCompartmentId
+                            ]
+                        );
+                    }
 
                     if (!isset($stockPlaceCompartments[$stockPlaceCompartmentId])) {
                         $stockPlaceCompartments[$stockPlaceCompartmentId] = StockPlaceCompartment::find($stockPlaceCompartmentId);

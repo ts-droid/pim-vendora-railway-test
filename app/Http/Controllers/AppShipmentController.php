@@ -17,6 +17,7 @@ use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
+use App\Utilities\EventLogger;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -299,11 +300,8 @@ class AppShipmentController extends Controller
     public function pick(Request $request, Shipment $shipment)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $lockKey = 'shipment:pick:' . $shipment->id;
@@ -405,7 +403,19 @@ class AppShipmentController extends Controller
                             $fromCompartment,
                             $utlevCompartment,
                             $displayName,
-                            'Picked shipment #' . $lockedShipment->id
+                            'Picked shipment #' . $lockedShipment->id,
+                            false
+                        );
+
+                        EventLogger::logAction(
+                            $displayName . ' picked ' . $qty . ' pcs of ' . $shipmentLine->article_number . ' for shipment ' . $lockedShipment->id . ', moving them from ' . $identifier . ' to UTLEV:1',
+                            $displayName,
+                            [
+                                'article_number' => $shipmentLine->article_number,
+                                'shipment_id' => $lockedShipment->id,
+                                'from_compartment_id' => $fromCompartment->id,
+                                'to_compartment_id' => $utlevCompartment->id
+                            ]
                         );
 
                         if (!$result['success']) {
@@ -558,11 +568,8 @@ class AppShipmentController extends Controller
     public function complete(Request $request, Shipment $shipment)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
@@ -581,9 +588,11 @@ class AppShipmentController extends Controller
         $trackingNumber = (string) $request->input('tracking_number', '');
         $trackingNumberOld = $shipment->tracking_number;
 
+        $displayName = get_display_name();
+
         // Update internal status
         $shipment->update([
-            'pack_signature' => get_display_name(),
+            'pack_signature' => $displayName,
             'tracking_number' => $trackingNumber,
             'internal_status' => ShipmentInternalStatus::PACKED,
             'completed_at' => date('Y-m-d H:i:s'),
@@ -605,9 +614,43 @@ class AppShipmentController extends Controller
 
             $response = $stockItemService->removeStockItems(
                 $stockItems,
-                get_display_name(),
-                'Completing shipment #' . $shipment->id
+                $displayName,
+                'Completing shipment #' . $shipment->id,
+                false
             );
+
+
+            // Group stock items before logging
+            $groupedStockItems = [];
+            foreach ($stockItems as $stockItem) {
+                $key = $stockItem->article_number . '_:_' . $stockItem->stock_place_compartment_id;
+
+                if (!isset($groupedStockItems[$key])) {
+                    $stockPlaceCompartment = StockPlaceCompartment::find($stockItem->stock_place_compartment_id);
+                    $identifier = ($stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockPlaceCompartment->identifier ?? '');
+
+                    $groupedStockItems[$key] = [
+                        'article_number' => $stockItem->article_number,
+                        'stock_place_compartment_id' => $stockPlaceCompartment->id,
+                        'identifier' => $identifier,
+                        'qty' => 0
+                    ];
+                }
+
+                $groupedStockItems[$key]++;
+            }
+
+            foreach ($groupedStockItems as $item) {
+                EventLogger::logAction(
+                    $displayName . ' completed shipment ' . $shipment->id . ', removing ' . $item['qty'] . ' pcs of ' . $item['article_number'] . ' from ' . $item['identifier'],
+                    $displayName,
+                    [
+                        'article_number' => $item['article_number'],
+                        'shipment_id' => $shipment->id,
+                        'from_compartment_id' => $item['stock_place_compartment_id']
+                    ]
+                );
+            }
 
             if (!$response['success']) {
                 Log::channel('shipments')->error('Failed to remove stock items when competing shipment.', ['shipmentNumber' => $shipment->number]);
