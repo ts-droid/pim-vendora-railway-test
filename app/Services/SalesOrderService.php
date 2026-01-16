@@ -16,6 +16,7 @@ use App\Models\Shipment;
 use App\Models\SupplierArticlePrice;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
+use App\Utilities\EventLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -32,6 +33,11 @@ class SalesOrderService
         action_log('Invoked service method.', $__serviceLogContext);
 
         $addressService = new AddressService();
+
+        $customer = null;
+        if ($salesOrder->customer) {
+            $customer = Customer::where('external_id', $salesOrder->customer)->first();
+        }
 
         // Update shipping address
         $shippingAddressData = [
@@ -77,6 +83,22 @@ class SalesOrderService
         // Update order lines (if set)
         $lines = $data['lines'] ?? [];
         if ($lines) {
+            $oldSalesOrderLines = SalesOrderLine::whete('sales_order_id', $salesOrder->id)->get();
+            foreach ($oldSalesOrderLines as $salesOrderLine) {
+
+                EventLogger::logAction(
+                    $salesOrderLine->quantity . ' pcs of ' . $salesOrderLine->article_number . ' removed on update from sales order ' . $salesOrder->id . ' to customer ' . ($billingAddress->full_name ?? '--'),
+                    get_display_name(),
+                    [
+                        'sales_order_id' => $salesOrder->id,
+                        'article_number' => $salesOrderLine->article_number,
+                        'customer_id' => $customer->id ?? null,
+                    ]
+                );
+
+                $salesOrderLine->delete();
+            }
+
             SalesOrderLine::where('sales_order_id', $salesOrder->id)->delete();
 
             $lineNumber = 1;
@@ -91,6 +113,16 @@ class SalesOrderService
                 $currency = $data['currency'] ?? $salesOrder->currency;
 
                 $this->insertOrderLine($salesOrder->id, $line, $currency);
+
+                EventLogger::logAction(
+                    ($line['quantity'] ?? 0) . ' pcs of ' . ($line['article_number'] ?? '--') . ' added on update to sales order ' . $salesOrder->id . ' to customer ' . ($billingAddress->full_name ?? '--'),
+                    get_display_name(),
+                    [
+                        'sales_order_id' => $salesOrder->id,
+                        'article_number' => ($line['article_number'] ?? null),
+                        'customer_id' => $customer->id ?? null,
+                    ]
+                );
             }
         }
 
@@ -276,6 +308,16 @@ class SalesOrderService
             $line['sales_person'] = ($line['sales_person'] ?? '') ?: ($data['sales_person'] ?? '');
 
             $this->insertOrderLine($salesOrder->id, $line, $data['currency']);
+
+            EventLogger::logAction(
+                ($line['quantity'] ?? 0) . ' pcs of ' . ($line['article_number'] ?? '--') . ' sold on sales order ' . $salesOrder->id . ' to customer ' . ($data['billing_full_name'] ?? '--'),
+                get_display_name(),
+                [
+                    'sales_order_id' => $salesOrder->id,
+                    'article_number' => ($line['article_number'] ?? null),
+                    'customer_id' => $customer->id ?? null,
+                ]
+            );
         }
 
         $this->calculateOrderTotals($salesOrder);
@@ -398,16 +440,18 @@ class SalesOrderService
             }
         }
 
+        $articleNumber = (string) $line['article_number'];
+        $quantity = (int) ($line['quantity'] ?? 0);
         $unitPrice = (float) ($line['unit_price'] ?? 0);
         $activeUnitPrice = (float) ($line['active_unit_price'] ?? $unitPrice);
 
         return SalesOrderLine::create([
             'sales_order_id' => $salesOrderID,
             'line_number' => $line['line_number'],
-            'article_number' => $line['article_number'],
+            'article_number' => $articleNumber,
             'invoice_number' => (string) ($line['invoice_number'] ?? ''),
             'sales_person' => (string) $line['sales_person'] ?? '',
-            'quantity' => (int) ($line['quantity'] ?? 0),
+            'quantity' => $quantity,
             'quantity_on_shipments' => (int) ($line['quantity_on_shipments'] ?? 0),
             'quantity_open' => (int) ($line['quantity_open'] ?? 0),
             'unit_cost' => $unitCost ?: 0,
