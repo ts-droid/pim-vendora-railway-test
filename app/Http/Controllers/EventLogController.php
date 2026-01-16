@@ -16,7 +16,7 @@ class EventLogController extends Controller
 
         if ($metaFilter && count($metaFilter) > 0) {
             foreach ($metaFilter as $key => $value) {
-                $query->where('meta_data->' . $key, $value);
+                $query->where('metadata->' . $key, $value);
             }
         }
 
