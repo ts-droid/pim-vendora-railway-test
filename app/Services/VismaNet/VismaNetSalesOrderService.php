@@ -202,24 +202,22 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $fetchResponse = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
-        if (empty($fetchResponse['response']['orderNo'])) {
+        $fetchResponse = $this->callAPI('GET', '/v3/SalesOrders/' . $salesOrder->order_type . '/' . $salesOrder->order_number);
+        if (empty($fetchResponse['response']['orderId'])) {
             return [
                 'success' => false,
                 'message' => 'Order not found in Visma.net.'
             ];
         }
 
-        $orderType = $fetchResponse['response']['orderType'];
+        // Delete the sales order
+        $headers = ['If-Match' => $fetchResponse['response']['version']];
+        $deleteResponse = $this->callAPI('DELETE', '/v3/SalesOrders/' . $salesOrder->order_type . '/' . $salesOrder->order_number, [], '', false, false, $headers);
 
-        $cancelResponse = $this->callAPI('POST', '/v2/salesorder/' . $salesOrder->order_number . '/action/cancelSalesOrder', [
-            'orderType' => $orderType,
-        ]);
-
-        if (!($cancelResponse['success'] ?? false)) {
+        if (!($deleteResponse['success'] ?? false)) {
             return [
                 'success' => false,
-                'message' => 'Failed to cancel sales order in Visma.net'
+                'message' => 'Failed to delete sales order in Visma.net'
             ];
         }
 
