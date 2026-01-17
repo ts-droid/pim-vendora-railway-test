@@ -286,7 +286,7 @@ class VismaNetShipmentService extends VismaNetApiService
             // Shipment is not confirmed yet, no need to cancel, just clear it instead
             foreach ($shipmentLines as $shipmentLine) {
                 $deleteLineResponse = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/deleteLine/' . $shipmentLine['lineNumber'], [
-                    'deleteSOLine' => ['value' => false]
+                    'deleteSOLine' => ['value' => true]
                 ]);
 
                 if (!($deleteLineResponse['success'] ?? false)) {
@@ -296,18 +296,18 @@ class VismaNetShipmentService extends VismaNetApiService
                         'message' => $errorMessage
                     ];
                 }
+            }
 
-                $updateShipmentResponse = $this->callAPI('/PUT', '/v1/shipment/' . $shipment->number, [
-                    'hold' => ['value' => true]
-                ]);
+            $updateShipmentResponse = $this->callAPI('/PUT', '/v1/shipment/' . $shipment->number, [
+                'hold' => ['value' => true]
+            ]);
 
-                if (!($updateShipmentResponse['success'] ?? false)) {
-                    $errorMessage = ($updateShipmentResponse['response']['message'] ?? 'Failed to mark shipment on hold in Visma.net');
-                    return [
-                        'success' => false,
-                        'message' => $errorMessage
-                    ];
-                }
+            if (!($updateShipmentResponse['success'] ?? false)) {
+                $errorMessage = ($updateShipmentResponse['response']['message'] ?? 'Failed to mark shipment on hold in Visma.net');
+                return [
+                    'success' => false,
+                    'message' => $errorMessage
+                ];
             }
 
         } else {
