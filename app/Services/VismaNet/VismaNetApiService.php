@@ -73,7 +73,7 @@ class VismaNetApiService
      * @param string $accessToken
      * @return array
      */
-    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false, bool $logRequest = false): array
+    public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', bool $rawResponse = false, bool $logRequest = false, array $headers = []): array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -88,9 +88,7 @@ class VismaNetApiService
 
         $accessToken = $accessToken ?: $this->getAccessToken();
 
-        $headers = [
-            'Authorization' => 'Bearer ' . $accessToken,
-        ];
+        $headers['Authorization'] = 'Bearer ' . $accessToken;
 
         if ($params) {
             $headers['Content-Type'] = 'application/json';
