@@ -228,11 +228,8 @@ class SalesOrderApiController extends Controller
     public function cancel(SalesOrder $salesOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $salesOrderService = new SalesOrderService();

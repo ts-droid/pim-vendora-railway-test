@@ -279,13 +279,49 @@ class VismaNetShipmentService extends VismaNetApiService
             ];
         }
 
-        $cancelResponse = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/cancelShipment');
+        $shipmentStatus = $fetchResponse['response']['status'];
+        $shipmentLines = $fetchResponse['response']['shipmentDetailLines'] ?? [];
 
-        if (!($cancelResponse['success'] ?? false)) {
-            return [
-                'success' => false,
-                'message' => 'Failed to cancel shipment in Visma.net'
-            ];
+        if ($shipmentStatus == 'Open') {
+            // Shipment is not confirmed yet, no need to cancel, just clear it instead
+            foreach ($shipmentLines as $shipmentLine) {
+                $deleteLineResponse = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/deleteLine/' . $shipmentLine['lineNumber'], [
+                    'deleteSOLine' => ['value' => false]
+                ]);
+
+                if (!($deleteLineResponse['success'] ?? false)) {
+                    $errorMessage = ($cancelResponse['response']['message'] ?? 'Failed to delete shipment line in Visma.net');
+                    return [
+                        'success' => false,
+                        'message' => $errorMessage
+                    ];
+                }
+
+                $updateShipmentResponse = $this->callAPI('/PUT', '/v1/shipment/' . $shipment->number, [
+                    'hold' => ['value' => true]
+                ]);
+
+                if (!($updateShipmentResponse['success'] ?? false)) {
+                    $errorMessage = ($updateShipmentResponse['response']['message'] ?? 'Failed to mark shipment on hold in Visma.net');
+                    return [
+                        'success' => false,
+                        'message' => $errorMessage
+                    ];
+                }
+            }
+
+        } else {
+            // Try to cancel the shipment
+            $cancelResponse = $this->callAPI('POST', '/v1/shipment/' . $shipment->number . '/action/cancelShipment');
+            if (!($cancelResponse['success'] ?? false)) {
+
+                $errorMessage = ($cancelResponse['response']['message'] ?? 'Failed to cancel shipment in Visma.net');
+
+                return [
+                    'success' => false,
+                    'message' => $errorMessage
+                ];
+            }
         }
 
         return [
