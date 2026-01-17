@@ -298,7 +298,7 @@ class VismaNetShipmentService extends VismaNetApiService
                 }
             }
 
-            $updateShipmentResponse = $this->callAPI('/PUT', '/v1/shipment/' . $shipment->number, [
+            $updateShipmentResponse = $this->callAPI('PUT', '/v1/shipment/' . $shipment->number, [
                 'hold' => ['value' => true]
             ]);
 

@@ -130,6 +130,13 @@ class VismaNetApiService
                     ->patch($url, $params);
                 break;
 
+            case 'DELETE':
+                $response = Http::withHeaders($headers)
+                    ->connectTimeout(600)
+                    ->timeout(600)
+                    ->delete($url, $params);
+                break;
+
             case 'GET':
             default:
                 $response = Http::withHeaders($headers)
