@@ -637,7 +637,7 @@ class AppShipmentController extends Controller
                     ];
                 }
 
-                $groupedStockItems[$key]++;
+                $groupedStockItems[$key]['qty']++;
             }
 
             foreach ($groupedStockItems as $item) {
