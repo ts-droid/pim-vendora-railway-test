@@ -9,6 +9,7 @@ use App\Services\EcbService;
 use App\Services\SupplierArticlePriceService;
 use App\Services\TranslationServiceManager;
 use App\Utilities\ArticleTitleUtility;
+use App\Utilities\EventLogger;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -103,12 +104,30 @@ class Article extends Model
                 unset($article->attributes[$append]);
             }
 
+            $displayName = get_display_name();
+
             $lastSaved = $article->last_saved ?: [];
             $dirtyColumns = array_keys($article->getDirty());
 
             $now = now()->format('Y-m-d H:i:s');
             foreach ($dirtyColumns as $column) {
+                $oldValue = $article->getOriginal($column);
+                $newValue = $article->getAttribute($column);
+
                 $lastSaved[$column] = $now;
+
+                if ($article->article_number) {
+                    EventLogger::logChange(
+                        $column,
+                        $oldValue,
+                        $newValue,
+                        $displayName,
+                        [
+                            'type' => 'article',
+                            'article_number' => $article->article_number,
+                        ]
+                    );
+                }
             }
 
             $article->last_saved = $lastSaved;
