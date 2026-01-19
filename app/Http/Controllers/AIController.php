@@ -10,6 +10,35 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AIController extends Controller
 {
+    public function chat(Request $request)
+    {
+        $messages = $request->input('messages', []);
+
+        $model = default_ai_model();
+
+        try {
+            $openAiService = new OpenAIService($model);
+            $response = $openAiService->callAPI('POST', '/chat/completions', [
+                'model' => $model,
+                'messages' => $messages
+            ]);
+
+            $reply = '';
+            if (isset($response['choices']) && is_array($response['choices'])) {
+                foreach ($response['choices'] as $message) {
+                    if (($message['message']['role'] ?? '') == 'assistant') {
+                        $reply .= ($message['message']['content'] ?? '');
+                    }
+                }
+            }
+
+            return response()->json(['reply' => $reply]);
+
+        } catch (\Throwable $e) {
+            return response()->json(['reply' => 'API error...']);
+        }
+    }
+
     public function stream(Request $request): StreamedResponse
     {
         if ($this->shouldLogControllerMethod()) {
