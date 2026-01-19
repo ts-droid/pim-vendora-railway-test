@@ -52,6 +52,18 @@ class StockItemService
 
             $this->logChange($articleNumber, $stockPlaceCompartment->id, $quantity, $signature, $source);
 
+            $displayName = $signature ?: 'System';
+            $identifier = ($stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockPlaceCompartment->identifier);
+
+            EventLogger::logAction(
+                $displayName . ' inserted ' . $quantity . ' pcs of ' . $articleNumber . ' into ' . $identifier . '. Provided source: ' . ($source ?: 'none'),
+                $displayName,
+                [
+                    'article_number' => $articleNumber,
+                    'to_compartment_id' => $stockPlaceCompartment->id
+                ]
+            );
+
             DB::commit();
 
             return [
