@@ -16,6 +16,7 @@ use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
+use App\Utilities\EventLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 
@@ -260,6 +261,8 @@ class PurchaseOrderService
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
+        $displayName = get_display_name();
+
         $purchaseOrderShipment->refresh();
 
         if (!$quantities) {
@@ -372,6 +375,16 @@ class PurchaseOrderService
                     'app_state_verified' => 0
                 ]);
 
+                EventLogger::logAction(
+                    $displayName . ' made an indelivery for shipment ' . $purchaseOrderShipment->id . ' on article ' . $orderLine->article_number . ' with quantity ' .$qty . '. Becuase of zero quantity, the line was removed from the shipment.',
+                    $displayName,
+                    [
+                        'purchase_order_shipment_id' => $purchaseOrderShipment->id,
+                        'article_number' => $orderLine->article_number,
+                        'purchase_order_line_id' => $orderLine->id
+                    ]
+                );
+
                 continue;
             }
 
@@ -389,6 +402,16 @@ class PurchaseOrderService
                 'app_state_quantity' => null,
                 'app_state_verified' => 0
             ]);
+
+            EventLogger::logAction(
+                $displayName . ' made an indelivery for shipment ' . $purchaseOrderShipment->id . ' on article ' . $orderLine->article_number . ' with quantity ' .$qty . '. Expected quantity on shipment was ' . $qtyOnShipment . '.' . ($diffQty !== 0 ? ' The quantity did not match the expected quantity, thus creating an exception.' : ''),
+                $displayName,
+                [
+                    'purchase_order_shipment_id' => $purchaseOrderShipment->id,
+                    'article_number' => $orderLine->article_number,
+                    'purchase_order_line_id' => $orderLine->id
+                ]
+            );
         }
 
         // Update the purchase order

@@ -140,11 +140,8 @@ class PurchaseOrderController extends Controller
     public function submitManualShipment(Request $request, PurchaseOrder $purchaseOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $quantities = json_decode($request->input('quantities', '[]'), true);
@@ -207,11 +204,8 @@ class PurchaseOrderController extends Controller
     public function submitShipment(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderShipment $purchaseOrderShipment)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $images = [];
@@ -253,11 +247,8 @@ class PurchaseOrderController extends Controller
     public function submitExceptionRows(Request $request, PurchaseOrderShipment $purchaseOrderShipment)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         for ($i = 0;$i < 1000;$i++) {
@@ -307,11 +298,8 @@ class PurchaseOrderController extends Controller
     public function getQueuedShipments()
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $queueCount = DB::table('purchase_order_shipment_queue')->count();
