@@ -19,14 +19,14 @@ class EventLogger
         ]);
     }
 
-    public static function logChange(string $key, string $from, string $to, string $displayName, array $metaData  = []): void
+    public static function logChange(string $key, mixed $from, mixed $to, string $displayName, array $metaData  = []): void
     {
         EventLog::create([
             'event_type' => self::EVENT_TYPE_CHANGE,
             'display_name' => $displayName,
             'change_key' => $key,
-            'change_from' => $from,
-            'change_to' => $to,
+            'change_from' => (string) $from,
+            'change_to' => (string) $to,
             'metadata' => $metaData
         ]);
     }
