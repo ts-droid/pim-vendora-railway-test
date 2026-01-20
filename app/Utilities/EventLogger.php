@@ -21,6 +21,14 @@ class EventLogger
 
     public static function logChange(string $key, mixed $from, mixed $to, string $displayName, array $metaData  = []): void
     {
+        if (is_array($from)) {
+            $from = json_encode($from);
+        }
+
+        if (is_array($to)) {
+            $to = json_encode($to);
+        }
+
         EventLog::create([
             'event_type' => self::EVENT_TYPE_CHANGE,
             'display_name' => $displayName,
