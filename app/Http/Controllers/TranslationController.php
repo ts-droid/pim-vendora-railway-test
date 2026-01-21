@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TranslationService;
 use App\Services\AI\AIService;
+use App\Services\TildeService;
 use App\Services\TranslateExcludeService;
 use App\Services\TranslationServiceManager;
 use DeepL\Translator;
@@ -118,7 +119,7 @@ class TranslationController extends Controller
         }
 
         // Normalize engine
-        if (!in_array($engine, ['deepl', 'openai'])) {
+        if (!in_array($engine, ['deepl', 'openai', 'tilde'])) {
             $engine = 'deepl'; // This is the default engine
         }
 
@@ -174,6 +175,8 @@ class TranslationController extends Controller
                 $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
                 $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang);
+            } elseif ($engine === 'tilde') {
+                $translations[] = $this->translateTilde($string, $sourceLang, $targetLang);
             }
         }
 
@@ -221,6 +224,12 @@ class TranslationController extends Controller
         } catch (Exception $e) {
             return '';
         }
+    }
+
+    private function translateTilde(string $string, string $sourceLang, string $targetLang): string
+    {
+        $service = new TildeService();
+        return $service->translateString($string, $sourceLang, $targetLang);
     }
 
     private function translateOpenAI(string $string, string $sourceLang, string $targetLang): string

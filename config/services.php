@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'tilde' => [
+        'api_url' => env('TILDE_API_URL', ''),
+        'api_key' => env('TILDE_API_KEY', ''),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),
