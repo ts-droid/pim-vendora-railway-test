@@ -119,6 +119,10 @@ class TranslationController extends Controller
         }
 
         // Normalize engine
+        $engineParts = explode('::', $engine);
+        $engine = $engineParts[0] ?? '';
+        $engineParams = $engineParts[1] ?? '';
+
         if (!in_array($engine, ['deepl', 'openai', 'tilde'])) {
             $engine = 'deepl'; // This is the default engine
         }
@@ -174,9 +178,7 @@ class TranslationController extends Controller
             if ($engine === 'deepl') {
                 $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
-                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang);
-            } elseif ($engine === 'tilde') {
-                $translations[] = $this->translateTilde($string, $sourceLang, $targetLang);
+                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams);
             }
         }
 
@@ -226,13 +228,7 @@ class TranslationController extends Controller
         }
     }
 
-    private function translateTilde(string $string, string $sourceLang, string $targetLang): string
-    {
-        $service = new TildeService();
-        return $service->translateString($string, $sourceLang, $targetLang);
-    }
-
-    private function translateOpenAI(string $string, string $sourceLang, string $targetLang): string
+    private function translateOpenAI(string $string, string $sourceLang, string $targetLang, string $model = ''): string
     {
         try {
             $languages = (new LanguageController())->getAllLanguages();
@@ -252,7 +248,7 @@ class TranslationController extends Controller
                 $prompt->id,
                 ['string' => $string, 'sourceLang' => $sourceLang, 'targetLang' => $targetLang],
                 '',
-                'gpt-5-mini-2025-08-07',
+                $model ?: default_ai_model(),
             );
         } catch (Exception $e) {
             return '';
