@@ -4,6 +4,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Intl\Countries;
 
+if (!function_exists('clean_string_for_comparison'))
+{
+    function clean_string_for_comparison(string $string): string
+    {
+        $cleanString = html_entity_decode($string, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $cleanString = strip_tags($cleanString);
+        $cleanString = str_replace("\xC2\xA0", '', $cleanString);
+        return preg_replace('/\s+/u', '', $cleanString);
+    }
+}
+
 if (!function_exists('get_country_name')) {
     function get_country_name(string $countryCode, string $locale = 'en'): string
     {

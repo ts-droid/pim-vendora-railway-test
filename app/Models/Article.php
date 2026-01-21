@@ -112,21 +112,31 @@ class Article extends Model
             $now = now()->format('Y-m-d H:i:s');
             foreach ($dirtyColumns as $column) {
                 $oldValue = $article->getOriginal($column);
+                if (is_array($oldValue)) {
+                    $oldValue = json_encode($oldValue);
+                }
+
                 $newValue = $article->getAttribute($column);
+                if (is_array($newValue)) {
+                    $newValue = json_encode($newValue);
+                }
 
-                $lastSaved[$column] = $now;
+                if (clean_string_for_comparison($oldValue) != clean_string_for_comparison($newValue)) {
+                    // The content has changed, not just formatting, track the change
+                    $lastSaved[$column] = $now;
 
-                if ($article->article_number) {
-                    EventLogger::logChange(
-                        $column,
-                        $oldValue,
-                        $newValue,
-                        $displayName,
-                        [
-                            'type' => 'article',
-                            'article_number' => $article->article_number,
-                        ]
-                    );
+                    if ($article->article_number) {
+                        EventLogger::logChange(
+                            $column,
+                            $oldValue,
+                            $newValue,
+                            $displayName,
+                            [
+                                'type' => 'article',
+                                'article_number' => $article->article_number,
+                            ]
+                        );
+                    }
                 }
             }
 
