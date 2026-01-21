@@ -18,7 +18,7 @@ class GenerateArticleTitles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    const BASE_LANGUAGE = 'sv';
+    const BASE_LANGUAGE = 'en';
 
     const FIELD_MAPPING = [
         'article_name' => 'description',
@@ -46,7 +46,7 @@ class GenerateArticleTitles implements ShouldQueue
             'args' => func_get_args(),
         ]);
 
-        if (!$this->article->brand || !$this->article->description || !$this->article->shop_description_sv) {
+        if (!$this->article->brand || !$this->article->description || !$this->article->shop_description_en) {
             throw new \Exception('Missing required article data.');
         }
 
@@ -146,8 +146,7 @@ class GenerateArticleTitles implements ShouldQueue
             'args' => func_get_args(),
         ]);
 
-        //$response = $this->executePrompt('article_titles_meta_title', ['meta_title'], true);
-        $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
+        $response = $this->executePrompt('article_titles_short_title', ['article_name']);
 
         $updates = [
             'meta_title_en' => $response['article_name'],
@@ -211,7 +210,7 @@ class GenerateArticleTitles implements ShouldQueue
             'args' => func_get_args(),
         ]);
 
-        $response = $this->executePrompt('article_titles_short_title', ['article_name'], false, 'en');
+        $response = $this->executePrompt('article_titles_short_title', ['article_name']);
 
         $updates = [
             'description' => $response['article_name'],
@@ -282,7 +281,7 @@ class GenerateArticleTitles implements ShouldQueue
         return $array;
     }
 
-    private function executePrompt(string $systemCode, array $arrayKeys, bool $includeShortTitle = false, string $locale = 'sv'): array
+    private function executePrompt(string $systemCode, array $arrayKeys, bool $includeShortTitle = false, string $locale = 'en'): array
     {
         $promptController = new PromptController();
         $prompt = $promptController->getBySystemCode($systemCode);
