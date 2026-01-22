@@ -355,10 +355,6 @@ class VismaNetController extends Controller
             foreach ($orders as $order) {
                 $fetchedData = true;
 
-                if ($order['hold'] ?? false) {
-                    continue;
-                }
-
                 $promisedOn = $order['promisedOn'] ?? '';
                 $promisedDate = $promisedOn ? (date('Y-m-d', strtotime($promisedOn))) : '';
 
