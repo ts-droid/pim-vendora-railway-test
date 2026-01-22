@@ -83,7 +83,7 @@ class SalesOrderService
         // Update order lines (if set)
         $lines = $data['lines'] ?? [];
         if ($lines) {
-            $oldSalesOrderLines = SalesOrderLine::whete('sales_order_id', $salesOrder->id)->get();
+            $oldSalesOrderLines = SalesOrderLine::where('sales_order_id', $salesOrder->id)->get();
             foreach ($oldSalesOrderLines as $salesOrderLine) {
 
                 EventLogger::logAction(
