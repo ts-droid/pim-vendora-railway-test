@@ -49,7 +49,10 @@
         <tr>
             <td width="50%">
                 <div>
-                    <img src="{{ get_image_base_64($brandingData['logo_path'] ?: $brandingData['logo_url']) }}" style="height: 25px" />
+                    @php($logoBase64 = get_image_base_64($brandingData['logo_path'] ?: $brandingData['logo_url']))
+                    @if($logoBase64)
+                        <img src="{{ $logoBase64 }}" style="height: 25px" />
+                    @endif
                 </div>
                 @if($brandingData['brand_name'] != 'Vendora Nordic AB')
                     <br>

@@ -104,17 +104,18 @@ if (!function_exists('get_country_name')) {
 if (!function_exists('get_image_base_64')) {
     function get_image_base_64(string $path): ?string
     {
+        $finfo = class_exists('finfo') ? new finfo(FILEINFO_MIME_TYPE) : null;
+
         // Handle URL
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             try {
                 $data = file_get_contents($path);
-                $type = pathinfo(parse_url($path, PHP_URL_PATH), PATHINFO_EXTENSION);
-
-                if ($data === false) {
+                if ($data === false || $data === '') {
                     return null;
                 }
 
-                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+                $mimeType = $finfo ? $finfo->buffer($data) : null;
+                return build_image_data_uri($data, $mimeType, $path);
             } catch (\Exception $e) {
                 return null;
             }
@@ -129,14 +130,47 @@ if (!function_exists('get_image_base_64')) {
             $path = $publicPath;
         }
 
-        $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = @file_get_contents($path);
 
-        if ($data === false) {
+        if ($data === false || $data === '') {
             return null;
         }
 
-        return 'data:image/' . $type . ';base64,' . base64_encode($data);
+        $mimeType = $finfo ? $finfo->buffer($data) : null;
+
+        return build_image_data_uri($data, $mimeType, $path);
+    }
+}
+
+if (!function_exists('build_image_data_uri')) {
+    function build_image_data_uri(string $data, ?string $mimeType, string $path): ?string
+    {
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extensionMap = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+        ];
+        $resolvedMime = $mimeType ?: ($extensionMap[$extension] ?? ($extension ? 'image/' . $extension : null));
+
+        if (!$resolvedMime || strpos($resolvedMime, 'image/') !== 0) {
+            return null;
+        }
+
+        if ($resolvedMime === 'image/svg+xml') {
+            if (stripos($data, '<svg') === false) {
+                return null;
+            }
+        } else {
+            if (!@getimagesizefromstring($data)) {
+                return null;
+            }
+        }
+
+        return 'data:' . $resolvedMime . ';base64,' . base64_encode($data);
     }
 }
 
