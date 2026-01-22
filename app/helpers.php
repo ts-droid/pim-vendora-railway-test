@@ -164,11 +164,47 @@ if (!function_exists('build_image_data_uri')) {
             if (stripos($data, '<svg') === false) {
                 return null;
             }
-        } else {
-            if (!@getimagesizefromstring($data)) {
+
+            return 'data:' . $resolvedMime . ';base64,' . base64_encode($data);
+        }
+
+        if (!@getimagesizefromstring($data)) {
+            return null;
+        }
+
+        $image = @imagecreatefromstring($data);
+        if (!$image) {
+            return null;
+        }
+
+        if (in_array($resolvedMime, ['image/png', 'image/gif', 'image/webp'], true)) {
+            $width = imagesx($image);
+            $height = imagesy($image);
+            if (!$width || !$height) {
+                imagedestroy($image);
                 return null;
             }
+
+            $canvas = imagecreatetruecolor($width, $height);
+            $white = imagecolorallocate($canvas, 255, 255, 255);
+            imagefilledrectangle($canvas, 0, 0, $width, $height, $white);
+            imagecopy($canvas, $image, 0, 0, 0, 0, $width, $height);
+
+            ob_start();
+            imagejpeg($canvas, null, 90);
+            $jpegData = ob_get_clean();
+
+            imagedestroy($canvas);
+            imagedestroy($image);
+
+            if (!$jpegData) {
+                return null;
+            }
+
+            return 'data:image/jpeg;base64,' . base64_encode($jpegData);
         }
+
+        imagedestroy($image);
 
         return 'data:' . $resolvedMime . ';base64,' . base64_encode($data);
     }
