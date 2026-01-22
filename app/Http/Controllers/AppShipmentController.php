@@ -491,7 +491,7 @@ class AppShipmentController extends Controller
         ]);
 
         // Send tracking number to WGR
-        $this->sendToWGR($shipment, $trackingNumber);
+        $this->notifyTrackingNumber($shipment, $trackingNumber);
 
         return ApiResponseController::success();
     }
@@ -680,11 +680,8 @@ class AppShipmentController extends Controller
     public function notifyTrackingNumber(Shipment $shipment, $trackingNumber)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         if (!$shipment->order_numbers) {
