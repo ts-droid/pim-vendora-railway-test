@@ -123,11 +123,8 @@ class StockPlaceController extends Controller
     public function getDetailedStockPlaces(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $stockPlaceIDs = $request->input('stock_place_ids');
@@ -141,7 +138,18 @@ class StockPlaceController extends Controller
                 ->first();
 
             if (!$stockPlace) {
-                continue;
+                // Did not find by ID, try by identifier
+                $identifier = trim($stockPlaceID);
+                $identifierSplit = explode(':', $identifier);
+                $stockPlaceIdentifier = $identifierSplit[0] ?? '';
+
+                $stockPlace = StockPlace::with('compartments', 'compartments.sections')
+                    ->where('identifier', $stockPlaceIdentifier)
+                    ->first();
+
+                if (!$stockPlace) {
+                    continue;
+                }
             }
 
             $stockPlaceArray = $stockPlace->toArray();
