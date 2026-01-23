@@ -124,7 +124,7 @@ class TranslationController extends Controller
         $engineParams = $engineParts[1] ?? '';
 
         if (!in_array($engine, ['deepl', 'openai', 'tilde'])) {
-            $engine = 'deepl'; // This is the default engine
+            $engine = 'openai'; // This is the default engine
         }
 
         // Merge excludes with global excludes
