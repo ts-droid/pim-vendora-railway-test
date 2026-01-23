@@ -408,7 +408,7 @@ class AppShipmentController extends Controller
                         );
 
                         EventLogger::logAction(
-                            $displayName . ' picked ' . $qty . ' pcs of ' . $shipmentLine->article_number . ' for shipment ' . $lockedShipment->id . ', moving them from ' . $identifier . ' to UTLEV:1',
+                            $displayName . ' picked ' . $qty . ' pcs of <article>' . $shipmentLine->article_number . '</article> for shipment <shipment>' . $lockedShipment->id . '</shipment>, moving them from <stockplace>' . $identifier . '</stockplace> to <stockplace>UTLEV:1</stockplace>',
                             $displayName,
                             [
                                 'article_number' => $shipmentLine->article_number,
@@ -642,7 +642,7 @@ class AppShipmentController extends Controller
 
             foreach ($groupedStockItems as $item) {
                 EventLogger::logAction(
-                    $displayName . ' completed shipment ' . $shipment->id . ', removing ' . $item['qty'] . ' pcs of ' . $item['article_number'] . ' from ' . $item['identifier'],
+                    $displayName . ' completed shipment <shipment>' . $shipment->id . '</shipment>, removing ' . $item['qty'] . ' pcs of <article>' . $item['article_number'] . '</article> from <stockplace>' . $item['identifier'] . '</stockplace>',
                     $displayName,
                     [
                         'article_number' => $item['article_number'],

@@ -56,7 +56,7 @@ class StockItemService
             $identifier = ($stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockPlaceCompartment->identifier);
 
             EventLogger::logAction(
-                $displayName . ' inserted ' . $quantity . ' pcs of ' . $articleNumber . ' into ' . $identifier . '. Provided source: ' . ($source ?: 'none'),
+                $displayName . ' inserted ' . $quantity . ' pcs of <article>' . $articleNumber . '</article> into <stockplace>' . $identifier . '</stockplace>. Provided source: ' . ($source ?: 'none'),
                 $displayName,
                 [
                     'article_number' => $articleNumber,
@@ -126,7 +126,7 @@ class StockItemService
                 $toIdentifier = ($toStockPlaceCompartment->stockPlace->identifier ?? '') . ':' . $toStockPlaceCompartment->identifier;
 
                 EventLogger::logAction(
-                    $signature . ' moved ' . $movedQty . ' pcs of ' . $articleNumber . ' from ' . $fromIdentifier . ' to ' . $toIdentifier,
+                    $signature . ' moved ' . $movedQty . ' pcs of <article>' . $articleNumber . '</article> from <stockplace>' . $fromIdentifier . '</stockplace> to <stockplace>' . $toIdentifier . '</stockplace>',
                     $signature,
                     [
                         'article_number' => $articleNumber,
@@ -233,7 +233,7 @@ class StockItemService
                         $identifier = ($stockPlaceCompartment->stockPlace->identifier ?? '') . ':' . ($stockPlaceCompartment->identifier ?? '');
 
                         EventLogger::logAction(
-                            $signature . ' removed ' . $quantity . ' pcs of ' . $articleNumber . ' from ' . $identifier,
+                            $signature . ' removed ' . $quantity . ' pcs of <article>' . $articleNumber . '</article> from <stockplace>' . $identifier . '</stockplace>',
                             $signature,
                             [
                                 'article_number' => $articleNumber,

@@ -87,7 +87,7 @@ class SalesOrderService
             foreach ($oldSalesOrderLines as $salesOrderLine) {
 
                 EventLogger::logAction(
-                    $salesOrderLine->quantity . ' pcs of ' . $salesOrderLine->article_number . ' removed on update from sales order ' . $salesOrder->id . ' to customer ' . ($billingAddress->full_name ?? '--'),
+                    $salesOrderLine->quantity . ' pcs of <article>' . $salesOrderLine->article_number . '</article> removed on update from sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
                     get_display_name(),
                     [
                         'sales_order_id' => $salesOrder->id,
@@ -115,7 +115,7 @@ class SalesOrderService
                 $this->insertOrderLine($salesOrder->id, $line, $currency);
 
                 EventLogger::logAction(
-                    ($line['quantity'] ?? 0) . ' pcs of ' . ($line['article_number'] ?? '--') . ' added on update to sales order ' . $salesOrder->id . ' to customer ' . ($billingAddress->full_name ?? '--'),
+                    ($line['quantity'] ?? 0) . ' pcs of <article>' . ($line['article_number'] ?? '--') . '</article> added on update to sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
                     get_display_name(),
                     [
                         'sales_order_id' => $salesOrder->id,
@@ -310,7 +310,7 @@ class SalesOrderService
             $this->insertOrderLine($salesOrder->id, $line, $data['currency']);
 
             EventLogger::logAction(
-                ($line['quantity'] ?? 0) . ' pcs of ' . ($line['article_number'] ?? '--') . ' sold on sales order ' . $salesOrder->id . ' to customer ' . ($data['billing_full_name'] ?? '--'),
+                ($line['quantity'] ?? 0) . ' pcs of <article>' . ($line['article_number'] ?? '--') . '</article> sold on sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($data['billing_full_name'] ?? '--') . '</customer>',
                 get_display_name(),
                 [
                     'sales_order_id' => $salesOrder->id,

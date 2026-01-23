@@ -376,7 +376,7 @@ class PurchaseOrderService
                 ]);
 
                 EventLogger::logAction(
-                    $displayName . ' made an indelivery for shipment ' . $purchaseOrderShipment->id . ' on article ' . $orderLine->article_number . ' with quantity ' .$qty . '. Becuase of zero quantity, the line was removed from the shipment.',
+                    $displayName . ' made an indelivery for shipment <poshipment>' . $purchaseOrderShipment->id . '</poshipment> on article <article>' . $orderLine->article_number . '</article> with quantity ' .$qty . '. Becuase of zero quantity, the line was removed from the shipment.',
                     $displayName,
                     [
                         'purchase_order_shipment_id' => $purchaseOrderShipment->id,
@@ -404,7 +404,7 @@ class PurchaseOrderService
             ]);
 
             EventLogger::logAction(
-                $displayName . ' made an indelivery for shipment ' . $purchaseOrderShipment->id . ' on article ' . $orderLine->article_number . ' with quantity ' .$qty . '. Expected quantity on shipment was ' . $qtyOnShipment . '.' . ($diffQty !== 0 ? ' The quantity did not match the expected quantity, thus creating an exception.' : ''),
+                $displayName . ' made an indelivery for shipment <poshipment>' . $purchaseOrderShipment->id . '</poshipment> on article <article>' . $orderLine->article_number . '</article> with quantity ' .$qty . '. Expected quantity on shipment was ' . $qtyOnShipment . '.' . ($diffQty !== 0 ? ' The quantity did not match the expected quantity, thus creating an exception.' : ''),
                 $displayName,
                 [
                     'purchase_order_shipment_id' => $purchaseOrderShipment->id,
