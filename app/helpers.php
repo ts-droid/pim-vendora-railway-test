@@ -6,8 +6,10 @@ use Symfony\Component\Intl\Countries;
 
 if (!function_exists('clean_string_for_comparison'))
 {
-    function clean_string_for_comparison(string $string): string
+    function clean_string_for_comparison(mixed $string): string
     {
+        $string = (string) $string;
+
         $cleanString = html_entity_decode($string, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $cleanString = strip_tags($cleanString);
         $cleanString = str_replace("\xC2\xA0", '', $cleanString);
