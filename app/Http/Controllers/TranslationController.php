@@ -198,6 +198,8 @@ class TranslationController extends Controller
 
             // Fix HTML entities
             $translations[$j] = html_entity_decode($translations[$j]);
+
+            $translations[$j] = preg_replace('/^---|---$/', '', $translations[$j]);
         }
 
         return $translations;
