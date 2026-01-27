@@ -83,18 +83,16 @@ class SalesOrderService
         // Update order lines (if set)
         $lines = $data['lines'] ?? [];
         if ($lines) {
+            $originalItemsCount = [];
+            $newItemsCount = [];
+
             $oldSalesOrderLines = SalesOrderLine::where('sales_order_id', $salesOrder->id)->get();
             foreach ($oldSalesOrderLines as $salesOrderLine) {
 
-                EventLogger::logAction(
-                    $salesOrderLine->quantity . ' pcs of <article>' . $salesOrderLine->article_number . '</article> removed on update from sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
-                    get_display_name(),
-                    [
-                        'sales_order_id' => $salesOrder->id,
-                        'article_number' => $salesOrderLine->article_number,
-                        'customer_id' => $customer->id ?? null,
-                    ]
-                );
+                if (!isset($originalItemsCount[$salesOrderLine->article_number])) {
+                    $originalItemsCount[$salesOrderLine->article_number] = 0;
+                }
+                $originalItemsCount[$salesOrderLine->article_number] += $salesOrderLine->quantity;
 
                 $salesOrderLine->delete();
             }
@@ -114,12 +112,46 @@ class SalesOrderService
 
                 $this->insertOrderLine($salesOrder->id, $line, $currency);
 
+                $articleNumber = $line['article_number'] ?? '';
+                $quantity = (int) ($line['quantity']?? 0);
+
+                if (!isset($newItemsCount[$articleNumber])) {
+                    $newItemsCount[$articleNumber] = 0;
+                }
+                $newItemsCount[$articleNumber] += $quantity;
+            }
+
+            // First log removed items
+            foreach ($originalItemsCount as $articleNumber => $oldQty) {
+                $newQty = $newItemsCount[$articleNumber] ?? 0;
+                $removedQty = $oldQty - $newQty;
+
+                if ($removedQty <= 0) continue;
+
                 EventLogger::logAction(
-                    ($line['quantity'] ?? 0) . ' pcs of <article>' . ($line['article_number'] ?? '--') . '</article> added on update to sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
+                    $removedQty . ' pcs of <article>' . $articleNumber . '</article> removed on update from sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
                     get_display_name(),
                     [
                         'sales_order_id' => $salesOrder->id,
-                        'article_number' => ($line['article_number'] ?? null),
+                        'article_number' => $articleNumber,
+                        'customer_id' => $customer->id ?? null,
+                    ]
+                );
+            }
+
+            // Then log added items
+            foreach ($newItemsCount as $articleNumber => $newQty) {
+                $oldQty = $originalItemsCount[$articleNumber] ?? 0;
+                $addedQty = $newQty - $oldQty;
+
+                if ($addedQty <= 0) continue;
+
+                EventLogger::logAction(
+                    $addedQty . ' pcs of <article>' . $articleNumber . '</article> added on update to sales order <salesorder>' . $salesOrder->id . '</salesorder> to customer <customer>' . ($billingAddress->full_name ?? '--') . '</customer>',
+                    get_display_name(),
+                    [
+                        'sales_order_id' => $salesOrder->id,
+                        'article_number' => $articleNumber,
                         'customer_id' => $customer->id ?? null,
                     ]
                 );
