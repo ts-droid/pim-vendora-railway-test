@@ -357,6 +357,8 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/queued-shipments', [PurchaseOrderController::class, 'getQueuedShipments']);
         Route::post('/release-shipments', [PurchaseOrderController::class, 'releaseShipments']);
 
+        Route::get('/get-lines', [PurchaseOrderController::class, 'getLines']);
+
         Route::get('/ongoing', [PurchaseOrderController::class, 'getOngoing'])->name('purchaseOrders.getOngoing');
         Route::get('/ongoing-sent', [PurchaseOrderController::class, 'getOngoingSent'])->name('purchaseOrders.getOngoingSent');
         Route::get('/ongoing-deleted', [PurchaseOrderController::class, 'getOngoingDeleted'])->name('purchaseOrders.getOngoingDeleted');

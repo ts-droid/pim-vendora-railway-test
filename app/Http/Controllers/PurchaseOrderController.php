@@ -326,14 +326,29 @@ class PurchaseOrderController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getLines(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $articleNumber = $request->input('article_number', '');
+
+        if (!$articleNumber) {
+            return ApiResponseController::success([]);
+        }
+
+        $lines = PurchaseOrderLine::where('article_number', $articleNumber)->orderBy('id', 'DESC')->get();
+
+        return ApiResponseController::success($lines->toArray());
+    }
+
     public function setLineAppState(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $purchaseOrderLine->update([
