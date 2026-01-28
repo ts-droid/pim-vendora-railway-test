@@ -76,6 +76,19 @@ if (!function_exists('has_hours_passed')) {
     }
 }
 
+if (!function_exists('is_eu_country')) {
+    function is_eu_country(string $countryCode)
+    {
+        $euCountries = [
+            'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+            'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+            'SI', 'ES', 'SE', 'GB'
+        ];
+
+        return in_array(strtoupper($countryCode), $euCountries);
+    }
+}
+
 if (!function_exists('add_vat')) {
     function add_vat(float $amount, float|int $vatRate)
     {

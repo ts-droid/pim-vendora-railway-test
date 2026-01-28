@@ -95,20 +95,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService = new SalesOrderService();
 
         // Fetch customer from Visma.net
-        if ($salesOrder->customer) {
-            $customerNumber = $salesOrder->customer;
-        } else {
-            switch (strtoupper($salesOrder->billingAddress->country_code)) {
-                case 'NO':
-                    $customerNumber = self::RETAIL_CUSTOMER_NUMBER_NO;
-                    break;
-
-                default:
-                    $customerNumber = self::RETAIL_CUSTOMER_NUMBER;
-                    break;
-            }
-        }
-
+        $customerNumber = $this->getCustomerNumber($salesOrder);
         $customer = $this->getCustomer($customerNumber);
 
         if (!$customer) {
@@ -187,7 +174,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService = new SalesOrderService();
 
         // Fetch customer from Visma.net
-        $customerNumber = $salesOrder->customer ?: self::RETAIL_CUSTOMER_NUMBER;
+        $customerNumber = $this->getCustomerNumber($salesOrder);
         $customer = $this->getCustomer($customerNumber);
 
         if (!$customer) {
@@ -621,6 +608,19 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 // Remove whitespace
                 return preg_replace('/\s/', '', $postalCode);
 
+        }
+    }
+
+    private function getCustomerNumber(SalesOrder $salesOrder)
+    {
+        if ($salesOrder->customer) {
+            return $salesOrder->customer;
+        } else {
+            if (is_eu_country($salesOrder->billingAddress->country_code ?? '')) {
+                return self::RETAIL_CUSTOMER_NUMBER_EU;
+            } else {
+                return self::RETAIL_CUSTOMER_NUMBER_NON_EU;
+            }
         }
     }
 }
