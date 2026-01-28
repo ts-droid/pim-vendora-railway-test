@@ -26,10 +26,10 @@ class EventLogController extends Controller
 
         if ($pageNumber > 0) {
             $logs = $query->paginate($pageSize, ['*'], 'page_number', $pageNumber);
+            return response()->json($logs->toArray());
         } else {
             $logs = $query->limit($limit)->get();
+            return ApiResponseController::success($logs->toArray());
         }
-
-        return ApiResponseController::success($logs->toArray());
     }
 }
