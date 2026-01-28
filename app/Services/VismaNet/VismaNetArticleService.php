@@ -203,7 +203,18 @@ class VismaNetArticleService extends VismaNetApiService
 
         if ($isNewArticle) {
             $data['inventoryNumber'] = ['value' => $article->article_number];
-            $data['itemClass'] = ['value' => $article->article_type];
+
+            switch ($article->article_type) {
+                case 'FinishedGoodItem':
+                    $itemClass = '09';
+                    break;
+
+                default:
+                    $itemClass = $article->article_type;
+                    break;
+            }
+
+            $data['itemClass'] = ['value' => $itemClass];
         }
 
         // Set supplier
