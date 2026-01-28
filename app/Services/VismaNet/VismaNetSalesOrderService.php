@@ -94,9 +94,14 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $salesOrderService = new SalesOrderService();
 
-        // Fetch customer from Visma.net
+        // Fetch or create customer in Visma.net
         $customerNumber = $this->getCustomerNumber($salesOrder);
         $customer = $this->getCustomer($customerNumber);
+
+        if (!$customer && $customerNumber) {
+            // Try to create the customer
+            $customer = $this->createCustomer($customerNumber, $salesOrder);
+        }
 
         if (!$customer) {
             $salesOrder->update(['has_sync_error' => 1]);
@@ -173,9 +178,14 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         $salesOrderService = new SalesOrderService();
 
-        // Fetch customer from Visma.net
+        // Fetch or create customer in Visma.net
         $customerNumber = $this->getCustomerNumber($salesOrder);
         $customer = $this->getCustomer($customerNumber);
+
+        if (!$customer && $customerNumber) {
+            // Try to create the customer
+            $customer = $this->createCustomer($customerNumber, $salesOrder);
+        }
 
         if (!$customer) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to update this order in Visma.net. Customer ' . $customerNumber . ' not found.');
@@ -540,6 +550,76 @@ class VismaNetSalesOrderService extends VismaNetApiService
         return $response['response'] ?? null;
     }
 
+    private function createCustomer(string $customerNumber, SalesOrder $salesOrder): ?array
+    {
+        $isCustomerEU = is_eu_country($salesOrder->billingAddress->country_code ?? '');
+
+        if ($isCustomerEU) {
+            $customerClassId = '90'; // LSS Kunder
+            $vatZoneId = '01'; // Inhemsk
+        } else {
+            $customerClassId = '30'; // Kunder utanför EU
+            $vatZoneId = '03'; // Export/import
+        }
+
+        $payload = [
+            'number' => ['value' => $customerNumber],
+            'name' => ['value' => $salesOrder->billingAddress->full_name],
+            'status' => ['value' => 'Active'],
+            'currencyId' => ['value' => $salesOrder->currency],
+            'customerClassId' => ['value' => $customerClassId],
+            'vatRegistrationId' => ['value' => $salesOrder->vat_number],
+            'vatZoneId' => ['value' => $vatZoneId],
+            'mainAddress' => ['value' => [
+                'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
+                'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
+                'postalCode' => ['value' => $salesOrder->billingAddress->postal_code],
+                'city' => ['value' => $salesOrder->billingAddress->city],
+                'countryId' => ['value' => $salesOrder->billingAddress->country_code],
+            ]],
+            'mainContact' => ['value' => [
+                'name' => ['value' => $salesOrder->billingAddress->full_name],
+                'attention' => ['value' => $salesOrder->billingAddress->attention],
+                'email' => ['value' => $salesOrder->email],
+                'phone1' => ['value' => $salesOrder->phone],
+            ]],
+            'invoiceAddress' => ['value' => [
+                'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
+                'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
+                'postalCode' => ['value' => $salesOrder->billingAddress->postal_code],
+                'city' => ['value' => $salesOrder->billingAddress->city],
+                'countryId' => ['value' => $salesOrder->billingAddress->country_code],
+            ]],
+            'invoiceContact' => ['value' => [
+                'name' => ['value' => $salesOrder->billingAddress->full_name],
+                'attention' => ['value' => $salesOrder->billingAddress->attention],
+                'email' => ['value' => $salesOrder->billing_email ?: $salesOrder->email],
+                'phone1' => ['value' => $salesOrder->phone],
+            ]],
+            'deliveryAddress' => ['value' => [
+                'addressLine1' => ['value' => $salesOrder->shippingAddress->street_line_1],
+                'addressLine2' => ['value' => $salesOrder->shippingAddress->street_line_2],
+                'postalCode' => ['value' => $salesOrder->shippingAddress->postal_code],
+                'city' => ['value' => $salesOrder->shippingAddress->city],
+                'countryId' => ['value' => $salesOrder->shippingAddress->country_code],
+            ]],
+            'deliveryContact' => ['value' => [
+                'name' => ['value' => $salesOrder->shippingAddress->full_name],
+                'attention' => ['value' => $salesOrder->shippingAddress->attention],
+                'email' => ['value' => $salesOrder->email],
+                'phone1' => ['value' => $salesOrder->phone],
+            ]],
+        ];
+
+        $response = $this->callAPI('POST', '/v1/customer', $payload);
+
+        if (!$response['success']) {
+            return null;
+        }
+
+        return $this->getCustomer($customerNumber);
+    }
+
     private function getPaymentMethodCode(string $payMethod, string $currency): ?int
     {
         $matrix = [
@@ -615,12 +695,20 @@ class VismaNetSalesOrderService extends VismaNetApiService
     {
         if ($salesOrder->customer) {
             return $salesOrder->customer;
-        } else {
-            if (is_eu_country($salesOrder->billingAddress->country_code ?? '')) {
-                return self::RETAIL_CUSTOMER_NUMBER_EU;
+        }
+
+        if (is_eu_country($salesOrder->billingAddress->country_code ?? '')) {
+            // EU Customer
+            if ($salesOrder->vat_number) {
+                // No VAT-number so this is a private person
+                return $salesOrder->vat_number;
             } else {
-                return self::RETAIL_CUSTOMER_NUMBER_NON_EU;
+                // VAT-number provided, this must be a company, so use its own customer
+                return self::RETAIL_CUSTOMER_NUMBER_EU;
             }
+        } else {
+            // Export customer
+            return self::RETAIL_CUSTOMER_NUMBER_NON_EU;
         }
     }
 }
