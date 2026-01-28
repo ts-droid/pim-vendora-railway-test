@@ -24,7 +24,7 @@ class ArticleEolHandler
 
         $articleNumbers = DB::table('articles')
             ->select('article_number')
-            ->where('status', 'NoPurchases')
+            ->where('status', '=', 'NoPurchases')
             ->where('stock', '<=', 0)
             ->pluck('article_number')
             ->toArray();
@@ -55,17 +55,14 @@ class ArticleEolHandler
 
         $article = Article::where('article_number', $articleNumber)->first();
 
-        if (!$article) {
+        if (!$article
+            || $article->status != 'NoPurchases'
+            || $article->stock > 0) {
             return;
         }
 
-        if ($article->status != 'NoPurchases') {
-            return;
-        }
-
-        if ($article->stock > 0) {
-            return;
-        }
+        // Deactivate on WEB
+        $article->update(['is_webshop' => 0]);
 
         // Check if there is any un-invoiced order lines
         $numOngoingLines = DB::table('sales_order_lines')
@@ -82,9 +79,6 @@ class ArticleEolHandler
         }
 
         // This article should be inactivated
-        $vismaAPI = new VismaNetApiService();
-        $vismaAPI->callAPI('PUT', '/v1/inventory/' . $articleNumber, [
-            'status' => array('value' => 'Inactive')
-        ]);
+        $article->update(['status' => 'Inactive']);
     }
 }
