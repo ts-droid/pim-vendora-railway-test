@@ -95,7 +95,20 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService = new SalesOrderService();
 
         // Fetch customer from Visma.net
-        $customerNumber = $salesOrder->customer ?: self::RETAIL_CUSTOMER_NUMBER;
+        if ($salesOrder->customer) {
+            $customerNumber = $salesOrder->customer;
+        } else {
+            switch (strtoupper($salesOrder->billingAddress->country_code)) {
+                case 'NO':
+                    $customerNumber = self::RETAIL_CUSTOMER_NUMBER_NO;
+                    break;
+
+                default:
+                    $customerNumber = self::RETAIL_CUSTOMER_NUMBER;
+                    break;
+            }
+        }
+
         $customer = $this->getCustomer($customerNumber);
 
         if (!$customer) {
