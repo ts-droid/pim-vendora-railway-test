@@ -408,7 +408,7 @@ class AppShipmentController extends Controller
                         );
 
                         EventLogger::logAction(
-                            $displayName . ' picked ' . $qty . ' pcs of <article>' . $shipmentLine->article_number . '</article> for shipment <shipment>' . $lockedShipment->id . '</shipment> and sales order <salesorder>' . ($lockedShipment->salesOrder->id ?? 0) . '</salesorder> to customer <customer>' . ($lockedShipment->salesOrder->billingAddress->full_name ?? '') . '</customer>, moving them from <stockplace>' . $identifier . '</stockplace> to <stockplace>UTLEV:1</stockplace>',
+                            $displayName . ' picked ' . $qty . ' pcs of <article>' . $shipmentLine->article_number . '</article> for shipment <shipment>' . $lockedShipment->id . '</shipment> and sales order <salesorder>' . ($lockedShipment->salesOrder()->id ?? 0) . '</salesorder> to customer <customer>' . ($lockedShipment->salesOrder()->billingAddress->full_name ?? '') . '</customer>, moving them from <stockplace>' . $identifier . '</stockplace> to <stockplace>UTLEV:1</stockplace>',
                             $displayName,
                             [
                                 'article_number' => $shipmentLine->article_number,
@@ -642,7 +642,7 @@ class AppShipmentController extends Controller
 
             foreach ($groupedStockItems as $item) {
                 EventLogger::logAction(
-                    $displayName . ' completed shipment <shipment>' . $shipment->id . '</shipment> for sales order <salesorder>' . ($shipment->salesOrder->id ?? 0) . '</salesorder> and customer <customer>' . ($shipment->salesOrder->billingAddress->full_name ?? '') . '</customer>, removing ' . $item['qty'] . ' pcs of <article>' . $item['article_number'] . '</article> from <stockplace>' . $item['identifier'] . '</stockplace>',
+                    $displayName . ' completed shipment <shipment>' . $shipment->id . '</shipment> for sales order <salesorder>' . ($shipment->salesOrder()->id ?? 0) . '</salesorder> and customer <customer>' . ($shipment->salesOrder()->billingAddress->full_name ?? '') . '</customer>, removing ' . $item['qty'] . ' pcs of <article>' . $item['article_number'] . '</article> from <stockplace>' . $item['identifier'] . '</stockplace>',
                     $displayName,
                     [
                         'article_number' => $item['article_number'],
