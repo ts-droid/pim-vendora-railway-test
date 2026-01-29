@@ -414,9 +414,6 @@ class VismaNetController extends Controller
                     $orderController->update(new Request($orderData), $existingOrder);
                 }
             }
-
-            $purchaseOrderService = new PurchaseOrderService();
-            $purchaseOrderService->autoDeliverPurchaseOrders();
         }
 
         if (!$orderNumber && $fetchedData) {

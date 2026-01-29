@@ -685,6 +685,8 @@ class PurchaseOrderService
         ];
     }
 
+    // This shit is buggy and causes duplicated in-deliveries.
+    // Do not use ut, we should be master anyway
     public function autoDeliverPurchaseOrders(): void
     {
         $__serviceLogContext = [
