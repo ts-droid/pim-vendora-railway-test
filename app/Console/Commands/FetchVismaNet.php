@@ -139,7 +139,8 @@ class FetchVismaNet extends Command
                 break;
 
             case 'daily':
-                // Currently empty :(
+                $this->info('Deleting deleted sales orders...');
+                Process::timeout(7200)->run('php artisan visma:fetch delete-sales-orders');
                 break;
 
             case 'twicedaily':

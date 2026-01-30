@@ -283,8 +283,12 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if (count($deletedOrderNumber) === 0) return;
 
-        foreach (array_chunk($deletedOrderNumber, 100) as $orderNumberChunk) {
-            SalesOrder::whereIn('order_number', $orderNumberChunk)->delete();
+        foreach ($deletedOrderNumber as $orderNumber) {
+            $salesOrder = SalesOrder::where('order_number', $orderNumber)->first();
+            if (!$salesOrder) continue;
+
+            SalesOrderLine::where('sales_order_id', $salesOrder->id)->delete();
+            $salesOrder->delete();
         }
     }
 
