@@ -216,6 +216,40 @@ class VismaNetApiService
         return $accessToken;
     }
 
+    public function getPagedResultsV3(string $endpoint, array $params = []): array
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $url = $endpoint;
+        if ($params) {
+            $url .= '?' . http_build_query($params);
+        }
+
+        $result = [];
+
+        while ($url) {
+            $response = $this->callAPI('GET', $url);
+
+            $success = $response['success'] ?? false;
+            $httpCode = $response['http_code'] ?? '';
+
+            if (!$success) {
+                throw new \Exception('Failed to fetch page in getPagedResultsV3(). Http code: ' . $httpCode);
+            }
+
+            $url = $response['response']['nextPage'] ?? null;
+            $values = $response['response']['value'] ?? [];
+            $result = array_merge($result, $values);
+        }
+
+        return $result;
+    }
+
     /**
      * Returns paged results from the API.
      *

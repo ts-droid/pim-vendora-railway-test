@@ -12,6 +12,7 @@ use App\Services\NotificationService;
 use App\Services\SalesOrderService;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class VismaNetSalesOrderService extends VismaNetApiService
@@ -258,6 +259,33 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrder = $response['response'] ?? null;
 
         return $this->importOrder($salesOrder);
+    }
+
+    public function deleteSalesOrders(): void
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $orders = $this->getPagedResultsV3('/v3/SalesOrders', ['pageSize' => 1000]);
+
+        if (count($orders) === 0) return;
+
+        $orderNumbers = array_column($orders, 'orderId');
+        unset($orders);
+
+        $localOrderNumbers = DB::table('sales_orders')->where('date', '>', '2023-01-01')->pluck('order_number')->toArray();
+
+        $deletedOrderNumber = array_diff($localOrderNumbers, $orderNumbers);
+
+        if (count($deletedOrderNumber) === 0) return;
+
+        foreach (array_chunk($deletedOrderNumber, 100) as $orderNumberChunk) {
+            SalesOrder::whereIn('order_number', $orderNumberChunk)->delete();
+        }
     }
 
     public function fetchSalesOrders(string $updatedAfter = ''): void

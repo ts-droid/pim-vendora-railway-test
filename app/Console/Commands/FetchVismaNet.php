@@ -118,6 +118,11 @@ class FetchVismaNet extends Command
                 $salesOrderService->fetchSalesOrders();
                 break;
 
+            case 'delete-sales-orders':
+                $salesOrderService = new VismaNetSalesOrderService();
+                $salesOrderService->deleteSalesOrders();
+                break;
+
             case 'transactions':
                 $vismaTransactionService = new VismaNetTransactionService();
                 $vismaTransactionService->fetchTransactions();
