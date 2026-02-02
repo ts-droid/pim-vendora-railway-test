@@ -740,7 +740,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             // EU Customer
             if ($salesOrder->vat_number) {
                 // No VAT-number so this is a private person
-                return $salesOrder->vat_number;
+                return substr(md5($salesOrder->vat_number), 0, 10);
             } else {
                 // VAT-number provided, this must be a company, so use its own customer
                 return self::RETAIL_CUSTOMER_NUMBER_EU;
