@@ -263,6 +263,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     public function deleteSalesOrders(): void
     {
+        return;
+
         $__serviceLogContext = [
             'service' => static::class,
             'method' => __FUNCTION__,
