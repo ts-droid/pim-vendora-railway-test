@@ -578,7 +578,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         return $orderData;
     }
 
-    private function getCustomer(string $customerNumber): ?array
+    public function getCustomer(string $customerNumber): ?array
     {
         $response = $this->callAPI('GET', '/v1/customer/' . $customerNumber);
 
@@ -589,7 +589,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         return $response['response'] ?? null;
     }
 
-    private function createCustomer(string $customerNumber, SalesOrder $salesOrder): ?array
+    public function createCustomer(string $customerNumber, SalesOrder $salesOrder): ?array
     {
         $isCustomerEU = is_eu_country($salesOrder->billingAddress->country_code ?? '');
 
