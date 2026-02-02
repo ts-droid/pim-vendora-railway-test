@@ -730,7 +730,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
     }
 
-    private function getCustomerNumber(SalesOrder $salesOrder)
+    public function getCustomerNumber(SalesOrder $salesOrder)
     {
         if ($salesOrder->customer) {
             return $salesOrder->customer;
