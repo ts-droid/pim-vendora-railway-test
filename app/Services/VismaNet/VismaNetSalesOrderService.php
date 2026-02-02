@@ -102,6 +102,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!$customer && $customerNumber) {
             // Try to create the customer
             $customer = $this->createCustomer($customerNumber, $salesOrder);
+
+            if ($customer) {
+                $salesOrder->update(['customer' => $customer['number']]);
+                $customerNumber = $customer['number'];
+            }
         }
 
         if (!$customer) {
@@ -186,6 +191,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!$customer && $customerNumber) {
             // Try to create the customer
             $customer = $this->createCustomer($customerNumber, $salesOrder);
+
+            if ($customer) {
+                $salesOrder->update(['customer' => $customer['number']]);
+                $customerNumber = $customer['number'];
+            }
         }
 
         if (!$customer) {
@@ -651,10 +661,19 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
 
         $response = $this->callAPI('POST', '/v1/customer', $payload);
-
         if (!$response['success']) {
             return null;
         }
+
+        $location = $response['headers']['Location'] ?? null;
+
+        $response = $this->callAPI('GET', $location);
+        if (!$response['success']) {
+            return null;
+        }
+
+        return $response['response'] ?? null;
+
 
         return $this->getCustomer($customerNumber);
     }
