@@ -581,6 +581,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
     private function getCustomer(string $customerNumber): ?array
     {
         $response = $this->callAPI('GET', '/v1/customer/' . $customerNumber);
+
+        if (($response['success'] ?? false) == false) {
+            return null;
+        }
+
         return $response['response'] ?? null;
     }
 
