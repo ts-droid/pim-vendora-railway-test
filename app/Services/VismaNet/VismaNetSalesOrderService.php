@@ -101,7 +101,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if (!$customer && $customerNumber) {
             // Try to create the customer
-            $customer = $this->createCustomer($customerNumber, $salesOrder);
+            $customer = $this->createCustomer($salesOrder);
 
             if ($customer) {
                 $salesOrder->update(['customer' => $customer['number']]);
@@ -190,7 +190,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         if (!$customer && $customerNumber) {
             // Try to create the customer
-            $customer = $this->createCustomer($customerNumber, $salesOrder);
+            $customer = $this->createCustomer($salesOrder);
 
             if ($customer) {
                 $salesOrder->update(['customer' => $customer['number']]);
@@ -599,7 +599,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         return $response['response'] ?? null;
     }
 
-    public function createCustomer(string $customerNumber, SalesOrder $salesOrder): ?array
+    public function createCustomer(SalesOrder $salesOrder): ?array
     {
         $isCustomerEU = is_eu_country($salesOrder->billingAddress->country_code ?? '');
 
@@ -612,7 +612,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         $payload = [
-            'number' => ['value' => $customerNumber],
             'name' => ['value' => $salesOrder->billingAddress->full_name],
             'status' => ['value' => 'Active'],
             'currencyId' => ['value' => $salesOrder->currency],
