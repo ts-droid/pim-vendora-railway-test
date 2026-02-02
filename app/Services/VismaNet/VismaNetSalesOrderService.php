@@ -664,7 +664,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             return null;
         }
 
-        $location = $response['headers']['Location'] ?? null;
+        $location = $response['headers']['Location'][0] ?? null;
 
         $response = $this->callAPI('GET', $location);
         if (!$response['success']) {
