@@ -7,6 +7,7 @@ use App\Mail\EmailLogger;
 use App\Mail\RawMail;
 use App\Models\SalesOrder;
 use App\Services\SalesOrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 
@@ -34,7 +35,19 @@ class SendSalesOrderConfirmation
             'hasShipping' => $hasShipping
         ])->render();
 
+        $receiptPdf = Pdf::loadView('emails.salesOrder.receiptPdf', [
+            'salesOrder' => $salesOrder,
+            'brandingData' => $brandingData,
+        ]);
+
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
+            ->attachData(
+                $receiptPdf->output(),
+                'receipt.pdf',
+                [
+                    'mime' => 'application/pdf',
+                ]
+            )
             ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($salesOrder->email)->bcc($emailBCC)->queue($mail);
