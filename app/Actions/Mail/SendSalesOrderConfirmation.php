@@ -10,6 +10,7 @@ use App\Services\SalesOrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class SendSalesOrderConfirmation
 {
@@ -41,13 +42,6 @@ class SendSalesOrderConfirmation
         ]);
 
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))
-            ->attachData(
-                $receiptPdf->output(),
-                'receipt.pdf',
-                [
-                    'mime' => 'application/pdf',
-                ]
-            )
             ->onQueue(LaravelQueues::MAIL->value);
 
         Mail::to($salesOrder->email)->bcc($emailBCC)->queue($mail);
