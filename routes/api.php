@@ -92,7 +92,6 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/{salesOrder}/create-shipment', [SalesOrderApiController::class, 'createShipment'])->name('salesOrder.createShipment');
         Route::post('/{salesOrder}/cancel', [SalesOrderApiController::class, 'cancel'])->name('salesOrder.cancel');
         Route::post('/{salesOrder}/reset-sync', [SalesOrderApiController::class, 'resetSync'])->name('salesOrder.resetSync');
-        Route::get('/{salesOrder}/receipt', [SalesOrderApiController::class, 'getReceipt']);
     });
 
     Route::prefix('/shipment')->group(function() {

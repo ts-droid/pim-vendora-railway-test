@@ -65,6 +65,7 @@ Route::get('/view-email/{email}', [EmailViewController::class, 'viewEmail']);
 Route::get('/send-email/{email}', [EmailViewController::class, 'sendEmail']);
 
 Route::prefix('/preview')->group(function () {
+    Route::get('/sales-order/{salesOrder}/receipt', [PreviewController::class, 'receipt']);
     Route::get('/sales-order-receipt', [PreviewController::class, 'salesOrderReceipt']);
 });
 
@@ -122,6 +123,8 @@ Route::get('/customer-review/done', [CustomerreviewController::class, 'done'])->
 Route::get('/status-check', [StatusCheckController::class, 'checkStatus']);
 
 Route::get('/monitors', [MonitorDashboardController::class, 'index']);
+
+Route::get('/sales-order/{salesOrder}/receipt', [PreviewController::class, 'salesOrderReceiptPublic'])->name('salesOrder.receipt');
 
 require __DIR__ . '/supplierPortal.php';
 
