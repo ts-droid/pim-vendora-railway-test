@@ -90,5 +90,10 @@
     "request_review_done_heading": "Arvostelu lähetetty",
     "request_review_done_text": "Kiitos arvostelustasi",
 
-    "you_save": "Säästät"
+    "you_save": "Säästät",
+
+    "receipt_title": "Kuitti",
+    "billing_address": "Laskutusosoite",
+    "shipping_address": "Toimitusosoite",
+    "pcs": "kpl"
 }

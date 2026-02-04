@@ -9,6 +9,7 @@ use App\Jobs\OrderCreatedJob;
 use App\Models\Shipment;
 use App\Services\SalesOrderService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Cache;
@@ -242,14 +243,28 @@ class SalesOrderApiController extends Controller
         return ApiResponseController::success();
     }
 
+    public function getReceipt(SalesOrder $salesOrder)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $brandingData = $salesOrder->getBrandingDate();
+
+        $pdf = Pdf::loadView('emails.salesOrder.receiptPdf', [
+            'salesOrder' => $salesOrder,
+            'brandingData' => $brandingData
+        ]);
+
+        return $pdf->stream();
+    }
+
     public function resetSync(SalesOrder $salesOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $vismaNetSalesOrderService = new VismaNetSalesOrderService();

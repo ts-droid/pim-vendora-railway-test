@@ -90,5 +90,10 @@
     "request_review_done_heading": "Atsiliepimas pateiktas",
     "request_review_done_text": "Ačiū už jūsų atsiliepimą",
 
-    "you_save": "Jūs sutaupote"
+    "you_save": "Jūs sutaupote",
+
+    "receipt_title": "Kvitas",
+    "billing_address": "Atsiskaitymo adresas",
+    "shipping_address": "Pristatymo adresas",
+    "pcs": "vnt"
 }

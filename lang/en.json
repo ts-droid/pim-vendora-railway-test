@@ -90,5 +90,10 @@
     "request_review_done_heading": "Review submitted",
     "request_review_done_text": "Thank you for your review",
 
-    "you_save": "You save"
+    "you_save": "You save",
+
+    "receipt_title": "Receipt",
+    "billing_address": "Billing address",
+    "shipping_address": "Shipping address",
+    "pcs": "pcs"
 }

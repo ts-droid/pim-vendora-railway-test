@@ -90,5 +90,10 @@
     "request_review_done_heading": "Arvustus esitatud",
     "request_review_done_text": "Aitäh arvustuse eest",
 
-    "you_save": "Sa säästad"
+    "you_save": "Sa säästad",
+
+    "receipt_title": "Kviitung",
+    "billing_address": "Arveldusaadress",
+    "shipping_address": "Tarneaadress",
+    "pcs": "tk"
 }

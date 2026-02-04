@@ -17,13 +17,6 @@ if (!function_exists('clean_string_for_comparison'))
     }
 }
 
-if (!function_exists('get_country_name')) {
-    function get_country_name(string $countryCode, string $locale = 'en'): string
-    {
-        return \Symfony\Component\Intl\Countries::getName($countryCode, $locale);
-    }
-}
-
 if (!function_exists('get_google_product_categories')) {
     function get_google_product_categories()
     {
@@ -38,13 +31,6 @@ if (!function_exists('get_google_product_categories')) {
         }
 
         return $categories;
-    }
-}
-
-if (!function_exists('get_country_name')) {
-    function get_country_name(string $code, string $locale = 'en'): ?string
-    {
-        return Countries::getName($code, $locale);
     }
 }
 
@@ -106,7 +92,7 @@ if (!function_exists('is_web_customer')) {
 }
 
 if (!function_exists('get_country_name')) {
-    function get_country_name(string $countryCode, string $languageCode)
+    function get_country_name(string $countryCode, string $languageCode = 'en')
     {
         if (!$countryCode || !$languageCode) {
             return '';

@@ -90,5 +90,10 @@
     "request_review_done_heading": "Recension skickad",
     "request_review_done_text": "Tack för din recension",
 
-    "you_save": "Du sparar"
+    "you_save": "Du sparar",
+
+    "receipt_title": "Kvitto",
+    "billing_address": "Faktureringsadress",
+    "shipping_address": "Leveransadress",
+    "pcs": "st"
 }

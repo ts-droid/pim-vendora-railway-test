@@ -90,5 +90,10 @@
     "request_review_done_heading": "Atsauksme iesniegta",
     "request_review_done_text": "Paldies par atsauksmi",
 
-    "you_save": "Jūs ietaupat"
+    "you_save": "Jūs ietaupat",
+
+    "receipt_title": "Kvīts",
+    "billing_address": "Norēķinu adrese",
+    "shipping_address": "Piegādes adrese",
+    "pcs": "gab"
 }

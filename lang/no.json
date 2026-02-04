@@ -90,5 +90,10 @@
     "request_review_done_heading": "Omtale sendt",
     "request_review_done_text": "Takk for omtalen din",
 
-    "you_save": "Du sparer"
+    "you_save": "Du sparer",
+
+    "receipt_title": "Kvittering",
+    "billing_address": "Fakturaadresse",
+    "shipping_address": "Leveringsadresse",
+    "pcs": "stk"
 }
