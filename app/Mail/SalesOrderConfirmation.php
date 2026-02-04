@@ -12,6 +12,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Attachment;
+use Illuminate\Support\Facades\App;
 
 class SalesOrderConfirmation extends Mailable
 {
@@ -41,6 +42,8 @@ class SalesOrderConfirmation extends Mailable
         $this->emailFromEmail = $fromEmail;
         $this->emailFromName = $fromName;
         $this->hasShipping = $hasShipping;
+
+        App::setLocale($salesOrder->language ?: 'en');
     }
 
     /**
