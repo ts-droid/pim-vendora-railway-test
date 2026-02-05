@@ -102,29 +102,29 @@
             @endif
 
             <tr>
-                <td style="padding-top: 12px;">{{ __('order_confirm_sub_total') }}</td>
+                <td style="padding-top: 12px;text-align: right;">{{ __('order_confirm_sub_total') }}</td>
                 <td style="padding-top: 12px;text-align: right;">{{ number_format($salesOrder->getOrderSubtotal(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
             </tr>
 
             @if($shipping !== 0)
                 <tr>
-                    <td>{{ __('order_confirm_shipping') }}</td>
+                    <td style="text-align: right;">{{ __('order_confirm_shipping') }}</td>
                     <td style="text-align: right;">+{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                 </tr>
             @endif
 
             @if($discount !== 0)
                 <tr>
-                    <td>{{ __('order_confirm_discount') }}</td>
+                    <td style="text-align: right;">{{ __('order_confirm_discount') }}</td>
                     <td style="text-align: right;">-{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                 </tr>
             @endif
 
             <tr>
-                <td><b>{{ __('order_confirm_total') }}</b></td>
+                <td style="text-align: right;"><b>{{ __('order_confirm_total') }}</b></td>
                 <td style="text-align: right;"><b>{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</b></td>
             </tr>
-            <tr>
+            <tr style="text-align: right;">
                 <td>{{ __('order_confirm_vat_total') }}</td>
                 <td style="text-align: right;">{{ number_format($salesOrder->getOrderTotalWithVat() - $salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
             </tr>
