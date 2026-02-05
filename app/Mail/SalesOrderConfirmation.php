@@ -43,7 +43,7 @@ class SalesOrderConfirmation extends Mailable
         $this->emailFromName = $fromName;
         $this->hasShipping = $hasShipping;
 
-        App::setLocale($salesOrder->language ?: 'en');
+        $this->locale = $salesOrder->language ?: 'en';
     }
 
     /**
@@ -74,6 +74,8 @@ class SalesOrderConfirmation extends Mailable
      */
     public function attachments(): array
     {
+        App::setLocale($this->salesOrder->language);
+
         $receiptPdf = Pdf::loadView('emails.salesOrder.receiptPdf', [
             'salesOrder' => $this->salesOrder,
             'brandingData' => $this->brandingData,
