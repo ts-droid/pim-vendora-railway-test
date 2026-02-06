@@ -18,9 +18,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <style>
             * {
-                font-family: Arial, Helvetica, sans-serif;
+                font-family: "DejaVu Sans", Arial, Helvetica, sans-serif;
             }
             h1 {
                 font-size: 28px;

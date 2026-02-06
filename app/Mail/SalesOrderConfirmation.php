@@ -79,7 +79,7 @@ class SalesOrderConfirmation extends Mailable
         $receiptPdf = Pdf::loadView('emails.salesOrder.receiptPdf', [
             'salesOrder' => $this->salesOrder,
             'brandingData' => $this->brandingData,
-        ]);
+        ])->setOption('defaultFont', 'DejaVu Sans');
 
         return [
             Attachment::fromData(

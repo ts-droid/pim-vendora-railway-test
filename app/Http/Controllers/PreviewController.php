@@ -24,7 +24,7 @@ class PreviewController extends Controller
         $pdf = Pdf::loadView('emails.salesOrder.receiptPdf', [
             'salesOrder' => $salesOrder,
             'brandingData' => $brandingData
-        ]);
+        ])->setOption('defaultFont', 'DejaVu Sans');
 
         return $pdf->stream();
     }
