@@ -186,11 +186,17 @@ class PurchaseOrderPublisher
             // Handle non-confirming statuses
             switch ($item['status'] ?? '') {
                 case 'eol':
+                    $purchaseOrderService = new PurchaseOrderService();
+                    $purchaseOrderService->deletePurchaseOrderShipmentLine($orderLine->id);
+
                     $eolArticleNumbers[] = $orderLine->article_number;
                     $orderLine->delete();
                     continue 2;
 
                 case 'decline':
+                    $purchaseOrderService = new PurchaseOrderService();
+                    $purchaseOrderService->deletePurchaseOrderShipmentLine($orderLine->id);
+
                     $orderLine->delete();
                     continue 2;
             }

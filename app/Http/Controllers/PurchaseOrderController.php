@@ -858,6 +858,9 @@ class PurchaseOrderController extends Controller
                 $updates['amount'] = $unitCost * $quantity;
 
                 if ($quantity == 0) {
+                    $purchaseOrderService = new PurchaseOrderService();
+                    $purchaseOrderService->deletePurchaseOrderShipmentLine($orderLine->id);
+
                     $orderLine->delete();
                 } else {
                     $orderLine->update($updates);
@@ -907,9 +910,18 @@ class PurchaseOrderController extends Controller
         }
 
         // Delete removed order lines
-        PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
+        $purchaseOrderLines = PurchaseOrderLine::where('purchase_order_id', $purchaseOrder->id)
             ->whereNotIn('line_key', $updatedLineKeys)
-            ->delete();
+            ->get();
+
+        if ($purchaseOrderLines) {
+            foreach ($purchaseOrderLines as $purchaseOrderLine) {
+                $purchaseOrderService = new PurchaseOrderService();
+                $purchaseOrderService->deletePurchaseOrderShipmentLine($purchaseOrderLine->id);
+
+                $purchaseOrderLine->delete();
+            }
+        }
 
         $purchaseOrder->refresh();
 

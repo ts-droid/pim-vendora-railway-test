@@ -33,6 +33,9 @@ class PurchaseOrderDeletionService
                 }
             }
 
+            $purchaseOrderService = new PurchaseOrderService();
+            $purchaseOrderService->deletePurchaseOrderShipmentsForOrder($purchaseOrder);
+
             $purchaseOrder->delete();
         }
         else {
@@ -87,11 +90,17 @@ class PurchaseOrderDeletionService
             if ($totalLines == count($orderLines)) {
                 // Delete the purchase order if all of its lines are being deleted
                 $this->delete($purchaseOrder);
+
+                $purchaseOrderService = new PurchaseOrderService();
+                $purchaseOrderService->deletePurchaseOrderShipmentsForOrder($purchaseOrder);
             }
 
             // Only remove the provided order lines
             foreach ($orderLines as $orderLine) {
                 $orderLine->delete();
+
+                $purchaseOrderService = new PurchaseOrderService();
+                $purchaseOrderService->deletePurchaseOrderShipmentLine($orderLine->id);
             }
 
             // Dispatch a job to delete the order lines from the ERP

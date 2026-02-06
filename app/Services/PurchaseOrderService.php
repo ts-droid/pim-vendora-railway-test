@@ -552,6 +552,9 @@ class PurchaseOrderService
         $mailer = new PurchaseOrderEmailer();
         $mailer->sendCancelOrder($purchaseOrder);
 
+        // Delete all associated shipments
+        $this->deletePurchaseOrderShipmentsForOrder($purchaseOrder);
+
         // Delete the local order (it will be synced later again)
         $purchaseOrder->delete();
 
@@ -589,6 +592,9 @@ class PurchaseOrderService
             'quantity' => (int) $purchaseOrderLine->quantity,
         ]);
 
+        // Cancel shipments associated with the line
+        $this->deletePurchaseOrderShipmentLine($purchaseOrderLine->id);
+
         $purchaseOrderLineCopy = $purchaseOrderLine->replicate();
         $purchaseOrderLine->delete();
 
@@ -612,6 +618,46 @@ class PurchaseOrderService
             'success' => true,
             'error_message' => null
         ];
+    }
+
+    public function deletePurchaseOrderShipmentsForOrder(PurchaseOrder $purchaseOrder): void
+    {
+        $shipments = PurchaseOrderShipment::where('purchase_order_id', $purchaseOrder->id)->get();
+        if ($shipments) {
+            foreach ($shipments as $shipment) {
+                $this->deletePurchaseOrderShipment($shipment);
+            }
+        }
+    }
+
+    public function deletePurchaseOrderShipment(PurchaseOrderShipment $purchaseOrderShipment): void
+    {
+        DB::table('purchase_order_shipment_lines')->where('purchase_order_shipment_id', $purchaseOrderShipment->id)->delete();
+        $purchaseOrderShipment->delete();
+    }
+
+    public function deletePurchaseOrderShipmentLine(int $purchaseOrderLineID): void
+    {
+        $shipmentLines = DB::table('purchase_order_shipment_lines')
+            ->where('purchase_order_line_id', $purchaseOrderLineID)
+            ->get();
+
+        if ($shipmentLines) {
+            foreach ($shipmentLines as $shipmentLine) {
+                $shipmentID = $shipmentLine->purchase_order_shipment_id;
+
+                $shipmentLine->delete();
+
+                $lineCount = DB::table('purchase_order_shipment_lines')
+                    ->where('purchase_order_shipment_id', $shipmentID)
+                    ->count();
+
+                if (!$lineCount) {
+                    // No lines left on the shipment, delete the shipment
+                    PurchaseOrderShipment::find($shipmentID)->delete();
+                }
+            }
+        }
     }
 
     /**
