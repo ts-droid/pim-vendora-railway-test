@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Http;
 
 class VismaNetController extends Controller
 {
-    const API_URL = 'https://integration.visma.net';
+    const API_URL = 'https://api.finance.visma.net';
 
     const SLEEP_TIME = 1;
     const PAGE_SIZE = 500;
@@ -1133,7 +1133,7 @@ class VismaNetController extends Controller
             $url = $endpoint;
         }
         else {
-            $url = self::API_URL . '/API/controller/api' . $endpoint;
+            $url = self::API_URL . $endpoint;
         }
 
         try {
