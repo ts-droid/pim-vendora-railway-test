@@ -238,7 +238,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (!($deleteResponse['success'] ?? false)) {
             return [
                 'success' => false,
-                'message' => 'Failed to delete sales order in Visma.net'
+                'message' => 'Failed to delete sales order in Visma.net ' . json_encode($deleteResponse)
             ];
         }
 
