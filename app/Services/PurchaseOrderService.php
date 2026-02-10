@@ -148,103 +148,111 @@ class PurchaseOrderService
             $purchaseOrderShipment = PurchaseOrderShipment::find($shipmentID);
             if (!$purchaseOrderShipment) continue;
 
-            $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt(
-                $purchaseOrderShipment->purchaseOrder,
-                $purchaseOrderShipment,
-                $purchaseOrderShipment->comment
-            );
-
-            if (!$response['success']) {
-                NotificationService::sendMail(
-                    'Failed to create purchase order receipt',
-                    'Failed to create purchase order receipt for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
-                );
-                continue;
-            }
-
-            $receiptNumber = $response['receiptNumber'];
-            if ($receiptNumber) {
-                $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
-            }
-
-
-            // Find or create stock place "INLEV"
-            $stockPlace = StockPlace::where('identifier', 'INLEV')->first();
-            if (!$stockPlace) {
-                $response = $stockPlaceService->createStockPlace([
-                    'identifier' => 'INLEV',
-                    'map_position_x' => 0,
-                    'map_position_y' => 0,
-                    'map_size_x' => 1,
-                    'map_size_y' => 1,
-                    'type' => 0,
-                    'is_active' => 1,
-                    'is_temporary' => 1,
-                    'is_virtual' => 1,
-                ]);
-
-                if (!$response['success']) {
-                    NotificationService::sendMail(
-                        'Failed to create INLEV',
-                        'Failed to create the stock place INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
-                    );
-                    continue;
-                }
-
-                $stockPlace = $response['stockPlace'];
-            }
-
-            // Create a new compartment
-            $indeliveryCompartment = null;
-
-            for ($i = 1;$i < 5000;$i++) {
-                $exists = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
-                    ->where('identifier', $i)
-                    ->exists();
-
-                if ($exists) continue;
-
-                $indeliveryCompartment = StockPlaceCompartment::create([
-                    'identifier' => $i,
-                    'stock_place_id' => $stockPlace->id,
-                    'volume_class' => 'A',
-                    'width' => 100,
-                    'height' => 100,
-                    'depth' => 100,
-                    'is_manual' => 1,
-                ]);
-                break;
-            }
-
-            if (!$indeliveryCompartment) {
-                NotificationService::sendMail(
-                    'Failed to create INLEV compartment',
-                    'Failed to create the compartment for INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
-                );
-                continue;
-            }
-
-            $lines = DB::table('purchase_order_shipment_lines')->where('purchase_order_shipment_id', $purchaseOrderShipment->id)->get();
-            foreach ($lines as $line) {
-                $purchaseOrderLine = PurchaseOrderLine::find($line->purchase_order_line_id);
-                if (!$purchaseOrderLine) continue;
-
-                $stockItemService->addStockItem(
-                    $purchaseOrderLine->article_number,
-                    $line->quantity,
-                    $indeliveryCompartment,
-                    $purchaseOrderShipment->completed_by,
-                    'Shipment delivery PO ' . $purchaseOrderShipment->purchaseOrder->id,
-                );
-
-                DB::table('articles')
-                    ->where('article_number', $purchaseOrderLine->article_number)
-                    ->increment('stock_manageable', $line->quantity);
-            }
+            $this->releasePurchaseOrderShipment($purchaseOrderShipment);
         }
 
         // Clear the queue
         DB::table('purchase_order_shipment_queue')->truncate();
+    }
+
+    public function releasePurchaseOrderShipment(PurchaseOrderShipment $purchaseOrderShipment): void
+    {
+        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
+        $stockPlaceService = new StockPlaceService();
+        $stockItemService = new StockItemService();
+
+        $response = $vismaNetPurchaseOrderService->createPurchaseOrderReceipt(
+            $purchaseOrderShipment->purchaseOrder,
+            $purchaseOrderShipment,
+            $purchaseOrderShipment->comment
+        );
+
+        if (!$response['success']) {
+            NotificationService::sendMail(
+                'Failed to create purchase order receipt',
+                'Failed to create purchase order receipt for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
+            );
+            return;
+        }
+
+        $receiptNumber = $response['receiptNumber'];
+        if ($receiptNumber) {
+            $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+        }
+
+        // Find or create stock place "INLEV"
+        $stockPlace = StockPlace::where('identifier', 'INLEV')->first();
+        if (!$stockPlace) {
+            $response = $stockPlaceService->createStockPlace([
+                'identifier' => 'INLEV',
+                'map_position_x' => 0,
+                'map_position_y' => 0,
+                'map_size_x' => 1,
+                'map_size_y' => 1,
+                'type' => 0,
+                'is_active' => 1,
+                'is_temporary' => 1,
+                'is_virtual' => 1,
+            ]);
+
+            if (!$response['success']) {
+                NotificationService::sendMail(
+                    'Failed to create INLEV',
+                    'Failed to create the stock place INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
+                );
+                return;
+            }
+
+            $stockPlace = $response['stockPlace'];
+        }
+
+        // Create a new compartment
+        $indeliveryCompartment = null;
+
+        for ($i = 1;$i < 5000;$i++) {
+            $exists = StockPlaceCompartment::where('stock_place_id', $stockPlace->id)
+                ->where('identifier', $i)
+                ->exists();
+
+            if ($exists) continue;
+
+            $indeliveryCompartment = StockPlaceCompartment::create([
+                'identifier' => $i,
+                'stock_place_id' => $stockPlace->id,
+                'volume_class' => 'A',
+                'width' => 100,
+                'height' => 100,
+                'depth' => 100,
+                'is_manual' => 1,
+            ]);
+            break;
+        }
+
+        if (!$indeliveryCompartment) {
+            NotificationService::sendMail(
+                'Failed to create INLEV compartment',
+                'Failed to create the compartment for INLEV when running releasePurchaseOrderShipments() for shipment "' . $purchaseOrderShipment->id . '".'
+            );
+            return;
+        }
+
+        $lines = DB::table('purchase_order_shipment_lines')->where('purchase_order_shipment_id', $purchaseOrderShipment->id)->get();
+        foreach ($lines as $line) {
+            $purchaseOrderLine = PurchaseOrderLine::find($line->purchase_order_line_id);
+            if (!$purchaseOrderLine) continue;
+
+            $stockItemService->addStockItem(
+                $purchaseOrderLine->article_number,
+                $line->quantity,
+                $indeliveryCompartment,
+                $purchaseOrderShipment->completed_by,
+                'Shipment delivery PO ' . $purchaseOrderShipment->purchaseOrder->id,
+            );
+
+            DB::table('articles')
+                ->where('article_number', $purchaseOrderLine->article_number)
+                ->increment('stock_manageable', $line->quantity);
+        }
     }
 
     /**
