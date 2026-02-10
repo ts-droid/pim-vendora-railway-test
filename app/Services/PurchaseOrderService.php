@@ -140,10 +140,6 @@ class PurchaseOrderService
 
         $shipmentIDs = DB::table('purchase_order_shipment_queue')->pluck('purchase_order_shipment_id');
 
-        $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
-        $stockPlaceService = new StockPlaceService();
-        $stockItemService = new StockItemService();
-
         foreach ($shipmentIDs as $shipmentID) {
             $purchaseOrderShipment = PurchaseOrderShipment::find($shipmentID);
             if (!$purchaseOrderShipment) continue;
