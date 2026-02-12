@@ -270,11 +270,8 @@ class SalesOrderApiController extends Controller
     public function createShipment(SalesOrder $salesOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         try {
@@ -285,5 +282,18 @@ class SalesOrderApiController extends Controller
         } catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
         }
+    }
+
+    public function orderCreatedJob(SalesOrder $salesOrder)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        OrderCreatedJob::dispatch($salesOrder)
+            ->onQueue(LaravelQueues::DEFAULT->value);
+
+        return ApiResponseController::success();
     }
 }

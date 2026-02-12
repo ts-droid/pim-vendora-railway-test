@@ -90,6 +90,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{salesOrder}', [SalesOrderApiController::class, 'show'])->name('salesOrder.show');
         Route::put('/{salesOrder}', [SalesOrderApiController::class, 'update'])->name('salesOrder.update');
         Route::post('/{salesOrder}/create-shipment', [SalesOrderApiController::class, 'createShipment'])->name('salesOrder.createShipment');
+        Route::post('/{salesOrder}/create-send-job', [SalesOrderApiController::class, 'orderCreatedJob']);
         Route::post('/{salesOrder}/cancel', [SalesOrderApiController::class, 'cancel'])->name('salesOrder.cancel');
         Route::post('/{salesOrder}/reset-sync', [SalesOrderApiController::class, 'resetSync'])->name('salesOrder.resetSync');
     });
