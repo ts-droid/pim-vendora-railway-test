@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class SalesOrderApiController extends Controller
@@ -35,11 +36,8 @@ class SalesOrderApiController extends Controller
     public function index(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $perPage = $request->get('per_page', 20);
@@ -55,8 +53,15 @@ class SalesOrderApiController extends Controller
                 ->paginate($perPage);
         });
 
+        $sources = Cache::remember('sales_order_sources', now()->addMinutes(2), function () {
+            return DB::table('sales_orders')
+                ->distinct()
+                ->pluck('source');
+        });
+
         return ApiResponseController::success([
             'orders' => $salesOrders->items(),
+            'sources' => $sources,
             'meta' => [
                 'current_page' => $salesOrders->currentPage(),
                 'last_page' => $salesOrders->lastPage(),
