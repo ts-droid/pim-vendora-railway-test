@@ -534,7 +534,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             ];
         }
 
-        if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
+        /*if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
             $orderData['soBillingContact'] = [
                 'value' => [
                     'overrideContact' => ['value' => true],
@@ -554,7 +554,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'countryId' => ['value' => $salesOrder->billingAddress->country_code],
                 ]
             ];
-        }
+        }*/
 
         foreach ($salesOrder->lines as $orderLine) {
             $lineData = [
@@ -757,10 +757,10 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if (is_eu_country($salesOrder->billingAddress->country_code ?? '')) {
             // EU Customer
             if ($salesOrder->vat_number) {
-                // No VAT-number so this is a private person
+                // VAT-number provided, this must be a company, so use its own customer
                 return substr(md5($salesOrder->vat_number), 0, 5);
             } else {
-                // VAT-number provided, this must be a company, so use its own customer
+                // No VAT-number so this is a private person, use retail customer
                 return self::RETAIL_CUSTOMER_NUMBER_EU;
             }
         } else {
