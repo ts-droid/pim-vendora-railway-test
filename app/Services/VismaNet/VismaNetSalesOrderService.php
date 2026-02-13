@@ -537,7 +537,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
             $orderData['soBillingContact'] = [
                 'value' => [
-                    'overrideContact' => ['value' => true],
+                    'overrideContact' => ['value' => false],
                     'name' => ['value' => $salesOrder->billingAddress->full_name],
                     'email' => ['value' => $salesOrder->email],
                     'phone1' => ['value' => $salesOrder->phone],
@@ -546,7 +546,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
             $orderData['soBillingAddress'] = [
                 'value' => [
-                    'overrideAddress' => ['value' => true],
+                    'overrideAddress' => ['value' => false],
                     'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
                     'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
                     'postalCode' => ['value' => $this->getFixedPostalCode($salesOrder->billingAddress->postal_code, $salesOrder->billingAddress->country_code)],
