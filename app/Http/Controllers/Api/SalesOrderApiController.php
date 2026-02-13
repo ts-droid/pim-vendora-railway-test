@@ -40,15 +40,23 @@ class SalesOrderApiController extends Controller
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
+        $source = $request->get('source', '');
+        $search = $request->get('search', '');
+
         $perPage = $request->get('per_page', 20);
         $page = $request->get('page', 1);
 
         $cacheKey = 'sales_orders_page_' . $page . '_per_page_' . $perPage;
 
-        $salesOrders = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($perPage) {
-            return SalesOrder::query()
-                ->with('customer', 'billingAddress', 'shippingAddress')
-                ->orderBy('has_sync_error', 'DESC')
+        $salesOrders = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($perPage, $source, $search) {
+            $query = SalesOrder::query()
+                ->with('customer', 'billingAddress', 'shippingAddress');
+
+            if ($source) {
+                $query->where('source', $source);
+            }
+
+            return  $query->orderBy('has_sync_error', 'DESC')
                 ->latest()
                 ->paginate($perPage);
         });
