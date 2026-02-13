@@ -44,10 +44,5 @@ class SetupLanguage implements ShouldQueue
         $languageController = new LanguageController();
 
         $languageController->setupLanguageColumns($this->language->language_code);
-
-        Artisan::call('wgr:fetch', [
-            'type' => 'all',
-            'skipImages' => 1
-        ]);
     }
 }
