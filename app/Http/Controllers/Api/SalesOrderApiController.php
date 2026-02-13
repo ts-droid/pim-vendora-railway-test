@@ -10,6 +10,7 @@ use App\Models\Shipment;
 use App\Services\SalesOrderService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Cache;
@@ -53,39 +54,21 @@ class SalesOrderApiController extends Controller
                 ->with('customer', 'billingAddress', 'shippingAddress');
 
             if ($source) {
-                $query->where('source', $source);
+                $query->where('sales_orders.source', $source);
             }
 
             if ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('id', '=', $search)
-                        ->orWhere('order_number', 'like', '%' . $search . '%')
-                        ->orWhere('customer_ref_no', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%')
-                        ->orWhere('phone', 'like', '%' . $search . '%')
-                        ->orWhere('payment_reference', 'like', '%' . $search . '%')
-                        ->orWhereHas('customer', function ($query) use ($search) {
-                            $query->where('name', 'like', '%' . $search . '%');
-                        })
-                        ->orWhereHas('billingAddress', function ($query) use ($search) {
-                            $query->where('full_name', 'like', '%' . $search . '%')
-                                ->orWhere('first_name', 'like', '%' . $search . '%')
-                                ->orWhere('last_name', 'like', '%' . $search . '%')
-                                ->orWhere('postal_code', 'like', '%' . $search . '%')
-                                ->orWhere('city', 'like', '%' . $search . '%');
-                        })
-                        ->orWhereHas('shippingAddress', function ($query) use ($search) {
-                            $query->where('full_name', 'like', '%' . $search . '%')
-                                ->orWhere('first_name', 'like', '%' . $search . '%')
-                                ->orWhere('last_name', 'like', '%' . $search . '%')
-                                ->orWhere('postal_code', 'like', '%' . $search . '%')
-                                ->orWhere('city', 'like', '%' . $search . '%');
-                        });
-                });
+                $query->select('sales_orders.*')
+                    ->leftJoin('customers as customers_for_search', 'customers_for_search.external_id', '=', 'sales_orders.customer')
+                    ->leftJoin('addresses as billing_addresses_for_search', 'billing_addresses_for_search.id', '=', 'sales_orders.billing_address_id')
+                    ->leftJoin('addresses as shipping_addresses_for_search', 'shipping_addresses_for_search.id', '=', 'sales_orders.shipping_address_id')
+                    ->distinct();
+
+                $this->applySalesOrderSearchFilter($query, $search);
             }
 
-            return  $query->orderBy('has_sync_error', 'DESC')
-                ->latest()
+            return $query->orderByDesc('sales_orders.has_sync_error')
+                ->orderByDesc('sales_orders.created_at')
                 ->paginate($perPage);
         });
 
@@ -198,6 +181,43 @@ class SalesOrderApiController extends Controller
          } catch (\Throwable $e) {
                 return ApiResponseController::error($e->getMessage());
          }
+    }
+
+    private function applySalesOrderSearchFilter(Builder $query, string $search): void
+    {
+        $search = trim($search);
+
+        if ($search === '') {
+            return;
+        }
+
+        $likeString = '%' . $search . '%';
+
+        $query->where(function (Builder $builder) use ($search, $likeString) {
+            $builder->where('sales_orders.id', '=', $search)
+                ->orWhere('sales_orders.order_number', 'like', $likeString)
+                ->orWhere('sales_orders.customer_ref_no', 'like', $likeString)
+                ->orWhere('sales_orders.email', 'like', $likeString)
+                ->orWhere('sales_orders.phone', 'like', $likeString)
+                ->orWhere('sales_orders.payment_reference', 'like', $likeString)
+                ->orWhere(function (Builder $customerQuery) use ($likeString) {
+                    $customerQuery->where('customers_for_search.name', 'like', $likeString);
+                })
+                ->orWhere(function (Builder $billingAddressQuery) use ($likeString) {
+                    $billingAddressQuery->where('billing_addresses_for_search.full_name', 'like', $likeString)
+                        ->orWhere('billing_addresses_for_search.first_name', 'like', $likeString)
+                        ->orWhere('billing_addresses_for_search.last_name', 'like', $likeString)
+                        ->orWhere('billing_addresses_for_search.postal_code', 'like', $likeString)
+                        ->orWhere('billing_addresses_for_search.city', 'like', $likeString);
+                })
+                ->orWhere(function (Builder $shippingAddressQuery) use ($likeString) {
+                    $shippingAddressQuery->where('shipping_addresses_for_search.full_name', 'like', $likeString)
+                        ->orWhere('shipping_addresses_for_search.first_name', 'like', $likeString)
+                        ->orWhere('shipping_addresses_for_search.last_name', 'like', $likeString)
+                        ->orWhere('shipping_addresses_for_search.postal_code', 'like', $likeString)
+                        ->orWhere('shipping_addresses_for_search.city', 'like', $likeString);
+                });
+        });
     }
 
     public function update(Request $request, SalesOrder $salesOrder)
