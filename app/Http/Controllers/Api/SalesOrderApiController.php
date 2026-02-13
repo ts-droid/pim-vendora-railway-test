@@ -56,6 +56,34 @@ class SalesOrderApiController extends Controller
                 $query->where('source', $source);
             }
 
+            if ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('id', '=', $search)
+                        ->orWhere('order_number', 'like', '%' . $search . '%')
+                        ->orWhere('customer_ref_no', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhere('phone', 'like', '%' . $search . '%')
+                        ->orWhere('payment_reference', 'like', '%' . $search . '%')
+                        ->orWhereHas('customer', function ($query) use ($search) {
+                            $query->where('name', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('billingAddress', function ($query) use ($search) {
+                            $query->where('full_name', 'like', '%' . $search . '%')
+                                ->orWhere('first_name', 'like', '%' . $search . '%')
+                                ->orWhere('last_name', 'like', '%' . $search . '%')
+                                ->orWhere('postal_code', 'like', '%' . $search . '%')
+                                ->orWhere('city', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('shippingAddress', function ($query) use ($search) {
+                            $query->where('full_name', 'like', '%' . $search . '%')
+                                ->orWhere('first_name', 'like', '%' . $search . '%')
+                                ->orWhere('last_name', 'like', '%' . $search . '%')
+                                ->orWhere('postal_code', 'like', '%' . $search . '%')
+                                ->orWhere('city', 'like', '%' . $search . '%');
+                        });
+                });
+            }
+
             return  $query->orderBy('has_sync_error', 'DESC')
                 ->latest()
                 ->paginate($perPage);
