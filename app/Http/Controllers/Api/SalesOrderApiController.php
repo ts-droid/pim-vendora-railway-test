@@ -46,7 +46,7 @@ class SalesOrderApiController extends Controller
         $perPage = $request->get('per_page', 20);
         $page = $request->get('page', 1);
 
-        $cacheKey = 'sales_orders_page_' . $page . '_per_page_' . $perPage;
+        $cacheKey = 'sales_orders_page_' . $page . '_' . $perPage . '_' . md5($source . '_' . $search);
 
         $salesOrders = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($perPage, $source, $search) {
             $query = SalesOrder::query()
