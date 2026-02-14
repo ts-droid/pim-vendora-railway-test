@@ -95,6 +95,9 @@ if ($salesOrder->lines ?? false) {
                             <b>{{ __('order_confirm_shipping_address') }}:</b><br>
                             @if($salesOrder->shippingAddress ?? false)
                                 {{ $salesOrder->shippingAddress->full_name }}<br>
+                                @if($salesOrder->shippingAddress->attention)
+                                    ATT: {{ $salesOrder->shippingAddress->attention }}<br>
+                                @endif
                                 {{ $salesOrder->shippingAddress->street_line_1 }}<br>
                                 @if($salesOrder->shippingAddress->street_line_2)
                                     {{ $salesOrder->shippingAddress->street_line_2 }}<br>
@@ -159,6 +162,9 @@ if ($salesOrder->lines ?? false) {
                                         <p style="margin:0;font-weight:bold;">{{ __('order_confirm_billing_address') }}:</p>
                                         @if($salesOrder->billingAddress ?? false)
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->full_name }}</p>
+                                            @if($salesOrder->billingAddress->attention)
+                                                <p style="margin:0;">{{ $salesOrder->billingAddress->attention }}</p>
+                                            @endif
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->street_line_1 }}</p>
                                             @if($salesOrder->billingAddress->street_line_2)
                                                 <p style="margin:0;">{{ $salesOrder->billingAddress->street_line_2 }}</p>
