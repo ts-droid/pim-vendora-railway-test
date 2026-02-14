@@ -53,6 +53,9 @@
                 <td style="width: 50%;">
                     <b>{{ __('billing_address') }}:</b><br>
                     {{ $salesOrder->billingAddress->full_name ?? '' }}<br>
+                    @if($salesOrder->billingAddress->attention ?? null)
+                        ATT: {{ $salesOrder->billingAddress->attention }}<br>
+                    @endif
                     {{ $salesOrder->billingAddress->street_line_1 ?? '' }}<br>
                     @if($salesOrder->billingAddress->street_line_2 ?? false)
                         {{ $salesOrder->billingAddress->street_line_2 ?? '' }}<br>
@@ -66,6 +69,9 @@
                 <td style="width: 50%;">
                     <b>{{ __('shipping_address') }}:</b><br>
                     {{ $salesOrder->shippingAddress->full_name ?? '' }}<br>
+                    @if($salesOrder->shippingAddress->attention ?? null)
+                        ATT: {{ $salesOrder->shippingAddress->attention }}<br>
+                    @endif
                     {{ $salesOrder->shippingAddress->street_line_1 ?? '' }}<br>
                     @if($salesOrder->shippingAddress->street_line_2 ?? false)
                         {{ $salesOrder->shippingAddress->street_line_2 ?? '' }}<br>
