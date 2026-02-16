@@ -584,22 +584,15 @@ class VismaNetSalesOrderService extends VismaNetApiService
         return $orderData;
     }
 
-    public function getCustomer(string $customerNumber): ?array
-    {
-        $response = $this->callAPI('GET', '/v1/customer/' . $customerNumber);
-
-        if (($response['success'] ?? false) == false) {
-            return null;
-        }
-
-        return $response['response'] ?? null;
-    }
-
     public function createCustomer(SalesOrder $salesOrder): ?array
     {
         $isCustomerEU = is_eu_country($salesOrder->billingAddress->country_code ?? '');
 
-        if ($isCustomerEU) {
+        if ($salesOrder->billingAddress->country_code == 'SE') {
+            $customerClassId = '10';            // Svenska kunder
+            $vatZoneId = '01';                  // Inhemsk
+        }
+        elseif ($isCustomerEU) {
             $customerClassId = '20';            // Kunder EU
             $vatZoneId = '01';                  // Inhemsk
         } else {
@@ -613,7 +606,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'currencyId' => ['value' => $salesOrder->currency],
             'customerClassId' => ['value' => $customerClassId],
             'vatRegistrationId' => ['value' => $salesOrder->vat_number],
-            'vatZoneId' => ['value' => $vatZoneId],
+            'acceptAutoInvoices' => ['value' => false],
+            // 'vatZoneId' => ['value' => $vatZoneId],
             'mainContact' => ['value' => [
                 'name' => ['value' => $salesOrder->billingAddress->full_name],
                 'attention' => ['value' => $salesOrder->billingAddress->attention],
