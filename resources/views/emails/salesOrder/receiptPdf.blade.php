@@ -40,9 +40,9 @@
                     <h1>{{ __('receipt_title') }}</h1>
 
                     <p>
-                        <b>{{ __('order_confirm_date') }}:</b> {{ $salesOrder->date }}<br>
+                        <b>{{ __('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}<br>
                         <b>{{ __('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}<br>
-                        <b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->pay_method }}
+                        <b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}
                     </p>
                 </td>
             </tr>

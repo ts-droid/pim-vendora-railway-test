@@ -152,9 +152,9 @@ if ($salesOrder->lines ?? false) {
                                 </tr>
                                 <tr>
                                     <td align="left" style="padding-top:10px;">
-                                        <p style="margin:0;"><b>{{ __('order_confirm_date') }}:</b> {{ $salesOrder->date }}</p>
+                                        <p style="margin:0;"><b>{{ __('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}</p>
                                         <p style="margin:0;"><b>{{ __('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}</p>
-                                        <p style="margin:0;"><b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->pay_method }}</p>
+                                        <p style="margin:0;"><b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}</p>
                                     </td>
                                 </tr>
                                 <tr>
