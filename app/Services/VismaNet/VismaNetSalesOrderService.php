@@ -740,8 +740,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
             if ($salesOrder->vat_number) {
                 // VAT-number provided, this must be a company, so use its own customer
                 // Check if a customer already exists, else return null so we can create it
-                $response = $this->callAPI('GET', '/v1/customer?vatRegistrationId=' . $salesOrder->vat_number);
-                return ($response['response'][0]['number'] ?? null);
+                return null;
+                // $response = $this->callAPI('GET', '/v1/customer?vatRegistrationId=' . $salesOrder->vat_number);
+                // return ($response['response'][0]['number'] ?? null);
             } else {
                 // No VAT-number so this is a private person, use retail customer
                 return self::RETAIL_CUSTOMER_NUMBER_EU;
