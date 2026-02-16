@@ -530,7 +530,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             ];
         }
 
-        if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
+        /*if ($salesOrder->billing_address_id && $salesOrder->billingAddress) {
             $orderData['soBillingContact'] = [
                 'value' => [
                     'overrideContact' => ['value' => true],
@@ -550,7 +550,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'countryId' => ['value' => $salesOrder->billingAddress->country_code],
                 ]
             ];
-        }
+        }*/
 
         foreach ($salesOrder->lines as $orderLine) {
             $lineData = [
