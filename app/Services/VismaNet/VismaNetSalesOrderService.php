@@ -97,19 +97,17 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         // Fetch or create customer in Visma.net
         $customerNumber = $this->getCustomerNumber($salesOrder);
-        $customer = $this->getCustomer($customerNumber);
-
-        if (!$customer && $customerNumber) {
-            // Try to create the customer
+        if (!$customerNumber) {
+            // Create the customer
             $customer = $this->createCustomer($salesOrder);
 
             if ($customer) {
-                $salesOrder->update(['customer' => $customer['number']]);
                 $customerNumber = $customer['number'];
+                $salesOrder->update(['customer' => $customer['number']]);
             }
         }
 
-        if (!$customer) {
+        if (!$customerNumber) {
             $salesOrder->update(['has_sync_error' => 1]);
 
             $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
@@ -186,19 +184,17 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
         // Fetch or create customer in Visma.net
         $customerNumber = $this->getCustomerNumber($salesOrder);
-        $customer = $this->getCustomer($customerNumber);
-
-        if (!$customer && $customerNumber) {
-            // Try to create the customer
+        if (!$customerNumber) {
+            // Create the customer
             $customer = $this->createCustomer($salesOrder);
 
             if ($customer) {
-                $salesOrder->update(['customer' => $customer['number']]);
                 $customerNumber = $customer['number'];
+                $salesOrder->update(['customer' => $customer['number']]);
             }
         }
 
-        if (!$customer) {
+        if (!$customerNumber) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to update this order in Visma.net. Customer ' . $customerNumber . ' not found.');
             throw new \Exception('Failed to update order in Visma.net. Customer ' . $customerNumber . ' not found.');
         }
@@ -604,11 +600,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $isCustomerEU = is_eu_country($salesOrder->billingAddress->country_code ?? '');
 
         if ($isCustomerEU) {
-            $customerClassId = '90'; // LSS Kunder
-            $vatZoneId = '01'; // Inhemsk
+            $customerClassId = '20';            // Kunder EU
+            $vatZoneId = '01';                  // Inhemsk
         } else {
-            $customerClassId = '30'; // Kunder utanför EU
-            $vatZoneId = '03'; // Export/import
+            $customerClassId = '30';            // Kunder utanför EU
+            $vatZoneId = '03';                  // Export/import
         }
 
         $payload = [
@@ -618,18 +614,18 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'customerClassId' => ['value' => $customerClassId],
             'vatRegistrationId' => ['value' => $salesOrder->vat_number],
             'vatZoneId' => ['value' => $vatZoneId],
+            'mainContact' => ['value' => [
+                'name' => ['value' => $salesOrder->billingAddress->full_name],
+                'attention' => ['value' => $salesOrder->billingAddress->attention],
+                'email' => ['value' => $salesOrder->email],
+                'phone1' => ['value' => $salesOrder->phone],
+            ]],
             'mainAddress' => ['value' => [
                 'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
                 'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
                 'postalCode' => ['value' => $salesOrder->billingAddress->postal_code],
                 'city' => ['value' => $salesOrder->billingAddress->city],
                 'countryId' => ['value' => $salesOrder->billingAddress->country_code],
-            ]],
-            'mainContact' => ['value' => [
-                'name' => ['value' => $salesOrder->billingAddress->full_name],
-                'attention' => ['value' => $salesOrder->billingAddress->attention],
-                'email' => ['value' => $salesOrder->email],
-                'phone1' => ['value' => $salesOrder->phone],
             ]],
             'invoiceAddress' => ['value' => [
                 'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
@@ -638,24 +634,12 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 'city' => ['value' => $salesOrder->billingAddress->city],
                 'countryId' => ['value' => $salesOrder->billingAddress->country_code],
             ]],
-            'invoiceContact' => ['value' => [
-                'name' => ['value' => $salesOrder->billingAddress->full_name],
-                'attention' => ['value' => $salesOrder->billingAddress->attention],
-                'email' => ['value' => $salesOrder->billing_email ?: $salesOrder->email],
-                'phone1' => ['value' => $salesOrder->phone],
-            ]],
             'deliveryAddress' => ['value' => [
                 'addressLine1' => ['value' => $salesOrder->shippingAddress->street_line_1],
                 'addressLine2' => ['value' => $salesOrder->shippingAddress->street_line_2],
                 'postalCode' => ['value' => $salesOrder->shippingAddress->postal_code],
                 'city' => ['value' => $salesOrder->shippingAddress->city],
                 'countryId' => ['value' => $salesOrder->shippingAddress->country_code],
-            ]],
-            'deliveryContact' => ['value' => [
-                'name' => ['value' => $salesOrder->shippingAddress->full_name],
-                'attention' => ['value' => $salesOrder->shippingAddress->attention],
-                'email' => ['value' => $salesOrder->email],
-                'phone1' => ['value' => $salesOrder->phone],
             ]],
         ];
 
@@ -671,10 +655,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             return null;
         }
 
-        return $response['response'] ?? null;
-
-
-        return $this->getCustomer($customerNumber);
+        return ($response['response'] ?? null);
     }
 
     private function getPaymentMethodCode(string $payMethod, string $currency): ?int
@@ -758,7 +739,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
             // EU Customer
             if ($salesOrder->vat_number) {
                 // VAT-number provided, this must be a company, so use its own customer
-                return substr(md5($salesOrder->vat_number), 0, 5);
+                // Check if a customer already exists, else return null so we can create it
+                $response = $this->callAPI('GET', '/v1/customer?vatRegistrationId=' . $salesOrder->vat_number);
+                return ($response['response'][0]['number'] ?? null);
             } else {
                 // No VAT-number so this is a private person, use retail customer
                 return self::RETAIL_CUSTOMER_NUMBER_EU;
