@@ -574,6 +574,11 @@ class AppShipmentController extends Controller
 
         Log::channel('shipments')->info('Received request to complete shipment', ['shipmentNumber' => $shipment->number]);
 
+        $displayName = trim(get_display_name());
+        if (empty($displayName)) {
+            return APiResponseController::error('Display name is empty.');
+        }
+
         // Complete the shipment in Visma.net
         $vismaNetShipmentService = new VismaNetShipmentService();
         $response = $vismaNetShipmentService->completeShipment($shipment);
@@ -587,8 +592,6 @@ class AppShipmentController extends Controller
 
         $trackingNumber = (string) $request->input('tracking_number', '');
         $trackingNumberOld = $shipment->tracking_number;
-
-        $displayName = get_display_name();
 
         // Update internal status
         $shipment->update([
