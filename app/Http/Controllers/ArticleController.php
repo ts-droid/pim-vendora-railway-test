@@ -42,11 +42,8 @@ class ArticleController extends Controller
     public function getBrands()
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $brands = DB::table('articles')
@@ -64,27 +61,12 @@ class ArticleController extends Controller
     public function getEditData()
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         // Suppliers
         $suppliers = Supplier::all();
-
-        // Brands
-        $brands = DB::table('articles')
-            ->pluck('brand')
-            ->toArray();
-
-        $brands[] = 'myFirst';
-
-        $brands = array_unique($brands);
-        $brands = array_filter($brands);
-
-        sort($brands);
 
         // UNSPSC cateogies
         $unspsc = UnspscCategory::orderBy('commodity_title', 'ASC')->get();
@@ -98,10 +80,29 @@ class ArticleController extends Controller
 
         return ApiResponseController::success([
             'suppliers' => $suppliers->toArray(),
-            'brands' => $brands,
+            'brands' => $this->getAllBrands(),
             'unspsc' => $unspsc->toArray(),
             'categories' => $categories,
         ]);
+    }
+
+    private function getAllBrands()
+    {
+        $articleBrands = DB::table('articles')
+            ->pluck('brand')
+            ->toArray();
+
+        $supplierBrands = DB::table('suppliers')
+            ->pluck('brand_name')
+            ->toArray();
+
+        $brands = array_merge($articleBrands, $supplierBrands);
+
+        $brands = array_unique($brands);
+        $brands = array_filter($brands);
+        sort($brands);
+
+        return $brands;
     }
 
     public function unspscCategories()
