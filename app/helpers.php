@@ -4,6 +4,30 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Intl\Countries;
 
+if(!function_exists('get_fixed_postal_code'))
+{
+    function get_fixed_postal_code(string $postalCode, string $countryCode): string
+    {
+        if (in_array($postalCode, ['216 17'])) {
+            return $postalCode;
+        }
+
+        switch ($countryCode) {
+            case 'GB':
+                // A space is required so we cannot remove all whitespace
+                return trim($postalCode);
+
+            case 'SE':
+                // Only digits
+                return preg_replace('/\D/', '', $postalCode);
+
+            default:
+                // Remove whitespace
+                return preg_replace('/\s/', '', $postalCode);
+        }
+    }
+}
+
 if (!function_exists('clean_string_for_comparison'))
 {
     function clean_string_for_comparison(mixed $string): string

@@ -523,7 +523,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'overrideAddress' => ['value' => true],
                     'addressLine1' => ['value' => $salesOrder->shippingAddress->street_line_1],
                     'addressLine2' => ['value' => $salesOrder->shippingAddress->street_line_2],
-                    'postalCode' => ['value' => $this->getFixedPostalCode($salesOrder->shippingAddress->postal_code, $salesOrder->shippingAddress->country_code)],
+                    'postalCode' => ['value' => get_fixed_postal_code($salesOrder->shippingAddress->postal_code, $salesOrder->shippingAddress->country_code)],
                     'city' => ['value' => $salesOrder->shippingAddress->city],
                     'countryId' => ['value' => $salesOrder->shippingAddress->country_code],
                 ]
@@ -545,7 +545,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                     'overrideAddress' => ['value' => true],
                     'addressLine1' => ['value' => $salesOrder->billingAddress->street_line_1],
                     'addressLine2' => ['value' => $salesOrder->billingAddress->street_line_2],
-                    'postalCode' => ['value' => $this->getFixedPostalCode($salesOrder->billingAddress->postal_code, $salesOrder->billingAddress->country_code)],
+                    'postalCode' => ['value' => get_fixed_postal_code($salesOrder->billingAddress->postal_code, $salesOrder->billingAddress->country_code)],
                     'city' => ['value' => $salesOrder->billingAddress->city],
                     'countryId' => ['value' => $salesOrder->billingAddress->country_code],
                 ]
@@ -703,24 +703,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
     {
         $nameParts = explode(' ', $fullName);
         return isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
-    }
-
-    private function getFixedPostalCode(string $postalCode, string $countryCode): string
-    {
-        switch ($countryCode) {
-            case 'GB':
-                // A space is required so we cannot remove all whitespace
-                return trim($postalCode);
-
-            case 'SE':
-                // Only digits
-                return preg_replace('/\D/', '', $postalCode);
-
-            default:
-                // Remove whitespace
-                return preg_replace('/\s/', '', $postalCode);
-
-        }
     }
 
     public function getCustomerNumber(SalesOrder $salesOrder)
