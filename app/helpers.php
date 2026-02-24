@@ -8,10 +8,6 @@ if(!function_exists('get_fixed_postal_code'))
 {
     function get_fixed_postal_code(string $postalCode, string $countryCode): string
     {
-        if (in_array($postalCode, ['216 17'])) {
-            return $postalCode;
-        }
-
         switch ($countryCode) {
             case 'GB':
                 // A space is required so we cannot remove all whitespace
