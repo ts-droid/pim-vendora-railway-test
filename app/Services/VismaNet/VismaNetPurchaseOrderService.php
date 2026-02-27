@@ -279,7 +279,7 @@ class VismaNetPurchaseOrderService extends VismaNetApiService
 
         $postData = [
             'receiptType' => ['value' => 'PoReceipt'],
-            'receiptNbr' => ['values' => (string) $purchaseOrderShipment->id],
+            'receiptNbr' => ['value' => (string) $purchaseOrderShipment->id],
             'hold' => ['value' => false],
             'date' => ['value' => (new DateTime())->format('Y-m-d H:i:s')],
             'warehouseId' => ['value' => self::WAREHOUSE_ID],
