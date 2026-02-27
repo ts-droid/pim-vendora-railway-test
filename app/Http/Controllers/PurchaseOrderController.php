@@ -23,6 +23,7 @@ use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -311,19 +312,27 @@ class PurchaseOrderController extends Controller
 
     public function releaseShipments(Request $request)
     {
-        if ($this->shouldLogControllerMethod()) {
-            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-            action_log('Invoked controller method.', $__controllerLogContext);
+        $lock = Cache::lock('release-purchase-order-shipments-lock', 900); // 15 min timeout
+
+        if (!$lock->get()) {
+            return ApiResponseController::error('Another call is already running. Please try again later.');
         }
 
         try {
+            if ($this->shouldLogControllerMethod()) {
+                $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+                action_log('Invoked controller method.', $__controllerLogContext);
+            }
+
             $purchaseOrderService = new PurchaseOrderService();
             $purchaseOrderService->releasePurchaseOrderShipments();
+
+            return ApiResponseController::success();
         } catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
+        } finally {
+            $lock->release();
         }
-
-        return ApiResponseController::success();
     }
 
     public function getLines(Request $request)
