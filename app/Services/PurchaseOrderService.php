@@ -154,6 +154,10 @@ class PurchaseOrderService
 
     public function releasePurchaseOrderShipment(PurchaseOrderShipment $purchaseOrderShipment): void
     {
+        if ($purchaseOrderShipment->is_released) {
+            return;
+        }
+
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $stockPlaceService = new StockPlaceService();
         $stockItemService = new StockItemService();
@@ -250,6 +254,8 @@ class PurchaseOrderService
                 ->where('article_number', $purchaseOrderLine->article_number)
                 ->increment('stock_manageable', $line->quantity);
         }
+
+        $purchaseOrderShipment->update(['is_released' => 1]);
     }
 
     /**

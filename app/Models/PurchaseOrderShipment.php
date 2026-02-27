@@ -16,7 +16,8 @@ class PurchaseOrderShipment extends Model
         'comment',
         'is_completed',
         'completed_at',
-        'completed_by'
+        'completed_by',
+        'is_released'
     ];
 
     public function purchaseOrder()
