@@ -87,6 +87,8 @@ class ShipmentService
 
                 $shipmentLine = $shipmentLine ?: new ShipmentLine();
 
+                $shipmentLine->shipment_id = $shipment->id;
+                $shipmentLine->line_number = $line['line_number'] ?? $shipmentLine->line_number;
                 $shipmentLine->order_number = $line['order_number'] ?? $shipmentLine->order_number;
                 $shipmentLine->order_line_number = $line['order_line_number'] ?? $shipmentLine->order_line_number;
                 $shipmentLine->article_number = $line['article_number'] ?? $shipmentLine->article_number;
