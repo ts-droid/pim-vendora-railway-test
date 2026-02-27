@@ -72,6 +72,7 @@ class TranslationController extends Controller
         $targetLang = $request->target_lang;
         $isHTML = (bool) ($request->is_html ?? 0);
         $engine = $request->engine ?? null;
+        $prompt = $request->prompt ?? null;
 
         $excludes = [];
         if ($request->has('excludes')) {
@@ -87,7 +88,7 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
-        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes, $engine);
+        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes, $engine, $prompt);
 
         // Replace language URLs
         $languageController = new LanguageController();
@@ -111,7 +112,7 @@ class TranslationController extends Controller
      * @param bool $isHTML
      * @return array
      */
-    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = [], ?string $engine = null): array
+    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = [], ?string $engine = null, ?string $prompt = null): array
     {
         if ($this->shouldLogControllerMethod()) {
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
@@ -178,7 +179,7 @@ class TranslationController extends Controller
             if ($engine === 'deepl') {
                 $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
-                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams);
+                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
             }
         }
 
@@ -230,7 +231,7 @@ class TranslationController extends Controller
         }
     }
 
-    private function translateOpenAI(string $string, string $sourceLang, string $targetLang, string $model = ''): string
+    private function translateOpenAI(string $string, string $sourceLang, string $targetLang, string $model = '', ?string $prompt = null): string
     {
         try {
             $languages = (new LanguageController())->getAllLanguages();
@@ -244,7 +245,7 @@ class TranslationController extends Controller
             }
 
             $promptController = new PromptController();
-            $prompt = $promptController->getBySystemCode('translation_ai_prompt');
+            $prompt = $promptController->getBySystemCode($prompt ?: 'translation_ai_prompt');
 
             return $promptController->execute(
                 $prompt->id,
