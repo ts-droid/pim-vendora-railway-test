@@ -331,7 +331,7 @@ class PurchaseOrderController extends Controller
         } catch (\Throwable $e) {
             return ApiResponseController::error($e->getMessage());
         } finally {
-            $lock->release();
+            optional($lock)->release();
         }
     }
 
