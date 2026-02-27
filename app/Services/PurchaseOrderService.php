@@ -17,6 +17,7 @@ use App\Services\VismaNet\VismaNetShipmentService;
 use App\Services\WMS\StockItemService;
 use App\Services\WMS\StockPlaceService;
 use App\Utilities\EventLogger;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 
@@ -153,6 +154,10 @@ class PurchaseOrderService
 
     public function releasePurchaseOrderShipment(PurchaseOrderShipment $purchaseOrderShipment): void
     {
+        if ($purchaseOrderShipment->is_released) {
+            return;
+        }
+
         $vismaNetPurchaseOrderService = new VismaNetPurchaseOrderService();
         $stockPlaceService = new StockPlaceService();
         $stockItemService = new StockItemService();
@@ -249,6 +254,8 @@ class PurchaseOrderService
                 ->where('article_number', $purchaseOrderLine->article_number)
                 ->increment('stock_manageable', $line->quantity);
         }
+
+        $purchaseOrderShipment->update(['is_released' => 1]);
     }
 
     /**
