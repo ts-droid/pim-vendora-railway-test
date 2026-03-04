@@ -177,14 +177,10 @@ class TranslationController extends Controller
         $translations = [];
         foreach ($strings as $string) {
             if ($engine === 'deepl') {
-                $text = $this->translateDeepl($string, $sourceLang, $targetLang);
+                $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
-                $text = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
-            } else {
-                $text = '';
+                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
             }
-
-            $translations[] = trim($text);
         }
 
 
@@ -206,6 +202,9 @@ class TranslationController extends Controller
 
             $translations[$j] = preg_replace('/^---|---$/', '', $translations[$j]);
         }
+
+        // Trim whitespace from translations
+        $translations = array_map('trim', $translations);
 
         return $translations;
     }
