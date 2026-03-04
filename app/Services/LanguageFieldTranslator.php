@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\TranslationController;
+use Illuminate\Support\Facades\Cache;
 
 class LanguageFieldTranslator
 {
@@ -167,6 +168,13 @@ class LanguageFieldTranslator
                 if ($item->{$field}) {
                     continue;
                 }
+
+                // Check if this field has been tried to be translated before within 24h hours, if so, skip it to avoid unnecessary translation attempts
+                $cacheKey = 'translation_attempt_' . $model . '_' . $field;
+
+                if (Cache::has($cacheKey)) continue;
+
+                Cache::put($cacheKey, '1', now()->addHours(48));
 
                 $isHTML = in_array($languageAttribute, ['shop_description']);
 
