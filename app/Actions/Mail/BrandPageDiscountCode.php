@@ -41,7 +41,7 @@ class BrandPageDiscountCode
             'language_code' => $language,
         ];
 
-        $emailSubject = __('brand_page_discount_code_subject', ['discount' => $discountPercent]);
+        $emailSubject = get_phrase('brand_page_discount_code_subject', ['discount' => $discountPercent]);
         $emailFromEmail = 'info@vendora.se';
         $emailFromName = $brandingData['brand_name'];
 

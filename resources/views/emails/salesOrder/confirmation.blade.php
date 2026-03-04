@@ -44,13 +44,13 @@ if ($salesOrder->lines ?? false) {
                         <td align="center">
                             <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">
                                 @if($salesOrder->is_company)
-                                    {{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->full_name ?? '']) }}
+                                    {{ get_phrase('order_confirm_title', ['name' => $salesOrder->billingAddress->full_name ?? '']) }}
                                 @else
-                                    {{ __('order_confirm_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}
+                                    {{ get_phrase('order_confirm_title', ['name' => $salesOrder->billingAddress->first_name ?? '']) }}
                                 @endif
                             </h1>
-                            <p style="margin:0 0 10px 0;">{{ __('order_confirm_text_1') }}</p>
-                            <p style="margin:0 0 10px 0;">{{ __('order_confirm_text_2') }}</p>
+                            <p style="margin:0 0 10px 0;">{{ get_phrase('order_confirm_text_1') }}</p>
+                            <p style="margin:0 0 10px 0;">{{ get_phrase('order_confirm_text_2') }}</p>
                         </td>
                     </tr>
 
@@ -59,7 +59,7 @@ if ($salesOrder->lines ?? false) {
                         <td style="padding: 10px 0;">
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                                 <tr>
-                                    <th align="left" colspan="3" style="color:#888888;font-weight:300;border-bottom:1px solid #e7e7e7;padding:8px 0;">{{ __('order_confirm_items') }}</th>
+                                    <th align="left" colspan="3" style="color:#888888;font-weight:300;border-bottom:1px solid #e7e7e7;padding:8px 0;">{{ get_phrase('order_confirm_items') }}</th>
                                 </tr>
                                 @if($salesOrder->lines ?? false)
                                     @foreach($salesOrder->lines as $salesOrderLine)
@@ -71,13 +71,13 @@ if ($salesOrder->lines ?? false) {
                                             </td>
                                             <td style="vertical-align: top;padding-top: 8px;padding-right: 8px;">
                                                 {{ $salesOrderLine->description }}<br>
-                                                {{ __('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
+                                                {{ get_phrase('order_confirm_quantity') }}: {{ $salesOrderLine->quantity }}
                                             </td>
                                             <td style="vertical-align: top;text-align: end;padding-top: 8px;">
                                                 @if($salesOrderLine->active_unit_price > 0 && $salesOrderLine->active_unit_price < $salesOrderLine->unit_price)
                                                     <div style="text-wrap: nowrap;font-size:0.85rem;text-decoration: line-through;">{{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
                                                     <div style="text-wrap: nowrap;">{{ number_format((add_vat($salesOrderLine->active_unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
-                                                    <div style="text-wrap: nowrap;font-size:0.85rem;color: #146E01;">({{ __('you_save') }} {{ number_format((add_vat(($salesOrderLine->unit_price - $salesOrderLine->active_unit_price) * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }})</div>
+                                                    <div style="text-wrap: nowrap;font-size:0.85rem;color: #146E01;">({{ get_phrase('you_save') }} {{ number_format((add_vat(($salesOrderLine->unit_price - $salesOrderLine->active_unit_price) * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }})</div>
                                                 @else
                                                     <div style="text-wrap: nowrap;">{{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
                                                 @endif
@@ -92,7 +92,7 @@ if ($salesOrder->lines ?? false) {
                     <!-- Shipping Address -->
                     <tr>
                         <td style="padding: 10px 0;">
-                            <b>{{ __('order_confirm_shipping_address') }}:</b><br>
+                            <b>{{ get_phrase('order_confirm_shipping_address') }}:</b><br>
                             @if($salesOrder->shippingAddress ?? false)
                                 {{ $salesOrder->shippingAddress->full_name }}<br>
                                 @if($salesOrder->shippingAddress->attention)
@@ -113,30 +113,30 @@ if ($salesOrder->lines ?? false) {
                         <td style="padding:20px 0;">
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;padding:16px;">
                                 <tr>
-                                    <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_sub_total') }}</td>
+                                    <td align="left" style="padding-bottom: 4px;">{{ get_phrase('order_confirm_sub_total') }}</td>
                                     <td align="right" style="padding-bottom: 4px;">{{ number_format($salesOrder->getOrderSubtotal(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
 
                                 @if($shipping !== 0)
                                     <tr>
-                                        <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_shipping') }}</td>
+                                        <td align="left" style="padding-bottom: 4px;">{{ get_phrase('order_confirm_shipping') }}</td>
                                         <td align="right" style="padding-bottom: 4px;">+{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                     </tr>
                                 @endif
 
                                 @if($discount !== 0)
                                     <tr>
-                                        <td align="left" style="padding-bottom: 4px;">{{ __('order_confirm_discount') }}</td>
+                                        <td align="left" style="padding-bottom: 4px;">{{ get_phrase('order_confirm_discount') }}</td>
                                         <td align="right" style="padding-bottom: 4px;">-{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                     </tr>
                                 @endif
 
                                 <tr>
-                                    <td align="left" style="padding-bottom: 4px;font-weight:bold;">{{ __('order_confirm_total') }}</td>
+                                    <td align="left" style="padding-bottom: 4px;font-weight:bold;">{{ get_phrase('order_confirm_total') }}</td>
                                     <td align="right" style="padding-bottom: 4px;font-weight:bold;">{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
                                 <tr>
-                                    <td align="left">{{ __('order_confirm_vat_total') }}</td>
+                                    <td align="left">{{ get_phrase('order_confirm_vat_total') }}</td>
                                     <td align="right">{{ number_format($salesOrder->getOrderTotalWithVat() - $salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                                 </tr>
                             </table>
@@ -152,14 +152,14 @@ if ($salesOrder->lines ?? false) {
                                 </tr>
                                 <tr>
                                     <td align="left" style="padding-top:10px;">
-                                        <p style="margin:0;"><b>{{ __('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}</p>
-                                        <p style="margin:0;"><b>{{ __('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}</p>
-                                        <p style="margin:0;"><b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}</p>
+                                        <p style="margin:0;"><b>{{ get_phrase('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}</p>
+                                        <p style="margin:0;"><b>{{ get_phrase('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}</p>
+                                        <p style="margin:0;"><b>{{ get_phrase('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}</p>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="left" style="padding-top:10px;">
-                                        <p style="margin:0;font-weight:bold;">{{ __('order_confirm_billing_address') }}:</p>
+                                        <p style="margin:0;font-weight:bold;">{{ get_phrase('order_confirm_billing_address') }}:</p>
                                         @if($salesOrder->billingAddress ?? false)
                                             <p style="margin:0;">{{ $salesOrder->billingAddress->full_name }}</p>
                                             @if($salesOrder->billingAddress->attention)
@@ -185,16 +185,16 @@ if ($salesOrder->lines ?? false) {
                     <tr>
                         <td style="padding: 20px 0;">
                             @if($brandingData['brand_name'] != 'Vendora Nordic AB')
-                                <p style="font-weight: bold;margin-bottom: 8px;">{{ __('order_confirm_distributor') }} {{ $brandingData['brand_name'] }}</p>
+                                <p style="font-weight: bold;margin-bottom: 8px;">{{ get_phrase('order_confirm_distributor') }} {{ $brandingData['brand_name'] }}</p>
                             @endif
                             <p style="margin: 0;">Vendora Nordic AB</p>
                                 <p style="margin: 0;">Ladugårdsvägen 1</p>
                                 <p style="margin: 0;">234 35 Lomma</p>
                                 <p style="margin: 0;">Sweden</p>
-                                <p style="margin: 0;">{{ __('order_confirm_email') }}: info@vendora.se</p>
-                                <p style="margin: 0;">{{ __('order_confirm_org_nr') }}: 556843-5456</p>
-                                <p style="margin: 0;">{{ __('order_confirm_vat_nr') }}: SE556843545601</p>
-                                <p style="margin: 0;">{{ __('order_confirm_hq') }}: Lomma</p>
+                                <p style="margin: 0;">{{ get_phrase('order_confirm_email') }}: info@vendora.se</p>
+                                <p style="margin: 0;">{{ get_phrase('order_confirm_org_nr') }}: 556843-5456</p>
+                                <p style="margin: 0;">{{ get_phrase('order_confirm_vat_nr') }}: SE556843545601</p>
+                                <p style="margin: 0;">{{ get_phrase('order_confirm_hq') }}: Lomma</p>
                         </td>
                     </tr>
 

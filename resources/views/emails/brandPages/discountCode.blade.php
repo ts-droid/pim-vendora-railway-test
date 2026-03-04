@@ -24,15 +24,15 @@
                     <!-- Information -->
                     <tr>
                         <td align="center">
-                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">{{ __('brand_page_discount_code_title', ['discount' => $discountPercent]) }}</h1>
+                            <h1 style="font-size:1.5rem;font-weight:300;margin:0 0 10px 0;">{{ get_phrase('brand_page_discount_code_title', ['discount' => $discountPercent]) }}</h1>
 
-                            <p style="margin:0 0 20px 0;">{{ __('brand_page_discount_code_text_1', ['discount' => $discountPercent]) }}</p>
+                            <p style="margin:0 0 20px 0;">{{ get_phrase('brand_page_discount_code_text_1', ['discount' => $discountPercent]) }}</p>
 
                             <div style="display: inline-block;background-color: #f6f6f6;padding: 1rem 1.5rem;font-size: 22px;margin-bottom: 20px;border: 3px dashed #CCCCCC;border-radius: 100px;">{{ $discountCode }}</div>
 
-                            <p style="margin:0 0 20px 0;">{{ __('brand_page_discount_code_text_2', ['discount' => $discountPercent]) }}</p>
+                            <p style="margin:0 0 20px 0;">{{ get_phrase('brand_page_discount_code_text_2', ['discount' => $discountPercent]) }}</p>
 
-                            <a href="#" target="_blank" style="background-color: #1A1C1F;color: #ffffff !important;text-decoration: none !important;padding: 0.75rem 1.5rem;display: inline-block;border-radius: 100px;margin-bottom: 20px;">{{ __('brand_page_discount_code_button', ['discount' => $discountPercent]) }}</a>
+                            <a href="#" target="_blank" style="background-color: #1A1C1F;color: #ffffff !important;text-decoration: none !important;padding: 0.75rem 1.5rem;display: inline-block;border-radius: 100px;margin-bottom: 20px;">{{ get_phrase('brand_page_discount_code_button', ['discount' => $discountPercent]) }}</a>
                         </td>
                     </tr>
 

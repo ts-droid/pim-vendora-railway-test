@@ -50,7 +50,7 @@ class SendSalesOrderReviewRequest implements ShouldQueue
 
         App::setLocale($this->salesOrder->language ?: 'en');
 
-        $emailSubject = __('request_review_subject');
+        $emailSubject = get_phrase('request_review_subject');
         $emailFromEmail = 'info@vendora.se';
         $emailFromName = $brandingData['brand_name'];
         $emailBCC = ['anton@vendora.se', 'ah@vendora.se'];

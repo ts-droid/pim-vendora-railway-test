@@ -56,16 +56,16 @@
                 </div>
                 @if($brandingData['brand_name'] != 'Vendora Nordic AB')
                     <br>
-                    <div class="small"><b>{{ __('through') }} {{ __('company_name') }}</b></div>
+                    <div class="small"><b>{{ get_phrase('through') }} {{ get_phrase('company_name') }}</b></div>
                 @endif
             </td>
             <td width="50%">
                 <div class="title">
-                    {{ __('receipt_title_2') }}
+                    {{ get_phrase('receipt_title_2') }}
                 </div>
                 <table>
                     <tr class="bold">
-                        <td width="50%">{{ __('receipt_order_nbr') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_order_nbr') }}:</td>
                         <td width="50%" class="text-end">
                             @if($shipment->order_numbers && is_array($shipment->order_numbers))
                                 {{ implode(', ', $shipment->order_numbers) }}
@@ -73,14 +73,14 @@
                         </td>
                     </tr>
                     <tr class="bold">
-                        <td width="50%">{{ __('receipt_date') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_date') }}:</td>
                         <td width="50%" class="text-end">{{ date('Y-m-d') }}</td>
                     </tr>
                     <tr class="bold">
-                        <td width="50%">{{ __('receipt_customer_nbr') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_customer_nbr') }}:</td>
                         <td width="50%" class="text-end">
                             @if(is_web_customer((string) $shipment->customer_number))
-                                {{ __('web_customer') }}
+                                {{ get_phrase('web_customer') }}
                             @else
                                 {{ $shipment->customer_number }}
                             @endif
@@ -98,16 +98,16 @@
     <table>
         <tr>
             <td width="50%">
-                <div class="bold">{{ __('receipt_shipping_from') }}:</div>
-                {{ __('company_name') }}<br>
-                {{ __('company_address') }}<br>
-                {{ __('company_zip') }} {{ __('company_city') }}<br>
-                {{ __('company_contact') }}<br>
-                {{ __('company_phone') }}
+                <div class="bold">{{ get_phrase('receipt_shipping_from') }}:</div>
+                {{ get_phrase('company_name') }}<br>
+                {{ get_phrase('company_address') }}<br>
+                {{ get_phrase('company_zip') }} {{ get_phrase('company_city') }}<br>
+                {{ get_phrase('company_contact') }}<br>
+                {{ get_phrase('company_phone') }}
 
                 <br><br>
 
-                <div class="bold">{{ __('receipt_delivery_address') }}:</div>
+                <div class="bold">{{ get_phrase('receipt_delivery_address') }}:</div>
                 @if($shipment->name)
                     {{ $shipment->name }}<br>
                 @else
@@ -124,7 +124,7 @@
             <td width="50%">
                 <table>
                     <tr class="bold">
-                        <td width="50%">{{ __('receipt_delivery_date') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_delivery_date') }}:</td>
                         <td width="50%" class="text-end">{{ $shipment->date }}</td>
                     </tr>
                 </table>
@@ -133,12 +133,12 @@
                 <br>
 
                 @if($shipment->salesOrder() && $shipment->salesOrder()->vat_number)
-                    {{ __('receipt_vat_number') }}: {{ $shipment->salesOrder()->vat_number }}<br>
+                    {{ get_phrase('receipt_vat_number') }}: {{ $shipment->salesOrder()->vat_number }}<br>
                 @endif
-                {{ __('receipt_customer_order_nbr') }}: <br>
-                {{ __('receipt_fob') }}: <br>
-                {{ __('receipt_shipping_terms') }}: <br>
-                {{ __('receipt_shipping_method') }}:
+                {{ get_phrase('receipt_customer_order_nbr') }}: <br>
+                {{ get_phrase('receipt_fob') }}: <br>
+                {{ get_phrase('receipt_shipping_terms') }}: <br>
+                {{ get_phrase('receipt_shipping_method') }}:
             </td>
         </tr>
     </table>
@@ -147,12 +147,12 @@
 
     <table>
         <tr>
-            <th class="text-start">{{ __('receipt_line_pos') }}</th>
-            <th class="text-start">{{ __('receipt_line_sku') }}</th>
-            <th class="text-start">{{ __('receipt_line_description') }}</th>
-            <th class="text-end">{{ __('receipt_line_qty_ordered') }}</th>
-            <th class="text-end">{{ __('receipt_line_qty_shipped') }}</th>
-            <th class="text-end">{{ __('receipt_line_batch') }}</th>
+            <th class="text-start">{{ get_phrase('receipt_line_pos') }}</th>
+            <th class="text-start">{{ get_phrase('receipt_line_sku') }}</th>
+            <th class="text-start">{{ get_phrase('receipt_line_description') }}</th>
+            <th class="text-end">{{ get_phrase('receipt_line_qty_ordered') }}</th>
+            <th class="text-end">{{ get_phrase('receipt_line_qty_shipped') }}</th>
+            <th class="text-end">{{ get_phrase('receipt_line_batch') }}</th>
         </tr>
         @if($shipment->lines)
             @foreach($shipment->lines as $line)
@@ -181,11 +181,11 @@
             <td width="33.33%">
                 <table>
                     <tr>
-                        <td width="50%">{{ __('receipt_total_quantity') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_total_quantity') }}:</td>
                         <td width="50%" class="text-end">{{ $shipment->calculateTotalQuantity() }}</td>
                     </tr>
                     <tr>x
-                        <td width="50%">{{ __('receipt_total_weight') }}:</td>
+                        <td width="50%">{{ get_phrase('receipt_total_weight') }}:</td>
                         <td width="50%" class="text-end">{{ round($shipment->calculateTotalWeight() / 1000, 2) }} KG</td>
                     </tr>
                 </table>
@@ -200,18 +200,18 @@
     <table>
         <tr>
             <td width="40%">
-                {{ __('company_name') }}<br>
-                {{ __('company_address') }}<br>
-                {{ __('company_zip') }} {{ __('company_city') }}<br>
-                {{ __('company_country') }}<br>
-                {{ __('company_phone') }}<br>
-                {{ __('company_email') }}<br>
-                {{ __('company_headquarter') }}
+                {{ get_phrase('company_name') }}<br>
+                {{ get_phrase('company_address') }}<br>
+                {{ get_phrase('company_zip') }} {{ get_phrase('company_city') }}<br>
+                {{ get_phrase('company_country') }}<br>
+                {{ get_phrase('company_phone') }}<br>
+                {{ get_phrase('company_email') }}<br>
+                {{ get_phrase('company_headquarter') }}
             </td>
             <td width="40%">
-                {{ __('receipt_org_nr') }}: {{ __('company_org_nr') }}<br>
-                {{ __('receipt_vat_nr') }}: {{ __('company_vat_nr') }}<br>
-                {{ __('receipt_vat_type') }}: {{ __('company_vat_type') }}
+                {{ get_phrase('receipt_org_nr') }}: {{ get_phrase('company_org_nr') }}<br>
+                {{ get_phrase('receipt_vat_nr') }}: {{ get_phrase('company_vat_nr') }}<br>
+                {{ get_phrase('receipt_vat_type') }}: {{ get_phrase('company_vat_type') }}
             </td>
             <td width="20%"></td>
         </tr>

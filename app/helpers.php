@@ -6,9 +6,9 @@ use Symfony\Component\Intl\Countries;
 
 if (!function_exists('get_phrase'))
 {
-    function get_phrase($key, $languageCode = null): string
+    function get_phrase($key, $replace = [], $locale = null): string
     {
-        $languageCode = $languageCode ?: app()->getLocale();
+        $locale = $locale ?: app()->getLocale();
 
         $phrase = DB::table('phrases')
             ->where('key', $key)
@@ -16,7 +16,13 @@ if (!function_exists('get_phrase'))
 
         if (!$phrase) return $key;
 
-        return $phrase->{'text_' . $languageCode} ?? $key;
+        $text = $phrase->{'text_' . $locale} ?? $key;
+
+        foreach ($replace as $key => $value) {
+            $text = str_replace(':' . $key, $value, $text);
+        }
+
+        return $text;
     }
 }
 

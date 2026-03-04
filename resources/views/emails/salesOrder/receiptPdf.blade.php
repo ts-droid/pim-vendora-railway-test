@@ -37,12 +37,12 @@
         <table style="width: 100%;">
             <tr>
                 <td>
-                    <h1>{{ __('receipt_title') }}</h1>
+                    <h1>{{ get_phrase('receipt_title') }}</h1>
 
                     <p>
-                        <b>{{ __('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}<br>
-                        <b>{{ __('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}<br>
-                        <b>{{ __('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}
+                        <b>{{ get_phrase('order_confirm_date') }}:</b> {{ date('Y-m-d', strtotime($salesOrder->date)) }}<br>
+                        <b>{{ get_phrase('order_confirm_number') }}:</b> {{ $salesOrder->order_number }}<br>
+                        <b>{{ get_phrase('order_confirm_pay_method') }}:</b> {{ $salesOrder->store_pay_method ?: $salesOrder->pay_method }}
                     </p>
                 </td>
             </tr>
@@ -51,7 +51,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="width: 50%;">
-                    <b>{{ __('billing_address') }}:</b><br>
+                    <b>{{ get_phrase('billing_address') }}:</b><br>
                     {{ $salesOrder->billingAddress->full_name ?? '' }}<br>
                     @if($salesOrder->billingAddress->attention ?? null)
                         ATT: {{ $salesOrder->billingAddress->attention }}<br>
@@ -67,7 +67,7 @@
                     @endif
                 </td>
                 <td style="width: 50%;">
-                    <b>{{ __('shipping_address') }}:</b><br>
+                    <b>{{ get_phrase('shipping_address') }}:</b><br>
                     {{ $salesOrder->shippingAddress->full_name ?? '' }}<br>
                     @if($salesOrder->shippingAddress->attention ?? null)
                         ATT: {{ $salesOrder->shippingAddress->attention }}<br>
@@ -86,7 +86,7 @@
         <table style="width: 100%;">
             <tr>
                 <td colspan="2">
-                    <p><b>{{ __('order_confirm_items') }}</b></p>
+                    <p><b>{{ get_phrase('order_confirm_items') }}</b></p>
                 </td>
             </tr>
 
@@ -95,7 +95,7 @@
                     @continue($salesOrderLine->article_number === 'SHIP25' || $salesOrderLine->article_number === 'DISC25')
 
                     <tr>
-                        <td style="width: 70%;">{{ $salesOrderLine->quantity }} {{ __('pcs') }} - {{ $salesOrderLine->description }}</td>
+                        <td style="width: 70%;">{{ $salesOrderLine->quantity }} {{ get_phrase('pcs') }} - {{ $salesOrderLine->description }}</td>
                         <td style="width: 30%;text-align: right;">
                             @if($salesOrderLine->active_unit_price > 0 && $salesOrderLine->active_unit_price < $salesOrderLine->unit_price)
                                 <div style="text-decoration: line-through;">{{ number_format((add_vat($salesOrderLine->unit_price * $salesOrderLine->quantity, $salesOrderLine->vat_rate)), 2, '.', ' ') }} {{ $salesOrder->currency }}</div>
@@ -109,30 +109,30 @@
             @endif
 
             <tr>
-                <td style="width: 70%;padding-top: 12px;text-align: right;">{{ __('order_confirm_sub_total') }}</td>
+                <td style="width: 70%;padding-top: 12px;text-align: right;">{{ get_phrase('order_confirm_sub_total') }}</td>
                 <td style="width: 30%;padding-top: 12px;text-align: right;">{{ number_format($salesOrder->getOrderSubtotal(), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
             </tr>
 
             @if($shipping !== 0)
                 <tr>
-                    <td style="width: 70%;text-align: right;">{{ __('order_confirm_shipping') }}</td>
+                    <td style="width: 70%;text-align: right;">{{ get_phrase('order_confirm_shipping') }}</td>
                     <td style="width: 30%;text-align: right;">+{{ number_format($shipping, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                 </tr>
             @endif
 
             @if($discount !== 0)
                 <tr>
-                    <td style="width: 70%;text-align: right;">{{ __('order_confirm_discount') }}</td>
+                    <td style="width: 70%;text-align: right;">{{ get_phrase('order_confirm_discount') }}</td>
                     <td style="width: 30%;text-align: right;">-{{ number_format(($discount * -1), 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
                 </tr>
             @endif
 
             <tr>
-                <td style="width: 70%;text-align: right;"><b>{{ __('order_confirm_total') }}</b></td>
+                <td style="width: 70%;text-align: right;"><b>{{ get_phrase('order_confirm_total') }}</b></td>
                 <td style="width: 30%;text-align: right;"><b>{{ number_format($salesOrder->getOrderTotalWithVat(), 2, '.', ' ') }} {{ $salesOrder->currency }}</b></td>
             </tr>
             <tr>
-                <td style="width: 70%;text-align: right;">{{ __('order_confirm_vat_total') }}</td>
+                <td style="width: 70%;text-align: right;">{{ get_phrase('order_confirm_vat_total') }}</td>
                 <td style="width: 30%;text-align: right;">{{ number_format($salesOrder->getOrderTotalWithVat() - $salesOrder->order_total, 2, '.', ' ') }} {{ $salesOrder->currency }}</td>
             </tr>
         </table>
@@ -141,17 +141,17 @@
             <tr>
                 <td>
                     @if(($brandingData['brand_name'] ?? '') != 'Vendora Nordic AB')
-                        <p><b>{{ __('order_confirm_distributor') }} {{ $brandingData['brand_name'] ?? '' }}</b></p>
+                        <p><b>{{ get_phrase('order_confirm_distributor') }} {{ $brandingData['brand_name'] ?? '' }}</b></p>
                     @endif
                     <p>
                         Vendora Nordic AB<br>
                         Ladugårdsvägen 1<br>
                         234 35 Lomma<br>
                         Sweden<br>
-                        {{ __('order_confirm_email') }}: info@vendora.se<br>
-                        {{ __('order_confirm_org_nr') }}: 556843-5456<br>
-                        {{ __('order_confirm_vat_nr') }}: SE556843545601<br>
-                        {{ __('order_confirm_hq') }}: Lomma
+                        {{ get_phrase('order_confirm_email') }}: info@vendora.se<br>
+                        {{ get_phrase('order_confirm_org_nr') }}: 556843-5456<br>
+                        {{ get_phrase('order_confirm_vat_nr') }}: SE556843545601<br>
+                        {{ get_phrase('order_confirm_hq') }}: Lomma
                     </p>
                 </td>
             </tr>

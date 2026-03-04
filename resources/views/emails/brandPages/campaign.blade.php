@@ -42,16 +42,16 @@
                 <tr>
                     <td align="center" style="padding: 20px 0;text-align: center;font-size: 14px;">
                         @if($brandingData['brand_name'] != 'Vendora Nordic ABa')
-                            <p style="font-weight: bold;margin-bottom: 8px;">{{ __('order_confirm_distributor') }} {{ $brandingData['brand_name'] }}</p>
+                            <p style="font-weight: bold;margin-bottom: 8px;">{{ get_phrase('order_confirm_distributor') }} {{ $brandingData['brand_name'] }}</p>
                         @endif
                             <p style="margin: 0;">Vendora Nordic AB</p>
                             <p style="margin: 0;">Ladugårdsvägen 1</p>
                             <p style="margin: 0;">234 35 Lomma</p>
                             <p style="margin: 0;">Sweden</p>
-                            <p style="margin: 0;">{{ __('order_confirm_email') }}: info@vendora.se</p>
-                            <p style="margin: 0;">{{ __('order_confirm_org_nr') }}: 556843-5456</p>
-                            <p style="margin: 0;">{{ __('order_confirm_vat_nr') }}: SE556843545601</p>
-                            <p style="margin: 0;">{{ __('order_confirm_hq') }}: Lomma</p>
+                            <p style="margin: 0;">{{ get_phrase('order_confirm_email') }}: info@vendora.se</p>
+                            <p style="margin: 0;">{{ get_phrase('order_confirm_org_nr') }}: 556843-5456</p>
+                            <p style="margin: 0;">{{ get_phrase('order_confirm_vat_nr') }}: SE556843545601</p>
+                            <p style="margin: 0;">{{ get_phrase('order_confirm_hq') }}: Lomma</p>
                     </td>
                 </tr>
 

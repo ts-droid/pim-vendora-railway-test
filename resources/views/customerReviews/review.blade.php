@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>{{ __('request_review_title') }}</title>
+    <title>{{ get_phrase('request_review_title') }}</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -121,16 +121,16 @@
         </div>
 
         <div class="input">
-            <label>{{ __('request_review_name_label') }}</label>
+            <label>{{ get_phrase('request_review_name_label') }}</label>
             <input type="text" id="name" name="name" required>
         </div>
 
         <div class="input">
-            <label>{{ __('request_review_review_label') }}</label>
-            <textarea id="review" name="review" rows="4" placeholder="{{ __('request_review_review_placeholder') }}"></textarea>
+            <label>{{ get_phrase('request_review_review_label') }}</label>
+            <textarea id="review" name="review" rows="4" placeholder="{{ get_phrase('request_review_review_placeholder') }}"></textarea>
         </div>
 
-        <button type="submit">{{ __('request_review_review_button') }}</button>
+        <button type="submit">{{ get_phrase('request_review_review_button') }}</button>
     </form>
 </div>
 
