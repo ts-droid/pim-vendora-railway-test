@@ -4,6 +4,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Intl\Countries;
 
+if (!function_exists('get_phrase'))
+{
+    function get_phrase($key, $languageCode = null): string
+    {
+        $languageCode = $languageCode ?: app()->getLocale();
+
+        $phrase = DB::table('phrases')
+            ->where('key', $key)
+            ->first();
+
+        if (!$phrase) return $key;
+
+        return $phrase->{'text_' . $languageCode} ?? $key;
+    }
+}
+
 if(!function_exists('get_fixed_postal_code'))
 {
     function get_fixed_postal_code(string $postalCode, string $countryCode): string
