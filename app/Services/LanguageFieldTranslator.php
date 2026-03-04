@@ -89,7 +89,7 @@ class LanguageFieldTranslator
      * @param $model
      * @return array
      */
-    private function getLanguageAttributes($model): array
+    public function getLanguageAttributes($model): array
     {
         $object = (new $model)->first();
 
@@ -122,7 +122,7 @@ class LanguageFieldTranslator
      * @param $languages
      * @return void
      */
-    private function translateAttribute($model, $languageAttribute, $languages): void
+    public function translateAttribute($model, $languageAttribute, $languages): void
     {
         $translationController = new TranslationController();
 
@@ -201,7 +201,7 @@ class LanguageFieldTranslator
      * @param string $path
      * @return array
      */
-    private function getModels(string $path): array
+    public function getModels(string $path): array
     {
         $output = [];
 
