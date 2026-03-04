@@ -41,7 +41,7 @@ class TranslateColumn implements ShouldQueue
         $targetLang = substr($this->targetColumn, -2);
 
         $translationController = new TranslationController();
-        list($translations) = $translationController->translate([$sourceValue], $sourceLang, $targetLang);
+        $translations = $translationController->translate([$sourceValue], $sourceLang, $targetLang);
 
         if (count($translations) === 0) return;
 
