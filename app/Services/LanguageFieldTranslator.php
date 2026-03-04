@@ -176,6 +176,9 @@ class LanguageFieldTranslator
 
                 Cache::tags(['translation_attempt'])->put($cacheKey, '1', now()->addHours(48));
 
+                Cache::put('last_translation_column', $model . '_' . $field);
+                Cache::put('last_translation_time', date('Y-m-d H:i:s'));
+
                 $isHTML = in_array($languageAttribute, ['shop_description']);
 
                 list($translation) = $translationController->translate([$defaultValue], self::DEFAULT_LANGUAGE, $language->language_code, $isHTML);
