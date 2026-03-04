@@ -174,7 +174,7 @@ class LanguageFieldTranslator
 
                 if (Cache::has($cacheKey)) continue;
 
-                Cache::put($cacheKey, '1', now()->addHours(48));
+                Cache::tags(['translation_attempt'])->put($cacheKey, '1', now()->addHours(48));
 
                 $isHTML = in_array($languageAttribute, ['shop_description']);
 
