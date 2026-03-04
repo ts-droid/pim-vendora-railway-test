@@ -177,10 +177,14 @@ class TranslationController extends Controller
         $translations = [];
         foreach ($strings as $string) {
             if ($engine === 'deepl') {
-                $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
+                $text = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
-                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
+                $text = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
+            } else {
+                $text = '';
             }
+
+            $translations[] = trim($text);
         }
 
 
