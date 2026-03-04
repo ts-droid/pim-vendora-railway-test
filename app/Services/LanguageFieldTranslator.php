@@ -169,12 +169,12 @@ class LanguageFieldTranslator
                     continue;
                 }
 
-                // Check if this field has been tried to be translated before within 24h hours, if so, skip it to avoid unnecessary translation attempts
+                // Check if this field has been tried to be translated before within the last hour, if so, skip it to avoid unnecessary translation attempts
                 $cacheKey = 'translation_attempt_' . $model . '_' . $field;
 
                 if (Cache::has($cacheKey)) continue;
 
-                Cache::tags(['translation_attempt'])->put($cacheKey, '1', now()->addHours(48));
+                Cache::tags(['translation_attempt'])->put($cacheKey, '1', now()->addHours(1));
 
                 Cache::put('last_translation_column', $model . '_' . $field);
                 Cache::put('last_translation_time', date('Y-m-d H:i:s'));
