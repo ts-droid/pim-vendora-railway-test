@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('phrases', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->string('text_da');
-            $table->string('text_en');
-            $table->string('text_et');
-            $table->string('text_fi');
-            $table->string('text_lt');
-            $table->string('text_lv');
-            $table->string('text_no');
-            $table->string('text_sv');
+            $table->string('text_da')->nullable();
+            $table->string('text_en')->nullable();
+            $table->string('text_et')->nullable();
+            $table->string('text_fi')->nullable();
+            $table->string('text_lt')->nullable();
+            $table->string('text_lv')->nullable();
+            $table->string('text_no')->nullable();
+            $table->string('text_sv')->nullable();
             $table->timestamps();
         });
     }
