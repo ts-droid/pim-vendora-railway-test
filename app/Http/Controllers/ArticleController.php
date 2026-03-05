@@ -281,8 +281,6 @@ class ArticleController extends Controller
                 $promiseDate2 = $etaData->max('promised_date');
                 $totalQuantity = $etaData->sum(fn ($item) => (int) $item->quantity);
 
-                strtotime('', '')
-
                 $data[] = [
                     'article_number' => $article->article_number,
                     'description' => $article->description,
