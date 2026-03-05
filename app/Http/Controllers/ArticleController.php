@@ -16,6 +16,8 @@ use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
 use App\Models\CustomerReview;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderLine;
 use App\Models\StockItem;
 use App\Models\StockKeepTodo;
 use App\Models\StockKeepTransaction;
@@ -34,6 +36,7 @@ use App\Utilities\ArticleTitleUtility;
 use App\Utilities\ImageBackgroundAnalyzer;
 use App\Utilities\PurchaseOrderHelper;
 use App\Utilities\WarehouseHelper;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -208,6 +211,48 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function getEtaCalendar(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $data = [];
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate && $endDate) {
+
+            $date = $startDate;
+            while ($date <= $endDate) {
+
+                $purchaseOrderIds = PurchaseOrderLine::whereDate('promised_date', $date)
+                    ->distinct()
+                    ->pluck('purchase_order_id');
+
+                if($purchaseOrderIds->count() > 0) {
+                    $purchaseOrders = PurchaseOrder::whereIn('id', $purchaseOrderIds)->get()->toArray();
+                } else {
+                    $purchaseOrders = [];
+                }
+
+                $data[] = [
+                    'date' => $date,
+                    'purchase_orders' => $purchaseOrders
+                ];
+
+                $date = new DateTime($date);
+                $date->modify('+1 day');
+                $date = $date->format('Y-m-d');
+            }
+
+        }
+
+        return ApiResponseController::success($data);
+    }
+
     public function getEtaData(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
@@ -235,6 +280,8 @@ class ArticleController extends Controller
                 $promiseDate1 = $etaData->min('promised_date');
                 $promiseDate2 = $etaData->max('promised_date');
                 $totalQuantity = $etaData->sum(fn ($item) => (int) $item->quantity);
+
+                strtotime('', '')
 
                 $data[] = [
                     'article_number' => $article->article_number,
