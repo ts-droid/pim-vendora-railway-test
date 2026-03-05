@@ -32,6 +32,7 @@ use App\Services\VismaNet\VismaNetArticleService;
 use App\Services\WMS\StockItemService;
 use App\Utilities\ArticleTitleUtility;
 use App\Utilities\ImageBackgroundAnalyzer;
+use App\Utilities\PurchaseOrderHelper;
 use App\Utilities\WarehouseHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -223,7 +224,7 @@ class ArticleController extends Controller
         if ($articleNumbers) {
             foreach ($articleNumbers as $articleNumber) {
                 $article = Article::where('article_number', $articleNumber)->first();
-                if (!$article) conitnue;
+                if (!$article) continue;
 
                 $etaData = PurchaseOrderHelper::getArticleETA($article->article_number);
 
