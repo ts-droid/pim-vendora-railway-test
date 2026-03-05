@@ -207,14 +207,52 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function getEtaData(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $articleNumbers = $request->input('article_numbers', '');
+        $articleNumbers = explode(',', $articleNumbers);
+        $articleNumbers = array_filter($articleNumbers);
+
+        $data = [];
+
+        if ($articleNumbers) {
+            foreach ($articleNumbers as $articleNumber) {
+                $article = Article::where('article_number', $articleNumber)->first();
+                if (!$article) conitnue;
+
+                $etaData = PurchaseOrderHelper::getArticleETA($article->article_number);
+
+                $etaData = $etaData->filter(function ($item) {
+                    return !empty($item->promised_date) && (int)$item->quantity > 0;
+                });
+
+                $promiseDate1 = $etaData->min('promised_date');
+                $promiseDate2 = $etaData->max('promised_date');
+                $totalQuantity = $etaData->sum(fn ($item) => (int) $item->quantity);
+
+                $data[] = [
+                    'article_number' => $article->article_number,
+                    'description' => $article->description,
+                    'eta' => ($promiseDate1 == $promiseDate2) ? $promiseDate1 : ($promiseDate1 . ' - ' . $promiseDate2),
+                    'incoming_quantity' => $totalQuantity,
+                    'backorder_quantity' => (int) $article->stock_on_order,
+                ];
+            }
+        }
+
+        return ApiResponseController::success($data);
+    }
+
     public function getDataForOrderRow(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $articleNumber = $request->input('article_number');
