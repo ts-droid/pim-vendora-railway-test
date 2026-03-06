@@ -76,11 +76,8 @@ class StatusIndicatorController extends Controller
     public function getArticleStatus()
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $counts = Cache::remember('getArticleStatus', 300, function () {
@@ -89,6 +86,7 @@ class StatusIndicatorController extends Controller
                 'shop_description' => $this->getColumnCount('shop_description',  true),
                 'shop_marketing_description' => $this->getColumnCount('shop_marketing_description', true),
                 'short_description' => $this->getColumnCount('short_description', true),
+                'category' => $this->getColumnCount('category_ids', false),
                 'meta_title' => $this->getColumnCount('meta_title', true),
                 'meta_description' => $this->getColumnCount('meta_description', true),
                 'google_category' => $this->getColumnCount('google_product_category', false)
@@ -120,6 +118,7 @@ class StatusIndicatorController extends Controller
                 } else {
                     $query->orWhere($column, '=', '')
                         ->orWhere($column, '=', '0')
+                        ->orWhere($column, '=', '[]')
                         ->orWhereNull($column);
                 }
             })
