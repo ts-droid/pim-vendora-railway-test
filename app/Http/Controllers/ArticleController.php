@@ -694,6 +694,11 @@ class ArticleController extends Controller
                     $useLocales = true;
                     break;
 
+                case 'category':
+                    $column = 'category_ids';
+                    $useLocales = false;
+                    break;
+
                 case 'meta_title':
                     $column = 'meta_title';
                     $useLocales = true;
@@ -729,6 +734,7 @@ class ArticleController extends Controller
                     } else {
                         $q->orWhere($column, '=', '')
                             ->orWhere($column, '=', '0')
+                            ->orWhere($column, '=', '[]')
                             ->orWhereNull($column);
                     }
                 });
