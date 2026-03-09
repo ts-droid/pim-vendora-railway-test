@@ -39,8 +39,14 @@ class PostponeShipments extends Command
             return;
         }
 
+        $date = new \DateTime('+5 days');
+
+        if ($date->format('N') >= 6) { // 6 = Saturday, 7 = Sunday
+            $date->modify('next monday');
+        }
+
         foreach ($oldPurchaseOrderLines as $oldPurchaseOrderLine) {
-            $oldPurchaseOrderLine->update(['promised_date' => date('Y-m-d', strtotime('+5 days'))]);
+            $oldPurchaseOrderLine->update(['promised_date' => $date->format('Y-m-d')]);
         }
     }
 }
