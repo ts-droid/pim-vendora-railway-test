@@ -211,6 +211,35 @@ class ArticleController extends Controller
         return ApiResponseController::success($articles->toArray());
     }
 
+    public function getEtaOrder(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $purchaseOrderID = $request->input('purchase_order_id');
+        $date = $request->input('date');
+
+        $purchaseOrder = PurchaseOrder::find($purchaseOrderID);
+
+        $purchaseOrderLines = PurchaseOrderLine::with('article')
+            ->where('purchase_order_id', $purchaseOrderID)
+            ->where('promised_date', $date)
+            ->get();
+
+        $trackingNumbers = $purchaseOrderLines
+            ->pluck('tracking_number')
+            ->unique()
+            ->values();
+
+        return ApiResponseController::success([
+            'order' => $purchaseOrder->toArray(),
+            'tracking_numbers' => $trackingNumbers->toArray(),
+            'lines' => $purchaseOrderLines->toArray()
+        ]);
+    }
+
     public function getEtaCalendar(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {

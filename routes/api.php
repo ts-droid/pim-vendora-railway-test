@@ -263,6 +263,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/order-row', [ArticleController::class, 'getDataForOrderRow'])->name('articles.getDataForOrderRow');
         Route::get('/eta-data', [ArticleController::class, 'getEtaData'])->name('articles.getEtaData');
         Route::get('/eta-calendar', [ArticleController::class, 'getEtaCalendar'])->name('articles.getEtaCalendar');
+        Route::get('/eta-order', [ArticleController::class, 'getEtaOrder'])->name('articles.getEtaOrder');
 
         Route::post('/set-marked', [ArticleController::class, 'setMarked']);
 
