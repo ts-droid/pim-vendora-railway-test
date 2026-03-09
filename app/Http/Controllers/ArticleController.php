@@ -277,14 +277,12 @@ class ArticleController extends Controller
                     return !empty($item->promised_date) && (int)$item->quantity > 0;
                 });
 
-                $promiseDate1 = $etaData->min('promised_date');
-                $promiseDate2 = $etaData->max('promised_date');
                 $totalQuantity = $etaData->sum(fn ($item) => (int) $item->quantity);
 
                 $data[] = [
                     'article_number' => $article->article_number,
                     'description' => $article->description,
-                    'eta' => ($promiseDate1 == $promiseDate2) ? $promiseDate1 : ($promiseDate1 . ' - ' . $promiseDate2),
+                    'eta' => $etaData->toArray(),
                     'incoming_quantity' => $totalQuantity,
                     'backorder_quantity' => (int) $article->stock_on_order,
                 ];
