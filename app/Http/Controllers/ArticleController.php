@@ -228,6 +228,11 @@ class ArticleController extends Controller
             ->where('promised_date', $date)
             ->get();
 
+        $otherPurchaseOrderLines = PurchaseOrderLine::with('article')
+            ->where('purchase_order_id', $purchaseOrderID)
+            ->where('promised_date', '!=', $date)
+            ->get();
+
         $trackingNumbers = $purchaseOrderLines
             ->pluck('tracking_number')
             ->unique()
@@ -236,7 +241,8 @@ class ArticleController extends Controller
         return ApiResponseController::success([
             'order' => $purchaseOrder->toArray(),
             'tracking_numbers' => $trackingNumbers->toArray(),
-            'lines' => $purchaseOrderLines->toArray()
+            'lines' => $purchaseOrderLines->toArray(),
+            'other_lines' => $otherPurchaseOrderLines->toArray(),
         ]);
     }
 
