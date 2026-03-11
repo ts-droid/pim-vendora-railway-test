@@ -91,6 +91,7 @@ class PurchaseOrderService
             'suggested_quantity_month_inner' => 0,
             'suggested_quantity_inner' => 0,
             'amount' => round($newQuantity * $newLine->unit_cost, 2),
+            'promised_shipping_date' => '',
             'promised_date' => '',
             'is_vip' => 0,
             'is_completed' => 0,

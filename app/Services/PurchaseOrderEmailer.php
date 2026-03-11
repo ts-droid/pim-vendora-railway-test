@@ -4,7 +4,11 @@ namespace App\Services;
 
 use App\Enums\LaravelQueues;
 use App\Mail\PurchaseOrderCancellation;
+use App\Mail\PurchaseOrderConfirmReminder;
+use App\Mail\PurchaseOrderInvoiceReminder;
+use App\Mail\PurchaseOrderReminder;
 use App\Mail\PurchaseOrderRowCancellation;
+use App\Mail\PurchaseOrderShippingReminder;
 use App\Mail\SendPurchaseOrder;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderLine;
@@ -13,49 +17,6 @@ use Illuminate\Support\Facades\Mail;
 
 class PurchaseOrderEmailer
 {
-    public function send(PurchaseOrder $purchaseOrder, bool $isReminder = false)
-    {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service method.', $__serviceLogContext);
-
-        $recipients = preg_split("/[\s,;]+/", ($purchaseOrder->email ?: ($purchaseOrder->supplier->email ?? '')));
-        $recipients = array_map('trim', $recipients);
-
-        // Validate the emails
-        $recipients = array_filter($recipients, function($email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
-        });
-
-        // Make sure we have at least 1 email address
-        if (count($recipients) === 0) {
-            return [false, 'No valid recipient email addresses found.'];
-        }
-
-        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
-
-        // Dispatch the email
-        try {
-            if ($isReminder) {
-                Mail::to($recipients)->queue((new \App\Mail\PurchaseOrderConfirmReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
-            }
-            else {
-                Mail::to($recipients)->queue((new \App\Mail\PurchaseOrder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
-            }
-        }
-        catch (\Exception $e) {
-            return [false, $e->getMessage()];
-        }
-
-        return [true, 'Email queued successfully.'];
-    }
-
-
-
-
     public function sendNewOrder(PurchaseOrder $purchaseOrder)
     {
         $__serviceLogContext = [
@@ -65,14 +26,8 @@ class PurchaseOrderEmailer
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        // Load the recipients for the purchase order
-        $email = $purchaseOrder->email
-            ?: $purchaseOrder->supplier->supplier_contact_email
-            ?: $purchaseOrder->supplier->main_contact_email
-            ?: $purchaseOrder->supplier->email;
-
-        $recipients = $this->getRecipients($email);
-
+        // Get recipients
+        $recipients = $this->getPurchaseOrderRecipients($purchaseOrder);
         if (count($recipients) === 0) {
             return [
                 'success' => false,
@@ -80,7 +35,6 @@ class PurchaseOrderEmailer
             ];
         }
 
-        // Add CC recipients
         $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
 
         // Dispatch the email
@@ -98,6 +52,167 @@ class PurchaseOrderEmailer
             'message' => 'Email queued successfully'
         ];
     }
+
+    public function sendConfirmReminder(PurchaseOrder $purchaseOrder)
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        // Get recipients
+        $recipients = $this->getPurchaseOrderRecipients($purchaseOrder);
+        if (count($recipients) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No valid recipient email addresses found'
+            ];
+        }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
+
+        // Dispatch the email
+        try {
+            Mail::to($recipients)->queue((new PurchaseOrderConfirmReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Email queued successfully'
+        ];
+    }
+
+    public function sendShippingReminder(PurchaseOrder $purchaseOrder)
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        // Get recipients
+        $recipients = $this->getPurchaseOrderRecipients($purchaseOrder);
+        if (count($recipients) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No valid recipient email addresses found'
+            ];
+        }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
+
+        // Dispatch the email
+        try {
+            Mail::to($recipients)->queue((new PurchaseOrderShippingReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Email queued successfully'
+        ];
+    }
+
+    public function sendInvoiceReminder(PurchaseOrder $purchaseOrder)
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        // Get recipients
+        $recipients = $this->getPurchaseOrderRecipients($purchaseOrder);
+        if (count($recipients) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No valid recipient email addresses found'
+            ];
+        }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
+
+        // Dispatch the email
+        try {
+            Mail::to($recipients)->queue((new PurchaseOrderInvoiceReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Email queued successfully'
+        ];
+    }
+
+    public function sendETDReminder(int $purchaseOrderID, array $purchaseOrderLines)
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $purchaseOrder = PurchaseOrder::find($purchaseOrderID);
+        if (!$purchaseOrder) {
+            return [
+                'success' => false,
+                'message' => 'Purchase order not found'
+            ];
+        }
+
+        // Get recipients
+        $recipients = $this->getPurchaseOrderRecipients($purchaseOrder);
+        if (count($recipients) === 0) {
+            return [
+                'success' => false,
+                'message' => 'No valid recipient email addresses found'
+            ];
+        }
+
+        $recipients = array_merge($recipients, PurchaseOrderHelper::getCCRecipients());
+
+        // Dispatch the email
+        try {
+            Mail::to($recipients)->queue((new PurchaseOrderReminder($purchaseOrder))->onQueue(LaravelQueues::MAIL->value));
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Email queued successfully'
+        ];
+    }
+
+
+
+
+
+
+
+
+
 
     public function sendCancelRow(PurchaseOrder $purchaseOrder, PurchaseOrderLine $purchaseOrderLine)
     {
@@ -178,6 +293,16 @@ class PurchaseOrderEmailer
             'success' => true,
             'message' => 'Email queued successfully'
         ];
+    }
+
+    private function getPurchaseOrderRecipients(PurchaseOrder $purchaseOrder): array
+    {
+        $email = $purchaseOrder->email
+            ?: $purchaseOrder->supplier->supplier_contact_email
+                ?: $purchaseOrder->supplier->main_contact_email
+                    ?: $purchaseOrder->supplier->email;
+
+        return $this->getRecipients($email);
     }
 
     private function getRecipients(string $recipients): array

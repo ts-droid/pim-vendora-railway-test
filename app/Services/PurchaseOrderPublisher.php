@@ -203,10 +203,12 @@ class PurchaseOrderPublisher
 
             // Set the shipping date
             $shippingDateBuffer = ($purchaseOrder->supplier->general_delivery_time ?? 0) ?: self::SHIPPING_DATE_BUFFER;
-            $shippingDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * $shippingDateBuffer)));
 
-            if (!$orderPromisedDate || $orderPromisedDate > $shippingDate) {
-                $orderPromisedDate = $shippingDate;
+            $promisedShippingDate = date('Y-m-d', strtotime($item['shipping_date']));
+            $promisedDate = date('Y-m-d', (strtotime($item['shipping_date']) + (86400 * $shippingDateBuffer)));
+
+            if (!$orderPromisedDate || $orderPromisedDate > $promisedDate) {
+                $orderPromisedDate = $promisedDate;
             }
 
             // Update the order line unit cost
@@ -232,7 +234,8 @@ class PurchaseOrderPublisher
 
             // Update local order line
             $orderLine->update([
-                'promised_date' => $shippingDate,
+                'promised_shipping_date' => $promisedShippingDate,
+                'promised_date' => $promisedDate,
                 'unit_cost' => $unitCost,
                 'old_unit_cost' => $oldUnitCost,
                 'amount' => round(($unitCost * $quantity), 2),

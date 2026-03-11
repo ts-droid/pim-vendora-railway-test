@@ -229,7 +229,7 @@ $quantityEditable = $portalStatus == \App\Models\PurchaseOrder::PORTAL_STATUS_UN
                                                 <span class="js-price">{{ number_format(($line->quantity * $line->unit_cost), 2, '.', ' ') }}</span> {{ $purchaseOrder->currency }}
                                             </td>
                                             <td style="width: 150px;">
-                                                <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->getShippingDate() }}" {{ $line->is_completed ? 'readonly' : '' }}>
+                                                <input type="text" class="form-control form-control-sm text-end js-datepicker" name="shipping_date_{{ $line->id }}" value="{{ $line->promised_shipping_date }}" {{ $line->is_completed ? 'readonly' : '' }}>
                                             </td>
                                             <td style="width: 250px;">
                                                 <input type="text" class="form-control form-control-sm text-end" name="tracking_number_{{ $line->id }}" value="{{ $line->tracking_number }}" placeholder="ex. 12345678901" {{ $line->is_completed ? 'readonly' : '' }}>

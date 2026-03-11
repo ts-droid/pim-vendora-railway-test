@@ -111,11 +111,8 @@ class SupplierPortalController extends Controller
     public function postOrder(Request $request, PurchaseOrder $purchaseOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $supplier = SupplierPortalAccessService::getActiveSupplier();

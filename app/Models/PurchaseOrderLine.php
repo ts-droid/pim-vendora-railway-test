@@ -26,6 +26,7 @@ class PurchaseOrderLine extends Model
         'unit_cost',
         'old_unit_cost',
         'amount',
+        'promised_shipping_date',
         'promised_date',
         'ai_comment',
         'user_comment',
@@ -55,16 +56,5 @@ class PurchaseOrderLine extends Model
     public function invoice()
     {
         return $this->belongsTo(SupplierInvoice::class, 'invoice_id', 'id');
-    }
-
-    public function getShippingDate()
-    {
-        $shippingDateBuffer = ($this->purchaseOrder->supplier->general_delivery_time) ?: PurchaseOrderPublisher::SHIPPING_DATE_BUFFER;
-
-        if ($this->promised_date) {
-            return date('Y-m-d', strtotime($this->promised_date) - (86400 * $shippingDateBuffer));
-        }
-
-        return '';
     }
 }

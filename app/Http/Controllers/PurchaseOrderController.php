@@ -702,11 +702,8 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $validator = Validator::make($request->all(), [
@@ -745,6 +742,7 @@ class PurchaseOrderController extends Controller
                 'quantity' => (int)($line['quantity'] ?? 0),
                 'unit_cost' => (float)($line['unit_cost'] ?? 0),
                 'amount' => (float)($line['amount'] ?? 0),
+                'promised_shipping_date' => (string)($line['promised_shipping_date'] ?? ''),
                 'promised_date' => (string)($line['promised_date'] ?? ''),
             ]);
         }
@@ -807,6 +805,7 @@ class PurchaseOrderController extends Controller
             'quantity' => $quantity,
             'unit_cost' => $unitCost,
             'amount' => ($unitCost * $quantity),
+            'promised_shipping_date' => '',
             'promised_date' => '',
         ]);
 
@@ -986,11 +985,8 @@ class PurchaseOrderController extends Controller
     public function send(Request $request, PurchaseOrder $purchaseOrder)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         // Send the order to external system
