@@ -56,8 +56,8 @@ class DispatchArticleUpdate
             ->first();
 
         if ($isSyncing) {
-            // It's already in the queue for syncing, so we don't need to queue it again
-            action_log('Skipped dispatching article update because article is already syncing.', [
+            DB::table('articles')->where('id', $articleID)->update(['needs_resync' => 1]);
+            action_log('Article is already syncing, marked needs_resync.', [
                 'article_id' => $articleID,
             ]);
             return;

@@ -68,6 +68,20 @@ class UpdateArticleJob implements ShouldQueue
             $articleService->handleUpdate($article);
         }
 
-        DB::table('articles')->where('id', $article->id)->update(['is_syncing' => 0]);
+        $needsResync = DB::table('articles')->where('id', $article->id)->value('needs_resync');
+
+        DB::table('articles')->where('id', $article->id)->update([
+            'is_syncing' => 0,
+            'needs_resync' => 0,
+        ]);
+
+        if ($needsResync) {
+            action_log('Article needs resync, dispatching new job.', [
+                'job' => static::class,
+                'article_id' => $article->id,
+            ]);
+
+            (new \App\Actions\DispatchArticleUpdate)->execute($article->id, false, [], true);
+        }
     }
 }
