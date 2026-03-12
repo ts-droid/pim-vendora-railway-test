@@ -40,7 +40,10 @@ class VismaNetArticleService extends VismaNetApiService
             throw new \Exception('Failed to create article in Visma.net: ' . ($response['response']['message'] ?? 'Unknown error'));
         }
 
-        EventLogger::logSync('Article created in Visma.net', $postData);
+        EventLogger::logSync('Article created in Visma.net', [
+            'article_number' => $article->article_number,
+            'payload' => $postData
+        ]);
 
         // Set cross references
         if ($article->ean) {
@@ -72,7 +75,10 @@ class VismaNetArticleService extends VismaNetApiService
         $postData = $this->getPostData($article);
         $this->callAPI('PUT', '/v1/inventory/' . $article->article_number, $postData);
 
-        EventLogger::logSync('Article updated in Visma.net', $postData);
+        EventLogger::logSync('Article updated in Visma.net', [
+            'article_number' => $article->article_number,
+            'payload' => $postData
+        ]);
 
         // Update cross references
         if ($article->ean) {

@@ -58,7 +58,10 @@ class WgrArticleService
             return;
         }
 
-        EventLogger::logSync('Article created in WGR', $postData);
+        EventLogger::logSync('Article created in WGR', [
+            'article_number' => $article->article_number,
+            'payload' => $postData
+        ]);
 
         // Create images
         $images = ArticleImage::where('article_id', $article->id)->get();
@@ -108,7 +111,10 @@ class WgrArticleService
             return;
         }
 
-        EventLogger::logSync('Article updated in WGR', $postData);
+        EventLogger::logSync('Article updated in WGR', [
+            'article_number' => $article->article_number,
+            'payload' => $postData
+        ]);
 
 
         // Handle file updates
