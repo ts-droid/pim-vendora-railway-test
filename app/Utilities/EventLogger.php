@@ -8,6 +8,7 @@ class EventLogger
 {
     private const EVENT_TYPE_ACTION = 'action';
     private const EVENT_TYPE_CHANGE = 'change';
+    private const EVENT_TYPE_SYNC = 'sync';
 
     public static function logAction(string $log, string $displayName, array $metaData = []): void
     {
@@ -36,6 +37,16 @@ class EventLogger
             'change_from' => (string) $from,
             'change_to' => (string) $to,
             'metadata' => $metaData
+        ]);
+    }
+
+    public static function logSync(string $log, array $data = []): void
+    {
+        EventLog::create([
+            'event_type' => self::EVENT_TYPE_SYNC,
+            'display_name' => '',
+            'log' => $log,
+            'metadata' => $data,
         ]);
     }
 }

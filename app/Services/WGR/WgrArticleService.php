@@ -13,6 +13,7 @@ use App\Models\ArticleFile;
 use App\Models\ArticleImage;
 use App\Services\SupplierArticlePriceService;
 use App\Utilities\ArticleTitleUtility;
+use App\Utilities\EventLogger;
 use App\Utilities\ImageComparisonUtility;
 use App\Utilities\PurchaseOrderHelper;
 
@@ -57,6 +58,8 @@ class WgrArticleService
             return;
         }
 
+        EventLogger::logSync('Article created in WGR', $postData);
+
         // Create images
         $images = ArticleImage::where('article_id', $article->id)->get();
         if ($images) {
@@ -97,12 +100,15 @@ class WgrArticleService
         }
 
         // Update the article
-        $response = $wgrController->updateArticle($article->article_number, $this->getPostData($article));
+        $postData = $this->getPostData($article);
+        $response = $wgrController->updateArticle($article->article_number, $postData);
 
         $productID = (int) ($response[0]['result']['productId'] ?? 0);
         if (!$productID) {
             return;
         }
+
+        EventLogger::logSync('Article updated in WGR', $postData);
 
 
         // Handle file updates
