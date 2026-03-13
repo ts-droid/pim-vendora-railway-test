@@ -499,7 +499,7 @@ class CustomerController extends Controller
         $fillables = (new Customer)->getFillable();
 
         foreach ($request->all() as $key => $value) {
-            if (in_array($key, ['logo_path', 'logo_url', 'logo_path_alternatives', 'logo_url_alternatives'])) {
+            if (in_array($key, ['logo_path', 'logo_url', 'logo_path_alternatives', 'logo_url_alternatives', 'shop_url_alternatives', 'shop_search_url_alternatives'])) {
                 continue;
             }
 
@@ -507,6 +507,23 @@ class CustomerController extends Controller
                 $customer->{$key} = is_null($value) ? '' : $value;
             }
         }
+
+        // Alternative urls
+        $shop_url_alternatives = $customer->shop_url_alternatives ?: [];
+        $shop_search_url_alternatives = $customer->shop_search_url_alternatives ?: [];
+
+        if (isset($request->shop_url_alternatives) && is_array($request->shop_url_alternatives)) {
+            foreach ($request->shop_url_alternatives as $country => $value) {
+                $shop_url_alternatives[$country] = $value;
+            }
+        }
+
+        if (isset($request->shop_search_url_alternatives) && is_array($request->shop_search_url_alternatives)) {
+            foreach ($request->shop_search_url_alternatives as $country => $value) {
+                $shop_search_url_alternatives[$country] = $value;
+            }
+        }
+
 
         // Upload logo?
         if ($request->logo ?? '') {
@@ -545,6 +562,8 @@ class CustomerController extends Controller
 
         $customer->logo_path_alternatives = $logo_path_alternatives;
         $customer->logo_url_alternatives = $logo_url_alternatives;
+        $customer->shop_url_alternatives = $shop_url_alternatives;
+        $customer->shop_search_url_alternatives = $shop_search_url_alternatives;
 
         $customer->save();
 
