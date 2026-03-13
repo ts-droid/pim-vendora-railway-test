@@ -18,10 +18,17 @@ class Customer extends Model
         'name',
         'country',
         'alternate_countries',
+
         'shop_url',
         'shop_search_url',
         'logo_path',
         'logo_url',
+
+        'shop_url_alternatives',
+        'shop_search_url_alternatives',
+        'logo_path_alternatives',
+        'logo_url_alternatives',
+
         'sales_person_id',
         'sales_last_30_days',
         'is_hidden',
@@ -38,5 +45,12 @@ class Customer extends Model
         'worst_payment_days',
         'worst_payment_invoice_id',
         'return_rate',
+    ];
+
+    protected $casts = [
+        'shop_url_alternatives' => 'array',
+        'shop_search_url_alternatives' => 'array',
+        'logo_path_alternatives' => 'array',
+        'logo_url_alternatives' => 'array',
     ];
 }

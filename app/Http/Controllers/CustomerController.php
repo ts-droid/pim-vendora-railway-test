@@ -492,17 +492,14 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $fillables = (new Customer)->getFillable();
 
         foreach ($request->all() as $key => $value) {
-            if (in_array($key, ['logo_path', 'logo_url'])) {
+            if (in_array($key, ['logo_path', 'logo_url', 'logo_path_alternatives', 'logo_url_alternatives'])) {
                 continue;
             }
 
@@ -525,6 +522,29 @@ class CustomerController extends Controller
                 $customer->logo_url = $logoURL;
             }
         }
+
+        // Upload alternative logo?
+        $logo_path_alternatives = $customer->logo_path_alternatives ?: [];
+        $logo_url_alternatives = $customer->logo_url_alternatives ?: [];
+
+        if (isset($request->logo_alternatives) && is_array($request->logo_alternatives)) {
+            foreach ($request->logo_alternatives as $country => $logo) {
+                list ($success, $logoPath, $logoURL) = $this->uploadLogo($logo);
+
+                if ($success) {
+                    // Remove old logo
+                    if (!empty($logo_path_alternatives[$country])) {
+                        DoSpacesController::delete($logo_path_alternatives[$country]);
+                    }
+
+                    $logo_path_alternatives[$country] = $logoPath;
+                    $logo_url_alternatives[$country] = $logoURL;
+                }
+            }
+        }
+
+        $customer->logo_path_alternatives = $logo_path_alternatives;
+        $customer->logo_url_alternatives = $logo_url_alternatives;
 
         $customer->save();
 
@@ -610,7 +630,7 @@ class CustomerController extends Controller
 
         // Extract the filename from the URL
         $path = parse_url(trim($url), PHP_URL_PATH);
-        $filePath = 'customer/logos/' . basename($path);
+        $filePath = 'customer/logos/' . time() . basename($path);
 
         $imageContent = @file_get_contents($url);
 
