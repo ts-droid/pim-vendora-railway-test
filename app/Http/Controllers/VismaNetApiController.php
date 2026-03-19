@@ -75,11 +75,8 @@ class VismaNetApiController extends Controller
     public function getSalesOrder(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $orderType = $request->get('order_type');
