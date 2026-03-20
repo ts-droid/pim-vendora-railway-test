@@ -10,6 +10,10 @@ class LanguageFieldTranslator
 {
     const DEFAULT_LANGUAGE = 'en';
 
+    const EXCLUDE_MODELS = [
+        'ArticleMetaData'
+    ];
+
     private int $batchCount = 0;
 
     function __construct(
@@ -44,6 +48,8 @@ class LanguageFieldTranslator
         $models = $this->getModels($path);
 
         foreach ($models as $model) {
+            if (in_array($model, self::EXCLUDE_MODELS)) continue;
+
             $this->translateModel('App\Models\\' . $model);
         }
     }
