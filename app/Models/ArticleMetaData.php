@@ -9,10 +9,9 @@ class ArticleMetaData extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'article_id',
-        'type',
-        'value'
+    protected $guarded = [
+        'id',
+        'updated_at',
     ];
 
     public function article()
