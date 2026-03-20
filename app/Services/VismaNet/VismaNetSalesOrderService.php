@@ -87,8 +87,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
         action_log('Invoked service method.', $__serviceLogContext);
 
         // Check if order already exists in Visma.net
-        $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
-        if (!empty($response['response']['orderNo'])) {
+        $response = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+        if (!empty($response['response']['orderId'])) {
             $this->updateSalesOrder($salesOrder);
             return;
         }
@@ -132,13 +132,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         // Update the order line numbers in the database
-        $linesResponse = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
-        $remoteLines = $linesResponse['response']['lines'] ?? null;
+        $linesResponse = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+        $remoteLines = $linesResponse['response']['value'] ?? null;
 
         if (!$remoteLines) {
             $salesOrder->update(['has_sync_error' => 1]);
 
-            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Customer ' . $customerNumber . ' not found.';
+            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Failed to updated local order lines after creation.';
 
             $salesOrderService->createLog($salesOrder->id, $errorMessage);
             NotificationService::sendMail('Failed to send order to Visma.net', $errorMessage);
@@ -146,8 +146,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         foreach ($remoteLines as $line) {
-            $lineNumber = $line['lineNbr'];
-            $articleNumber = $line['inventory']['number'];
+            $lineNumber = $line['lineId'];
+            $articleNumber = $line['inventory']['id'];
             $quantity = $line['quantity'];
 
             SalesOrderLine::where('sales_order_id', $salesOrder->id)
@@ -174,8 +174,8 @@ class VismaNetSalesOrderService extends VismaNetApiService
         action_log('Invoked service method.', $__serviceLogContext);
 
         // Check if the order exists in Visma.net
-        $response = $this->callAPI('GET', '/v2/salesorder/' . $salesOrder->order_number);
-        if (empty($response['response']['orderNo'])) {
+        $response = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+        if (empty($response['response']['orderId'])) {
             $this->sendSalesOrder($salesOrder);
             return;
         }
@@ -330,11 +330,11 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_orders_fetch');
 
         if ($updatedAfter) {
-            $params['lastModifiedDateTime'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
-            $params['lastModifiedDateTimeCondition'] = '>';
+            $params['modifiedSince'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
+            $params['orderBy'] = 'lastModified asc';
         }
 
-        $orders = $this->getPagedResult('/v2/salesorder', $params);
+        $orders = $this->getPagedResult('/v3/SalesOrders', $params, 'value');
 
         if ($orders) {
             foreach ($orders as $order) {
@@ -359,20 +359,22 @@ class VismaNetSalesOrderService extends VismaNetApiService
 
     private function importOrder(array $order): array
     {
-        if (empty($order['orderType']) || empty($order['orderNo'])) {
+        if (empty($order['type']) || empty($order['orderId'])) {
             return [
                 'success' => false,
                 'message' => 'Missing order type or order number.'
             ];
         }
 
+        $invoiceNumber =
+
         $orderData = [
-            'order_type' => (string) $order['orderType'],
+            'order_type' => (string) $order['type'],
             'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
-            'customer_number' => (string) ($order['customer']['internalId'] ?? ''),
+            'customer_number' => (string) ($order['customerId'] ?? ''),
             'currency' => (string) ($order['currency'] ?? ''),
             'note' => (string) ($order['note'] ?? ''),
-            'order_number' => (string) $order['orderNo'],
+            'order_number' => (string) $order['orderId'],
             'customer_ref_no' => (string) ($order['customerRefNo'] ?? ''),
             'status' => (string) ($order['status'] ?? ''),
             'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),

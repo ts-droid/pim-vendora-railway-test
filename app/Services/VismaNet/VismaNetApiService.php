@@ -257,7 +257,7 @@ class VismaNetApiService
      * @param array $params
      * @return array
      */
-    public function getPagedResult(string $endpoint, array $params = []): array
+    public function getPagedResult(string $endpoint, array $params = [], string $responseKey = ''): array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -280,7 +280,12 @@ class VismaNetApiService
         }
 
         $response = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
-        $rows = $response['response'];
+
+        if ($responseKey) {
+            $rows = $response['response'][$responseKey];
+        } else {
+            $rows = $response['response'];
+        }
 
         if ($rows && count($rows) === $this->defaultPageSize) {
             $params['pageNumber']++;
