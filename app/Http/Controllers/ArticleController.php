@@ -12,6 +12,7 @@ use App\Models\Article;
 use App\Models\ArticleFaqEntry;
 use App\Models\ArticleFile;
 use App\Models\ArticleImage;
+use App\Models\ArticleMetaData;
 use App\Models\ArticleReview;
 use App\Models\Customer;
 use App\Models\CustomerInvoice;
@@ -1478,11 +1479,8 @@ class ArticleController extends Controller
     public function getSubData(Request $request, Article $article)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $images = ArticleImage::select(
@@ -1505,11 +1503,23 @@ class ArticleController extends Controller
             ->orderBy('created_at', 'DESC')
             ->get();
 
+        $designedFor = ArticleMetaData::where('article_id', $article->id)
+            ->where('type', 'designed_for')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $useCases = ArticleMetaData::where('article_id', $article->id)
+            ->where('type', 'use_cases')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
         return ApiResponseController::success([
             'images' => $images->toArray(),
             'files' => $files->toArray(),
             'reviews' => $reviews->toArray(),
-            'faq_entries' => $faqEntries->toArray()
+            'faq_entries' => $faqEntries->toArray(),
+            'designed_for' => $designedFor->toArray(),
+            'use_cases' => $useCases->toArray()
         ]);
     }
 
