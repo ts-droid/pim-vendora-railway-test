@@ -50,7 +50,7 @@ class GenerateArticleUseCases implements ShouldQueue
             ArticleMetaData::create([
                 'article_id' => $this->article->id,
                 'type' => 'designed_for',
-                'value' => $item
+                'value_en' => $item
             ]);
         }
 
@@ -59,7 +59,7 @@ class GenerateArticleUseCases implements ShouldQueue
             ArticleMetaData::create([
                 'article_id' => $this->article->id,
                 'type' => 'use_cases',
-                'value' => $item
+                'value_en' => $item
             ]);
         }
     }
