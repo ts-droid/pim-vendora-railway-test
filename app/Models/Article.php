@@ -179,6 +179,11 @@ class Article extends Model
         return $this->hasMany(ArticleAttribute::class, 'article_id', 'id');
     }
 
+    public function metaData()
+    {
+        return $this->hasMany(ArticleMetaData::class, 'article_id', 'id');
+    }
+
     public function getAttributesArray(int $articleID = 0)
     {
         if ($articleID) {
