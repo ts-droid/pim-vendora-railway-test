@@ -242,7 +242,7 @@ class TranslationController extends Controller
                 [
                     'sourceLang' => $sourceLang,
                     'targetLang' => $targetLang,
-                    'GLOSSARY' => implode(PHP_EOL, $string),
+                    'GLOSSARY' => implode(PHP_EOL, $excludes),
                     'language_rules' => $languageRules,
                     'string' => $string,
                 ]
