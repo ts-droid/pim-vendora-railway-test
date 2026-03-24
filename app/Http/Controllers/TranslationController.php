@@ -128,6 +128,10 @@ class TranslationController extends Controller
             $engine = 'openai'; // This is the default engine
         }
 
+        if ($engine === 'openai' && $prompt === 'translate_3_step') {
+            return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes);
+        }
+
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
@@ -205,6 +209,59 @@ class TranslationController extends Controller
 
         // Trim whitespace from translations
         $translations = array_map('trim', $translations);
+
+        return $translations;
+    }
+
+    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
+    {
+        // Merge excludes with global excludes
+        $globalExcludes = ConfigController::getConfig('translation_excludes');
+        $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
+        $globalExcludes = array_merge($globalExcludes, TranslateExcludeService::getAll());
+
+        $excludes = array_merge($excludes, $globalExcludes);
+        $excludes = array_unique($excludes);
+        $excludes = array_filter($excludes);
+
+        // Load language specific prompt
+        $promptController = new PromptController();
+        $languagePrompt = $promptController->getBySystemCode('translate_3_step_core_' . $targetLang);
+        $languageRules = ($languagePrompt->message ?? '');
+
+        // Load core and verification prompts
+        $corePrompt = $promptController->getBySystemCode('translate_3_step_core');
+        $verifyPrompt = $promptController->getBySystemCode('translate_3_step_verify');
+
+        // Translate and verify each string
+        $translations = [];
+        foreach ($strings as $string) {
+            // Run the core translation
+            $translatedText = $promptController->execute(
+                $corePrompt->id,
+                [
+                    'sourceLang' => $sourceLang,
+                    'targetLang' => $targetLang,
+                    'GLOSSARY' => implode(PHP_EOL, $string),
+                    'language_rules' => $languageRules,
+                    'string' => $string,
+                ]
+            );
+
+            // Verify the translation
+            $translatedText = $promptController->execute(
+                $verifyPrompt->id,
+                [
+                    'sourceLang' => $sourceLang,
+                    'targetLang' => $targetLang,
+                    'source_text' => $string,
+                    'translated_text' => $translatedText,
+                    'GLOSSARY' => implode(PHP_EOL, $string),
+                ]
+            );
+
+            $translations[] = trim($translatedText);
+        }
 
         return $translations;
     }
