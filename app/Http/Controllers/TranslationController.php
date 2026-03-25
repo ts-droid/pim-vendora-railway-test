@@ -43,6 +43,29 @@ class TranslationController extends Controller
         return ApiResponseController::success($services->toArray());
     }
 
+    public function detectLanguageRequest(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'string' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        $languageCode = $this->detectLanguage($request->string);
+
+        return ApiResponseController::success([
+            'language_code' => $languageCode
+        ]);
+    }
+
     /**
      * API call to translate
      *
@@ -101,6 +124,30 @@ class TranslationController extends Controller
         }
 
         return ApiResponseController::success($translations);
+    }
+
+    /**
+     * Return the detected two letter language code
+     * If language can not be determined, an empty string is returned
+     *
+     * @param string $string
+     * @return string
+     */
+    public function detectLanguage(string $string): string
+    {
+        $promptController = new PromptController();
+        $prompt = $promptController->getBySystemCode('detect_language');
+
+        $res = $promptController->execute(
+            $prompt->id,
+            ['text' => $string]
+        );
+
+        if ($res == 'xx') {
+            $res = '';
+        }
+
+        return $res;
     }
 
     /**
