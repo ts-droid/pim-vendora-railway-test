@@ -998,6 +998,21 @@ class ArticleController extends Controller
         return ApiResponseController::success($faqEntries->toArray());
     }
 
+    public function createFAQ(Request $request, Article $article)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $data = $request->all();
+        $data['article_id'] = $article->id;
+
+        $articleFaqEntry = ArticleFaqEntry::create($data);
+
+        return ApiResponseController::success($articleFaqEntry->toArray());
+    }
+
     public function updateFAQ(Request $request, Article $article, ArticleFAQEntry $articleFaqEntry)
     {
         if ($this->shouldLogControllerMethod()) {
