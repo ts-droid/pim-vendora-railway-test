@@ -175,6 +175,11 @@ class TranslationController extends Controller
             $engine = 'openai'; // This is the default engine
         }
 
+        // New default
+        if ($engine == 'openai' && !$prompt) {
+            $prompt = 'translate_3_step';
+        }
+
         if ($engine === 'openai' && $prompt === 'translate_3_step') {
             return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes);
         }
