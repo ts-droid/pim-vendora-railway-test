@@ -10,9 +10,7 @@ class LanguageFieldTranslator
 {
     const DEFAULT_LANGUAGE = 'en';
 
-    const EXCLUDE_MODELS = [
-        'ArticleMetaData'
-    ];
+    const EXCLUDE_MODELS = [];
 
     private int $batchCount = 0;
 
