@@ -289,6 +289,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::get('/{article}/categories', [ArticleController::class, 'getCategories'])->name('articles.getCategories');
         Route::get('/{article}/reviews', [ArticleController::class, 'getReviews'])->name('articles.getReviews');
         Route::get('/{article}/faq', [ArticleController::class, 'getFAQ'])->name('articles.getFAQ');
+        Route::get('/{article}/meta-data', [ArticleController::class, 'getMeta'])->name('articles.getMeta');
 
         Route::get('/{article}/job/google-product-category', [ArticleController::class, 'getGoogleProductCategory']);
 

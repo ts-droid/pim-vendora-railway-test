@@ -987,11 +987,8 @@ class ArticleController extends Controller
     public function getFAQ(Request $request, Article $article)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $faqEntries = ArticleFaqEntry::where('article_id', $article->id)
@@ -999,6 +996,20 @@ class ArticleController extends Controller
             ->get();
 
         return ApiResponseController::success($faqEntries->toArray());
+    }
+
+    public function getMeta(Request $request, Article $article)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $data = ArticleMetaData::where('article_id', $article->id)
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        return ApiResponseController::success($data->toArray());
     }
 
     public function getArticleWmsData(Article $article)
