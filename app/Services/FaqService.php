@@ -12,9 +12,7 @@ use App\Services\AI\OpenAIService;
 
 class FaqService
 {
-    const FAQ_MODEL = 'gpt-4o';
-
-    public function generateArticleFAQ(Article $article, int $numberOfQuestions = 3): array
+    public function generateArticleFAQ(Article $article): array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -25,27 +23,32 @@ class FaqService
 
         $promptController = new PromptController();
 
-        $prompt = $promptController->getBySystemCode('article_faq');
+        $generatePrompt = $promptController->getBySystemCode('faq_articles_generate');
+        $validatePrompt = $promptController->getBySystemCode('faq_articles_validate');
 
         $rawResponse = $promptController->execute(
-            $prompt->id,
-            [
-                'product_description' => ($article->shop_description_en ?? ''),
-                'number_of_questions' => $numberOfQuestions,
-            ],
-            '',
-            self::FAQ_MODEL
+            $generatePrompt->id,
+            ['product_description' => ($article->shop_description_en ?? '')]
         );
 
         if (!$rawResponse) {
-            return [
-                'success' => false,
-                'error_message' => 'No response from AI service.',
-            ];
+            return ['success' => false, 'error_message' => 'No response from AI service (generation).'];
+        }
+
+        $validationResponse = $promptController->execute(
+            $validatePrompt->id,
+            [
+                'product_description' => ($article->shop_description_en ?? ''),
+                'faq_json' => $rawResponse
+            ]
+        );
+
+        if (!$validationResponse) {
+            return ['success' => false, 'error_message' => 'No response from AI service (validation).'];
         }
 
         try {
-            $json = $rawResponse;
+            $json = $validationResponse;
             $json = str_replace('```json', '', $json);
             $json = str_replace('```', '', $json);
 
@@ -60,7 +63,7 @@ class FaqService
         if (!$response
             || !isset($response['questions'])
             || !is_array($response['questions'])
-            || count($response['questions']) !== $numberOfQuestions) {
+            || count($response['questions']) === 0) {
             return [
                 'success' => false,
                 'error_message' => 'Invalid response format from AI service.',
@@ -73,9 +76,9 @@ class FaqService
 
         $translationController = new TranslationController();
 
-        for ($i = 0;$i < $numberOfQuestions;$i++) {
-            $question = $response['questions'][$i]['question'] ?? '';
-            $answer = $response['questions'][$i]['answer'] ?? '';
+        foreach ($response['questions'] as $item) {
+            $question = $item['question'] ?? '';
+            $answer = $item['answer'] ?? '';
 
             if (!$question || !$answer) {
                 continue;
