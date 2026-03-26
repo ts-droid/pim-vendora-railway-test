@@ -998,6 +998,19 @@ class ArticleController extends Controller
         return ApiResponseController::success($faqEntries->toArray());
     }
 
+    public function updateFAQ(Request $request, Article $article, ArticleFAQEntry $articleFaqEntry)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $updateData = $request->all();
+        $articleFaqEntry->update($updateData);
+
+        return ApiResponseController::success($articleFaqEntry->toArray());
+    }
+
     public function getMeta(Request $request, Article $article)
     {
         if ($this->shouldLogControllerMethod()) {
