@@ -83,6 +83,7 @@ class NewsletterController extends Controller
         $source = mb_strtolower($request->input('source'));
         $discountCode = $request->input('discount_code');
         $locale = $request->input('locale', 'en');
+        $tag = $request->input('tag', 'form');
 
         // Check if email is already unsubscribed
         $isUnsubscribed = DB::table('newsletter_unsubscribed')
@@ -108,6 +109,13 @@ class NewsletterController extends Controller
             ->first();
 
         if ($existingSubscriber) {
+            // Update tags
+            $tags = explode(',', $existingSubscriber->tag);
+            $tags[] = $tag;
+            $tags = array_filter(array_unique($tags));
+
+            $existingSubscriber->update(['tag' => implode(',', $tags)]);
+
             return ApiResponseController::success($existingSubscriber->toArray());
         }
 
@@ -117,7 +125,7 @@ class NewsletterController extends Controller
             'source' => $source,
             'first_name' => $request->input('first_name', ''),
             'last_name' => $request->input('last_name', ''),
-            'tag' => $request->input('tag', 'form'),
+            'tag' => $tag,
         ]);
 
         $mailerLiteService = new MailerLiteService();
