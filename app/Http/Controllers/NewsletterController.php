@@ -187,4 +187,27 @@ class NewsletterController extends Controller
 
         return ApiResponseController::success();
     }
+
+    public function send(Request $request)
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'tag' => 'required|string',
+            'subject_en' => 'required|string',
+            'body_en' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return ApiResponseController::error($errors[0]);
+        }
+
+        // TODO: Queue the newsletter here
+
+        return ApiResponseController::success();
+    }
 }
