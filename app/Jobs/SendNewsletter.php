@@ -40,10 +40,24 @@ class SendNewsletter implements ShouldQueue
         $brandingData = BrandPageUtility::getBrandingData($source);
 
         // Load all subscribers
-        $groupedSubscribers = NewsletterSubscriber::where('source', $source)
-            ->where('tag', 'LIKE', '%' . $tag . '%')
-            ->get()
-            ->groupBy('language');
+        if ($tag == 'test') {
+            $sub = new NewsletterSubscriber();
+            $sub->email = $this->payload['test_recipient'];
+            $sub->language = 'en';
+            $sub->first_name = 'John';
+            $sub->last_name = 'Doe';
+            $sub->source = $source;
+            $sub->tag = $tag;
+
+            $groupedSubscribers = [
+                'en' => collect([$sub])
+            ];
+        } else {
+            $groupedSubscribers = NewsletterSubscriber::where('source', $source)
+                ->where('tag', 'LIKE', '%' . $tag . '%')
+                ->get()
+                ->groupBy('language');
+        }
 
         if (!$groupedSubscribers || !$groupedSubscribers->count()) {
             return;
@@ -63,6 +77,11 @@ class SendNewsletter implements ShouldQueue
 
             $group = $mailerLiteService->getGroupByName($groupName);
             if (!$group) continue;
+
+            // Add subscribers to the group
+            foreach ($subscribers as $subscriber) {
+                $mailerLiteService->addSubscriber($subscriber->email, null, $group);
+            }
 
             // Fetch or create the campaign
             $campaign = $mailerLiteService->getDraftCampaignByName($campaignName);

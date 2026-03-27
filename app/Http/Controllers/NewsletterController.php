@@ -209,6 +209,10 @@ class NewsletterController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
+        if ($request->input('tag') == 'test' && !$request->input('test_recipient')) {
+            return ApiResponseController::error('Recipient address is required.');
+        }
+
         // Queue the newsletter for sending
         SendNewsletter::dispatch($request->all())->onQueue(LaravelQueues::DEFAULT->value);
 

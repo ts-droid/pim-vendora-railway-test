@@ -24,7 +24,7 @@ class MailerLiteService
         $this->mailerLite = new MailerLite(['api_key' => $this->token]);
     }
 
-    public function addSubscriber(string $email, ?string $groupName = null): ?array
+    public function addSubscriber(string $email, ?string $groupName = null, ?array $group = null): ?array
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -38,8 +38,9 @@ class MailerLiteService
 
         if (!$subscriber) return null;
 
-        if ($groupName) {
-            $group = $this->getGroupByName($groupName);
+        if ($groupName || $group) {
+            $group = $group ?: $this->getGroupByName($groupName);
+
             if ($group) {
                 $this->mailerLite->groups->assignSubscriber($group['id'], $subscriber['id']);
             }
