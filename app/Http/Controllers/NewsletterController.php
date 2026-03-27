@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Mail\BrandPageDiscountCode;
+use App\Enums\LaravelQueues;
+use App\Jobs\SendNewsletter;
 use App\Models\NewsletterSubscriber;
 use App\Services\MailerCheckService;
 use App\Services\MailerLiteService;
@@ -197,6 +199,7 @@ class NewsletterController extends Controller
 
         $validator = Validator::make($request->all(), [
             'tag' => 'required|string',
+            'source' => 'required|string',
             'subject_en' => 'required|string',
             'body_en' => 'required|string',
         ]);
@@ -206,7 +209,8 @@ class NewsletterController extends Controller
             return ApiResponseController::error($errors[0]);
         }
 
-        // TODO: Queue the newsletter here
+        // Queue the newsletter for sending
+        SendNewsletter::dispatch($request->all())->onQueue(LaravelQueues::DEFAULT->value);
 
         return ApiResponseController::success();
     }
