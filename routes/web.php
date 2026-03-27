@@ -7,6 +7,7 @@ use App\Http\Controllers\EmailViewController;
 use App\Http\Controllers\EsignPublicController;
 use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\MonitorDashboardController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;

@@ -44,8 +44,6 @@
                     </td>
                 </tr>
 
-                <!-- TODO: Add unsubscribe link -->
-
             </table>
         </td>
     </tr>

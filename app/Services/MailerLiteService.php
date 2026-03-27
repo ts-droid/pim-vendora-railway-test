@@ -106,4 +106,20 @@ class MailerLiteService
         $response = $this->mailerLite->campaigns->create($data);
         return $response['body']['data'] ?? null;
     }
+
+    public function sendCampaign(string $campaignId): ?array
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $response = $this->mailerLite->campaigns->schedule($campaignId, [
+            'delivery' => 'instant',
+        ]);
+
+        return $response['body']['data'] ?? null;
+    }
 }

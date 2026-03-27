@@ -78,7 +78,7 @@ class SendNewsletter implements ShouldQueue
                             'content' => view('emails.brandPages.newsletter', [
                                 'emailSubject' => $subject,
                                 'emailBody' => $body,
-                                'brandingData' => $brandingData
+                                'brandingData' => $brandingData,
                             ])->render(),
                         ]
                     ],
@@ -87,11 +87,12 @@ class SendNewsletter implements ShouldQueue
                 ]);
             }
 
-            if (!$campaign) {
+            if (empty($campaign['id'])) {
                 continue; // Failed to create or fetch campaign
             }
 
-            // TODO: Send the campaign
+            // Send the campaign
+            $mailerLiteService->sendCampaign($campaign['id']);
         }
     }
 }
