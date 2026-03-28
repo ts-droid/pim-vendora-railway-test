@@ -56,7 +56,7 @@ class GenerateMissingArticleFaqs extends Command
         }
 
         foreach ($articles as $article) {
-            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::DEFAULT->value);
+            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::GENERATION->value);
         }
 
         action_log('Queued FAQ generation jobs.', $this->commandLogContext([
