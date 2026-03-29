@@ -962,19 +962,11 @@ class VismaNetController extends Controller
     public function getSalesOrder(string $orderType, string $orderNumber)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
-        $endpoint = '/v1/salesorder/' . rawurlencode($orderNumber);
-        if ($orderType) {
-            $endpoint = '/v1/salesorder/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber);
-        }
-
-        return $this->callAPI('GET', $endpoint);
+        return $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber));
     }
 
     /**
