@@ -124,7 +124,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         if ($response['http_code'] !== 201) {
             $salesOrder->update(['has_sync_error' => 1]);
 
-            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Error: ' . ($response['response']['message'] ?? 'unknown-error');
+            $errorMessage = 'Failed to send sales order #' . $salesOrder->id . ' to Visma.net. Error: ' . ($response['response']['message'] ?? ('http-' . $response['http_code']));
 
             $salesOrderService->createLog($salesOrder->id, $errorMessage);
             NotificationService::sendMail('Failed to send order to Visma.net', $errorMessage);
@@ -479,7 +479,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $remoteLines = null;
         $remoteLineIds = [];
 
         if ($isUpdate) {
@@ -497,7 +496,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'currency' => $salesOrder->currency,
             'status' => $salesOrder->status,
             'customer' => [
-                'refNo' => $customerNumber,
+                'id' => $customerNumber,
             ],
             'note' => '',
             'orderLines' => [],
