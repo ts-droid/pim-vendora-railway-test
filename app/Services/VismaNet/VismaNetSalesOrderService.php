@@ -623,8 +623,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
                 $lineData['invoiceNumber'] = $orderLine->invoice_number;
             }
 
-
-            if (in_array($lineData['lineId'], $remoteLineIds)) {
+            if (!$isUpdate || in_array($lineData['lineId'], $remoteLineIds)) {
                 $orderData['orderLines'][] = $lineData;
             } else {
                 $orderData['newOrderLines'][] = $lineData;
