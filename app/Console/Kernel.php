@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('shipments:postpone-eta')->dailyAt('01:00');
 
             // TODO: Can me moved to long loved processes
-            $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping();
+            // $schedule->command('translate-database')->everyFiveMinutes()->withoutOverlapping(); // TODO: Enable this after debugging
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:process-queue')->everyMinute()->withoutOverlapping();
 
@@ -48,7 +48,7 @@ class Kernel extends ConsoleKernel
 
             // Generate article data
             $schedule->command('article:generate-titles')->everyFiveMinutes()->withoutOverlapping();
-            $schedule->command('faq:generate-missing')->everyFifteenMinutes();
+            // $schedule->command('faq:generate-missing')->everyFifteenMinutes(); // TODO: Enable this after debugging
             $schedule->command('articles:categorize')->hourly();
 
             $schedule->command('articles:calculate-sales-volume')->dailyAt('06:00');
