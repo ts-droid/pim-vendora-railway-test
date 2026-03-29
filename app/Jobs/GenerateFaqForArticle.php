@@ -51,11 +51,11 @@ class GenerateFaqForArticle implements ShouldQueue, ShouldBeUnique
             return;
         }
 
-        $faqService = new FaqService();
-        $faqService->generateArticleFAQ($this->article);
-
         DB::table('articles')
             ->where('id', $this->article->id)
             ->update(['last_faq_generation' => Carbon::now()]);
+
+        $faqService = new FaqService();
+        $faqService->generateArticleFAQ($this->article);
     }
 }
