@@ -33,6 +33,8 @@ class GenerateFaqForArticle implements ShouldQueue
      */
     public function handle(): void
     {
+        return; // TODO: Enable this after debugging
+
         action_log('Executing job handle method.', [
             'job' => static::class,
             'method' => __FUNCTION__,
