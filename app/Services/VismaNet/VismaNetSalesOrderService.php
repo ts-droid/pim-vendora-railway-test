@@ -132,7 +132,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         }
 
         // Update the order line numbers in the database
-        $linesResponse = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+        $linesResponse = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number) . '/lines');
         $remoteLines = $linesResponse['response']['value'] ?? null;
 
         if (!$remoteLines) {
@@ -174,11 +174,13 @@ class VismaNetSalesOrderService extends VismaNetApiService
         action_log('Invoked service method.', $__serviceLogContext);
 
         // Check if the order exists in Visma.net
-        $response = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
-        if (empty($response['response']['orderId'])) {
+        $remoteOrder = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+        if (empty($remoteOrder['response']['orderId'])) {
             $this->sendSalesOrder($salesOrder);
             return;
         }
+
+        $etag = $remoteOrder['headers']['etag'];
 
         $salesOrderService = new SalesOrderService();
 
@@ -202,19 +204,33 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $orderData = $this->getOrderData($salesOrder, $customerNumber, true);
 
         // First update the status (this must be done separately in the v3 endpoint)
-        $statusResponse = $this->callAPI('PATCH', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number), [
-            'status' => $orderData['status']
-        ]);
+        if ($remoteOrder['response']['status']['description'] != $orderData['status']) {
+            $statusResponse = $this->callAPI('PATCH', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number), [
+                'status' => $orderData['status']
+            ], '', false, false, ['If-Match' =>  $etag]);
 
-        if ($statusResponse['http_code'] !== 202) {
-            $salesOrderService->createLog($salesOrder->id, 'Failed to update order status in Visma.net. API request failed to update order.');
-            throw new \Exception('Failed to update order status in Visma.net. API request failed to update order..');
+            if ($statusResponse['http_code'] !== 202) {
+                $salesOrderService->createLog($salesOrder->id, 'Failed to update order status in Visma.net. API request failed to update order.');
+                throw new \Exception('Failed to update order status in Visma.net. API request failed to update order..');
+            }
+
+            // Fetch updated remote order with etag
+            $remoteOrder = $this->callAPI('GET', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number));
+            $etag = $remoteOrder['headers']['etag'];
         }
-
 
         unset($orderData['status']);
 
-        $orderResponse = $this->callAPI('PATCH', '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number), $orderData);
+        $orderResponse = $this->callAPI(
+            'PATCH',
+            '/v3/SalesOrders/' . urlencode($salesOrder->order_type) . '/' . urlencode($salesOrder->order_number),
+            $orderData,
+            '',
+            false,
+            false,
+            ['If-Match' =>  $etag]
+        );
+
         if ($orderResponse['http_code'] !== 202) {
             $salesOrderService->createLog($salesOrder->id, 'Failed to update this order in Visma.net. API request failed to update order.');
             throw new \Exception('Failed to update order in Visma.net. API request failed to update order.');
