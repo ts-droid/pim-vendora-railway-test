@@ -261,14 +261,17 @@ class OpenAIService implements AIInterface
 
     private function logUsage(string $model, int $promptTokens, int $completionTokens): void
     {
-        DB::table('openai_usage')->updateOrInsert(
-            ['date' => date('Y-m-d')],
-            [
-                'prompt_tokens' => $promptTokens,
-                'completion_tokens' => $completionTokens,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ]
-        );
+        DB::statement("
+            INSERT INTO openai_usage (date, prompt_tokens, completion_tokens, created_at, updated_at)
+            VALUES (?, ?, ?, NOW(), NOW())
+            ON DUPLICATE KEY UPDATE
+                prompt_tokens = prompt_tokens + VALUES(prompt_tokens),
+                completion_tokens = completion_tokens + VALUES(completion_tokens),
+                updated_at = NOW()
+        ", [
+            date('Y-m-d'),
+            $promptTokens,
+            $completionTokens
+        ]);
     }
 }
