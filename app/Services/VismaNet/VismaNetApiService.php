@@ -279,7 +279,7 @@ class VismaNetApiService
             }
         }
 
-        $response = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $response = $this->callAPI('GET', $endpoint, $params);
 
         if ($responseKey) {
             $rows = $response['response'][$responseKey];
