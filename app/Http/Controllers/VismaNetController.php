@@ -961,7 +961,11 @@ class VismaNetController extends Controller
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
-        $response = $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber));
+        $params = [
+            'expand' => 'Lines'
+        ];
+
+        $response = $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber) . '?' . http_build_query($params));
         return ($response['response'] ?? []);
     }
 
