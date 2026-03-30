@@ -16,6 +16,7 @@ use App\Models\Supplier;
 use App\Services\ApiLogger;
 use App\Services\CreditNoteService;
 use App\Services\PurchaseOrderService;
+use App\Services\VismaNet\VismaNetApiService;
 use App\Services\VismaNet\VismaNetCustomerInvoiceService;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use App\Services\WMS\StockItemService;
@@ -1101,63 +1102,8 @@ class VismaNetController extends Controller
      */
     public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
     {
-        if ($this->shouldLogControllerMethod()) {
-
-            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
-            action_log('Invoked controller method.', $__controllerLogContext);
-
-        }
-
-        if ($this->callCount > 0) {
-            sleep(self::SLEEP_TIME);
-        }
-
-        $headers = [
-            'Authorization' => 'Bearer ' . ($accessToken ?: $this->getAccessToken()),
-        ];
-
-        if ($params) {
-            $headers['Content-Type'] = 'application/json';
-        }
-
-        if (substr($endpoint, 0, '4') === 'http') {
-            $url = $endpoint;
-        }
-        else {
-            $url = self::API_URL . $endpoint;
-        }
-
-        try {
-            switch (strtoupper($method)) {
-                case 'POST':
-                    $response = HTTP::withHeaders($headers)
-                        ->connectTimeout(600)
-                        ->timeout(600)
-                        ->post($url, $params);
-                    break;
-
-                case 'GET':
-                default:
-                    $response = HTTP::withHeaders($headers)
-                        ->connectTimeout(600)
-                        ->timeout(600)
-                        ->get($url);
-                    break;
-            }
-        }
-        catch (Exception $e) {
-            if ($tries < self::MAX_TRIES) {
-                $tries++;
-                return $this->callAPI($method, $endpoint, $params, $accessToken, $tries);
-            }
-
-            return [];
-        }
-
-        $this->callCount++;
-
-        return $response->json() ?: [];
+        $vismaNetApiService = new VismaNetApiService();
+        return $vismaNetApiService->callAPI($method, $endpoint, $params, $accessToken, true, false, []);
     }
 
     /**
