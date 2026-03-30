@@ -1103,7 +1103,7 @@ class VismaNetController extends Controller
     public function callAPI(string $method, string $endpoint, array $params = [], string $accessToken = '', int $tries = 0)
     {
         $vismaNetApiService = new VismaNetApiService();
-        return $vismaNetApiService->callAPI($method, $endpoint, $params, $accessToken, true, false, []);
+        return $vismaNetApiService->callAPI($method, $endpoint, $params, $accessToken, false, false, []);
     }
 
     /**
