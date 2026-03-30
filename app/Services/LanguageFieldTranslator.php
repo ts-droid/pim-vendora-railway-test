@@ -187,7 +187,7 @@ class LanguageFieldTranslator
 
                 $isHTML = in_array($languageAttribute, ['shop_description']);
 
-                $this->log[] = $model . ' -> ' . $field . ' -> ' . $language->language_code;
+                $this->log[] = $model . ' (' . (!empty($item->id) ? $item->id : '--') . ') -> ' . $field . ' -> ' . $language->language_code;
                 list($translation) = $translationController->translate([$defaultValue], self::DEFAULT_LANGUAGE, $language->language_code, $isHTML);
 
                 if ($translation) {
