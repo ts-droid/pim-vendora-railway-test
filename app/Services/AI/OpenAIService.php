@@ -13,6 +13,10 @@ class OpenAIService implements AIInterface
     private string $apiURL;
 
     const PRICING_TABLE = [
+        'gpt-5.4-mini' => [
+            'input' => 0.75,
+            'output' => 4.50
+        ],
         'gpt-5.4' => [
             'input' => 2.5,
             'output' => 15
