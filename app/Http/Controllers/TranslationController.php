@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TranslationController extends Controller
 {
+    const TRANSLATION_MODEL = 'gpt-5.4-mini-2026-03-17';
+
     /**
      * @var Translator
      */
@@ -297,7 +299,9 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                     'language_rules' => $languageRules,
                     'string' => $string,
-                ]
+                ],
+                '',
+                self::TRANSLATION_MODEL
             );
 
             // Verify the translation
@@ -309,7 +313,9 @@ class TranslationController extends Controller
                     'source_text' => $string,
                     'translated_text' => $translatedText,
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
-                ]
+                ],
+                '',
+                self::TRANSLATION_MODEL
             );
 
             $translations[] = trim($translatedText);
