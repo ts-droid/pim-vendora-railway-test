@@ -908,14 +908,12 @@ class VismaNetController extends Controller
     public function getShipment(string $shipmentNumber): array
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
-        return $this->callAPI('GET', '/v1/shipment/' . rawurlencode($shipmentNumber));
+        $response = $this->callAPI('GET', '/v1/shipment/' . rawurlencode($shipmentNumber));
+        return ($response['response'] ?? []);
     }
 
     /**
@@ -926,14 +924,12 @@ class VismaNetController extends Controller
     public function getCustomer(string $customerNumber)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
-        return $this->callAPI('GET', '/v1/customer/' . rawurlencode($customerNumber));
+        $response = $this->callAPI('GET', '/v1/customer/' . rawurlencode($customerNumber));
+        return ($response['response'] ?? []);
     }
 
     /**
@@ -944,14 +940,12 @@ class VismaNetController extends Controller
     public function getInventoryItem(string $articleNumber)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
-        return $this->callAPI('GET', '/v1/inventory/' . rawurlencode($articleNumber));
+        $response = $this->callAPI('GET', '/v1/inventory/' . rawurlencode($articleNumber));
+        return ($response['response'] ?? []);
     }
 
     /**
@@ -967,7 +961,8 @@ class VismaNetController extends Controller
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
-        return $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber));
+        $response = $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber));
+        return ($response['response'] ?? []);
     }
 
     /**
