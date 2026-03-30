@@ -267,7 +267,9 @@ class OpenAIService implements AIInterface
             ],
         ];
 
-        if (str_contains($this->model, 'gpt-5')) {
+        if (str_contains($this->model, 'gpt-5.4-mini')) {
+            $body['reasoning_effort'] = 'none';
+        } else if (str_contains($this->model, 'gpt-5')) {
             $body['reasoning_effort'] = 'low';
         }
 

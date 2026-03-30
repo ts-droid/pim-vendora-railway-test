@@ -533,11 +533,8 @@ class TranslationController extends Controller
     public function translateAI(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         // Merge excludes with global excludes
