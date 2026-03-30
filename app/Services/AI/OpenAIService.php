@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class OpenAIService implements AIInterface
@@ -121,6 +122,15 @@ class OpenAIService implements AIInterface
                     $chatResponse .= ($message['message']['content'] ?? '');
                 }
             }
+        }
+
+        // Log the usage
+        if (isset($response['usage'])) {
+            $this->logUsage(
+                $this->model,
+                ($response['usage']['prompt_tokens'] ?? 0),
+                ($response['usage']['completion_tokens'] ?? 0),
+            );
         }
 
         return $chatResponse;
@@ -247,5 +257,18 @@ class OpenAIService implements AIInterface
         }
 
         return $body;
+    }
+
+    private function logUsage(string $model, int $promptTokens, int $completionTokens): void
+    {
+        DB::table('openai_usage')->updateOrInsert(
+            ['date' => date('Y-m-d')],
+            [
+                'prompt_tokens' => $promptTokens,
+                'completion_tokens' => $completionTokens,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
     }
 }
