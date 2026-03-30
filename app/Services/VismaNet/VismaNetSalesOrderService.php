@@ -382,8 +382,6 @@ class VismaNetSalesOrderService extends VismaNetApiService
             ];
         }
 
-        $invoiceNumber =
-
         $orderData = [
             'order_type' => (string) $order['type'],
             'sales_person' => (string) ($order['salesPerson']['id'] ?? ''),
