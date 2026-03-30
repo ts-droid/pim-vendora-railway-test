@@ -290,12 +290,13 @@ class OpenAIService implements AIInterface
         $totalPrice = $pricePrompt + $priceCompletion;
 
         DB::statement("
-            INSERT INTO openai_usage (date, prompt_tokens, completion_tokens, cost, created_at, updated_at)
-            VALUES (?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO openai_usage (date, prompt_tokens, completion_tokens, cost, requests, created_at, updated_at)
+            VALUES (?, ?, ?, ?, 1, NOW(), NOW())
             ON DUPLICATE KEY UPDATE
                 prompt_tokens = prompt_tokens + VALUES(prompt_tokens),
                 completion_tokens = completion_tokens + VALUES(completion_tokens),
                 cost = cost + VALUES(cost),
+                requests = requests + 1,
                 updated_at = NOW()
         ", [
             date('Y-m-d'),
