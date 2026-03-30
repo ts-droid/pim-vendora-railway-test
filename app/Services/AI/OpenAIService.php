@@ -12,6 +12,21 @@ class OpenAIService implements AIInterface
     private string $apiKey;
     private string $apiURL;
 
+    const PRICING_TABLE = [
+        'gpt-5.4' => [
+            'input' => 2.5,
+            'output' => 15
+        ],
+        'gpt-5.2' => [
+            'input' => 1.75,
+            'output' => 14
+        ],
+        'gpt-5.1' => [
+            'input' => 1.25,
+            'output' => 10
+        ],
+    ];
+
     public function __construct(string $model)
     {
         $__serviceLogContext = [
@@ -261,17 +276,32 @@ class OpenAIService implements AIInterface
 
     private function logUsage(string $model, int $promptTokens, int $completionTokens): void
     {
+        $pricing = null;
+        foreach (self::PRICING_TABLE as $key => $values) {
+            if (str_starts_with($model, $key)) {
+                $pricing = $values;
+                break;
+            }
+        }
+
+        $pricePrompt = ($promptTokens / 1_000_000) * ($pricing['input'] ?? 0);
+        $priceCompletion = ($completionTokens / 1_000_000) * ($pricing['input'] ?? 0);
+
+        $totalPrice = $pricePrompt + $priceCompletion;
+
         DB::statement("
-            INSERT INTO openai_usage (date, prompt_tokens, completion_tokens, created_at, updated_at)
-            VALUES (?, ?, ?, NOW(), NOW())
+            INSERT INTO openai_usage (date, prompt_tokens, completion_tokens, cost, created_at, updated_at)
+            VALUES (?, ?, ?, ?, NOW(), NOW())
             ON DUPLICATE KEY UPDATE
                 prompt_tokens = prompt_tokens + VALUES(prompt_tokens),
                 completion_tokens = completion_tokens + VALUES(completion_tokens),
+                cost = cost + VALUES(cost),
                 updated_at = NOW()
         ", [
             date('Y-m-d'),
             $promptTokens,
-            $completionTokens
+            $completionTokens,
+            $totalPrice
         ]);
     }
 }
