@@ -31,7 +31,7 @@ class TranslateDatabase extends Command
     {
         action_log('Starting database translation.', $this->commandLogContext());
 
-        $languageFieldTranslator = new LanguageFieldTranslator(50);
+        $languageFieldTranslator = new LanguageFieldTranslator(500);
         $languageFieldTranslator->translateDatabase();
 
         action_log('Finished database translation.', $this->commandLogContext());
