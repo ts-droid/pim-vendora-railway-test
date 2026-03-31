@@ -1059,11 +1059,8 @@ class VismaNetController extends Controller
     public function getPagedResult(string $endpoint, array $params = []): array
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $params['pageSize'] = self::PAGE_SIZE;
@@ -1079,7 +1076,8 @@ class VismaNetController extends Controller
             }
         }
 
-        $rows = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $response = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $rows = $response['response'] ?? [];
 
         if ($rows && count($rows) === self::PAGE_SIZE) {
             $params['pageNumber']++;
