@@ -122,11 +122,8 @@ class PromptController extends Controller
     public function replaceInputs(string $string, array $inputs): string
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         foreach ($inputs as $key => $value) {

@@ -124,4 +124,22 @@ class PerplexityService implements AIInterface
             ],
         ];
     }
+
+    public function createMessageBatch(array $items): array
+    {
+        // TODO: Implement createMessageBatch() method.
+        return [];
+    }
+
+    public function getMessageBatch(string $batchId): array
+    {
+        // TODO: Implement getMessageBatch() method.
+        return [];
+    }
+
+    public function getBatchTexts(string $batchId): array
+    {
+        // TODO: Implement getBatchTexts() method.
+        return [];
+    }
 }

@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\PromptController;
 use App\Http\Controllers\TranslationController;
-use Illuminate\Support\Facades\Cache;
+use App\Services\AI\AIService;
+use App\Utilities\MetaDataStorage;
 
 class LanguageFieldTranslator
 {
@@ -12,12 +15,16 @@ class LanguageFieldTranslator
 
     const EXCLUDE_MODELS = [];
 
+    private AIService $aiService;
+
     private int $batchCount = 0;
 
-    public array $log = [];
+    private array $translationExcludes = [];
+
+    private array $batchRequests = [];
 
     function __construct(
-        public int $batchLimit = 10
+        public int $batchLimit
     )
     {
         $__serviceLogContext = [
@@ -26,7 +33,13 @@ class LanguageFieldTranslator
             'args' => func_get_args(),
         ];
         action_log('Invoked service method.', $__serviceLogContext);
-}
+
+        $this->aiService = new AIService('claude-sonnet-4-6'); // TODO: Load model from some config
+
+        $globalExcludes = ConfigController::getConfig('translation_excludes');
+        $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
+        $this->translationExcludes = array_merge($globalExcludes, TranslateExcludeService::getAll());
+    }
 
     /**
      * Fetches all models in the database
@@ -36,13 +49,25 @@ class LanguageFieldTranslator
      */
     public function translateDatabase(): void
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
-        action_log('Invoked service method.', $__serviceLogContext);
+        $currentStep = (int) ConfigController::getConfig('translate_database_current_step');
 
+        switch ($currentStep) {
+            case 0:
+                $this->startNewBatch();
+                break;
+
+            case 1:
+                $this->processBatch1();
+                 break;
+
+            case 2:
+                $this->processBatch2();
+                break;
+        }
+    }
+
+    public function startNewBatch(): void
+    {
         // Fetch all models
         $path = app_path('/Models');
         $models = $this->getModels($path);
@@ -52,6 +77,123 @@ class LanguageFieldTranslator
 
             $this->translateModel('App\Models\\' . $model);
         }
+
+        if (count($this->batchRequests) === 0) {
+            return;
+        }
+
+        $response = $this->aiService->createMessageBatch($this->batchRequests);
+        $batchId = $response['id'] ?? null;
+
+        if (!$batchId) {
+            echo 'Failed to create message batch.' . PHP_EOL;
+            return; // Failed to create batch
+        }
+
+        ConfigController::setConfigs([
+            'translate_database_current_step' => '1',
+            'translate_database_batch_id' => $batchId,
+        ]);
+
+        echo 'New batch created.' . PHP_EOL;
+    }
+
+    public function processBatch1(): void
+    {
+        $batchId = ConfigController::getConfig('translate_database_batch_id');
+        if (!$batchId) {
+            ConfigController::setConfigs(['translate_database_current_step' => '0']);
+            return;
+        }
+
+        $status = $this->aiService->getMessageBatch($batchId);
+        if ($status['processing_status'] !== 'ended') {
+            echo 'Process 1 waiting for batch to complete.' . PHP_EOL;
+            return; // Still processing, just wait
+        }
+
+        $promptController = new PromptController();
+        $verifyPrompt = $promptController->getBySystemCode('translate_3_step_verify');
+
+        $system = $verifyPrompt->system;
+        $message = $verifyPrompt->message;
+
+        $results = $this->aiService->getBatchTexts($batchId);
+        foreach ($results as $customID => $text) {
+            $metaDataKey = 'aibatch:' . $customID;
+            $metaData = MetaDataStorage::get($metaDataKey);
+
+            $inputs = $metaData['inputs'];
+            $inputs['source_text'] = $inputs['string'];
+            $inputs['translated_text'] = $text;
+
+            $system = $promptController->replaceInputs($system, $inputs);
+            $message = $promptController->replaceInputs($message, $inputs);
+
+            unset($metaData['inputs']);
+
+            $this->batchRequests[] = [
+                'system' => $system,
+                'message' => $message,
+                'meta_data' => $metaData
+            ];
+
+            MetaDataStorage::delete($metaDataKey);
+        }
+
+        $response = $this->aiService->createMessageBatch($this->batchRequests);
+        $batchId = $response['id'] ?? null;
+
+        if (!$batchId) {
+            echo 'Process 1 failed.' . PHP_EOL;
+            ConfigController::setConfigs(['translate_database_current_step' => '0']);
+            return;
+        }
+
+        ConfigController::setConfigs([
+            'translate_database_current_step' => '2',
+            'translate_database_batch_id' => $batchId,
+        ]);
+
+        echo 'Process 1 completed.' . PHP_EOL;
+    }
+
+    public function processBatch2(): void
+    {
+        $batchId = ConfigController::getConfig('translate_database_batch_id');
+        if (!$batchId) {
+            ConfigController::setConfigs(['translate_database_current_step' => '0']);
+            return;
+        }
+
+        $status = $this->aiService->getMessageBatch($batchId);
+        if ($status['processing_status'] !== 'ended') {
+            echo 'Process 2 waiting for batch to complete.' . PHP_EOL;
+            return; // Still processing, just wait
+        }
+
+        $results = $this->aiService->getBatchTexts($batchId);
+        foreach ($results as $customID => $text) {
+            $metaDataKey = 'aibatch:' . $customID;
+            $metaData = MetaDataStorage::get($metaDataKey);
+
+            $model = $metaData['model'];
+            $primaryKey = $metaData['primary_key'];
+            $primaryKeyValue = $metaData['primary_key_value'];
+            $column = $metaData['column'];
+
+            $obj = (new $model)->where($primaryKey, $primaryKeyValue)->first();
+            if ($obj) {
+                $obj->{$column} = $text;
+                $obj->save();
+            }
+
+            MetaDataStorage::delete($metaDataKey);
+        }
+
+        ConfigController::setConfigs(['translate_database_current_step' => '0']);
+
+        echo 'Process 2 completed.' . PHP_EOL;
     }
 
     /**
@@ -146,19 +288,23 @@ class LanguageFieldTranslator
         // Fetch items that needs to be translated
         $defaultCol = $languageAttribute . '_' . self::DEFAULT_LANGUAGE;
 
-        $items = (new $model)
-            ->whereNotNull($defaultCol)
-            ->where($defaultCol, '!=', '')
-            ->where(function ($subQuery) use ($attributes) {
-                foreach ($attributes as $attribute) {
-                    $subQuery->orWhereNull($attribute)
-                        ->orWhere($attribute, '=', '');
-                }
+        try {
+            $items = (new $model)
+                ->whereNotNull($defaultCol)
+                ->where($defaultCol, '!=', '')
+                ->where(function ($subQuery) use ($attributes) {
+                    foreach ($attributes as $attribute) {
+                        $subQuery->orWhereNull($attribute)
+                            ->orWhere($attribute, '=', '');
+                    }
 
-                return $subQuery;
-            })
-            ->limit($this->batchLimit)
-            ->get();
+                    return $subQuery;
+                })
+                ->limit($this->batchLimit)
+                ->get();
+        } catch (\Throwable $e) {
+            return;
+        }
 
         foreach ($items as $item) {
             foreach ($languages as $language) {
@@ -175,30 +321,38 @@ class LanguageFieldTranslator
                     continue;
                 }
 
-                // Check if this field has been tried to be translated before within the last hour, if so, skip it to avoid unnecessary translation attempts
-                $cacheKey = 'translation_attempt_' . $model . '_' . $field;
+                // TODO: Move models to global init
+                $promptController = new PromptController();
 
-                if (Cache::has($cacheKey)) continue;
+                $corePrompt = $promptController->getBySystemCode('translate_3_step_core');
+                $languagePrompt = $promptController->getBySystemCode('translate_3_step_core_' . $language->language_code);
 
-                Cache::tags(['translation_attempt'])->put($cacheKey, '1', now()->addHours(1));
+                $system = $corePrompt->system;
+                $message = $corePrompt->message;
+                $languageRules = ($languagePrompt->message ?? '');
 
-                Cache::put('last_translation_column', $model . '_' . $field);
-                Cache::put('last_translation_time', date('Y-m-d H:i:s'));
+                $inputs = [
+                    'sourceLang' => self::DEFAULT_LANGUAGE,
+                    'targetLang' => $language->language_code,
+                    'GLOSSARY' => implode(PHP_EOL, $this->translationExcludes),
+                    'language_rules' => $languageRules,
+                    'string' => $defaultValue
+                ];
 
-                $isHTML = in_array($languageAttribute, ['shop_description']);
+                $system = $promptController->replaceInputs($system, $inputs);
+                $message = $promptController->replaceInputs($message, $inputs);
 
-                list($translation) = $translationController->translate([$defaultValue], self::DEFAULT_LANGUAGE, $language->language_code, $isHTML);
-
-                if ($translation) {
-                    $item->update([
-                        $field => $translation
-                    ]);
-                    $status = 'updated';
-                } else {
-                    $status = 'failed';
-                }
-
-                $this->log[] = $model . ' (' . (!empty($item->id) ? $item->id : '--') . ') -> ' . $field . ' -> ' . $language->language_code . '(' . $status . ')';
+                $this->batchRequests[] = [
+                    'system' => $system,
+                    'message' => $message,
+                    'meta_data' => [
+                        'model' => $model,
+                        'primary_key' => $item->getKeyName(),
+                        'primary_key_value' => $item->getKey(),
+                        'column' => $field,
+                        'inputs' => $inputs
+                    ]
+                ];
 
                 $this->batchCount++;
                 if ($this->isBatchFulfilled()) {

@@ -24,6 +24,7 @@ use App\Models\SalesOrder;
 use App\Services\AI\AIService;
 use App\Services\AI\OpenAIService;
 use App\Services\BrandPageService;
+use App\Services\LanguageFieldTranslator;
 use App\Services\ProductImageGenerator;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;
@@ -42,22 +43,6 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return response()->json([]);
-});
-
-Route::get('/test', function () {
-    $requests = [];
-    for ($i = 0;$i < 3;$i++) {
-        $requests[] = [
-            'system' => '',
-            'message' => 'Write a one sentence short story.'
-        ];
-    }
-
-
-    $AIService = new AiService('claude-sonnet-4-6');
-    $response = $AIService->createMessageBatch($requests);
-
-    dd($response);
 });
 
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');

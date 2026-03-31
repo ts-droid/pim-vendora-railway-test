@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use App\Utilities\MetaDataStorage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -77,11 +78,10 @@ class ClaudeService implements AIInterface
         $requests = [];
 
         foreach ($items as $item) {
-            $customID = Str::random(16);
+            $customID = $item['custom_id'] ?? Str::random(16);
             $metaData = $item['meta_data'] ?? [];
 
-            // TODO: Insert into queue table
-
+            MetaDataStorage::set('aibatch:' . $customID, $metaData);
 
             $requests[] = [
                 'custom_id' => $customID,
@@ -198,8 +198,6 @@ class ClaudeService implements AIInterface
                 $response = $request->get($url . '?' . http_build_query($data));
                 break;
         }
-
-        dd($response->body());
 
         if (!$response->successful()) {
             return [];
