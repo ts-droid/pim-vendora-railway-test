@@ -53,87 +53,106 @@ class FetchVismaNet extends Command
 
         switch ($type) {
             case 'inventory-adjustments':
+                log_data('Running visma.net sync: inventory-adjustments');
                 $inventoryAdjustmentService = new VismaNetInventoryAdjustmentService();
                 $inventoryAdjustmentService->fetchInventoryAdjustments();
                 break;
 
             case 'inventory-issues':
+                log_data('Running visma.net sync: inventory-issues');
                 $inventoryIssueService = new VismaNetInventoryIssueService();
                 $inventoryIssueService->fetchInventoryIssues();
                 break;
 
             case 'inventory-transfers':
+                log_data('Running visma.net sync: inventory-transfers');
                 $inventoryTransferService = new VismaNetInventoryTransferService();
                 $inventoryTransferService->fetchInventoryTransfers();
                 break;
 
             case 'customers':
+                log_data('Running visma.net sync: customers');
                 $vismaNetController->fetchCustomers();
                 break;
 
             case 'sales-persons':
+                log_data('Running visma.net sync: sales-persons');
                 $vismaNetController->fetchSalesPersons();
                 break;
 
             case 'suppliers':
+                log_data('Running visma.net sync: suppliers');
                 $vismaNetController->fetchSuppliers();
                 break;
 
             case 'articles':
+                log_data('Running visma.net sync: articles');
                 $vismaNetController->fetchArticles('', true);
                 break;
 
             case 'invoices':
+                log_data('Running visma.net sync: invoices');
                 $customerInvoiceService = new VismaNetCustomerInvoiceService();
                 $customerInvoiceService->fetchCustomerInvoices();
                 break;
 
             case 'credit-notes':
+                log_data('Running visma.net sync: credit-notes');
                 $vismaNetController->fetchCustomerCreditNotes();
                 break;
 
             case 'ledger-transactions':
+                log_data('Running visma.net sync: ledger-transactions');
                 $ledgerService = new VismaNetLedgerService();
                 $ledgerService->fetchTransactions();
                 break;
 
             case 'purchase-orders':
+                log_data('Running visma.net sync: purchase-orders');
                 $vismaNetController->fetchPurchaseOrders();
                 break;
 
             case 'purchase-receipts':
+                log_data('Running visma.net sync: purchase-receipts');
                 $vismaNetController->fetchPurchaseReceipts();
                 break;
 
             case 'inventory-receipts':
+                log_data('Running visma.net sync: inventory-receipts');
                 $vismaNetController->fetchInventoryReceipts();
                 break;
 
             case 'currency':
+                log_data('Running visma.net sync: currency');
                 $vismaNetController->fetchCurrencyRates();
                 break;
 
             case 'sales-orders':
+                log_data('Running visma.net sync: sales-orders');
                 $salesOrderService = new VismaNetSalesOrderService();
                 $salesOrderService->fetchSalesOrders();
                 break;
 
             case 'delete-sales-orders':
+                log_data('Running visma.net sync: delete-sales-orders');
                 $salesOrderService = new VismaNetSalesOrderService();
                 $salesOrderService->deleteSalesOrders();
                 break;
 
             case 'transactions':
+                log_data('Running visma.net sync: transactions');
                 $vismaTransactionService = new VismaNetTransactionService();
                 $vismaTransactionService->fetchTransactions();
                 break;
 
             case 'payments':
+                log_data('Running visma.net sync: payments');
                 $vismaNetPaymentService = new VismaNetCustomerPaymentService();
                 $vismaNetPaymentService->fetchCustomerPayments();
                 break;
 
             case 'shipments':
+                log_data('Running visma.net sync: shipments');
                 $vismaNetShipmentService = new VismaNetShipmentService();
                 $vismaNetShipmentService->fetchShipments();
                 break;
@@ -203,6 +222,7 @@ class FetchVismaNet extends Command
                 break;
 
             case 'all':
+                log_data('Running visma.net sync: all');
                 $vismaNetController->fetchAll();
                 break;
 
