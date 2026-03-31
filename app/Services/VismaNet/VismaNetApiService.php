@@ -272,6 +272,10 @@ class VismaNetApiService
             $params['pageNumber'] = 1;
         }
 
+        if (!isset($params['pageIndex'])) {
+            $params['pageIndex'] = 0;
+        }
+
         // Convert boolean values to string
         foreach ($params as $key => $value) {
             if (is_bool($value)) {
@@ -289,6 +293,7 @@ class VismaNetApiService
 
         if ($rows && count($rows) === $this->defaultPageSize) {
             $params['pageNumber']++;
+            $params['pageIndex']++;
             $rows = array_merge($rows, $this->getPagedResult($endpoint, $params));
         }
 
