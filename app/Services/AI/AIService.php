@@ -48,14 +48,18 @@ class AIService
 
     public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array
     {
-        $__serviceLogContext = [
-            'service' => static::class,
-            'method' => __FUNCTION__,
-            'args' => func_get_args(),
-        ];
+        $__serviceLogContext = ['service' => static::class, 'method' => __FUNCTION__, 'args' => func_get_args(),];
         action_log('Invoked service method.', $__serviceLogContext);
 
         return $this->aiService->streamChatCompletion($system, $message, $imageURL);
+    }
+
+    public function createMessageBatch(array $items): array
+    {
+        $__serviceLogContext = ['service' => static::class, 'method' => __FUNCTION__, 'args' => func_get_args(),];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        return $this->aiService->createMessageBatch($items);
     }
 
     public function translate(string $text, string $fromLocale, string $toLocale): string

@@ -44,6 +44,22 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function () {
+    $requests = [];
+    for ($i = 0;$i < 3;$i++) {
+        $requests[] = [
+            'system' => '',
+            'message' => 'Write a one sentence short story.'
+        ];
+    }
+
+
+    $AIService = new AiService('claude-sonnet-4-6');
+    $response = $AIService->createMessageBatch($requests);
+
+    dd($response);
+});
+
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');
 
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
