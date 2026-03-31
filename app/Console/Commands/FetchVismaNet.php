@@ -176,7 +176,7 @@ class FetchVismaNet extends Command
                 Process::timeout(3600)->run('php artisan visma:fetch ledger-transactions');
                 break;
 
-            case 'quick':
+            case 'fast':
                 $this->info('Fetching inventory adjustments...');
                 Process::timeout(300)->run('php artisan visma:fetch inventory-adjustments');
 
