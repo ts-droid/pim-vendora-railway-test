@@ -962,7 +962,7 @@ class VismaNetController extends Controller
             'expand' => 'Lines'
         ];
 
-        $response = $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber) . '?' . http_build_query($params));
+        $response = $this->callAPI('GET', '/v3/SalesOrders/' . rawurlencode($orderType) . '/' . rawurlencode($orderNumber), $params);
         return ($response['response'] ?? []);
     }
 
