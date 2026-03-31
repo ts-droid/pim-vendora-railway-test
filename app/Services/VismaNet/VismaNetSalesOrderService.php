@@ -341,7 +341,9 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $fetchTime = date('Y-m-d H:i:s');
         $fetchedData = false;
 
-        $params = [];
+        $params = [
+            'expand' => 'Billing,Shipping,Note,FinancialInformation,Lines'
+        ];
 
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_orders_fetch');
 
