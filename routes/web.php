@@ -24,6 +24,7 @@ use App\Models\SalesOrder;
 use App\Services\AI\AIService;
 use App\Services\AI\OpenAIService;
 use App\Services\BrandPageService;
+use App\Services\LanguageFieldTranslator;
 use App\Services\ProductImageGenerator;
 use App\Services\VismaNet\VismaNetSalesOrderService;
 use Illuminate\Support\Facades\Route;

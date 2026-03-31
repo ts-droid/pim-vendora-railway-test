@@ -43,6 +43,11 @@ return [
     'openai' => [
         'key' => env('OPEN_AI_KEY', ''),
         'endpoint' => env('OPEN_AI_ENDPOINT', ''),
+    ],
+
+    'claude' => [
+        'key' => env('CLAUDE_KEY', ''),
+        'endpoint' => env('CLAUDE_ENDPOINT', ''),
     ]
 
 ];
