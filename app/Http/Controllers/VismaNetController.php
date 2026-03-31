@@ -315,11 +315,8 @@ class VismaNetController extends Controller
     public function fetchPurchaseOrders(string $updatedAfter = '', string $orderNumber = ''): void
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $fetchTime = date('Y-m-d H:i:s');
@@ -1076,8 +1073,7 @@ class VismaNetController extends Controller
             }
         }
 
-        $separator = str_contains($endpoint, '?') ? '&' : '?';
-        $response = $this->callAPI('GET', ($endpoint . $separator . http_build_query($params)));
+        $response = $this->callAPI('GET', $endpoint, $params);
         $rows = $response['response'] ?? [];
 
         if ($rows && count($rows) === self::PAGE_SIZE) {
