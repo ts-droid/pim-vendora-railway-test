@@ -35,6 +35,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('newsletter:clean')->daily()->withoutOverlapping();
 
             // Visma.net
+            $schedule->command('visma:fetch articles')->everyTenMinutes()->withoutOverlapping(120);
             $schedule->command('visma:fetch quick')->everyTenMinutes()->withoutOverlapping();
             $schedule->command('visma:fetch hourly')->hourly()->withoutOverlapping();
             $schedule->command('visma:fetch twicedaily')->dailyAt('13:00')->withoutOverlapping();

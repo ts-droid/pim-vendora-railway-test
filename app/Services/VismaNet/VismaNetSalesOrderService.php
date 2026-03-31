@@ -350,7 +350,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $params['orderBy'] = 'lastModified asc';
         }
 
-        $orders = $this->getPagedResult('/v3/SalesOrders', $params, 'value');
+        $orders = $this->getPagedResult('/v3/SalesOrders?' . http_build_query($params), [], 'value');
 
         if ($orders) {
             foreach ($orders as $order) {
@@ -391,33 +391,33 @@ class VismaNetSalesOrderService extends VismaNetApiService
             'order_number' => (string) $order['orderId'],
             'customer_ref_no' => (string) ($order['customerRefNo'] ?? ''),
             'status' => (string) ($order['status'] ?? ''),
-            'invoice_number' => (string) ($order['invoiceNbr'] ?? ''),
+            'invoice_number' => (string) ($order['financialInformation']['invoiceId'] ?? ''),
             'date' => (string) ($order['date'] ?? ''),
-            'exchange_rate' => (float) ($order['exchangeRate'] ?? 0),
-            'on_hold' => (($order['hold'] ?? false) ? 1 : 0),
+            'exchange_rate' => (float) ($order['currencyRate'] ?? 0),
+            'on_hold' => (($order['statusDetails']['hold'] ?? false) ? 1 : 0),
             'source' => 'visma_net',
-            'phone' => (string) ((($order['soShippingContact']['phone1'] ?? '') ?: ($order['soBillingContact']['phone1'] ?? ''))),
-            'email' => (string) ((($order['soShippingContact']['email'] ?? '') ?: ($order['soBillingContact']['email'] ?? ''))),
-            'billing_email' => (string) ($order['soBillingContact']['email'] ?? ''),
+            'phone' => (string) ((($order['shipping']['contact']['phone1'] ?? '') ?: ($order['billing']['contact']['phone1'] ?? ''))),
+            'email' => (string) ((($order['shipping']['contact']['email'] ?? '') ?: ($order['billing']['contact']['email'] ?? ''))),
+            'billing_email' => (string) ($order['billing']['contact']['email'] ?? ''),
             'pay_method' => 'invoice',
 
-            'billing_full_name' => (string) ($order['soBillingContact']['name'] ?? ''),
-            'billing_first_name' => $this->getFirstNameFromFullName($order['soBillingContact']['name'] ?? ''),
-            'billing_last_name' => $this->getLastNameFromFullName($order['soBillingContact']['name'] ?? ''),
-            'billing_street_line_1' => (string) (($order['soBillingAddress']['addressLine1'] ?? '') ?: 'Ladugårdsvägen 1'),
-            'billing_street_line_2' => (string) ($order['soBillingAddress']['addressLine2'] ?? ''),
-            'billing_postal_code' => (string) ($order['soBillingAddress']['postalCode'] ?? ''),
-            'billing_city' => (string) ($order['soBillingAddress']['city'] ?? ''),
-            'billing_country_code' => (string) ($order['soBillingAddress']['country']['id'] ?? ''),
+            'billing_full_name' => (string) ($order['billing']['contact']['name'] ?? ''),
+            'billing_first_name' => $this->getFirstNameFromFullName($order['billing']['contact']['name'] ?? ''),
+            'billing_last_name' => $this->getLastNameFromFullName($order['billing']['contact']['name'] ?? ''),
+            'billing_street_line_1' => (string) (($order['billing']['address']['line1'] ?? '') ?: 'Ladugårdsvägen 1'),
+            'billing_street_line_2' => (string) ($order['billing']['address']['line2'] ?? ''),
+            'billing_postal_code' => (string) ($order['billing']['address']['postalCode'] ?? ''),
+            'billing_city' => (string) ($order['billing']['address']['city'] ?? ''),
+            'billing_country_code' => (string) ($order['billing']['address']['country']['id'] ?? ''),
 
-            'shipping_full_name' => (string) ($order['soShippingContact']['name'] ?? ''),
-            'shipping_first_name' => $this->getFirstNameFromFullName($order['soShippingContact']['name'] ?? ''),
-            'shipping_last_name' => $this->getLastNameFromFullName($order['soShippingContact']['name'] ?? ''),
-            'shipping_street_line_1' => (string) ($order['soShippingAddress']['addressLine1'] ?? ''),
-            'shipping_street_line_2' => (string) ($order['soShippingAddress']['addressLine2'] ?? ''),
-            'shipping_postal_code' => (string) ($order['soShippingAddress']['postalCode'] ?? ''),
-            'shipping_city' => (string) ($order['soShippingAddress']['city'] ?? ''),
-            'shipping_country_code' => (string) ($order['soShippingAddress']['country']['id'] ?? ''),
+            'shipping_full_name' => (string) ($order['shipping']['contact']['name'] ?? ''),
+            'shipping_first_name' => $this->getFirstNameFromFullName($order['shipping']['contact']['name'] ?? ''),
+            'shipping_last_name' => $this->getLastNameFromFullName($order['shipping']['contact']['name'] ?? ''),
+            'shipping_street_line_1' => (string) ($order['shipping']['address']['line1'] ?? ''),
+            'shipping_street_line_2' => (string) ($order['shipping']['address']['line2'] ?? ''),
+            'shipping_postal_code' => (string) ($order['shipping']['address']['postalCode'] ?? ''),
+            'shipping_city' => (string) ($order['shipping']['address']['city'] ?? ''),
+            'shipping_country_code' => (string) ($order['shipping']['address']['country']['id'] ?? ''),
 
             'skip_dispatch' => 1,
             'skip_email' => 1,
@@ -425,32 +425,39 @@ class VismaNetSalesOrderService extends VismaNetApiService
         ];
 
         $vatRate = 0;
-        if (!empty($order['vatTaxableTotal']) && !empty($order['orderTotal'])) {
-            $vatRate = round((($order['orderTotal'] / $order['vatTaxableTotal']) - 1) * 100);
+        if (!empty($order['totals']['taxableTotal']) && !empty($order['totals']['orderTotal'])) {
+            $vatRate = round((($order['totals']['orderTotal'] / $order['totals']['taxableTotal']) - 1) * 100);
         }
 
-        foreach (($order['lines'] ?? []) as $line) {
-            $articleNumber = $line['inventory']['number'] ?? '';
-            $lineNumber = $line['lineNbr'] ?? '';
-            $warehouseID = $line['warehouse']['id'] ?? self::WAREHOUSE_ID;
+        foreach (($order['orderLines'] ?? []) as $line) {
+            $articleNumber = $line['inventory']['id'] ?? '';
+            $lineNumber = $line['lineId'] ?? '';
+            $warehouseID = $line['warehouseId'] ?? self::WAREHOUSE_ID;
 
             if (!$articleNumber || !$lineNumber) {
                 continue;
             }
 
+            $unitPrice = (float) ($line['unitPrice'] ?? 0);
+            $quantity = (int) ($line['quantity'] ?? 0);
+
+            $billedQuantity = $line['billedQuantity'] ?? 0;
+            $unbilledQuantity = $quantity - $billedQuantity;
+            $unbilledAmount = $unbilledQuantity * $unitPrice;
+
             $orderData['lines'][] = [
                 'line_number' => $lineNumber,
                 'article_number' => $articleNumber,
-                'invoice_number' => (string) ($line['invoiceNbr'] ?? ''),
+                'invoice_number' => (string) ($line['invoiceNumber'] ?? ''),
                 'sales_person' => ($line['salesPerson']['id'] ?? ''),
-                'quantity' => (int) ($line['quantity'] ?? 0),
-                'quantity_on_shipments' => (int) ($line['qtyOnShipments'] ?? 0),
-                'quantity_open' => (int) ($line['openQty'] ?? 0),
+                'quantity' => $quantity,
+                'quantity_on_shipments' => (int) ($line['quantityOnShipments'] ?? 0),
+                'quantity_open' => (int) ($line['openQuantity'] ?? 0),
                 'unit_cost' => (float) ($line['unitCost'] ?? 0),
-                'unit_price' => (float) ($line['unitPrice'] ?? 0),
-                'active_unit_price' => (float) ($line['unitPrice'] ?? 0),
-                'unbilled_amount' => (float) ($line['unbilledAmount'] ?? 0),
-                'description' => (string) ($line['lineDescription'] ?? ''),
+                'unit_price' => $unitPrice,
+                'active_unit_price' => $unitPrice,
+                'unbilled_amount' => $unbilledAmount,
+                'description' => (string) ($line['description'] ?? ''),
                 'is_completed' => (int) ($line['completed'] ?? 0),
                 'vat_rate' => (float) $vatRate,
                 'is_direct' => ($warehouseID == self::WAREHOUSE_DIRECT_ID ? 1 : 0),
@@ -462,7 +469,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $salesOrderService = new SalesOrderService();
         $salesOrderApiController = new SalesOrderApiController($salesOrderService);
 
-        $existingSalesOrder = SalesOrder::where('order_number', $order['orderNo'])->first();
+        $existingSalesOrder = SalesOrder::where('order_number', $order['orderId'])->first();
 
         if ($existingSalesOrder) {
             // Update the order

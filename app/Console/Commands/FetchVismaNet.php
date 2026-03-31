@@ -200,9 +200,6 @@ class FetchVismaNet extends Command
 
                 $this->info('Fetching shipments...');
                 Process::timeout(300)->run('php artisan visma:fetch shipments');
-
-                $this->info('Fetching articles...');
-                Process::timeout(600)->run('php artisan visma:fetch articles');
                 break;
 
             case 'all':
