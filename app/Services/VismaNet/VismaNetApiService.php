@@ -142,7 +142,7 @@ class VismaNetApiService
                 $response = Http::withHeaders($headers)
                     ->connectTimeout(600)
                     ->timeout(600)
-                    ->get($url);
+                    ->get($url, $params);
                 break;
         }
 

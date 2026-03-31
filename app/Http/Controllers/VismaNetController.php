@@ -1076,7 +1076,8 @@ class VismaNetController extends Controller
             }
         }
 
-        $response = $this->callAPI('GET', ($endpoint . '?' . http_build_query($params)));
+        $separator = str_contains($endpoint, '?') ? '&' : '?';
+        $response = $this->callAPI('GET', ($endpoint . $separator . http_build_query($params)));
         $rows = $response['response'] ?? [];
 
         if ($rows && count($rows) === self::PAGE_SIZE) {
