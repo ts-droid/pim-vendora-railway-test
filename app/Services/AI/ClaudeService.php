@@ -78,7 +78,7 @@ class ClaudeService implements AIInterface
         $requests = [];
 
         foreach ($items as $item) {
-            $customID = $item['custom_id'] ?? Str::random(16);
+            $customID = $item['custom_id'] ?? Str::random(32);
             $metaData = $item['meta_data'] ?? [];
 
             MetaDataStorage::set('aibatch:' . $customID, $metaData);

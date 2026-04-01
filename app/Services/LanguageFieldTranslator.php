@@ -19,9 +19,7 @@ class LanguageFieldTranslator
 
     private int $batchCount = 0;
 
-    private array $translationExcludes = [
-        'ArticleMetaData'
-    ];
+    private array $translationExcludes = [];
 
     private array $batchRequests = [];
 
