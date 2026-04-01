@@ -12,7 +12,7 @@ class GenerateMissingArticleFaqs extends Command
 {
     use ProvidesCommandLogContext;
 
-    const BATCH_SIZE = 3;
+    const BATCH_SIZE = 1000;
 
     /**
      * The name and signature of the console command.
@@ -33,10 +33,6 @@ class GenerateMissingArticleFaqs extends Command
      */
     public function handle()
     {
-        action_log('Starting missing article FAQ generation batch.', $this->commandLogContext([
-            'batch_size' => self::BATCH_SIZE,
-        ]));
-
         $articles = Article::where('status', '!=', 'Inactive')
             ->where('shop_description_en', '!=', '')
             ->whereNotNull('shop_description_en')
@@ -56,8 +52,8 @@ class GenerateMissingArticleFaqs extends Command
         $faqService = new FaqService();
         $faqService->run($articles);
 
-        action_log('Queued FAQ generation jobs.', $this->commandLogContext([
-            'queued_articles' => $articles->count(),
-        ]));
+        foreach ($articles as $article) {
+            $article->update(['last_faq_generation' => now()]);
+        }
     }
 }
