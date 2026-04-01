@@ -54,7 +54,7 @@ class FaqService
         }
     }
 
-    public function generate(array $articles): void
+    public function generate(Collection $articles): void
     {
         foreach ($articles as $article) {
             $inputs = [
