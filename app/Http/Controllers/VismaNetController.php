@@ -324,7 +324,8 @@ class VismaNetController extends Controller
 
         if ($orderNumber) {
             // Fetch a specific order
-            $order = $this->callAPI('GET', '/v1/purchaseorder/' . rawurlencode($orderNumber));
+            $response = $this->callAPI('GET', '/v1/purchaseorder/' . rawurlencode($orderNumber));
+            $order = $response['response'];
 
             if (empty($order['orderNbr'])) {
                 log_data('Could not find order in visma.net with number ' . $orderNumber . '. Failed to fetch update. Response from Visma.net: ' . json_encode($order));
@@ -577,7 +578,7 @@ class VismaNetController extends Controller
                     $urlEncodedArticleNumber = 'b64(' . base64_encode($updateData['article_number']) . ')';
 
                     $detailedStock = $this->callAPI('GET', '/v1/inventorysummary/' . $urlEncodedArticleNumber);
-                    foreach ($detailedStock as $stock) {
+                    foreach ($detailedStock['response'] as $stock) {
                         $stockLocationName = trim($stock['location']['name'] ?? '');
 
                         if ($stockLocationName === '1') {
