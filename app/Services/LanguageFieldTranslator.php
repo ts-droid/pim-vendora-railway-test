@@ -115,9 +115,6 @@ class LanguageFieldTranslator
         $promptController = new PromptController();
         $verifyPrompt = $promptController->getBySystemCode('translate_3_step_verify');
 
-        $system = $verifyPrompt->system;
-        $message = $verifyPrompt->message;
-
         $results = $this->aiService->getBatchTexts($batchId);
         foreach ($results as $customID => $text) {
             $metaDataKey = 'aibatch:' . $customID;
@@ -127,8 +124,8 @@ class LanguageFieldTranslator
             $inputs['source_text'] = $inputs['string'];
             $inputs['translated_text'] = $text;
 
-            $system = $promptController->replaceInputs($system, $inputs);
-            $message = $promptController->replaceInputs($message, $inputs);
+            $system = $promptController->replaceInputs($verifyPrompt->system, $inputs);
+            $message = $promptController->replaceInputs($verifyPrompt->message, $inputs);
 
             unset($metaData['inputs']);
 
