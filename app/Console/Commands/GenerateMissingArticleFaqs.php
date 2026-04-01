@@ -51,9 +51,5 @@ class GenerateMissingArticleFaqs extends Command
 
         $faqService = new FaqService();
         $faqService->run($articles);
-
-        foreach ($articles as $article) {
-            $article->update(['last_faq_generation' => now()]);
-        }
     }
 }

@@ -72,6 +72,8 @@ class FaqService
                     'inputs' => $inputs
                 ]
             ];
+
+            $article->update(['last_faq_generation' => now()]);
         }
 
         $response = $this->aiService->createMessageBatch($this->batchRequests);
