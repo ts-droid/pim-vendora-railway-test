@@ -11,6 +11,7 @@ use App\Models\ArticleFaqEntry;
 use App\Models\Prompt;
 use App\Services\AI\AIService;
 use App\Utilities\MetaDataStorage;
+use Illuminate\Database\Eloquent\Collection;
 
 class FaqService
 {
@@ -27,7 +28,7 @@ class FaqService
     private Prompt $generatePrompt;
     private Prompt $validatePrompt;
 
-    public function run(array $articles)
+    public function run(Collection $articles)
     {
         $this->aiService = new AIService('claude-sonnet-4-6'); // TODO: Load model from some config
 
