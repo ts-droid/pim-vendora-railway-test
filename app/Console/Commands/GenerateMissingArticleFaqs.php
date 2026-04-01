@@ -3,18 +3,16 @@
 namespace App\Console\Commands;
 
 use App\Console\Concerns\ProvidesCommandLogContext;
-use App\Enums\LaravelQueues;
-use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
+use App\Services\FaqService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class GenerateMissingArticleFaqs extends Command
 {
     use ProvidesCommandLogContext;
 
-    const BATCH_SIZE = 50;
+    const BATCH_SIZE = 3;
 
     /**
      * The name and signature of the console command.
@@ -55,9 +53,8 @@ class GenerateMissingArticleFaqs extends Command
             return;
         }
 
-        foreach ($articles as $article) {
-            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::GENERATION->value);
-        }
+        $faqService = new FaqService();
+        $faqService->run($articles);
 
         action_log('Queued FAQ generation jobs.', $this->commandLogContext([
             'queued_articles' => $articles->count(),

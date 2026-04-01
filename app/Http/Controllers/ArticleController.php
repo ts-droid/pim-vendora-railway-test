@@ -7,7 +7,6 @@ use App\Actions\UploadArticlePackageImage;
 use App\Enums\LaravelQueues;
 use App\Jobs\CategorizeArticle;
 use App\Jobs\GenerateArticleTitles;
-use App\Jobs\GenerateFaqForArticle;
 use App\Models\Article;
 use App\Models\ArticleFaqEntry;
 use App\Models\ArticleFile;
@@ -2044,8 +2043,6 @@ class ArticleController extends Controller
 
         if ($request->input('faq_queue', 0)) {
             ArticleFaqEntry::where('article_id', $article->id)->delete();
-
-            GenerateFaqForArticle::dispatch($article)->onQueue(LaravelQueues::GENERATION->value);
         }
 
         return ApiResponseController::success([$article->toArray()]);
