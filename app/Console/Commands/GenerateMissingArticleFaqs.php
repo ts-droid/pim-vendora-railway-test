@@ -38,7 +38,7 @@ class GenerateMissingArticleFaqs extends Command
             ->whereNotNull('shop_description_en')
             ->where(function ($query) {
                 $query->whereNull('last_faq_generation')
-                    ->orWhere('last_faq_generation', '<', Carbon::now()->subDays(30));
+                    ->orWhere('last_faq_generation', '<', Carbon::now()->subDays(14));
             })
             ->doesntHave('faqEntries')
             ->limit(self::BATCH_SIZE)
