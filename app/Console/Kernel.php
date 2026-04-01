@@ -25,8 +25,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('shipments:postpone-eta')->dailyAt('01:00');
 
-            // $schedule->command('translate-database')->everyMinute()->withoutOverlapping(120);
-            $schedule->command('faq:generate-missing')->everyThirtyMinutes()->withoutOverlapping(360);
+            $schedule->command('translate-database')->everyFifteenMinutes()->withoutOverlapping(120);
+            $schedule->command('faq:generate-missing')->everyFifteenMinutes()->withoutOverlapping(360);
 
             // TODO: Can me moved to long loved processes
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
