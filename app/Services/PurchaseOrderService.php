@@ -177,9 +177,20 @@ class PurchaseOrderService
             return;
         }
 
+        sleep(3); // Wait 3 seconds before releasing, seems to work better
+
         $receiptNumber = $response['receiptNumber'];
         if ($receiptNumber) {
-            $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+            $response = $vismaNetPurchaseOrderService->releasePurchaseOrderReceipt($receiptNumber);
+
+            if (!$response['success']) {
+                NotificationService::sendMail(
+                    'Failed to release purchase order receipt',
+                    'Failed to release purchase order receipt for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
+                );
+
+                return;
+            }
         }
 
         // Find or create stock place "INLEV"
