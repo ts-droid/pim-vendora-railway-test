@@ -186,7 +186,7 @@ class PurchaseOrderService
             if (!$response['success']) {
                 NotificationService::sendMail(
                     'Failed to release purchase order receipt',
-                    'Failed to release purchase order receipt for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
+                    'Failed to release purchase order receipt "' . $receiptNumber . '" for shipment "' . $purchaseOrderShipment->id . '" in Visma.net. Response: ' . json_encode($response)
                 );
 
                 return;
