@@ -45,6 +45,43 @@ Route::get('/', function () {
     return response()->json([]);
 });
 
+Route::get('/test', function () {
+    $json = file_get_contents(storage_path('purchase_orders.json'));
+    $rows = json_decode($json, true);
+
+    foreach ($rows as $row) {
+        $orderNumber = $row['order_number'];
+
+        \App\Models\PurchaseOrder::where('order_number', $orderNumber)->update([
+            'promised_date' => $row['promised_date'],
+            'is_draft' => $row['is_draft'],
+            'is_vip' => $row['is_vip'],
+            'foresight_days' => $row['foresight_days'],
+            'email' => $row['email'],
+            'published_at' => $row['published_at'],
+            'is_sent' => $row['is_sent'],
+            'is_confirmed' => $row['is_confirmed'],
+            'is_po_system' => $row['is_po_system'],
+            'status_sent_to_supplier' => $row['status_sent_to_supplier'],
+            'status_sent_external' => $row['status_sent_external'],
+            'status_confirmed_by_supplier' => $row['status_confirmed_by_supplier'],
+            'status_shipping_details' => $row['status_shipping_details'],
+            'status_tracking_number' => $row['status_tracking_number'],
+            'status_invoice_uploaded' => $row['status_invoice_uploaded'],
+            'status_received' => $row['status_received'],
+            'confirm_reminder_sent_at' => $row['confirm_reminder_sent_at'],
+            'shipping_reminder_sent_at' => $row['shipping_reminder_sent_at'],
+            'invoice_reminder_sent_at' => $row['invoice_reminder_sent_at'],
+            'supplier_order_number' => $row['supplier_order_number'],
+            'shipping_instructions' => $row['shipping_instructions'],
+            'is_direct' => $row['is_direct'],
+            'direct_order' => $row['direct_order'],
+        ]);
+    }
+
+    echo 'Imported ' . count($rows) . ' rows';
+});
+
 Route::get('/raw/article', [RawDataController::class, 'article'])->name('raw.article');
 
 Route::get('/stock-logs', [StockItemLogController::class, 'index']);
