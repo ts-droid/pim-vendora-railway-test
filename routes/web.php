@@ -20,6 +20,7 @@ use App\Http\Controllers\VismaNetTestController;;
 use App\Jobs\UpdateArticleJob;
 use App\Models\Article;
 use App\Models\NewsletterSubscriber;
+use App\Models\PurchaseOrderLine;
 use App\Models\SalesOrder;
 use App\Services\AI\AIService;
 use App\Services\AI\OpenAIService;
@@ -46,6 +47,46 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
+    $json = file_get_contents(storage_path('purchase_order_lines.json'));
+    $rows = json_decode($json, true);
+
+    foreach ($rows as $row) {
+        PurchaseOrderLine::where('purchase_order_id', $row['purchase_order_id'])
+            ->where('line_key', $row['line_key'])
+            ->where('article_number', $row['article_number'])
+            ->update([
+                'quantity' => $row['quantity'],
+                'quantity_received' => $row['quantity_received'],
+                'suggested_quantity' => $row['suggested_quantity'],
+                'suggested_quantity_master' => $row['suggested_quantity_master'],
+                'suggested_quantity_month' => $row['suggested_quantity_month'],
+                'suggested_quantity_month_master' => $row['suggested_quantity_month_master'],
+                'suggested_quantity_month_inner' => $row['suggested_quantity_month_inner'],
+                'suggested_quantity_inner' => $row['suggested_quantity_inner'],
+                'unit_cost' => $row['unit_cost'],
+                'old_unit_cost' => $row['old_unit_cost'],
+                'amount' => $row['amount'],
+                'promised_shipping_date' => $row['promised_shipping_date'],
+                'promised_date' => $row['promised_date'],
+                'user_comment' => $row['user_comment'],
+                'is_vip' => $row['is_vip'],
+                'is_completed' => $row['is_completed'],
+                'is_canceled' => $row['is_canceled'],
+                'is_locked' => $row['is_locked'],
+                'reminder_sent_at' => $row['reminder_sent_at'],
+                'tracking_number' => $row['tracking_number'],
+                'invoice_id' => $row['invoice_id'],
+                'is_shipped' => $row['is_shipped'],
+                'purchase_order_shipment_id' => $row['purchase_order_shipment_id'],
+            ]);
+    }
+
+    echo 'Imported ' . count($rows) . ' rows';
+    die();
+
+
+
+
     $json = file_get_contents(storage_path('purchase_orders.json'));
     $rows = json_decode($json, true);
 
