@@ -47,6 +47,8 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
+    die();
+
     $json = file_get_contents(storage_path('purchase_order_lines.json'));
     $rows = json_decode($json, true);
 
