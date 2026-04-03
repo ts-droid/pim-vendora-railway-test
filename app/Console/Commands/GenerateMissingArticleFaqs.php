@@ -44,11 +44,6 @@ class GenerateMissingArticleFaqs extends Command
             ->limit(self::BATCH_SIZE)
             ->get();
 
-        if (!$articles->count()) {
-            action_log('No articles require FAQ generation.', $this->commandLogContext());
-            return;
-        }
-
         $faqService = new FaqService();
         $faqService->run($articles);
     }

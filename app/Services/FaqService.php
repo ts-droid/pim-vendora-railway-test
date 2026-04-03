@@ -56,6 +56,10 @@ class FaqService
 
     public function generate(Collection $articles): void
     {
+        if (count($articles) === 0) {
+            return;
+        }
+
         foreach ($articles as $article) {
             $inputs = [
                 'product_description' => ($article->shop_description_en ?? '')
