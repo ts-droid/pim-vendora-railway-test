@@ -13,7 +13,11 @@ class LanguageFieldTranslator
 {
     const DEFAULT_LANGUAGE = 'en';
 
-    const EXCLUDE_MODELS = [];
+    const EXCLUDE_MODELS = [
+        'ArticleMetaData'
+    ];
+
+    const MAX_TRANSLATION_FAILURES = 3;
 
     private AIService $aiService;
 
@@ -87,7 +91,7 @@ class LanguageFieldTranslator
 
         if (!$batchId) {
             echo 'Failed to create message batch.' . PHP_EOL;
-            return; // Failed to create batch
+            return;
         }
 
         ConfigController::setConfigs([
@@ -109,7 +113,7 @@ class LanguageFieldTranslator
         $status = $this->aiService->getMessageBatch($batchId);
         if ($status['processing_status'] !== 'ended') {
             echo 'Process 1 waiting for batch to complete.' . PHP_EOL;
-            return; // Still processing, just wait
+            return;
         }
 
         $promptController = new PromptController();
@@ -120,6 +124,18 @@ class LanguageFieldTranslator
             $metaDataKey = 'aibatch:' . $customID;
             $metaData = MetaDataStorage::get($metaDataKey);
 
+            if (empty($metaData) || !isset($metaData['inputs'])) {
+                MetaDataStorage::delete($metaDataKey);
+                continue;
+            }
+
+            // Skip failed translations
+            if (!$text) {
+                $this->recordTranslationFailure($metaData);
+                MetaDataStorage::delete($metaDataKey);
+                continue;
+            }
+
             $inputs = $metaData['inputs'];
             $inputs['source_text'] = $inputs['string'];
             $inputs['translated_text'] = $text;
@@ -128,6 +144,7 @@ class LanguageFieldTranslator
             $message = $promptController->replaceInputs($verifyPrompt->message, $inputs);
 
             unset($metaData['inputs']);
+            $metaData['unverified_text'] = $text;
 
             $this->batchRequests[] = [
                 'system' => $system,
@@ -138,11 +155,18 @@ class LanguageFieldTranslator
             MetaDataStorage::delete($metaDataKey);
         }
 
+        if (count($this->batchRequests) === 0) {
+            echo 'Process 1 completed with no valid translations.' . PHP_EOL;
+            ConfigController::setConfigs(['translate_database_current_step' => '0']);
+            return;
+        }
+
         $response = $this->aiService->createMessageBatch($this->batchRequests);
         $batchId = $response['id'] ?? null;
 
         if (!$batchId) {
-            echo 'Process 1 failed.' . PHP_EOL;
+            echo 'Process 1 failed to create verification batch, saving unverified translations.' . PHP_EOL;
+            $this->saveUnverifiedTranslations();
             ConfigController::setConfigs(['translate_database_current_step' => '0']);
             return;
         }
@@ -166,7 +190,7 @@ class LanguageFieldTranslator
         $status = $this->aiService->getMessageBatch($batchId);
         if ($status['processing_status'] !== 'ended') {
             echo 'Process 2 waiting for batch to complete.' . PHP_EOL;
-            return; // Still processing, just wait
+            return;
         }
 
         $results = $this->aiService->getBatchTexts($batchId);
@@ -174,14 +198,28 @@ class LanguageFieldTranslator
             $metaDataKey = 'aibatch:' . $customID;
             $metaData = MetaDataStorage::get($metaDataKey);
 
+            if (empty($metaData)) {
+                MetaDataStorage::delete($metaDataKey);
+                continue;
+            }
+
             $model = $metaData['model'];
             $primaryKey = $metaData['primary_key'];
             $primaryKeyValue = $metaData['primary_key_value'];
             $column = $metaData['column'];
 
+            // Use verified text, fall back to unverified translation from batch 1
+            $translatedText = $text ?: ($metaData['unverified_text'] ?? null);
+
+            if (!$translatedText) {
+                $this->recordTranslationFailure($metaData);
+                MetaDataStorage::delete($metaDataKey);
+                continue;
+            }
+
             $obj = (new $model)->where($primaryKey, $primaryKeyValue)->first();
             if ($obj) {
-                $obj->{$column} = $text;
+                $obj->{$column} = $translatedText;
                 $obj->save();
             }
 
@@ -318,6 +356,10 @@ class LanguageFieldTranslator
                     continue;
                 }
 
+                if ($this->hasExceededFailureLimit($model, $item->getKey(), $field)) {
+                    continue;
+                }
+
                 // TODO: Move models to global init
                 $promptController = new PromptController();
 
@@ -364,9 +406,10 @@ class LanguageFieldTranslator
      * Returns all models in the given path
      *
      * @param string $path
+     * @param string $prefix Namespace prefix for subdirectories
      * @return array
      */
-    public function getModels(string $path): array
+    public function getModels(string $path, string $prefix = ''): array
     {
         $output = [];
 
@@ -380,9 +423,9 @@ class LanguageFieldTranslator
             $filepath = $path . '/' . $file;
 
             if (is_dir($filepath)) {
-                $output = array_merge($output, $this->getModels($filepath));
+                $output = array_merge($output, $this->getModels($filepath, $prefix . $file . '\\'));
             } else {
-                $output[] = str_replace('.php', '', $file);
+                $output[] = $prefix . str_replace('.php', '', $file);
             }
         }
 
@@ -397,5 +440,51 @@ class LanguageFieldTranslator
     private function isBatchFulfilled(): bool
     {
         return $this->batchCount >= $this->batchLimit;
+    }
+
+    private function getFailureKey(string $model, mixed $primaryKeyValue, string $column): string
+    {
+        return 'translate_fail:' . $model . ':' . $primaryKeyValue . ':' . $column;
+    }
+
+    private function recordTranslationFailure(array $metaData): void
+    {
+        $key = $this->getFailureKey($metaData['model'], $metaData['primary_key_value'], $metaData['column']);
+        $existing = MetaDataStorage::get($key);
+        $count = ($existing['count'] ?? 0) + 1;
+        MetaDataStorage::set($key, ['count' => $count]);
+    }
+
+    private function hasExceededFailureLimit(string $model, mixed $primaryKeyValue, string $column): bool
+    {
+        $key = $this->getFailureKey($model, $primaryKeyValue, $column);
+        $existing = MetaDataStorage::get($key);
+        return ($existing['count'] ?? 0) >= self::MAX_TRANSLATION_FAILURES;
+    }
+
+    /**
+     * Fallback: save unverified translations directly when verification batch creation fails
+     */
+    private function saveUnverifiedTranslations(): void
+    {
+        foreach ($this->batchRequests as $request) {
+            $metaData = $request['meta_data'] ?? [];
+            $text = $metaData['unverified_text'] ?? null;
+
+            if (empty($metaData) || !$text) {
+                continue;
+            }
+
+            $model = $metaData['model'];
+            $primaryKey = $metaData['primary_key'];
+            $primaryKeyValue = $metaData['primary_key_value'];
+            $column = $metaData['column'];
+
+            $obj = (new $model)->where($primaryKey, $primaryKeyValue)->first();
+            if ($obj) {
+                $obj->{$column} = $text;
+                $obj->save();
+            }
+        }
     }
 }
