@@ -13,9 +13,7 @@ class LanguageFieldTranslator
 {
     const DEFAULT_LANGUAGE = 'en';
 
-    const EXCLUDE_MODELS = [
-        'ArticleMetaData'
-    ];
+    const EXCLUDE_MODELS = [];
 
     const MAX_TRANSLATION_FAILURES = 3;
 
