@@ -129,6 +129,13 @@ class LanguageFieldTranslator
                 continue;
             }
 
+            try {
+                $text = json_decode($text, true);
+                $text = $text['t'] ?? '';
+            } catch (\Throwable $e) {
+                $text = '';
+            }
+
             // Skip failed translations
             if (!$text) {
                 $this->recordTranslationFailure($metaData);
@@ -207,6 +214,13 @@ class LanguageFieldTranslator
             $primaryKey = $metaData['primary_key'];
             $primaryKeyValue = $metaData['primary_key_value'];
             $column = $metaData['column'];
+
+            try {
+                $text = json_decode($text, true);
+                $text = $text['t'] ?? '';
+            } catch (\Throwable $e) {
+                $text = '';
+            }
 
             // Use verified text, fall back to unverified translation from batch 1
             $translatedText = $text ?: ($metaData['unverified_text'] ?? null);

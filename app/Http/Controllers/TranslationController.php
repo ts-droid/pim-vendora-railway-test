@@ -291,7 +291,7 @@ class TranslationController extends Controller
         $translations = [];
         foreach ($strings as $string) {
             // Run the core translation
-            $translatedText = $promptController->execute(
+            $translatedResponse = $promptController->execute(
                 $corePrompt->id,
                 [
                     'sourceLang' => $sourceLang,
@@ -304,8 +304,15 @@ class TranslationController extends Controller
                 self::TRANSLATION_MODEL
             );
 
+            try {
+                $translatedResponse = json_decode($translatedResponse, true);
+                $translatedText = $translatedResponse['t'] ?? '';
+            } catch (\Throwable $e) {
+                $translatedText = '';
+            }
+
             // Verify the translation
-            $translatedText = $promptController->execute(
+            $translatedResponse = $promptController->execute(
                 $verifyPrompt->id,
                 [
                     'sourceLang' => $sourceLang,
@@ -317,6 +324,13 @@ class TranslationController extends Controller
                 '',
                 self::TRANSLATION_MODEL
             );
+
+            try {
+                $translatedResponse = json_decode($translatedResponse, true);
+                $translatedText = $translatedResponse['t'] ?? '';
+            } catch (\Throwable $e) {
+                $translatedText = '';
+            }
 
             $translations[] = trim($translatedText);
         }
