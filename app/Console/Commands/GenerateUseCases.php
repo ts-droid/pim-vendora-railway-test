@@ -127,6 +127,8 @@ class GenerateUseCases extends Command
             }
 
             try {
+                $output = str_replace('```json', '', $output);
+                $output = str_replace('```', '', $output);
                 $outputArray = json_decode($output, true);
             } catch (\Throwable $e) {
                 $outputArray = [];
