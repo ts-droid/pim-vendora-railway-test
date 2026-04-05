@@ -127,6 +127,7 @@ class GenerateUseCases extends Command
             }
 
             try {
+                $output = preg_replace('/\s+/', '_', $output);
                 $output = str_replace('```json', '', $output);
                 $output = str_replace('```', '', $output);
                 $outputArray = json_decode($output, true);
