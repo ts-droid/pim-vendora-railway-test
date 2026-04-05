@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class GenerateUseCases extends Command
 {
-    const BATCH_SIZE = 1;
+    const BATCH_SIZE = 5000;
 
     /**
      * The name and signature of the console command.
