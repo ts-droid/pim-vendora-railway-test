@@ -27,6 +27,7 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('translate-database')->everyFifteenMinutes()->withoutOverlapping(120);
             $schedule->command('faq:generate-missing')->everyFifteenMinutes()->withoutOverlapping(360);
+            $schedule->command('articles:generate-use-cases')->everyFifteenMinutes()->withoutOverlapping(120);
 
             // TODO: Can me moved to long loved processes
             $schedule->command('servers:monitor')->everyTenMinutes()->withoutOverlapping();
