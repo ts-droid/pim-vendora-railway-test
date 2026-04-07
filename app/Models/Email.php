@@ -15,7 +15,9 @@ class Email extends Model
         'bcc',
         'subject',
         'body',
-        'attachments'
+        'attachments',
+        'sender_name',
+        'sender_email',
     ];
 
     protected $casts = [

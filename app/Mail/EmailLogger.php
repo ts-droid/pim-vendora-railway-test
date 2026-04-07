@@ -9,7 +9,16 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
 
 class EmailLogger
 {
-    public static function log(string|array $to, string|array|null $cc, string|array|null $bcc, string $subject, string $body, ?array $attachments): Email
+    public static function log(
+        string|array $to,
+        string|array|null $cc,
+        string|array|null $bcc,
+        string $subject,
+        string $body,
+        ?array $attachments,
+        ?string $fromName = '',
+        ?string $fromEmail = '',
+    ): Email
     {
         if (is_array($to)) {
             $to = implode(',', $to);
@@ -30,6 +39,8 @@ class EmailLogger
             'subject' => $subject,
             'body' => $body,
             'attachments' => $attachments,
+            'sender_name' => $fromName,
+            'sender_email' => $fromEmail,
         ]);
     }
 }

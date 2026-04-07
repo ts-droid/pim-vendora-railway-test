@@ -44,7 +44,9 @@ class SendSalesOrderTrackingNumber
             $emailBCC,
             $emailSubject,
             $emailBody,
-            null
+            null,
+            $emailFromName,
+            $emailFromEmail
         );
 
         // Log the event to the sales order
