@@ -54,6 +54,14 @@
             <td class="text-start"><b>BCC:</b></td>
             <td class="text-end">{{ $email->bcc }}</td>
         </tr>
+        <tr>
+            <td class="text-start"><b>Sender name:</b></td>
+            <td class="text-end">{{ $email->sender_name }}</td>
+        </tr>
+        <tr>
+            <td class="text-start"><b>Sender email:</b></td>
+            <td class="text-end">{{ $email->sender_email }}</td>
+        </tr>
     </table>
 
     <br>

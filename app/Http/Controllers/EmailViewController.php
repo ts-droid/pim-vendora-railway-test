@@ -13,11 +13,8 @@ class EmailViewController extends Controller
     public function viewEmail(Email $email)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         return view('emailViewer', compact('email'));
@@ -26,11 +23,8 @@ class EmailViewController extends Controller
     public function sendEmail(Email $email)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         $to = explode(',', $email->to);
@@ -42,14 +36,18 @@ class EmailViewController extends Controller
         $bcc = explode(',', $email->bcc);
         $bcc = array_filter($bcc);
 
+        $mailable = new ResendEmail(
+            $email->subject,
+            $email->body,
+            (string) $email->sender_name,
+            (string) $email->sender_email,
+            $email->attachments ?: []
+        );
+
         Mail::to($to)
             ->cc($cc)
             ->bcc($bcc)
-            ->queue((new ResendEmail(
-                $email->subject,
-                $email->body,
-                $email->attachments ?: []
-            ))->onQueue(LaravelQueues::MAIL->value));
+            ->queue($mailable)->onQueue(LaravelQueues::MAIL->value);
 
         echo('Email queued successfully!');
         die();

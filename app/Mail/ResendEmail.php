@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
@@ -18,14 +19,27 @@ class ResendEmail extends Mailable
     public string $subjectText;
     public array $attachmentsList;
 
+    public string $senderName;
+    public string $senderEmail;
+
+
     /**
      * Create a new message instance.
      */
-    public function __construct(string $subjectText, string $body, array $attachmentsList = [])
+    public function __construct(
+        string $subjectText,
+        string $body,
+        string $senderName,
+        string $senderEmail,
+        array $attachmentsList = [],
+    )
     {
         $this->subjectText = $subjectText;
         $this->body = $body;
         $this->attachmentsList = $attachmentsList;
+
+        $this->senderName = $senderName;
+        $this->senderEmail = $senderEmail;
     }
 
     /**
@@ -34,6 +48,7 @@ class ResendEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address($this->senderEmail, $this->senderName),
             subject: $this->subjectText,
         );
     }
