@@ -516,7 +516,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $orderData = [
             'type' => $salesOrder->order_type,
             'orderId' => $salesOrder->order_number,
-            'currency' => $salesOrder->currency,
+            'currencyId' => $salesOrder->currency,
             'status' => $salesOrder->status,
             'customer' => [
                 'id' => $customerNumber,
