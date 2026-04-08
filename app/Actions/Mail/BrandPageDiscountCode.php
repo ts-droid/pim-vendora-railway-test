@@ -49,7 +49,8 @@ class BrandPageDiscountCode
             'brandingData' => $brandingData,
             'emailSubject' => $emailSubject,
             'discountPercent' => $discountPercent,
-            'discountCode' => $discountCode
+            'discountCode' => $discountCode,
+            'discountCodeUrl' => 'https://' . $site['domain'] . '?discount=' . $discountCode
         ])->render();
 
         $mail = (new RawMail($emailSubject, $emailBody, $emailFromEmail, $emailFromName))

@@ -32,7 +32,7 @@
 
                             <p style="margin:0 0 20px 0;">{{ get_phrase('brand_page_discount_code_text_2', ['discount' => $discountPercent]) }}</p>
 
-                            <a href="#" target="_blank" style="background-color: #1A1C1F;color: #ffffff !important;text-decoration: none !important;padding: 0.75rem 1.5rem;display: inline-block;border-radius: 100px;margin-bottom: 20px;">{{ get_phrase('brand_page_discount_code_button', ['discount' => $discountPercent]) }}</a>
+                            <a href="{{ $discountCodeUrl }}" target="_blank" style="background-color: #1A1C1F;color: #ffffff !important;text-decoration: none !important;padding: 0.75rem 1.5rem;display: inline-block;border-radius: 100px;margin-bottom: 20px;">{{ get_phrase('brand_page_discount_code_button', ['discount' => $discountPercent]) }}</a>
                         </td>
                     </tr>
 
