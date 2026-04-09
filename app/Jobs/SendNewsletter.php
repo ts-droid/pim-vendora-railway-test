@@ -30,6 +30,7 @@ class SendNewsletter implements ShouldQueue
     {
         $tag = $this->payload['tag'] ?? null;
         $source = $this->payload['source'] ?? null;
+        $sender = $this->payload['sender'] ?? 'no-reply@vendora.se';
 
         if (!$tag || !$source) {
             throw new \Exception('Tag and source is required.');
@@ -93,7 +94,7 @@ class SendNewsletter implements ShouldQueue
                         [
                             'subject' => $subject,
                             'from_name' => $brandingData['brand_name'],
-                            'from' => 'no-reply@vendora.se',
+                            'from' => $sender,
                             'content' => view('emails.brandPages.newsletter', [
                                 'emailSubject' => $subject,
                                 'emailBody' => $body,
