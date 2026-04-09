@@ -225,15 +225,10 @@ class VismaNetApiService
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $url = $endpoint;
-        if ($params) {
-            $url .= '?' . http_build_query($params);
-        }
-
         $result = [];
 
-        while ($url) {
-            $response = $this->callAPI('GET', $url);
+        while (true) {
+            $response = $this->callAPI('GET', $endpoint, $params);
 
             $success = $response['success'] ?? false;
             $httpCode = $response['http_code'] ?? '';
@@ -242,9 +237,17 @@ class VismaNetApiService
                 throw new \Exception('Failed to fetch page in getPagedResultsV3(). Http code: ' . $httpCode);
             }
 
-            $url = $response['response']['nextPage'] ?? null;
             $values = $response['response']['value'] ?? [];
             $result = array_merge($result, $values);
+
+            $nextPage = $response['response']['nextPage'] ?? null;
+            if (!$nextPage) {
+                break;
+            }
+
+            $nextPageQuery = parse_url($nextPage, PHP_URL_QUERY);
+            parse_str($nextPageQuery, $nextPageParams);
+            $params = $nextPageParams;
         }
 
         return $result;
