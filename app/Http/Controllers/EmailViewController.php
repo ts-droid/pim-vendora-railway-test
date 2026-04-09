@@ -44,10 +44,12 @@ class EmailViewController extends Controller
             $email->attachments ?: []
         );
 
+        $mailable->onQueue(LaravelQueues::MAIL->value);
+
         Mail::to($to)
             ->cc($cc)
             ->bcc($bcc)
-            ->queue($mailable)->onQueue(LaravelQueues::MAIL->value);
+            ->queue($mailable);
 
         echo('Email queued successfully!');
         die();
