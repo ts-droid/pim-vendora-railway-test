@@ -11,6 +11,7 @@ use App\Models\SalesOrderLine;
 use App\Services\NotificationService;
 use App\Services\SalesOrderService;
 use DateTime;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -348,7 +349,12 @@ class VismaNetSalesOrderService extends VismaNetApiService
         $updatedAfter = $updatedAfter ?: ConfigController::getConfig('vismanet_last_sales_orders_fetch');
 
         if ($updatedAfter) {
-            $params['modifiedSince'] = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
+            $updatedAfter = date('Y-m-d H:i:s', strtotime('-1 minutes', strtotime($updatedAfter)));
+            $date = new DateTime($updatedAfter, new DateTimeZone('Europe/Stockholm'));
+            $date->setTimezone(new DateTimeZone('UTC'));
+            $utcTime = $date->format('Y-m-d H:i:s');
+
+            $params['modifiedSince'] = $utcTime;
             $params['orderBy'] = 'lastModified asc';
         }
 
