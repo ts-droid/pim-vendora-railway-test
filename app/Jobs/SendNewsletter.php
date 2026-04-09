@@ -49,9 +49,9 @@ class SendNewsletter implements ShouldQueue
             $sub->source = $source;
             $sub->tag = $tag;
 
-            $groupedSubscribers = [
+            $groupedSubscribers = collect([
                 'en' => collect([$sub])
-            ];
+            ]);
         } else {
             $groupedSubscribers = NewsletterSubscriber::where('source', $source)
                 ->where('tag', 'LIKE', '%' . $tag . '%')
