@@ -48,6 +48,8 @@ class Kernel extends ConsoleKernel
             $schedule->command('process-visma-deletions')->dailyAt('04:00');
             $schedule->command('visma:delete-shipments')->everyTenMinutes();
 
+            $schedule->command('wgr:fetch')->everyTenMinutes();
+
             // Generate article data
             $schedule->command('article:generate-titles')->everyFiveMinutes()->withoutOverlapping();
             $schedule->command('articles:categorize')->hourly();
