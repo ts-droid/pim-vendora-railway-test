@@ -14,6 +14,27 @@ use Illuminate\Support\Facades\Validator;
 
 class NewsletterController extends Controller
 {
+    public function getSenders()
+    {
+        if ($this->shouldLogControllerMethod()) {
+            $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
+            action_log('Invoked controller method.', $__controllerLogContext);
+        }
+
+        $domains = config('services.mailerlite.domains', []);
+
+        $emails = [];
+        foreach ($domains as $domain) {
+            if ($domain == 'vendora.se') {
+                $emails[] = 'no-reply@' . $domain;
+            } else {
+                $emails[] = 'info@' . $domain;
+            }
+        }
+
+        return $emails;
+    }
+
     public function get(Request $request)
     {
         if ($this->shouldLogControllerMethod()) {

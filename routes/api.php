@@ -154,6 +154,7 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/exists', [NewsletterController::class, 'exists'])->name('newsletter.exists');
         Route::post('/unsubscribe', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
         Route::post('/send', [NewsletterController::class, 'send'])->name('newsletter.send');
+        Route::get('/sender', [NewsletterController::class, 'getSenders'])->name('newsletter.getSenders');
     });
 
     Route::prefix('/prompt')->group(function() {

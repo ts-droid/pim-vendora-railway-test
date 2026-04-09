@@ -48,6 +48,13 @@ return [
     'claude' => [
         'key' => env('CLAUDE_KEY', ''),
         'endpoint' => env('CLAUDE_ENDPOINT', ''),
+    ],
+
+    'mailerlite' => [
+        'domains' => [
+            'vendora.se',
+            'satechi.se'
+        ]
     ]
 
 ];
