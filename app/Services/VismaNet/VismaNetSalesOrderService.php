@@ -352,7 +352,7 @@ class VismaNetSalesOrderService extends VismaNetApiService
             $params['orderBy'] = 'lastModified asc';
         }
 
-        $orders = $this->getPagedResult('/v3/SalesOrders', $params, 'value');
+        $orders = $this->getPagedResultsV3('/v3/SalesOrders', $params);
 
         if ($orders) {
             foreach ($orders as $order) {
