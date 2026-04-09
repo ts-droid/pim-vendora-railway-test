@@ -187,7 +187,7 @@ class FetchVismaNet extends Command
                 Process::timeout(300)->run('php artisan visma:fetch inventory-transfers');
 
                 $this->info('Fetching purchase orders...');
-                Process::timeout(300)->run('php artisan visma:fetch purchase-orders');
+                // Process::timeout(300)->run('php artisan visma:fetch purchase-orders');
 
                 $this->info('Fetching purchase receipts...');
                 Process::timeout(300)->run('php artisan visma:fetch purchase-receipts');
