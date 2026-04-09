@@ -88,7 +88,7 @@ class SendNewsletter implements ShouldQueue
             if (!isset($campaign['id'])) {
                 $campaign = $mailerLiteService->createCampaign([
                     'type' => 'regular',
-                    'name' => $campaign['name'],
+                    'name' => $campaignName,
                     'emails' => [
                         [
                             'subject' => $subject,
