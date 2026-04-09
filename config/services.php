@@ -53,7 +53,23 @@ return [
     'mailerlite' => [
         'domains' => [
             'vendora.se',
-            'satechi.se'
+            'alogic.se',
+            'clickandgrow.se',
+            'ecocordz.com',
+            'herqs.se',
+            'just-mobile.se',
+            'keybudz.se',
+            'nordicsmartlight.se',
+            'mujjo.se',
+            'myfirst.se',
+            'paperlike.se',
+            'pipetto.se',
+            'plaud.se',
+            'playshifu.se',
+            'satechi.se',
+            'stufflet.se',
+            'twelvesouth.se',
+            'woox.nu',
         ]
     ]
 
