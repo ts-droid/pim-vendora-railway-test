@@ -468,11 +468,8 @@ class AppShipmentController extends Controller
     public function update(Request $request, Shipment $shipment)
     {
         if ($this->shouldLogControllerMethod()) {
-
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
             action_log('Invoked controller method.', $__controllerLogContext);
-
         }
 
         Log::channel('shipments')->info('Received request to update shipment', ['shipmentNumber' => $shipment->number]);
