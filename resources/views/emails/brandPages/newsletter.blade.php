@@ -23,7 +23,7 @@
                 <!-- Information -->
                 <tr>
                     <td align="center">
-                        {!! $body !!}
+                        {!! $emailBody !!}
                     </td>
                 </tr>
 
