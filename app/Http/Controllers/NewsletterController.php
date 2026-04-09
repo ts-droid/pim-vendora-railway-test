@@ -32,7 +32,7 @@ class NewsletterController extends Controller
             }
         }
 
-        return $emails;
+        return ApiResponseController::success($emails);
     }
 
     public function get(Request $request)
