@@ -171,19 +171,23 @@ class TranslationController extends Controller
         // Normalize engine
         $engineParts = explode('::', $engine);
         $engine = $engineParts[0] ?? '';
-        $engineParams = $engineParts[1] ?? '';
+        $model = $engineParts[1] ?? '';
 
-        if (!in_array($engine, ['deepl', 'openai', 'tilde'])) {
-            $engine = 'openai'; // This is the default engine
+        if (!in_array($engine, ['deepl', 'openai', 'tilde', 'claude'])) {
+            $engine = 'claude'; // This is the default engine
+        }
+
+        if ($engine === 'claude' && !$model) {
+            $model = 'claude-sonnet-4-6'; // This is the default model for claude
         }
 
         // New default
-        if ($engine == 'openai' && !$prompt) {
+        if (($engine === 'openai' || $engine === 'claude') && !$prompt) {
             $prompt = 'translate_3_step';
         }
 
-        if ($engine === 'openai' && $prompt === 'translate_3_step') {
-            return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes);
+        if (($engine === 'openai' || $engine === 'claude') && $prompt === 'translate_3_step') {
+            return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes, $model);
         }
 
         // Merge excludes with global excludes
@@ -237,7 +241,7 @@ class TranslationController extends Controller
             if ($engine === 'deepl') {
                 $translations[] = $this->translateDeepl($string, $sourceLang, $targetLang);
             } elseif ($engine === 'openai') {
-                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $engineParams, $prompt);
+                $translations[] = $this->translateOpenAI($string, $sourceLang, $targetLang, $model, $prompt);
             }
         }
 
@@ -267,7 +271,7 @@ class TranslationController extends Controller
         return $translations;
     }
 
-    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
+    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
     {
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
@@ -301,7 +305,7 @@ class TranslationController extends Controller
                     'string' => $string,
                 ],
                 '',
-                self::TRANSLATION_MODEL
+                $model ?: self::TRANSLATION_MODEL
             );
 
             try {
@@ -322,7 +326,7 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                 ],
                 '',
-                self::TRANSLATION_MODEL
+                $model ?: self::TRANSLATION_MODEL
             );
 
             try {
