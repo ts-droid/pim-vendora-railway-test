@@ -16,7 +16,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TranslationController extends Controller
 {
-    const TRANSLATION_MODEL = 'gpt-5.4-mini-2026-03-17';
+    //const TRANSLATION_MODEL = 'gpt-5.4-mini-2026-03-17';
+    const TRANSLATION_MODEL = 'claude-sonnet-4-6';
 
     /**
      * @var Translator
@@ -168,6 +169,10 @@ class TranslationController extends Controller
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
+        return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes);
+
+
+
         // Normalize engine
         $engineParts = explode('::', $engine);
         $engine = $engineParts[0] ?? '';
@@ -271,7 +276,7 @@ class TranslationController extends Controller
         return $translations;
     }
 
-    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = [], string $model = ''): array
+    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
     {
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
@@ -305,7 +310,7 @@ class TranslationController extends Controller
                     'string' => $string,
                 ],
                 '',
-                $model ?: self::TRANSLATION_MODEL
+                self::TRANSLATION_MODEL
             );
 
             try {
@@ -326,14 +331,14 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                 ],
                 '',
-                $model ?: self::TRANSLATION_MODEL
+                self::TRANSLATION_MODEL
             );
 
             try {
                 $translatedResponse = json_decode($translatedResponse, true);
-                $translatedText = $translatedResponse['t'] ?? '';
+                $translatedText = $translatedResponse['t'] ?? $translatedText;
             } catch (\Throwable $e) {
-                $translatedText = '';
+                // Silent fail
             }
 
             $translations[] = trim($translatedText);
