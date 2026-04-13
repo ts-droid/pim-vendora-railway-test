@@ -32,7 +32,7 @@ class ClaudeService implements AIInterface
         }
     }
 
-    public function chatCompletion(string $system, string $message, ?float $temperature = null): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null, bool $isTranslation = false): string
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -41,7 +41,7 @@ class ClaudeService implements AIInterface
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $response = $this->callAPI('POST', '/v1/messages', $this->getChatCompletionBody($system, $message));
+        $response = $this->callAPI('POST', '/v1/messages', $this->getChatCompletionBody($system, $message, null, 4000, $isTranslation));
 
         return $response['content'][0]['text'] ?? '';
     }
@@ -215,7 +215,7 @@ class ClaudeService implements AIInterface
         ];
     }
 
-    private function getChatCompletionBody(string $system, string $message, ?float $temperature = null, int $maxTokens = 4000): array
+    private function getChatCompletionBody(string $system, string $message, ?float $temperature = null, int $maxTokens = 4000, bool $isTranslation = false): array
     {
         $body = [
             'model' => $this->model,
@@ -228,6 +228,13 @@ class ClaudeService implements AIInterface
                 ]
             ]
         ];
+
+        if ($isTranslation) {
+            $body['messages'][] = [
+                'role' => 'assistant',
+                'content' => '<translation>'
+            ];
+        }
 
         if ($temperature !== null) {
             $body['temperature'] = $temperature;

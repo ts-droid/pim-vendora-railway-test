@@ -34,7 +34,7 @@ class AIService
         }
     }
 
-    public function chatCompletion(string $system, string $message, ?float $temperature = null, $imageURL = ''): string
+    public function chatCompletion(string $system, string $message, ?float $temperature = null, $imageURL = '', bool $isTranslation = false): string
     {
         $__serviceLogContext = [
             'service' => static::class,
@@ -43,7 +43,7 @@ class AIService
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        return $this->aiService->chatCompletion($system, $message, $temperature, $imageURL);
+        return $this->aiService->chatCompletion($system, $message, $temperature, $imageURL, $isTranslation);
     }
 
     public function streamChatCompletion(string $system, string $message, string $imageURL = ''): array

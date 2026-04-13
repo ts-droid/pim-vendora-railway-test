@@ -310,22 +310,13 @@ class TranslationController extends Controller
                     'string' => $string,
                 ],
                 '',
-                self::TRANSLATION_MODEL
+                self::TRANSLATION_MODEL,
+                '',
+                true
             );
 
-            // Sanitize the response
-            $translatedResponse = str_replace(
-                ["\t", "\n", "\r"],
-                ["\\t", "\\n", "\\r"],
-                $translatedResponse
-            );
-
-            try {
-                $translatedResponse = json_decode($translatedResponse, true);
-                $translatedText = $translatedResponse['t'] ?? '';
-            } catch (\Throwable $e) {
-                $translatedText = '';
-            }
+            $translatedText = str_replace('</translation>', '', $translatedResponse);
+            $translatedText = trim($translatedText);
 
             // Verify the translation
             $translatedResponse = $promptController->execute(
@@ -338,24 +329,15 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                 ],
                 '',
-                self::TRANSLATION_MODEL
+                self::TRANSLATION_MODEL,
+                '',
+                true
             );
 
-            // Sanitize the response
-            $translatedResponse = str_replace(
-                ["\t", "\n", "\r"],
-                ["\\t", "\\n", "\\r"],
-                $translatedResponse
-            );
+            $translatedText = str_replace('</translation>', '', $translatedResponse);
+            $translatedText = trim($translatedText);
 
-            try {
-                $translatedResponse = json_decode($translatedResponse, true);
-                $translatedText = $translatedResponse['t'] ?? $translatedText;
-            } catch (\Throwable $e) {
-                // Silent fail
-            }
-
-            $translations[] = trim($translatedText);
+            $translations[] = $translatedText;
         }
 
         return $translations;
