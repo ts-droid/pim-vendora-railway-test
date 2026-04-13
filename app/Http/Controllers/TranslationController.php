@@ -313,6 +313,13 @@ class TranslationController extends Controller
                 self::TRANSLATION_MODEL
             );
 
+            // Sanitize the response
+            $translatedResponse = str_replace(
+                ["\t", "\n", "\r"],
+                ["\\t", "\\n", "\\r"],
+                $translatedResponse
+            );
+
             try {
                 $translatedResponse = json_decode($translatedResponse, true);
                 $translatedText = $translatedResponse['t'] ?? '';
@@ -332,6 +339,13 @@ class TranslationController extends Controller
                 ],
                 '',
                 self::TRANSLATION_MODEL
+            );
+
+            // Sanitize the response
+            $translatedResponse = str_replace(
+                ["\t", "\n", "\r"],
+                ["\\t", "\\n", "\\r"],
+                $translatedResponse
             );
 
             try {
