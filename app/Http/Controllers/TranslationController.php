@@ -315,7 +315,8 @@ class TranslationController extends Controller
                 true
             );
 
-            $translatedText = str_replace('</translation>', '', $translatedResponse);
+            $translatedText = str_replace('<translation>', '', $translatedResponse);
+            $translatedText = str_replace('</translation>', '', $translatedText);
             $translatedText = trim($translatedText);
 
             // Verify the translation
@@ -334,7 +335,8 @@ class TranslationController extends Controller
                 true
             );
 
-            $translatedText = str_replace('</translation>', '', $translatedResponse);
+            $translatedText = str_replace('<translation>', '', $translatedResponse);
+            $translatedText = str_replace('</translation>', '', $translatedText);
             $translatedText = trim($translatedText);
 
             $translations[] = $translatedText;
