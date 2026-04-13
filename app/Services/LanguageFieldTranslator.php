@@ -127,12 +127,9 @@ class LanguageFieldTranslator
                 continue;
             }
 
-            try {
-                $text = json_decode($text, true);
-                $text = $text['t'] ?? '';
-            } catch (\Throwable $e) {
-                $text = '';
-            }
+            $text = str_replace('<translation>', '', $text);
+            $text = str_replace('</translation>', '', $text);
+            $text = trim($text);
 
             // Skip failed translations
             if (!$text) {
@@ -213,12 +210,9 @@ class LanguageFieldTranslator
             $primaryKeyValue = $metaData['primary_key_value'];
             $column = $metaData['column'];
 
-            try {
-                $text = json_decode($text, true);
-                $text = $text['t'] ?? '';
-            } catch (\Throwable $e) {
-                $text = '';
-            }
+            $text = str_replace('<translation>', '', $text);
+            $text = str_replace('</translation>', '', $text);
+            $text = trim($text);
 
             // Use verified text, fall back to unverified translation from batch 1
             $translatedText = $text ?: ($metaData['unverified_text'] ?? null);
