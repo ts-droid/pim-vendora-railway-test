@@ -13,10 +13,22 @@ use App\Utilities\MetaDataStorage;
 class LanguageFieldTranslator
 {
     const DEFAULT_LANGUAGE = 'en';
-
     const EXCLUDE_MODELS = [];
-
     const MAX_TRANSLATION_FAILURES = 3;
+
+
+
+    const DEFAULT_PROVIDER = 'claude';
+
+    const LANGUAGE_PROVIDERS = [
+        // 'es' => 'gpt'
+    ];
+
+    const MODEL_PROVIDERS = [
+        // 'ArticleMetaData' => 'gpt'
+    ];
+
+    private string $currentProvider;
 
     private AIService $aiService;
 
@@ -37,9 +49,6 @@ class LanguageFieldTranslator
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $model = AiModelHelper::getProviderLatestModel('claude');
-        $this->aiService = new AIService($model);
-
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
         $this->translationExcludes = array_merge($globalExcludes, TranslateExcludeService::getAll());
@@ -53,10 +62,17 @@ class LanguageFieldTranslator
      */
     public function translateDatabase(): void
     {
+        $this->currentProvider = (int) ConfigController::getConfig('translate_database_current_provider', self::DEFAULT_PROVIDER);
+        $this->aiService = new AIService(AiModelHelper::getProviderLatestModel($this->currentProvider));
+
         $currentStep = (int) ConfigController::getConfig('translate_database_current_step');
 
         switch ($currentStep) {
             case 0:
+                $this->currentProvider = $this->getNextProvider($this->currentProvider);
+                ConfigController::setConfigs(['translate_database_current_provider' => $this->currentProvider]);
+                $this->aiService = new AIService(AiModelHelper::getProviderLatestModel($this->currentProvider));
+
                 $this->startNewBatch();
                 break;
 
@@ -315,7 +331,7 @@ class LanguageFieldTranslator
      */
     public function translateAttribute($model, $languageAttribute, $languages): void
     {
-        $translationController = new TranslationController();
+        $cleanModel = str_replace('App\Models\\', '', $model);
 
         $attributes = [];
 
@@ -365,6 +381,11 @@ class LanguageFieldTranslator
                 }
 
                 if ($this->hasExceededFailureLimit($model, $item->getKey(), $field)) {
+                    continue;
+                }
+
+                $itemProvider = self::MODEL_PROVIDERS[$cleanModel] ?? self::LANGUAGE_PROVIDERS[$language->language_code] ?? self::DEFAULT_PROVIDER;
+                if ($itemProvider != $this->currentProvider) {
                     continue;
                 }
 
@@ -494,5 +515,18 @@ class LanguageFieldTranslator
                 $obj->save();
             }
         }
+    }
+
+    private function getNextProvider(string $currentProvider): string
+    {
+        $allProviders = AiModelHelper::getAllProviders('claude');
+        $currentProviderIndex = array_search($currentProvider, $allProviders);
+        $newProviderIndex = $currentProviderIndex + 1;
+
+        if ($newProviderIndex >= count($allProviders)) {
+            $newProviderIndex = 0;
+        }
+
+        return ($allProviders[$newProviderIndex] ?? self::DEFAULT_PROVIDER);
     }
 }
