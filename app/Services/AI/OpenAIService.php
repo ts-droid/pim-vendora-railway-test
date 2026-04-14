@@ -2,8 +2,10 @@
 
 namespace App\Services\AI;
 
+use App\Utilities\MetaDataStorage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class OpenAIService implements AIInterface
 {
@@ -314,19 +316,160 @@ class OpenAIService implements AIInterface
 
     public function createMessageBatch(array $items): array
     {
-        // TODO: Implement createMessageBatch() method.
-        return [];
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $lines = [];
+
+        foreach ($items as $item) {
+            $customID = $item['custom_id'] ?? Str::random(32);
+            $metaData = $item['meta_data'] ?? [];
+
+            MetaDataStorage::set('aibatch:' . $customID, $metaData);
+
+            $lines[] = json_encode([
+                'custom_id' => $customID,
+                'method' => 'POST',
+                'url' => '/v1/chat/completions',
+                'body' => $this->getChatCompletionBody(
+                    $item['system'] ?? '',
+                    $item['message'] ?? '',
+                    $item['temperature'] ?? null,
+                    $item['image_url'] ?? ''
+                ),
+            ]);
+        }
+
+        $jsonl = implode("\n", $lines);
+
+        $uploadResponse = $this->callAPI('POST', '/files', [
+            'purpose' => 'batch',
+        ], [
+            [
+                'name' => 'file',
+                'contents' => $jsonl,
+                'filename' => 'batch.jsonl',
+                'headers' => ['Content-Type' => 'application/jsonl'],
+            ],
+        ]);
+
+        $fileId = $uploadResponse['id'] ?? null;
+
+        if (!$fileId) {
+            return [];
+        }
+
+        return $this->callAPI('POST', '/batches', [
+            'input_file_id' => $fileId,
+            'endpoint' => '/v1/chat/completions',
+            'completion_window' => '24h',
+        ]);
     }
 
     public function getMessageBatch(string $batchId): array
     {
-        // TODO: Implement getMessageBatch() method.
-        return [];
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        return $this->callAPI('GET', '/batches/' . $batchId);
+    }
+
+    public function getMessageBatchResults(string $batchId): array
+    {
+        $__serviceLogContext = [
+            'service' => static::class,
+            'method' => __FUNCTION__,
+            'args' => func_get_args(),
+        ];
+        action_log('Invoked service method.', $__serviceLogContext);
+
+        $batch = $this->getMessageBatch($batchId);
+
+        if (($batch['status'] ?? null) !== 'completed') {
+            return [
+                'status' => $batch['status'] ?? 'unknown',
+                'results' => [],
+            ];
+        }
+
+        $outputFileId = $batch['output_file_id'] ?? null;
+
+        if (!$outputFileId) {
+            return [
+                'status' => 'completed',
+                'results' => [],
+            ];
+        }
+
+        $response = Http::withHeaders($this->getHeaders())
+            ->connectTimeout(10)
+            ->timeout(600)
+            ->get($this->apiURL . '/files/' . $outputFileId . '/content');
+
+        if (!$response->successful()) {
+            return [
+                'status' => 'completed',
+                'results' => [],
+            ];
+        }
+
+        return [
+            'status' => 'completed',
+            'results' => $this->parseJsonlResults($response->body()),
+        ];
     }
 
     public function getBatchTexts(string $batchId): array
     {
-        // TODO: Implement getBatchTexts() method.
-        return [];
+        $payload = $this->getMessageBatchResults($batchId);
+
+        $mapped = [];
+
+        foreach ($payload['results'] as $result) {
+            $customId = $result['custom_id'] ?? null;
+
+            if (!$customId) {
+                continue;
+            }
+
+            $error = $result['error'] ?? null;
+            $statusCode = data_get($result, 'response.status_code');
+
+            if ($error === null && $statusCode === 200) {
+                $mapped[$customId] = data_get($result, 'response.body.choices.0.message.content');
+            } else {
+                $mapped[$customId] = null;
+            }
+        }
+
+        return $mapped;
+    }
+
+    private function parseJsonlResults(string $jsonl): array
+    {
+        $results = [];
+        $lines = preg_split("/\r\n|\n|\r/", trim($jsonl));
+
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+
+            $decoded = json_decode($line, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $results[] = $decoded;
+            }
+        }
+
+        return $results;
     }
 }
