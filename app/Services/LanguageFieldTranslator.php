@@ -126,8 +126,11 @@ class LanguageFieldTranslator
             return;
         }
 
-        $status = $this->aiService->getMessageBatch($batchId);
-        if ($status['processing_status'] !== 'ended') {
+        $batch = $this->aiService->getMessageBatch($batchId);
+
+        $status = $batch['processing_status'] ?? $batch['status'] ?? '';
+
+        if (!in_array($status, ['ended', 'completed'])) {
             echo 'Process 1 waiting for batch to complete.' . PHP_EOL;
             return;
         }
@@ -207,8 +210,11 @@ class LanguageFieldTranslator
             return;
         }
 
-        $status = $this->aiService->getMessageBatch($batchId);
-        if ($status['processing_status'] !== 'ended') {
+        $batch = $this->aiService->getMessageBatch($batchId);
+
+        $status = $batch['processing_status'] ?? $batch['status'] ?? '';
+
+        if (!in_array($status, ['ended', 'completed'])) {
             echo 'Process 2 waiting for batch to complete.' . PHP_EOL;
             return;
         }
