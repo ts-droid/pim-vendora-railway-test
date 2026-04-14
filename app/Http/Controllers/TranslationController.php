@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TranslationController extends Controller
 {
-    private string $translationModel;
-
     /**
      * @var Translator
      */
@@ -30,8 +28,6 @@ class TranslationController extends Controller
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
             action_log('Invoked controller method.', $__controllerLogContext);
         }
-
-        $this->translationModel = AiModelHelper::getProviderLatestModel('claude');
 
         $this->translator = new Translator(config('services.deepl.api_key'));
     }
@@ -99,7 +95,7 @@ class TranslationController extends Controller
         $sourceLang = $request->source_lang;
         $targetLang = $request->target_lang;
         $isHTML = (bool) ($request->is_html ?? 0);
-        $engine = $request->engine ?? null;
+        $provider = $request->provider ?? null;
         $prompt = $request->prompt ?? null;
 
         $excludes = [];
@@ -116,7 +112,7 @@ class TranslationController extends Controller
             $strings = [$strings];
         }
 
-        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes, $engine, $prompt);
+        $translations = $this->translate($strings, $sourceLang, $targetLang, $isHTML, $excludes, $provider, $prompt);
 
         // Replace language URLs
         $languageController = new LanguageController();
@@ -164,16 +160,22 @@ class TranslationController extends Controller
      * @param bool $isHTML
      * @return array
      */
-    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = [], ?string $engine = null, ?string $prompt = null): array
+    public function translate(array $strings, string $sourceLang, string $targetLang, bool $isHTML = false, array $excludes = [], ?string $provider = null, ?string $prompt = null): array
     {
         if ($this->shouldLogControllerMethod()) {
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
             action_log('Invoked controller method.', $__controllerLogContext);
         }
 
-        return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes);
+        $provider = $provider ?: 'claude';
+
+        return $this->translate3Step($strings, $sourceLang, $targetLang, $provider, $excludes);
 
 
+
+
+
+        /* OLD STUFF BELOW */
 
         // Normalize engine
         $engineParts = explode('::', $engine);
@@ -194,7 +196,7 @@ class TranslationController extends Controller
         }
 
         if (($engine === 'openai' || $engine === 'claude') && $prompt === 'translate_3_step') {
-            return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes, $model);
+            // return $this->translate3Step($strings, $sourceLang, $targetLang, $excludes, $model);
         }
 
         // Merge excludes with global excludes
@@ -278,8 +280,10 @@ class TranslationController extends Controller
         return $translations;
     }
 
-    public function translate3Step(array $strings, string $sourceLang, string $targetLang, array $excludes = []): array
+    public function translate3Step(array $strings, string $sourceLang, string $targetLang, string $provider, array $excludes = []): array
     {
+        $model = AiModelHelper::getProviderLatestModel($provider);
+
         // Merge excludes with global excludes
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);
@@ -312,7 +316,7 @@ class TranslationController extends Controller
                     'string' => $string,
                 ],
                 '',
-                $this->translationModel,
+                $model,
                 '',
                 true
             );
@@ -332,7 +336,7 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                 ],
                 '',
-                $this->translationModel,
+                $model,
                 '',
                 true
             );
