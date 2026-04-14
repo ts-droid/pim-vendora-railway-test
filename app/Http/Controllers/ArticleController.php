@@ -2318,11 +2318,8 @@ class ArticleController extends Controller
 	public function getRetailers(Request $request, Article $article)
 	{
 	    if ($this->shouldLogControllerMethod()) {
-
 	        $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
-
 	        action_log('Invoked controller method.', $__controllerLogContext);
-
 	    }
 
 		$days = (int) $request->get('days', 60);
@@ -2330,7 +2327,10 @@ class ArticleController extends Controller
         $customerNumbers = DB::table('sales_order_lines')
             ->select('customers.customer_number')
             ->join('sales_orders', 'sales_orders.id', '=', 'sales_order_lines.sales_order_id')
-            ->leftJoin('customers', 'customers.external_id', '=', 'sales_orders.customer')
+            ->leftJoin('customers', function ($join) {
+                $join->on('customers.customer_number', '=', 'sales_orders.customer')
+                    ->orOn('customers.external_id', '=', 'sales_orders.customer');
+            })
             ->where('sales_orders.date', '>=', date('Y-m-d', strtotime('-' . $days . ' days')))
             ->where('sales_order_lines.article_number', $article->article_number)
             ->groupBy('customers.customer_number')
