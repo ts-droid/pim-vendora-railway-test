@@ -7,6 +7,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PromptController;
 use App\Http\Controllers\TranslationController;
 use App\Services\AI\AIService;
+use App\Utilities\AiModelHelper;
 use App\Utilities\MetaDataStorage;
 
 class LanguageFieldTranslator
@@ -36,7 +37,8 @@ class LanguageFieldTranslator
         ];
         action_log('Invoked service method.', $__serviceLogContext);
 
-        $this->aiService = new AIService('claude-sonnet-4-6'); // TODO: Load model from some config
+        $model = AiModelHelper::getProviderLatestModel('claude');
+        $this->aiService = new AIService($model);
 
         $globalExcludes = ConfigController::getConfig('translation_excludes');
         $globalExcludes = preg_split("/\r\n|\n|\r/", $globalExcludes);

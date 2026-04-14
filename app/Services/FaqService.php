@@ -10,6 +10,7 @@ use App\Models\Article;
 use App\Models\ArticleFaqEntry;
 use App\Models\Prompt;
 use App\Services\AI\AIService;
+use App\Utilities\AiModelHelper;
 use App\Utilities\MetaDataStorage;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -30,7 +31,8 @@ class FaqService
 
     public function run(Collection $articles)
     {
-        $this->aiService = new AIService('claude-sonnet-4-6'); // TODO: Load model from some config
+        $model = AiModelHelper::getProviderLatestModel('claude');
+        $this->aiService = new AIService($model);
 
         $this->currentStep = (int) ConfigController::getConfig('faq_service_current_step');
         $this->batchId = (string) ConfigController::getConfig('faq_service_batch_id');

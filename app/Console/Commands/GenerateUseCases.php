@@ -8,6 +8,7 @@ use App\Http\Controllers\RawDataController;
 use App\Models\Article;
 use App\Models\ArticleMetaData;
 use App\Services\AI\AIService;
+use App\Utilities\AiModelHelper;
 use App\Utilities\MetaDataStorage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,8 @@ class GenerateUseCases extends Command
      */
     public function handle()
     {
-        $this->aiService = new AIService('claude-sonnet-4-6'); // TODO: Load model from some config
+        $model = AiModelHelper::getProviderLatestModel('claude');
+        $this->aiService = new AIService($model);
 
         $batchId = ConfigController::getConfig('generate_use_cases_batch_id');
 

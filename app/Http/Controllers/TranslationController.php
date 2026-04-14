@@ -7,6 +7,7 @@ use App\Services\AI\AIService;
 use App\Services\TildeService;
 use App\Services\TranslateExcludeService;
 use App\Services\TranslationServiceManager;
+use App\Utilities\AiModelHelper;
 use DeepL\Translator;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,8 +17,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TranslationController extends Controller
 {
-    //const TRANSLATION_MODEL = 'gpt-5.4-mini-2026-03-17';
-    const TRANSLATION_MODEL = 'claude-sonnet-4-6';
+    private string $translationModel;
 
     /**
      * @var Translator
@@ -30,6 +30,8 @@ class TranslationController extends Controller
             $__controllerLogContext = $this->controllerLogContext(__FUNCTION__, func_get_args());
             action_log('Invoked controller method.', $__controllerLogContext);
         }
+
+        $this->translationModel = AiModelHelper::getProviderLatestModel('claude');
 
         $this->translator = new Translator(config('services.deepl.api_key'));
     }
@@ -310,7 +312,7 @@ class TranslationController extends Controller
                     'string' => $string,
                 ],
                 '',
-                self::TRANSLATION_MODEL,
+                $this->translationModel,
                 '',
                 true
             );
@@ -330,7 +332,7 @@ class TranslationController extends Controller
                     'GLOSSARY' => implode(PHP_EOL, $excludes),
                 ],
                 '',
-                self::TRANSLATION_MODEL,
+                $this->translationModel,
                 '',
                 true
             );
