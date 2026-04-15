@@ -59,7 +59,7 @@ class SalesOrderApiController extends Controller
 
             if ($search) {
                 $query->select('sales_orders.*')
-                    ->leftJoin('customers as customers_for_search', 'customers_for_search.external_id', '=', 'sales_orders.customer')
+                    ->leftJoin('customers as customers_for_search', 'customers_for_search.customer_number', '=', 'sales_orders.customer')
                     ->leftJoin('addresses as billing_addresses_for_search', 'billing_addresses_for_search.id', '=', 'sales_orders.billing_address_id')
                     ->leftJoin('addresses as shipping_addresses_for_search', 'shipping_addresses_for_search.id', '=', 'sales_orders.shipping_address_id')
                     ->distinct();
