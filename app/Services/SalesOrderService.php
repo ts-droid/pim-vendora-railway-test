@@ -305,7 +305,7 @@ class SalesOrderService
             'invoice_number' => $data['invoice_number'] ?? '',
             'sales_person' => (string) ($data['sales_person'] ?? ''),
             'date' => (string) (($data['date'] ?? '') ?: date('Y-m-d')),
-            'customer' => $customer->customer_number ?? '',
+            'customer' => ($data['customer_number'] ?? ''),
             'currency' => $data['currency'],
             'language' => empty($data['language']) ? 'en' : $data['language'],
             'order_total' => 0,
