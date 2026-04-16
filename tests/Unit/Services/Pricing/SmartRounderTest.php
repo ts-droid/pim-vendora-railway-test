@@ -47,7 +47,7 @@ class SmartRounderTest extends TestCase
     public static function eur_cases(): array
     {
         return [
-            'under 50 picks X.99'  => [12.50, 14.99],
+            'under 50 picks X.99'  => [12.50, 12.99],
             'under 50 picks 9.99'  => [8.00, 9.99],
             'under 100 picks 9.99' => [78.00, 79.99],
             'under 1000 picks 9.99' => [250.00, 259.99],
