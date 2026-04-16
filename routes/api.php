@@ -17,6 +17,7 @@ use App\Http\Controllers\EcbController;
 use App\Http\Controllers\EsignController;
 use App\Http\Controllers\EventLogController;
 use App\Http\Controllers\GtinController;
+use App\Http\Controllers\PriceCalculatorController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\InventoryTurnoverController;
 use App\Http\Controllers\LanguageApiController;
@@ -236,6 +237,11 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
         Route::post('/generate', [GtinController::class, 'generate'])->name('gs1.generate');
         Route::post('/activate', [GtinController::class, 'activate'])->name('gs1.activate');
         Route::post('/generate-for-article', [GtinController::class, 'generateForArticle'])->name('gs1.generateForArticle');
+    });
+
+    Route::prefix('/price-calculator')->group(function() {
+        Route::get('/{articleNumber}', [PriceCalculatorController::class, 'initialState'])->name('priceCalc.initial');
+        Route::post('/{articleNumber}/calculate', [PriceCalculatorController::class, 'calculate'])->name('priceCalc.calculate');
     });
 
     Route::prefix('/stock-keep')->group(function() {
