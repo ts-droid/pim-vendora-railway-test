@@ -16,6 +16,7 @@ use App\Http\Controllers\CustomerInvoiceController;
 use App\Http\Controllers\EcbController;
 use App\Http\Controllers\EsignController;
 use App\Http\Controllers\EventLogController;
+use App\Http\Controllers\GtinController;
 use App\Http\Controllers\InventoryReceiptController;
 use App\Http\Controllers\InventoryTurnoverController;
 use App\Http\Controllers\LanguageApiController;
@@ -228,6 +229,13 @@ Route::prefix('/v1')->middleware(['api.key', 'gzip'])->group(function() {
 
     Route::prefix('/supplier-prices')->group(function() {
         Route::post('/', [SupplierPriceController::class, 'store'])->name('supplierPrice.store');
+    });
+
+    Route::prefix('/gs1')->group(function() {
+        Route::get('/status', [GtinController::class, 'status'])->name('gs1.status');
+        Route::post('/generate', [GtinController::class, 'generate'])->name('gs1.generate');
+        Route::post('/activate', [GtinController::class, 'activate'])->name('gs1.activate');
+        Route::post('/generate-for-article', [GtinController::class, 'generateForArticle'])->name('gs1.generateForArticle');
     });
 
     Route::prefix('/stock-keep')->group(function() {
