@@ -29,6 +29,12 @@ echo "=== Safety: blocking outbound syncs ==="
 # started by us, but this is defense-in-depth.
 export APP_ENV=testing
 
+# Hard-coded kill switch for Article::saved/::updated/::created hooks that
+# chain into DispatchArticleUpdate → UpdateArticleJob → VismaNet/WGR/etc.
+# Checked directly in app/Models/Article.php, so this survives even if
+# the DB-level wgr_is_active flag is flipped by an imported dump.
+export DISABLE_OUTBOUND_SYNCS=1
+
 # Force the sync kill switch off at the DB level, overriding anything
 # imported from a production dump. Silent no-op if configs table does
 # not exist yet (first boot on empty DB).

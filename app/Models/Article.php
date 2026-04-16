@@ -169,16 +169,24 @@ class Article extends Model
         static::updated(function ($article) {
             $changes = $article->getChanges();
 
-            if (isset($changes['description'])) {
+            if (isset($changes['description']) && !env('DISABLE_OUTBOUND_SYNCS', false)) {
                 ArticleTitleUtility::translateTitles($article);
             }
 
-            (new DispatchArticleUpdate)->execute($article->id, false, $changes);
+            // SAFETY: outbound syncs (VismaNet, WGR, translations) are
+            // hard-disabled on the Railway test instance. DispatchArticleUpdate
+            // chains through UpdateArticleJob → ArticleService → VismaNetArticleService
+            // which would write real articles to the accounting system.
+            if (!env('DISABLE_OUTBOUND_SYNCS', false)) {
+                (new DispatchArticleUpdate)->execute($article->id, false, $changes);
+            }
         });
 
         static::created(function ($article) {
-            ArticleTitleUtility::translateTitles($article);
-            (new DispatchArticleUpdate)->execute($article->id, true, []);
+            if (!env('DISABLE_OUTBOUND_SYNCS', false)) {
+                ArticleTitleUtility::translateTitles($article);
+                (new DispatchArticleUpdate)->execute($article->id, true, []);
+            }
         });
     }
 
