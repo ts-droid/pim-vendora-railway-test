@@ -50,6 +50,15 @@ return [
         'endpoint' => env('CLAUDE_ENDPOINT', ''),
     ],
 
+    'gs1' => [
+        'api_key' => env('GS1_API_KEY', ''),
+        'company_prefix' => env('GS1_COMPANY_PREFIX', ''),
+        'generate_url' => env('GS1_GENERATE_URL', 'https://services.validoo.se/licence.api/licences/key/generate'),
+        'activate_url' => env('GS1_ACTIVATE_URL', 'https://services.validoo.se/tradeitem.api/activate/gtins'),
+        'default_brand' => env('GS1_DEFAULT_BRAND', 'BUNDLE'),
+        'country_code' => env('GS1_COUNTRY_CODE', '752'),
+    ],
+
     'mailerlite' => [
         'domains' => [
             'vendora.se',
