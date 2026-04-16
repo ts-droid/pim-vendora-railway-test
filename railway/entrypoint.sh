@@ -18,6 +18,40 @@ cd /var/www/html
 
 echo "=== Laravel boot ==="
 
+# ──────────────────────────────────────────────────────────────────────────
+# SAFETY: block all outbound syncs to production systems.
+# This instance is a test replica and must never hit VismaNet,
+# MailerLite, Vendora Admin, etc. with real data.
+# ──────────────────────────────────────────────────────────────────────────
+echo "=== Safety: blocking outbound syncs ==="
+# Force APP_ENV away from production so scheduled jobs that guard on
+# App::environment('production') never fire. Railway scheduler isn't
+# started by us, but this is defense-in-depth.
+export APP_ENV=testing
+
+# Force the sync kill switch off at the DB level, overriding anything
+# imported from a production dump. Silent no-op if configs table does
+# not exist yet (first boot on empty DB).
+php -r "
+    try {
+        \$pdo = new PDO(
+            'mysql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: 3306) . ';dbname=' . getenv('DB_DATABASE'),
+            getenv('DB_USERNAME'),
+            getenv('DB_PASSWORD'),
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        \$exists = \$pdo->query(\"SHOW TABLES LIKE 'configs'\")->rowCount() > 0;
+        if (\$exists) {
+            \$pdo->exec(\"REPLACE INTO configs (\`key\`, value, created_at, updated_at) VALUES ('wgr_is_active', '0', NOW(), NOW())\");
+            echo \"  - wgr_is_active forced to 0\n\";
+        } else {
+            echo \"  - configs table not present yet (empty DB)\n\";
+        }
+    } catch (\\Throwable \$e) {
+        echo \"  - sync kill switch setup skipped: \" . \$e->getMessage() . \"\n\";
+    }
+"
+
 # Cache config for speed (safe to re-run)
 php artisan config:clear
 php artisan config:cache
