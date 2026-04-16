@@ -99,6 +99,29 @@ class Article extends Model
             $article->purchase_price_currency = $supplierPrice->currency ?? '';
         });
 
+        static::saving(function ($article) {
+            // Auto-generate GTIN for bundle articles without an EAN.
+            // Only runs when GS1 config is present — safe no-op otherwise.
+            if ($article->article_type === 'Bundle' && empty($article->ean)) {
+                try {
+                    $gs1 = app(\App\Services\GS1\Gs1ValidooService::class);
+                    if ($gs1->isConfigured()) {
+                        $article->ean = $gs1->generateAndActivate(
+                            (string) ($article->description ?: 'Bundle'),
+                            null
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('GS1 auto-GTIN failed on bundle save', [
+                        'article_number' => $article->article_number,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Continue without GTIN — can be generated manually later
+                    // via POST /api/v1/gs1/generate-for-article.
+                }
+            }
+        });
+
         static::updating(function ($article) {
             foreach ($article->getAppends() as $append) {
                 unset($article->attributes[$append]);
