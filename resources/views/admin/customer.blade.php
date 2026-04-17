@@ -6,6 +6,7 @@
 @include('admin._header', [
     'rightLabel' => '<span class="font-semibold">' . e($customer->customer_number) . '</span> <span class="text-gray-400">·</span> <span>Customer Database</span>',
 ])
+@include('admin._nav', ['activeNav' => 'customers', 'apiKey' => $apiKey])
 
 <div class="max-w-6xl mx-auto p-6">
 

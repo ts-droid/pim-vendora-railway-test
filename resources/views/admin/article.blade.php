@@ -6,6 +6,7 @@
 @include('admin._header', [
     'rightLabel' => '<span class="font-semibold">' . e($article->article_number) . '</span> <span class="text-gray-400">·</span> <span>Article Database</span>',
 ])
+@include('admin._nav', ['activeNav' => 'articles', 'apiKey' => $apiKey])
 
 <div class="max-w-6xl mx-auto p-6">
 
