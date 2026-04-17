@@ -126,11 +126,17 @@
             @break
 
         @case('logistics')
+            @php
+                $fmt = function ($line, $city, $country) {
+                    $parts = array_filter([$line, $city, $country]);
+                    return $parts ? implode("\n", $parts) : '—';
+                };
+            @endphp
             <div class="bg-white border rounded p-6">
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Main address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $supplier->main_address_line ?: '—' }}@if($supplier->main_address_city)<br>{{ $supplier->main_address_city }}@endif@if($supplier->main_address_country), {{ $supplier->main_address_country }}@endif</div></div>
-                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Supplier address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $supplier->supplier_address_line ?: '—' }}@if($supplier->supplier_address_city)<br>{{ $supplier->supplier_address_city }}@endif@if($supplier->supplier_address_country), {{ $supplier->supplier_address_country }}@endif</div></div>
-                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Remit address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $supplier->remit_address_line ?: '—' }}@if($supplier->remit_address_city)<br>{{ $supplier->remit_address_city }}@endif@if($supplier->remit_address_country), {{ $supplier->remit_address_country }}@endif</div></div>
+                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Main address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $fmt($supplier->main_address_line, $supplier->main_address_city, $supplier->main_address_country) }}</div></div>
+                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Supplier address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $fmt($supplier->supplier_address_line, $supplier->supplier_address_city, $supplier->supplier_address_country) }}</div></div>
+                    <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Remit address</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $fmt($supplier->remit_address_line, $supplier->remit_address_city, $supplier->remit_address_country) }}</div></div>
                 </div>
                 <div class="grid grid-cols-3 gap-4">
                     <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">General delivery time</label><div class="border rounded px-3 py-2 bg-gray-50">{{ (int) $supplier->general_delivery_time }} days</div></div>
