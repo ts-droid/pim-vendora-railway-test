@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ApiKey;
+use App\Models\Brand;
 use App\Services\Pricing\PriceCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -50,12 +51,19 @@ class AdminArticleController extends Controller
 
         $initial = $this->calculator->initialState($article);
 
+        // Resolve brand-level defaults so the Pricing tab can show the
+        // real cascade (article override → brand default → global).
+        $brand = $article->brand
+            ? Brand::where('name', $article->brand)->first()
+            : null;
+
         return View::make('admin.article', [
             'article' => $article,
             'apiKey' => $apiKey,
             'activeTab' => $tab,
             'tabs' => $allowedTabs,
             'initial' => $initial,
+            'brand' => $brand,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
                 'articleName' => $article->description,

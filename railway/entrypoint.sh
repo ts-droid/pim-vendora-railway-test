@@ -99,8 +99,10 @@ HAS_DATA=$(
 )
 
 if [ "$HAS_DATA" = "yes" ]; then
-    echo "=== DB already has articles — skipping migrations + seed ==="
-    echo "    (import from mysqldump detected)"
+    echo "=== DB has articles (imported) — skipping seed, running pending migrations only ==="
+    # migrate --force is idempotent: it only runs migrations that aren't
+    # in the `migrations` table yet. Safe to run even with populated data.
+    php artisan migrate --force --no-interaction || echo "Note: migrate failed, continuing anyway"
 
     # Only seed the API key if missing, so /pricing URLs work
     php artisan tinker --execute="

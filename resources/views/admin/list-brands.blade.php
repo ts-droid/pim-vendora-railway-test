@@ -47,7 +47,10 @@
                 <tbody class="divide-y">
                     @foreach ($brands as $b)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-3 py-1.5 text-gray-700">{{ $b->brand }}</td>
+                            <td class="px-3 py-1.5 text-gray-700">
+                                <a href="/admin/brands/{{ urlencode($b->brand) }}?api_key={{ urlencode($apiKey) }}"
+                                   class="text-blue-600 hover:underline">{{ $b->brand }}</a>
+                            </td>
                             <td class="px-3 py-1.5 text-right text-gray-600">{{ number_format($b->article_count, 0, ',', ' ') }}</td>
                             <td class="px-3 py-1.5 text-right">
                                 <a href="/admin/articles?api_key={{ urlencode($apiKey) }}&q={{ urlencode($b->brand) }}"

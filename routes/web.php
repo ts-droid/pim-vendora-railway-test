@@ -222,6 +222,9 @@ Route::get('/admin/brands', [App\Http\Controllers\AdminIndexController::class, '
 Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
+Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
+    ->where('brandName', '.*')
+    ->name('admin.brand.show');
 
 require __DIR__ . '/supplierPortal.php';
 

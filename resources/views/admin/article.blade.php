@@ -48,23 +48,53 @@
         @case('pricing')
             @include('pricing._calculator')
 
-            {{-- Margin-override section --}}
+            {{-- Margin-override section — article overrides cascade down from brand defaults --}}
             <div class="bg-white border rounded p-6 mt-6">
-                <h3 class="text-sm font-semibold uppercase text-gray-500 mb-4">Artikelspecifika marginal-overrides</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">Artikelspecifika marginal-overrides</h3>
+                    @if ($brand && $article->brand)
+                        <a href="/admin/brands/{{ urlencode($article->brand) }}?api_key={{ urlencode($apiKey) }}"
+                           class="text-xs text-blue-600 hover:underline">
+                            Redigera varumärkes-standard →
+                        </a>
+                    @endif
+                </div>
                 <div class="grid grid-cols-2 gap-6">
+                    @php
+                        $articleResellerFmt = rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.');
+                        $articleMinFmt      = rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.');
+                        $brandReseller      = $brand?->standard_reseller_margin;
+                        $brandMin           = $brand?->minimum_margin;
+                    @endphp
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">ÅF-marginal override (%)</label>
                         <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
+                            {{ $articleResellerFmt }} ({{ $article->brand ?: '—' }})
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            @if ($brandReseller !== null)
+                                Ärver: {{ rtrim(rtrim(number_format((float) $brandReseller, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
+                            @elseif ($article->brand)
+                                Ingen standard satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
+                            @else
+                                Inget varumärke → global default.
+                            @endif
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. vår marginal override (%)</label>
                         <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
+                            {{ $articleMinFmt }} ({{ $article->brand ?: '—' }})
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            @if ($brandMin !== null)
+                                Ärver: {{ rtrim(rtrim(number_format((float) $brandMin, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
+                            @elseif ($article->brand)
+                                Ingen min-marginal satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
+                            @else
+                                Inget varumärke → global default.
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
