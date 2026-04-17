@@ -59,6 +59,17 @@ return [
         'country_code' => env('GS1_COUNTRY_CODE', '752'),
     ],
 
+    'vendora_crm' => [
+        // URL template that resolves to a customer page in Vendora CRM.
+        // {vat} placeholder is replaced with the customer's vat_number.
+        // Example: 'https://vendora-crm.example.com/customers?vat={vat}'
+        // Default: the CRM instance we maintain at ts-droid/CRM on Railway.
+        'customer_url_template' => env('VENDORA_CRM_CUSTOMER_URL', 'https://empathetic-empathy-production.up.railway.app/?vat={vat}'),
+        // If the CRM's content-security-policy blocks iframe embedding,
+        // flip this to false to render a "open in new tab" button instead.
+        'embed_in_iframe' => filter_var(env('VENDORA_CRM_IFRAME', true), FILTER_VALIDATE_BOOL),
+    ],
+
     'mailerlite' => [
         'domains' => [
             'vendora.se',

@@ -19,9 +19,9 @@
         'tabs' => [
             'general'   => 'General',
             'contacts'  => 'Contacts',
-            'addresses' => 'Addresses',
-            'orders'    => 'Orders',
-            'invoices'  => 'Invoices',
+            'pricelist' => 'Prislista',
+            'logins'    => 'Web-inloggningar',
+            'crm'       => 'CRM',
         ],
         'queryPrefix' => 'api_key=' . urlencode($apiKey) . '&',
     ])
@@ -99,6 +99,129 @@
                 <div class="text-xs text-gray-400 mt-2 text-right">
                     Last updated: {{ $customer->updated_at ?? '—' }}
                 </div>
+            </div>
+            @break
+
+        @case('pricelist')
+            <div class="bg-white border rounded p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Kundspecifik prislista</h3>
+                    <span class="text-xs text-gray-400">
+                        Källa: <code class="bg-gray-100 px-1 rounded">article_prices</code>
+                        (matchas på <code class="bg-gray-100 px-1 rounded">customer_id = {{ $customer->customer_number }}</code>)
+                    </span>
+                </div>
+
+                @if ($pricelist->isEmpty())
+                    <div class="border border-dashed rounded p-8 text-center text-sm text-gray-500">
+                        Inga kundspecifika priser registrerade för den här kunden.
+                    </div>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold">Article</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Base SEK</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Base EUR</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Base DKK</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Base NOK</th>
+                                    <th class="px-3 py-2 text-right font-semibold">%</th>
+                                    <th class="px-3 py-2 text-right font-semibold">% inner</th>
+                                    <th class="px-3 py-2 text-right font-semibold">% master</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                @foreach ($pricelist as $row)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-1.5 font-mono">{{ $row->article_number }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->base_price_SEK, 2, ',', ' ') }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->base_price_EUR, 2, ',', ' ') }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->base_price_DKK, 2, ',', ' ') }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->base_price_NOK, 2, ',', ' ') }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->percent, 2) }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->percent_inner, 2) }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ number_format((float) $row->percent_master, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-3 text-right">
+                        {{ $pricelist->count() }} rader · max 200 visas
+                    </div>
+                @endif
+            </div>
+            @break
+
+        @case('logins')
+            <div class="bg-white border rounded p-12 text-center">
+                <div class="text-5xl mb-3">🔐</div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Web-inloggningar</h3>
+                <p class="text-sm text-gray-500 max-w-md mx-auto">
+                    Här listas de inloggningar (e-post + roll) som kunden har
+                    till kundwebben. Ingen <code class="bg-gray-100 px-1 rounded">web_logins</code>-tabell
+                    finns i pim-vendora ännu — mockad placeholder.
+                </p>
+            </div>
+            @break
+
+        @case('crm')
+            @if ($crmUrl === null)
+                <div class="bg-white border rounded p-12 text-center">
+                    <div class="text-5xl mb-3">⚠️</div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">VAT-nummer saknas</h3>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto">
+                        CRM-länken byggs med kundens <code class="bg-gray-100 px-1 rounded">vat_number</code>.
+                        Kunden har inget VAT-nummer i databasen, så CRM-uppslaget kan inte göras.
+                    </p>
+                </div>
+            @elseif ($crmIframe)
+                <div class="bg-white border rounded overflow-hidden">
+                    <div class="flex justify-between items-center px-4 py-2 bg-gray-50 border-b text-xs text-gray-500">
+                        <span>Vendora CRM · VAT <code class="bg-white px-1 rounded border">{{ $customer->vat_number }}</code></span>
+                        <a href="{{ $crmUrl }}" target="_blank" rel="noopener" class="text-blue-600 hover:underline">
+                            Öppna i ny flik ↗
+                        </a>
+                    </div>
+                    <iframe
+                        src="{{ $crmUrl }}"
+                        loading="lazy"
+                        class="w-full block"
+                        style="height: 800px; border: 0;"
+                        title="Vendora CRM — {{ $customer->name }}">
+                    </iframe>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">
+                    Om iframen är tom blockerar CRM:en troligen embedding (X-Frame-Options / CSP).
+                    Sätt då <code class="bg-gray-100 px-1 rounded">VENDORA_CRM_IFRAME=false</code> så
+                    visas en "Öppna i ny flik"-knapp istället.
+                </p>
+            @else
+                <div class="bg-white border rounded p-12 text-center">
+                    <div class="text-5xl mb-3">🔗</div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Öppna kundkort i Vendora CRM</h3>
+                    <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">
+                        Vendora CRM blockerar embedding — länken öppnas i en ny flik istället.
+                    </p>
+                    <a href="{{ $crmUrl }}" target="_blank" rel="noopener"
+                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded">
+                        Öppna i Vendora CRM →
+                    </a>
+                    <div class="text-xs text-gray-400 mt-4 font-mono break-all">{{ $crmUrl }}</div>
+                </div>
+            @endif
+            @break
+
+        @case('contacts')
+            <div class="bg-white border rounded p-12 text-center">
+                <div class="text-5xl mb-3">👥</div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Kontakter</h3>
+                <p class="text-sm text-gray-500 max-w-md mx-auto">
+                    Här listas kundens kontaktpersoner (namn, roll, e-post, telefon).
+                    Ingen <code class="bg-gray-100 px-1 rounded">customer_contacts</code>-tabell
+                    finns i pim-vendora ännu — mockad placeholder.
+                </p>
             </div>
             @break
 
