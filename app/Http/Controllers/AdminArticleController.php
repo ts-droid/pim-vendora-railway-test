@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ApiKey;
 use App\Models\Brand;
+use App\Models\SupplierArticlePrice;
 use App\Services\Pricing\PriceCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -57,6 +58,14 @@ class AdminArticleController extends Controller
             ? Brand::where('name', $article->brand)->first()
             : null;
 
+        // Current cost is the supplier's raw purchase price in *their*
+        // currency (USD, EUR, SEK…). Lives in supplier_article_prices
+        // keyed on article_number. external_cost on articles is the
+        // SEK-converted fallback, not the source-of-truth any longer.
+        $supplierPrice = SupplierArticlePrice::where('article_number', $article->article_number)
+            ->orderByDesc('updated_at')
+            ->first();
+
         return View::make('admin.article', [
             'article' => $article,
             'apiKey' => $apiKey,
@@ -64,6 +73,7 @@ class AdminArticleController extends Controller
             'tabs' => $allowedTabs,
             'initial' => $initial,
             'brand' => $brand,
+            'supplierPrice' => $supplierPrice,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
                 'articleName' => $article->description,

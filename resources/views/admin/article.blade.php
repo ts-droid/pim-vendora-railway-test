@@ -285,8 +285,21 @@
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Current cost <span class="text-red-500">*</span></label>
                         <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
-                            <span>{{ rtrim(rtrim(number_format((float) ($article->external_cost ?? 0), 2), '0'), '.') ?: '0' }}</span>
-                            <span class="text-gray-500">SEK</span>
+                            @if ($supplierPrice)
+                                <span>{{ rtrim(rtrim(number_format((float) $supplierPrice->price, 2), '0'), '.') ?: '0' }}</span>
+                                <span class="text-gray-500">{{ $supplierPrice->currency }}</span>
+                            @else
+                                <span class="text-gray-400">—</span>
+                                <span class="text-gray-500">—</span>
+                            @endif
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Leverantörens inköpspris i deras valuta.
+                            @if ($supplierPrice)
+                                Källa: <code class="bg-gray-100 px-1 rounded">supplier_article_prices</code>
+                            @else
+                                Ingen rad i <code class="bg-gray-100 px-1 rounded">supplier_article_prices</code> för artikeln.
+                            @endif
                         </div>
                     </div>
                     <div>
