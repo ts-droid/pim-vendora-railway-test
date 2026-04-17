@@ -36,7 +36,7 @@ class PricingWebController extends Controller
         abort_if(!$apiKey, 403, 'api_key query parameter required');
 
         // Validate the key up-front so slider calls don't fail silently later
-        $keyValid = \App\Models\ApiKey::where('key', $apiKey)->exists();
+        $keyValid = \App\Models\ApiKey::where('api_key', $apiKey)->exists();
         abort_if(!$keyValid, 403, 'Invalid api_key');
 
         return View::make('pricing.calculator', [
