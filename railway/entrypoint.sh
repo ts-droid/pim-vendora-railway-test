@@ -65,8 +65,12 @@ php -r "
     }
 "
 
-# Cache config for speed (safe to re-run). APP_URL was validated above.
+# Clear + cache config. view:clear forces Blade recompilation on next
+# request so a newly-deployed template is picked up even if a stale
+# compiled view was carried over from a previous image layer.
 php artisan config:clear || true
+php artisan view:clear || true
+php artisan route:clear || true
 php artisan config:cache || echo "  - config:cache failed (non-fatal)"
 php artisan route:cache || echo "  - route:cache failed (non-fatal)"
 # Skip view:cache — Laravel Pulse package ships views without being
