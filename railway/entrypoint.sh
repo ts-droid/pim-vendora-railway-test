@@ -62,7 +62,10 @@ php -r "
 php artisan config:clear
 php artisan config:cache
 php artisan route:cache || true
-php artisan view:cache || true
+# Skip view:cache — Laravel Pulse package ships views without being
+# publishable without DB, so caching blows up before migrate has run.
+# Views cache lazily on first request instead, which is fine for
+# a test instance.
 
 # Detect existing data
 HAS_DATA=$(
