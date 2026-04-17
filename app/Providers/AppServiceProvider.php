@@ -25,5 +25,12 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Railway routes traffic through a proxy that terminates TLS, so the
+        // container sees HTTP. Honor the X-Forwarded-Proto: https header by
+        // forcing the scheme when APP_URL is https.
+        if (str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceScheme('https');
+        }
     }
 }
