@@ -9,6 +9,7 @@ use App\Http\Controllers\EsignRecipientController;
 use App\Http\Controllers\MonitorDashboardController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\AdminArticleController;
 use App\Http\Controllers\PricingWebController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
@@ -210,6 +211,7 @@ Route::get('/monitors', [MonitorDashboardController::class, 'index']);
 Route::get('/sales-order/{salesOrder}/receipt', [PreviewController::class, 'salesOrderReceiptPublic'])->name('salesOrder.receipt');
 
 Route::get('/pricing/{articleNumber}', [PricingWebController::class, 'calculator'])->name('pricing.calculator');
+Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
 
 require __DIR__ . '/supplierPortal.php';
 
