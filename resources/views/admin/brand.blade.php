@@ -89,7 +89,7 @@
                     @foreach ($articles as $a)
                         <tr class="hover:bg-gray-50">
                             <td class="px-3 py-1.5 font-mono">
-                                <a href="/admin/articles/{{ urlencode($a->article_number) }}?api_key={{ urlencode($apiKey) }}&tab=pricing"
+                                <a href="/admin/articles/{{ rawurlencode($a->article_number) }}?api_key={{ urlencode($apiKey) }}&tab=pricing"
                                    class="text-blue-600 hover:underline">{{ $a->article_number }}</a>
                             </td>
                             <td class="px-3 py-1.5 text-gray-700">{{ \Illuminate\Support\Str::limit($a->description, 50) }}</td>

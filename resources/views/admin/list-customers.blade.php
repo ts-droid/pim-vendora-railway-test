@@ -53,7 +53,7 @@
                     @foreach ($customers as $c)
                         <tr class="hover:bg-gray-50">
                             <td class="px-3 py-1.5 font-mono">
-                                <a href="/admin/customers/{{ urlencode($c->customer_number) }}?api_key={{ urlencode($apiKey) }}"
+                                <a href="/admin/customers/{{ rawurlencode($c->customer_number) }}?api_key={{ urlencode($apiKey) }}"
                                    class="text-blue-600 hover:underline">{{ $c->customer_number }}</a>
                             </td>
                             <td class="px-3 py-1.5 text-gray-700">{{ $c->name }}</td>

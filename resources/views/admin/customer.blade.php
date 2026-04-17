@@ -168,6 +168,39 @@
             @break
 
         @case('crm')
+            @if ($crmStats)
+                <div class="bg-white border rounded p-5 mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500 mb-3">Aggregerad försäljning (skickas till CRM)</h3>
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <div class="text-xs text-gray-500 uppercase">12-månaders omsättning</div>
+                            <div class="text-lg font-semibold text-gray-800">{{ number_format($crmStats['revenue_12m_sek'], 0, ',', ' ') }} kr</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 uppercase">30-dagars omsättning</div>
+                            <div class="text-lg font-semibold text-gray-800">{{ number_format($crmStats['revenue_30d_sek'], 0, ',', ' ') }} kr</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 uppercase">Ordrar senaste 12 mån</div>
+                            <div class="text-lg font-semibold text-gray-800">{{ number_format($crmStats['orders_12m'], 0, ',', ' ') }}</div>
+                        </div>
+                    </div>
+                    @if (!empty($crmStats['top_brands']))
+                        <div class="mt-4">
+                            <div class="text-xs text-gray-500 uppercase mb-2">Topp 5 varumärken (12 mån)</div>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($crmStats['top_brands'] as $b)
+                                    <span class="bg-gray-100 border rounded px-2 py-1 text-xs">
+                                        <strong>{{ $b['brand'] }}</strong>
+                                        <span class="text-gray-500">· {{ number_format($b['revenue_sek'], 0, ',', ' ') }} kr</span>
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             @if ($crmUrl === null)
                 <div class="bg-white border rounded p-12 text-center">
                     <div class="text-5xl mb-3">⚠️</div>

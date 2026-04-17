@@ -53,7 +53,7 @@
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm font-semibold uppercase text-gray-500">Artikelspecifika marginal-overrides</h3>
                     @if ($brand && $article->brand)
-                        <a href="/admin/brands/{{ urlencode($article->brand) }}?api_key={{ urlencode($apiKey) }}"
+                        <a href="/admin/brands/{{ rawurlencode($article->brand) }}?api_key={{ urlencode($apiKey) }}"
                            class="text-xs text-blue-600 hover:underline">
                             Redigera varumärkes-standard →
                         </a>
