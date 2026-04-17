@@ -46,6 +46,51 @@
 
         @case('pricing')
             @include('pricing._calculator')
+
+            {{-- Margin-override section --}}
+            <div class="bg-white border rounded p-6 mt-6">
+                <h3 class="text-sm font-semibold uppercase text-gray-500 mb-4">Artikelspecifika marginal-overrides</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">ÅF-marginal override (%)</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50">
+                            {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. vår marginal override (%)</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50">
+                            {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- BID-varianter (mocked) --}}
+            <div class="bg-white border rounded p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">BID-varianter</h3>
+                    <div class="flex items-center gap-3">
+                        <label class="inline-flex items-center gap-2 text-xs text-gray-600">
+                            <input type="checkbox" disabled class="rounded cursor-not-allowed">
+                            <span>Aktivera BID</span>
+                        </label>
+                        <button disabled title="Mocked" class="border rounded text-xs px-3 py-1 text-gray-600 opacity-50 cursor-not-allowed">+ Variant</button>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
+            </div>
+
+            {{-- Stöd & kampanjer (mocked) --}}
+            <div class="bg-white border rounded p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">Stöd &amp; kampanjer</h3>
+                    <button disabled title="Mocked" class="border rounded text-xs px-3 py-1 text-gray-600 opacity-50 cursor-not-allowed">+ Lägg till stöd</button>
+                </div>
+                <div class="text-sm text-gray-500">Inga stöd på artikelnivå.</div>
+            </div>
             @break
 
         @case('general')
@@ -263,50 +308,6 @@
                 </div>
             </div>
 
-            {{-- Margin-override section (from the legacy priskalkylator UI) --}}
-            <div class="bg-white border rounded p-6 mt-6">
-                <h3 class="text-sm font-semibold uppercase text-gray-500 mb-4">Artikelspecifika marginal-overrides</h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">ÅF-marginal override (%)</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. vår marginal override (%)</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }} ({{ $article->brand ?: '—' }})
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">Ärver: {{ rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.') }}% från {{ $article->brand ?: '—' }}</div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- BID-varianter (mocked) --}}
-            <div class="bg-white border rounded p-6 mt-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold uppercase text-gray-500">BID-varianter</h3>
-                    <div class="flex items-center gap-3">
-                        <label class="inline-flex items-center gap-2 text-xs text-gray-600">
-                            <input type="checkbox" disabled class="rounded cursor-not-allowed">
-                            <span>Aktivera BID</span>
-                        </label>
-                        <button disabled title="Mocked" class="border rounded text-xs px-3 py-1 text-gray-600 opacity-50 cursor-not-allowed">+ Variant</button>
-                    </div>
-                </div>
-                <div class="text-sm text-gray-500">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
-            </div>
-
-            {{-- Stöd & kampanjer (mocked) --}}
-            <div class="bg-white border rounded p-6 mt-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold uppercase text-gray-500">Stöd &amp; kampanjer</h3>
-                    <button disabled title="Mocked" class="border rounded text-xs px-3 py-1 text-gray-600 opacity-50 cursor-not-allowed">+ Lägg till stöd</button>
-                </div>
-                <div class="text-sm text-gray-500">Inga stöd på artikelnivå.</div>
-            </div>
             @break
 
         @default
