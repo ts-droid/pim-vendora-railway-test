@@ -39,10 +39,18 @@ class PricingWebController extends Controller
         $keyValid = \App\Models\ApiKey::where('api_key', $apiKey)->exists();
         abort_if(!$keyValid, 403, 'Invalid api_key');
 
+        $initial = $this->calculator->initialState($article);
+
         return View::make('pricing.calculator', [
             'article' => $article,
             'apiKey' => $apiKey,
-            'initial' => $this->calculator->initialState($article),
+            'initial' => $initial,
+            'calcConfig' => [
+                'articleNumber' => $article->article_number,
+                'articleName' => $article->description,
+                'apiKey' => $apiKey,
+                'initial' => $initial,
+            ],
         ]);
     }
 }

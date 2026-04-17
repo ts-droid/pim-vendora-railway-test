@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto p-6"
-     x-data='priceCalculator(@json([
-        "articleNumber" => $article->article_number,
-        "articleName" => $article->description,
-        "apiKey" => $apiKey,
-        "initial" => $initial,
-     ]))'
+     x-data="priceCalculator({{ json_encode($calcConfig) }})"
      x-init="init()">
 
     {{-- Article header --}}
