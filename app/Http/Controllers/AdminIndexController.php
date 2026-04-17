@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\Customer;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 
 /**
@@ -67,7 +68,7 @@ class AdminIndexController extends Controller
         }
         $suppliers = $query->orderBy('name')
             ->limit(50)
-            ->get(['number', 'name', 'country', 'org_number']);
+            ->get(['number', 'name', 'main_address_country as country', 'org_number']);
 
         return View::make('admin.list-suppliers', [
             'apiKey' => $apiKey,
@@ -110,7 +111,11 @@ class AdminIndexController extends Controller
         $apiKey = $this->requireApiKey($request);
 
         $q = trim((string) $request->input('q', ''));
-        $query = Article::selectRaw('brand, COUNT(*) as article_count')
+        // Use the query builder (not Eloquent) so the Article model's
+        // `retrieved` hook doesn't fire on partial rows — it expects
+        // article_number to be set and blows up on aggregate rows.
+        $query = DB::table('articles')
+            ->selectRaw('brand, COUNT(*) as article_count')
             ->whereNotNull('brand')
             ->where('brand', '!=', '')
             ->groupBy('brand');
