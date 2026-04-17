@@ -39,11 +39,13 @@ class AdminArticleController extends Controller
         abort_if(!$apiKey, 403, 'api_key query parameter required');
         abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
 
-        $tab = $request->input('tab', 'pricing');
-        $allowedTabs = ['general', 'logistics', 'web', 'images', 'files', 'reviews',
-            'campaign', 'google', 'raw', 'faq', 'outlet', 'design', 'pricing'];
+        $tab = $request->input('tab', 'general');
+        // Tab order matches the adm.vendora.se admin screen, but with Pricing
+        // inserted right after General (user's preferred placement).
+        $allowedTabs = ['general', 'pricing', 'logistics', 'web', 'images', 'files',
+            'reviews', 'campaign', 'google', 'raw', 'faq', 'outlet', 'design'];
         if (!in_array($tab, $allowedTabs, true)) {
-            $tab = 'pricing';
+            $tab = 'general';
         }
 
         $initial = $this->calculator->initialState($article);
