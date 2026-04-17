@@ -10,6 +10,8 @@ use App\Http\Controllers\MonitorDashboardController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\AdminArticleController;
+use App\Http\Controllers\AdminCustomerController;
+use App\Http\Controllers\AdminSupplierController;
 use App\Http\Controllers\PricingWebController;
 use App\Http\Controllers\PurchaseOrderConfirmController;
 use App\Http\Controllers\PurchaseOrderEtaController;
@@ -212,6 +214,8 @@ Route::get('/sales-order/{salesOrder}/receipt', [PreviewController::class, 'sale
 
 Route::get('/pricing/{articleNumber}', [PricingWebController::class, 'calculator'])->name('pricing.calculator');
 Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
+Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
+Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 
 require __DIR__ . '/supplierPortal.php';
 
