@@ -126,17 +126,22 @@
                     </p>
                     <form method="POST"
                           action="/admin/articles/{{ rawurlencode($article->article_number) }}/create-bundle?api_key={{ urlencode($apiKey) }}"
-                          class="grid grid-cols-12 gap-2 items-end">
+                          class="grid grid-cols-12 gap-2 items-end"
+                          data-create-bundle-form
+                          data-original-number="{{ $article->article_number }}"
+                          data-original-description="{{ $article->description }}">
                         <div class="col-span-4">
                             <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-SKU <span class="text-red-500">*</span></label>
                             <input type="text" name="bundle_article_number" required
-                                   placeholder="t.ex. BUN-{{ $article->article_number }}"
+                                   value="{{ $article->article_number }}"
+                                   data-original-number-input
                                    class="border rounded px-2 py-1.5 text-sm w-full font-mono">
                         </div>
                         <div class="col-span-5">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Beskrivning</label>
-                            <input type="text" name="bundle_description"
-                                   placeholder="{{ $article->description }} Bundle"
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Beskrivning <span class="text-red-500">*</span></label>
+                            <input type="text" name="bundle_description" required
+                                   value="{{ $article->description }}"
+                                   data-original-description-input
                                    class="border rounded px-2 py-1.5 text-sm w-full">
                         </div>
                         <div class="col-span-1">
@@ -150,7 +155,40 @@
                                 Skapa bundle →
                             </button>
                         </div>
+                        <div class="col-span-12 text-xs text-amber-700 hidden" data-unchanged-warning>
+                            ⚠ Bundle-SKU och beskrivning måste ändras från grundartikelns värden innan du kan spara.
+                        </div>
                     </form>
+
+                    <script>
+                        (() => {
+                            const form = document.querySelector('[data-create-bundle-form]');
+                            if (!form) return;
+                            const numberEl = form.querySelector('[data-original-number-input]');
+                            const descEl = form.querySelector('[data-original-description-input]');
+                            const warn = form.querySelector('[data-unchanged-warning]');
+                            const origNumber = form.dataset.originalNumber;
+                            const origDesc = form.dataset.originalDescription;
+                            form.addEventListener('submit', (e) => {
+                                const unchangedNumber = numberEl.value.trim() === origNumber;
+                                const unchangedDesc = descEl.value.trim() === origDesc;
+                                if (unchangedNumber || unchangedDesc) {
+                                    e.preventDefault();
+                                    warn.classList.remove('hidden');
+                                    if (unchangedNumber) numberEl.classList.add('border-amber-500');
+                                    if (unchangedDesc) descEl.classList.add('border-amber-500');
+                                }
+                            });
+                            [numberEl, descEl].forEach((el) => {
+                                el.addEventListener('input', () => {
+                                    el.classList.remove('border-amber-500');
+                                    if (numberEl.value.trim() !== origNumber && descEl.value.trim() !== origDesc) {
+                                        warn.classList.add('hidden');
+                                    }
+                                });
+                            });
+                        })();
+                    </script>
                 </div>
             @endif
 

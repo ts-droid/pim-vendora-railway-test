@@ -49,16 +49,26 @@ class AdminArticleController extends Controller
 
         $validated = $request->validate([
             'bundle_article_number' => 'required|string|max:255',
-            'bundle_description' => 'nullable|string|max:500',
+            'bundle_description' => 'required|string|max:500',
             'first_component_quantity' => 'nullable|integer|min:1',
         ]);
         $newNumber = trim($validated['bundle_article_number']);
-        if (Article::where('article_number', $newNumber)->exists()) {
-            return redirect('/admin/articles/' . rawurlencode($parent->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
-                ->with('saved', "Artikelnummer '{$newNumber}' finns redan — välj ett unikt");
-        }
-        $description = $validated['bundle_description'] ?? ($parent->description . ' Bundle');
+        $description = trim($validated['bundle_description']);
         $firstQty = (int) ($validated['first_component_quantity'] ?? 1);
+
+        // Protect against accidentally saving the parent's own values
+        // as the bundle identity — that would collide on article_number
+        // or produce a confusingly-named bundle.
+        $backPath = '/admin/articles/' . rawurlencode($parent->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing';
+        if ($newNumber === $parent->article_number) {
+            return redirect($backPath)->with('saved', 'Bundle-SKU måste skilja sig från grundartikelns nummer');
+        }
+        if ($description === (string) $parent->description) {
+            return redirect($backPath)->with('saved', 'Bundle-beskrivning måste skilja sig från grundartikelns beskrivning');
+        }
+        if (Article::where('article_number', $newNumber)->exists()) {
+            return redirect($backPath)->with('saved', "Artikelnummer '{$newNumber}' finns redan — välj ett unikt");
+        }
 
         // Create the bundle article. category_ids is NOT NULL in schema.
         // Copy brand + supplier_number from parent so the new bundle has
