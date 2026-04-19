@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
 use App\Models\Article;
+use App\Models\Brand;
 use App\Models\Customer;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -20,10 +21,45 @@ use Illuminate\Support\Facades\View;
  */
 class AdminIndexController extends Controller
 {
-    public function redirectToDefault(Request $request)
+    public function home(Request $request)
     {
-        $apiKey = (string) $request->input('api_key', '');
-        return redirect('/admin/articles?api_key=' . urlencode($apiKey));
+        $apiKey = $this->requireApiKey($request);
+
+        $articles = Article::orderByDesc('updated_at')
+            ->limit(6)
+            ->get(['article_number', 'description', 'brand']);
+
+        $suppliers = Supplier::orderBy('name')
+            ->limit(6)
+            ->get(['number', 'name', 'main_address_country as country']);
+
+        $customers = Customer::orderByDesc('sales_last_30_days')
+            ->limit(6)
+            ->get(['customer_number', 'name', 'sales_last_30_days']);
+
+        $brands = DB::table('articles')
+            ->selectRaw('brand, COUNT(*) as article_count')
+            ->whereNotNull('brand')
+            ->where('brand', '!=', '')
+            ->groupBy('brand')
+            ->orderByDesc('article_count')
+            ->limit(6)
+            ->get();
+
+        return View::make('admin.home', [
+            'apiKey' => $apiKey,
+            'activeNav' => 'home',
+            'counts' => [
+                'articles' => Article::count(),
+                'suppliers' => Supplier::count(),
+                'customers' => Customer::count(),
+                'brands' => Brand::count(),
+            ],
+            'articles' => $articles,
+            'suppliers' => $suppliers,
+            'customers' => $customers,
+            'brands' => $brands,
+        ]);
     }
 
     public function articles(Request $request)

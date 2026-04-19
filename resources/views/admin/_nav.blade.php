@@ -8,6 +8,7 @@
     <div class="max-w-6xl mx-auto px-6 flex gap-1">
         @php
             $links = [
+                'home'      => ['label' => 'Start',         'href' => '/admin'],
                 'articles'  => ['label' => 'Artiklar',      'href' => '/admin/articles'],
                 'suppliers' => ['label' => 'Leverantörer',  'href' => '/admin/suppliers'],
                 'customers' => ['label' => 'Kunder',        'href' => '/admin/customers'],

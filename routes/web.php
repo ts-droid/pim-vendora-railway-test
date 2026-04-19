@@ -213,7 +213,7 @@ Route::get('/monitors', [MonitorDashboardController::class, 'index']);
 Route::get('/sales-order/{salesOrder}/receipt', [PreviewController::class, 'salesOrderReceiptPublic'])->name('salesOrder.receipt');
 
 Route::get('/pricing/{articleNumber}', [PricingWebController::class, 'calculator'])->name('pricing.calculator');
-Route::get('/admin', [App\Http\Controllers\AdminIndexController::class, 'redirectToDefault'])->name('admin.index');
+Route::get('/admin', [App\Http\Controllers\AdminIndexController::class, 'home'])->name('admin.index');
 Route::get('/admin/articles', [App\Http\Controllers\AdminIndexController::class, 'articles'])->name('admin.articles.list');
 Route::get('/admin/suppliers', [App\Http\Controllers\AdminIndexController::class, 'suppliers'])->name('admin.suppliers.list');
 Route::get('/admin/customers', [App\Http\Controllers\AdminIndexController::class, 'customers'])->name('admin.customers.list');
