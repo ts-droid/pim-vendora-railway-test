@@ -268,7 +268,7 @@ class AdminArticleController extends Controller
         abort_if(!$support, 404);
 
         $validated = $request->validate([
-            'layer' => 'nullable|string|in:supplier,brand',
+            'layer' => 'nullable|string|in:supplier,customer',
             'customer_type' => 'nullable|string|in:upfront,rebate,other',
             'value' => 'nullable|numeric|min:0',
             'is_percentage' => 'nullable|boolean',

@@ -434,11 +434,11 @@
                                   action="/admin/articles/{{ rawurlencode($article->article_number) }}/supports/{{ $s->id }}?api_key={{ urlencode($apiKey) }}"
                                   class="p-3 border rounded bg-gray-50">
                                 <div class="grid grid-cols-12 gap-3 items-start">
-                                    <div class="col-span-2">
-                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Lager</label>
+                                    <div class="col-span-3">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" title="Från leverantör = vi får in pengar/värde. Till kund = visas som rabatt i prislista.">Riktning</label>
                                         <select name="layer" class="border rounded px-2 py-1.5 text-sm w-full">
-                                            <option value="supplier" {{ $s->layer === 'supplier' ? 'selected' : '' }}>Leverantör</option>
-                                            <option value="brand" {{ $s->layer === 'brand' ? 'selected' : '' }}>Varumärke</option>
+                                            <option value="supplier" {{ in_array($s->layer, ['supplier', 'brand']) ? 'selected' : '' }}>Från leverantör (inkommande)</option>
+                                            <option value="customer" {{ $s->layer === 'customer' ? 'selected' : '' }}>Till kund (i prislista)</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2">
@@ -454,11 +454,11 @@
                                         <input type="number" step="0.01" min="0" name="value" value="{{ rtrim(rtrim(number_format((float) $s->value, 4, '.', ''), '0'), '.') ?: '0' }}"
                                                class="border rounded px-2 py-1.5 text-sm w-full text-right">
                                     </div>
-                                    <div class="col-span-2">
+                                    <div class="col-span-1">
                                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Enhet</label>
                                         <select name="is_percentage" class="border rounded px-2 py-1.5 text-sm w-full">
-                                            <option value="0" {{ !$s->is_percentage ? 'selected' : '' }}>kr (fast belopp)</option>
-                                            <option value="1" {{ $s->is_percentage ? 'selected' : '' }}>% (procent)</option>
+                                            <option value="0" {{ !$s->is_percentage ? 'selected' : '' }}>kr</option>
+                                            <option value="1" {{ $s->is_percentage ? 'selected' : '' }}>%</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2">

@@ -16,8 +16,11 @@ class ArticleSupport extends Model
 {
     use HasFactory;
 
+    // Riktning på stödet:
+    //   SUPPLIER = inkommande pengar/värde från leverantör till oss på varan
+    //   CUSTOMER = utgående rabatt/stöd som visas mot kund i prislistor
     public const LAYER_SUPPLIER = 'supplier';
-    public const LAYER_BRAND = 'brand';
+    public const LAYER_CUSTOMER = 'customer';
 
     public const CUSTOMER_TYPE_UPFRONT = 'upfront';
     public const CUSTOMER_TYPE_REBATE = 'rebate';
