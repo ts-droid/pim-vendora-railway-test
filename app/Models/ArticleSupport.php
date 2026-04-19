@@ -32,6 +32,7 @@ class ArticleSupport extends Model
         'customer_type',
         'value',
         'is_percentage',
+        'currency',
         'date_from',
         'date_to',
         'sort_order',

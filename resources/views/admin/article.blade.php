@@ -419,7 +419,14 @@
             {{-- Stöd & kampanjer — leverantörs- eller varumärkesstöd per artikel och kundtyp --}}
             <div class="bg-white border rounded p-6 mt-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold uppercase text-gray-500">Stöd &amp; kampanjer</h3>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase text-gray-500">Stöd &amp; kampanjer</h3>
+                        @if ($supplierCurrency && $supplierCurrency !== 'SEK')
+                            <div class="text-xs text-gray-500 mt-1">
+                                Leverantörens valuta: <span class="font-mono">{{ $supplierCurrency }}</span> — används som default på nya supplier-stöd.
+                            </div>
+                        @endif
+                    </div>
                     <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/supports?api_key={{ urlencode($apiKey) }}" class="inline">
                         <button type="submit" class="border rounded text-xs px-3 py-1 text-gray-700 hover:bg-gray-50">+ Lägg till stöd</button>
                     </form>
@@ -455,10 +462,23 @@
                                                class="border rounded px-2 py-1.5 text-sm w-full text-right">
                                     </div>
                                     <div class="col-span-1">
-                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Enhet</label>
-                                        <select name="is_percentage" class="border rounded px-2 py-1.5 text-sm w-full">
-                                            <option value="0" {{ !$s->is_percentage ? 'selected' : '' }}>kr</option>
-                                            <option value="1" {{ $s->is_percentage ? 'selected' : '' }}>%</option>
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" title="% = procent. Annars valuta. Från leverantör = valuta ärvs från leverantörens valuta.">Enhet</label>
+                                        @php
+                                            $currentUnit = $s->is_percentage
+                                                ? 'PCT'
+                                                : strtoupper((string) ($s->currency ?: 'SEK'));
+                                        @endphp
+                                        <select name="unit" class="border rounded px-2 py-1.5 text-sm w-full">
+                                            <option value="PCT" {{ $currentUnit === 'PCT' ? 'selected' : '' }}>%</option>
+                                            @if ($supplierCurrency && $supplierCurrency !== 'SEK')
+                                                <option value="SUPPLIER" {{ $currentUnit === $supplierCurrency ? 'selected' : '' }}>{{ $supplierCurrency }} (leverantör)</option>
+                                            @endif
+                                            <option value="SEK" {{ $currentUnit === 'SEK' ? 'selected' : '' }}>SEK</option>
+                                            <option value="USD" {{ $currentUnit === 'USD' && $supplierCurrency !== 'USD' ? 'selected' : '' }}>USD</option>
+                                            <option value="EUR" {{ $currentUnit === 'EUR' && $supplierCurrency !== 'EUR' ? 'selected' : '' }}>EUR</option>
+                                            <option value="NOK" {{ $currentUnit === 'NOK' && $supplierCurrency !== 'NOK' ? 'selected' : '' }}>NOK</option>
+                                            <option value="DKK" {{ $currentUnit === 'DKK' && $supplierCurrency !== 'DKK' ? 'selected' : '' }}>DKK</option>
+                                            <option value="GBP" {{ $currentUnit === 'GBP' && $supplierCurrency !== 'GBP' ? 'selected' : '' }}>GBP</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2">

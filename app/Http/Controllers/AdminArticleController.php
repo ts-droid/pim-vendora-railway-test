@@ -244,6 +244,10 @@ class AdminArticleController extends Controller
         $article = $this->requireArticle($articleNumber);
         $apiKey = $this->requireApiKey($request);
 
+        // Default till leverantörens valuta om artikeln har en
+        // leverantör — användaren kan ändra i dropdownen efteråt.
+        $defaultCurrency = $this->articleSupplierCurrency($article) ?: 'SEK';
+
         $nextSort = 1 + (int) ArticleSupport::where('article_number', $article->article_number)->max('sort_order');
         ArticleSupport::create([
             'article_number' => $article->article_number,
@@ -251,6 +255,7 @@ class AdminArticleController extends Controller
             'customer_type' => 'upfront',
             'value' => 0,
             'is_percentage' => false,
+            'currency' => $defaultCurrency,
             'sort_order' => $nextSort,
         ]);
 
@@ -271,19 +276,43 @@ class AdminArticleController extends Controller
             'layer' => 'nullable|string|in:supplier,customer',
             'customer_type' => 'nullable|string|in:upfront,rebate,other',
             'value' => 'nullable|numeric|min:0',
-            'is_percentage' => 'nullable|boolean',
+            // 'unit' is the UI combined picker. Values:
+            //   'PCT'                    → is_percentage=true, currency=null
+            //   'SEK' | 'USD' | 'EUR'    → is_percentage=false, currency=<code>
+            //   'SUPPLIER'               → is_percentage=false, currency=<article's supplier.currency>
+            'unit' => 'nullable|string|max:16',
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
         ]);
         $support->layer = $validated['layer'] ?? 'supplier';
         $support->customer_type = $validated['customer_type'] ?? 'upfront';
         $support->value = (float) ($validated['value'] ?? 0);
-        $support->is_percentage = (bool) ($request->boolean('is_percentage'));
         $support->date_from = $validated['date_from'] ?: null;
         $support->date_to = $validated['date_to'] ?: null;
+
+        $unit = strtoupper((string) ($validated['unit'] ?? 'SEK'));
+        if ($unit === 'PCT') {
+            $support->is_percentage = true;
+            $support->currency = null;
+        } elseif ($unit === 'SUPPLIER') {
+            $support->is_percentage = false;
+            $support->currency = $this->articleSupplierCurrency($article) ?: 'SEK';
+        } else {
+            $support->is_percentage = false;
+            $support->currency = in_array($unit, ['SEK', 'USD', 'EUR', 'NOK', 'DKK', 'GBP'], true) ? $unit : 'SEK';
+        }
         $support->save();
 
         return $this->redirectToPricing($article->article_number, $apiKey, 'Stöd uppdaterat');
+    }
+
+    private function articleSupplierCurrency(Article $article): ?string
+    {
+        if (!$article->supplier_number) {
+            return null;
+        }
+        $currency = \App\Models\Supplier::where('number', $article->supplier_number)->value('currency');
+        return $currency ? strtoupper((string) $currency) : null;
     }
 
     public function deleteSupport(string $articleNumber, int $supportId, Request $request)
@@ -508,6 +537,7 @@ class AdminArticleController extends Controller
                 ->orderBy('id')
                 ->get()
             : collect();
+        $supplierCurrency = $tab === 'pricing' ? $this->articleSupplierCurrency($article) : null;
 
         $gs1Configured = app(Gs1ValidooService::class)->isConfigured();
 
@@ -526,6 +556,7 @@ class AdminArticleController extends Controller
             'componentCostBreakdowns' => $componentCostBreakdowns,
             'ownCostBreakdown' => $ownCostBreakdown,
             'supports' => $supports,
+            'supplierCurrency' => $supplierCurrency,
             'gs1Configured' => $gs1Configured,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
