@@ -220,11 +220,15 @@ Route::get('/admin/customers', [App\Http\Controllers\AdminIndexController::class
 Route::get('/admin/brands', [App\Http\Controllers\AdminIndexController::class, 'brands'])->name('admin.brands.list');
 
 Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
+Route::post('/admin/articles/{articleNumber}/pricing', [AdminArticleController::class, 'updatePricing'])->name('admin.article.update-pricing');
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
     ->where('brandName', '.*')
     ->name('admin.brand.show');
+Route::post('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'update'])
+    ->where('brandName', '.*')
+    ->name('admin.brand.update');
 
 require __DIR__ . '/supplierPortal.php';
 

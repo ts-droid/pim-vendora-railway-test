@@ -16,6 +16,12 @@
         </a>
     </div>
 
+    @if (session('saved'))
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded p-3 mb-4 text-sm flex items-center justify-between">
+            <span>✓ {{ session('saved') }}</span>
+        </div>
+    @endif
+
     <div class="bg-white border rounded p-6 mb-6">
         <div class="flex justify-between items-start mb-4">
             <div>
@@ -24,47 +30,35 @@
             </div>
         </div>
 
-        <h3 class="text-sm font-semibold uppercase text-gray-500 mb-3">Standard-marginaler (cascade)</h3>
-        <div class="grid grid-cols-2 gap-6 mb-4">
-            <div>
-                <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Standard ÅF-marginal (%)</label>
-                <div class="border rounded px-3 py-2 bg-gray-50">
-                    @if ($brand->standard_reseller_margin !== null)
-                        {{ rtrim(rtrim(number_format($brand->standard_reseller_margin, 2), '0'), '.') }}
-                    @else
-                        <span class="text-gray-400 italic">— (ej satt)</span>
-                    @endif
+        <form method="POST" action="/admin/brands/{{ rawurlencode($brand->name) }}?api_key={{ urlencode($apiKey) }}">
+            <h3 class="text-sm font-semibold uppercase text-gray-500 mb-3">Standard-marginaler (cascade)</h3>
+            <div class="grid grid-cols-2 gap-6 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" for="std">Standard ÅF-marginal (%)</label>
+                    <input type="number" step="0.01" min="0" max="100" name="standard_reseller_margin" id="std"
+                           value="{{ $brand->standard_reseller_margin !== null ? rtrim(rtrim(number_format($brand->standard_reseller_margin, 2), '0'), '.') : '' }}"
+                           placeholder="— (ej satt)"
+                           class="border rounded px-3 py-2 w-full focus:outline-none focus:border-blue-500">
+                    <div class="text-xs text-gray-500 mt-1">
+                        Artiklar utan eget override ärver detta värde. Tomt = brand ärver inte till artiklar.
+                    </div>
                 </div>
-                <div class="text-xs text-gray-500 mt-1">
-                    @if ($brand->standard_reseller_margin !== null)
-                        Artiklar utan eget override ärver denna.
-                    @else
-                        Ingen brand-nivå satt. Artiklar faller till global default eller sitt eget värde.
-                    @endif
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. vår marginal (%)</label>
-                <div class="border rounded px-3 py-2 bg-gray-50">
-                    @if ($brand->minimum_margin !== null)
-                        {{ rtrim(rtrim(number_format($brand->minimum_margin, 2), '0'), '.') }}
-                    @else
-                        <span class="text-gray-400 italic">— (ej satt)</span>
-                    @endif
-                </div>
-                <div class="text-xs text-gray-500 mt-1">
-                    @if ($brand->minimum_margin !== null)
-                        Artiklar utan eget override ärver denna.
-                    @else
-                        Ingen brand-nivå satt.
-                    @endif
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" for="min">Min. vår marginal (%)</label>
+                    <input type="number" step="0.01" min="0" max="100" name="minimum_margin" id="min"
+                           value="{{ $brand->minimum_margin !== null ? rtrim(rtrim(number_format($brand->minimum_margin, 2), '0'), '.') : '' }}"
+                           placeholder="— (ej satt)"
+                           class="border rounded px-3 py-2 w-full focus:outline-none focus:border-blue-500">
+                    <div class="text-xs text-gray-500 mt-1">
+                        Ger golvet. Tomt = ingen brand-nivå satt.
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="flex justify-end gap-2 pt-4 border-t">
-            <button disabled title="Mocked — lives in adm.vendora.se" class="bg-green-600 text-white text-sm px-4 py-1.5 rounded opacity-50 cursor-not-allowed">Spara</button>
-        </div>
+            <div class="flex justify-end gap-2 pt-4 border-t">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded">Spara</button>
+            </div>
+        </form>
 
         <div class="text-xs text-gray-400 mt-2 text-right">
             Last updated: {{ $brand->updated_at ?? '—' }}

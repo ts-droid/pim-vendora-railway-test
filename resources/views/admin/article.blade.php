@@ -43,6 +43,12 @@
         'queryPrefix' => 'api_key=' . urlencode($apiKey) . '&',
     ])
 
+    @if (session('saved'))
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded p-3 mb-4 text-sm">
+            ✓ {{ session('saved') }}
+        </div>
+    @endif
+
     @switch($activeTab)
 
         @case('pricing')
@@ -59,44 +65,49 @@
                         </a>
                     @endif
                 </div>
-                <div class="grid grid-cols-2 gap-6">
-                    @php
-                        $articleResellerFmt = rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.');
-                        $articleMinFmt      = rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.');
-                        $brandReseller      = $brand?->standard_reseller_margin;
-                        $brandMin           = $brand?->minimum_margin;
-                    @endphp
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">ÅF-marginal override (%)</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ $articleResellerFmt }} ({{ $article->brand ?: '—' }})
+                @php
+                    $articleResellerVal = rtrim(rtrim(number_format((float) $article->standard_reseller_margin, 2), '0'), '.');
+                    $articleMinVal      = rtrim(rtrim(number_format((float) $article->minimum_margin, 2), '0'), '.');
+                    $brandReseller      = $brand?->standard_reseller_margin;
+                    $brandMin           = $brand?->minimum_margin;
+                @endphp
+                <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/pricing?api_key={{ urlencode($apiKey) }}">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" for="art-std">ÅF-marginal override (%)</label>
+                            <input type="number" step="0.01" min="0" max="100" name="standard_reseller_margin" id="art-std"
+                                   value="{{ $articleResellerVal }}"
+                                   class="border rounded px-3 py-2 w-full focus:outline-none focus:border-blue-500">
+                            <div class="text-xs text-gray-500 mt-1">
+                                @if ($brandReseller !== null)
+                                    Ärver: {{ rtrim(rtrim(number_format((float) $brandReseller, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
+                                @elseif ($article->brand)
+                                    Ingen standard satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
+                                @else
+                                    Inget varumärke → global default.
+                                @endif
+                            </div>
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            @if ($brandReseller !== null)
-                                Ärver: {{ rtrim(rtrim(number_format((float) $brandReseller, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
-                            @elseif ($article->brand)
-                                Ingen standard satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
-                            @else
-                                Inget varumärke → global default.
-                            @endif
+                        <div>
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1" for="art-min">Min. vår marginal override (%)</label>
+                            <input type="number" step="0.01" min="0" max="100" name="minimum_margin" id="art-min"
+                                   value="{{ $articleMinVal }}"
+                                   class="border rounded px-3 py-2 w-full focus:outline-none focus:border-blue-500">
+                            <div class="text-xs text-gray-500 mt-1">
+                                @if ($brandMin !== null)
+                                    Ärver: {{ rtrim(rtrim(number_format((float) $brandMin, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
+                                @elseif ($article->brand)
+                                    Ingen min-marginal satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
+                                @else
+                                    Inget varumärke → global default.
+                                @endif
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. vår marginal override (%)</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">
-                            {{ $articleMinFmt }} ({{ $article->brand ?: '—' }})
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            @if ($brandMin !== null)
-                                Ärver: {{ rtrim(rtrim(number_format((float) $brandMin, 2), '0'), '.') }}% från {{ $article->brand }} (varumärkes-standard)
-                            @elseif ($article->brand)
-                                Ingen min-marginal satt på varumärket <strong>{{ $article->brand }}</strong> — faller till global default.
-                            @else
-                                Inget varumärke → global default.
-                            @endif
-                        </div>
+                    <div class="flex justify-end gap-2 mt-4 pt-4 border-t">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1.5 rounded">Spara marginaler</button>
                     </div>
-                </div>
+                </form>
             </div>
 
             {{-- BID-varianter (mocked) --}}

@@ -14,11 +14,33 @@ use Illuminate\Support\Facades\View;
  */
 class AdminBrandController extends Controller
 {
+    public function update(string $brandName, Request $request)
+    {
+        $apiKey = $this->requireApiKey($request);
+
+        $brand = Brand::where('name', $brandName)->first();
+        abort_if(!$brand, 404, 'Brand not found');
+
+        $validated = $request->validate([
+            'standard_reseller_margin' => 'nullable|numeric|min:0|max:100',
+            'minimum_margin' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        // Blank string → null (means "no brand-level default"), unlike 0
+        // which means "cascade 0%". Keeps the cascade semantics intact.
+        $brand->standard_reseller_margin = $validated['standard_reseller_margin'] === null || $validated['standard_reseller_margin'] === ''
+            ? null : (float) $validated['standard_reseller_margin'];
+        $brand->minimum_margin = $validated['minimum_margin'] === null || $validated['minimum_margin'] === ''
+            ? null : (float) $validated['minimum_margin'];
+        $brand->save();
+
+        return redirect('/admin/brands/' . rawurlencode($brand->name) . '?api_key=' . urlencode($apiKey))
+            ->with('saved', 'Sparade ' . $brand->name);
+    }
+
     public function show(string $brandName, Request $request)
     {
-        $apiKey = (string) $request->input('api_key', '');
-        abort_if(!$apiKey, 403, 'api_key query parameter required');
-        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+        $apiKey = $this->requireApiKey($request);
 
         $brand = Brand::where('name', $brandName)->first();
         abort_if(!$brand, 404, 'Brand not found');
@@ -38,5 +60,13 @@ class AdminBrandController extends Controller
             'articleCount' => $articleCount,
             'articles' => $articles,
         ]);
+    }
+
+    private function requireApiKey(Request $request): string
+    {
+        $apiKey = (string) $request->input('api_key', '');
+        abort_if(!$apiKey, 403, 'api_key query parameter required');
+        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+        return $apiKey;
     }
 }

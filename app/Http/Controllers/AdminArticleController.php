@@ -27,6 +27,32 @@ class AdminArticleController extends Controller
     ) {
     }
 
+    public function updatePricing(string $articleNumber, Request $request)
+    {
+        $article = Article::where('article_number', $articleNumber)->first();
+        abort_if(!$article, 404);
+
+        $apiKey = (string) $request->input('api_key', '');
+        abort_if(!$apiKey, 403, 'api_key query parameter required');
+        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+
+        $validated = $request->validate([
+            'standard_reseller_margin' => 'nullable|numeric|min:0|max:100',
+            'minimum_margin' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        // Empty input → 0 (article row columns are NOT NULL in the
+        // schema). The cascade still works: article reads its own value
+        // first, but the view shows the brand default side-by-side so
+        // you can compare and tell whether the article is overriding.
+        $article->standard_reseller_margin = (float) ($validated['standard_reseller_margin'] ?? 0);
+        $article->minimum_margin = (float) ($validated['minimum_margin'] ?? 0);
+        $article->save();
+
+        return redirect('/admin/articles/' . rawurlencode($article->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
+            ->with('saved', 'Sparade ' . $article->article_number);
+    }
+
     public function show(string $articleNumber, Request $request)
     {
         if ($this->shouldLogControllerMethod()) {
