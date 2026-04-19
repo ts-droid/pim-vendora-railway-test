@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ApiKey;
+use App\Models\ArticleSupport;
 use App\Models\BidVariant;
 use App\Models\Brand;
 use App\Models\BundleComponent;
@@ -228,6 +229,65 @@ class AdminArticleController extends Controller
         }
     }
 
+    public function addSupport(string $articleNumber, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $nextSort = 1 + (int) ArticleSupport::where('article_number', $article->article_number)->max('sort_order');
+        ArticleSupport::create([
+            'article_number' => $article->article_number,
+            'layer' => 'supplier',
+            'customer_type' => 'upfront',
+            'value' => 0,
+            'is_percentage' => false,
+            'sort_order' => $nextSort,
+        ]);
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Nytt stöd tillagt');
+    }
+
+    public function updateSupport(string $articleNumber, int $supportId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $support = ArticleSupport::where('id', $supportId)
+            ->where('article_number', $article->article_number)
+            ->first();
+        abort_if(!$support, 404);
+
+        $validated = $request->validate([
+            'layer' => 'nullable|string|in:supplier,brand',
+            'customer_type' => 'nullable|string|in:upfront,rebate,other',
+            'value' => 'nullable|numeric|min:0',
+            'is_percentage' => 'nullable|boolean',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date|after_or_equal:date_from',
+        ]);
+        $support->layer = $validated['layer'] ?? 'supplier';
+        $support->customer_type = $validated['customer_type'] ?? 'upfront';
+        $support->value = (float) ($validated['value'] ?? 0);
+        $support->is_percentage = (bool) ($request->boolean('is_percentage'));
+        $support->date_from = $validated['date_from'] ?: null;
+        $support->date_to = $validated['date_to'] ?: null;
+        $support->save();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Stöd uppdaterat');
+    }
+
+    public function deleteSupport(string $articleNumber, int $supportId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        ArticleSupport::where('id', $supportId)
+            ->where('article_number', $article->article_number)
+            ->delete();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Stöd borttaget');
+    }
+
     public function toggleBid(string $articleNumber, Request $request)
     {
         $article = $this->requireArticle($articleNumber);
@@ -432,6 +492,13 @@ class AdminArticleController extends Controller
             ? CostResolver::resolveBreakdown($article)
             : null;
 
+        $supports = $tab === 'pricing'
+            ? ArticleSupport::where('article_number', $article->article_number)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+            : collect();
+
         $gs1Configured = app(Gs1ValidooService::class)->isConfigured();
 
         return View::make('admin.article', [
@@ -448,6 +515,7 @@ class AdminArticleController extends Controller
             'bundleStock' => $bundleStock,
             'componentCostBreakdowns' => $componentCostBreakdowns,
             'ownCostBreakdown' => $ownCostBreakdown,
+            'supports' => $supports,
             'gs1Configured' => $gs1Configured,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
