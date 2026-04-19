@@ -6,7 +6,9 @@ use App\Models\Article;
 use App\Models\ApiKey;
 use App\Models\BidVariant;
 use App\Models\Brand;
+use App\Models\BundleComponent;
 use App\Models\SupplierArticlePrice;
+use App\Services\GS1\Gs1ValidooService;
 use App\Services\Pricing\PriceCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -26,6 +28,107 @@ class AdminArticleController extends Controller
     public function __construct(
         private readonly PriceCalculatorService $calculator,
     ) {
+    }
+
+    public function addBundleComponent(string $articleNumber, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $validated = $request->validate([
+            'component_article_number' => 'required|string|max:255',
+            'quantity' => 'nullable|integer|min:1',
+        ]);
+
+        $componentNumber = trim($validated['component_article_number']);
+        if ($componentNumber === $article->article_number) {
+            return $this->redirectToPricing($article->article_number, $apiKey, 'En bundle kan inte innehålla sig själv');
+        }
+        if (!Article::where('article_number', $componentNumber)->exists()) {
+            return $this->redirectToPricing($article->article_number, $apiKey, "Hittade inte artikel '{$componentNumber}' — kontrollera nummer");
+        }
+
+        // Promote to Bundle on first component, so the auto-GTIN hook +
+        // downstream cost calc know this is a bundle.
+        if ($article->article_type !== 'Bundle') {
+            $article->article_type = 'Bundle';
+            $article->save();
+        }
+
+        $nextSort = 1 + (int) BundleComponent::where('bundle_article_number', $article->article_number)->max('sort_order');
+        BundleComponent::create([
+            'bundle_article_number' => $article->article_number,
+            'component_article_number' => $componentNumber,
+            'quantity' => (int) ($validated['quantity'] ?? 1),
+            'sort_order' => $nextSort,
+        ]);
+
+        return $this->redirectToPricing($article->article_number, $apiKey, "Komponent {$componentNumber} tillagd");
+    }
+
+    public function updateBundleComponent(string $articleNumber, int $componentId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $component = BundleComponent::where('id', $componentId)
+            ->where('bundle_article_number', $article->article_number)
+            ->first();
+        abort_if(!$component, 404);
+
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+        $component->quantity = (int) $validated['quantity'];
+        if (array_key_exists('sort_order', $validated) && $validated['sort_order'] !== null) {
+            $component->sort_order = (int) $validated['sort_order'];
+        }
+        $component->save();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Komponent uppdaterad');
+    }
+
+    public function deleteBundleComponent(string $articleNumber, int $componentId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        BundleComponent::where('id', $componentId)
+            ->where('bundle_article_number', $article->article_number)
+            ->delete();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Komponent borttagen');
+    }
+
+    public function generateGTIN(string $articleNumber, Request $request, Gs1ValidooService $gs1)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        if (!$gs1->isConfigured()) {
+            return $this->redirectToPricing(
+                $article->article_number,
+                $apiKey,
+                'GS1 ej konfigurerat: sätt GS1_API_KEY + GS1_COMPANY_PREFIX i Railway-envet'
+            );
+        }
+
+        try {
+            $gtin = $gs1->generateAndActivate(
+                (string) ($article->description ?: 'Bundle ' . $article->article_number),
+                null
+            );
+            $article->ean = $gtin;
+            $article->save();
+            return $this->redirectToPricing($article->article_number, $apiKey, "GTIN genererat: {$gtin}");
+        } catch (\Throwable $e) {
+            return $this->redirectToPricing(
+                $article->article_number,
+                $apiKey,
+                'GS1-fel: ' . $e->getMessage()
+            );
+        }
     }
 
     public function toggleBid(string $articleNumber, Request $request)
@@ -189,6 +292,22 @@ class AdminArticleController extends Controller
                 ->get()
             : collect();
 
+        // Bundle components + computed bundle cost (sum of component
+        // cost_price_avg × quantity). Only queried on the pricing tab.
+        $bundleComponents = collect();
+        $bundleCost = 0.0;
+        if ($tab === 'pricing') {
+            $bundleComponents = BundleComponent::where('bundle_article_number', $article->article_number)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->with('component:article_number,description,brand,cost_price_avg,ean')
+                ->get();
+            foreach ($bundleComponents as $bc) {
+                $bundleCost += (float) ($bc->component->cost_price_avg ?? 0) * (int) $bc->quantity;
+            }
+        }
+        $gs1Configured = app(Gs1ValidooService::class)->isConfigured();
+
         return View::make('admin.article', [
             'article' => $article,
             'apiKey' => $apiKey,
@@ -198,6 +317,9 @@ class AdminArticleController extends Controller
             'brand' => $brand,
             'supplierPrice' => $supplierPrice,
             'bidVariants' => $bidVariants,
+            'bundleComponents' => $bundleComponents,
+            'bundleCost' => $bundleCost,
+            'gs1Configured' => $gs1Configured,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
                 'articleName' => $article->description,

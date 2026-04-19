@@ -110,6 +110,127 @@
                 </form>
             </div>
 
+            {{-- Bundling — artikeln består av andra artiklar. Bundle-kostnad summeras från komponenterna. GS1 GTIN kan genereras via Validoo. --}}
+            <div class="bg-white border rounded p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">
+                        Bundling
+                        @if ($article->article_type === 'Bundle')
+                            <span class="ml-2 bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded uppercase tracking-wide">Bundle</span>
+                        @endif
+                    </h3>
+                </div>
+
+                {{-- Summary-rad: kostnad + EAN + GS1-knapp --}}
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-kostnad</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
+                            <span>{{ rtrim(rtrim(number_format($bundleCost, 2), '0'), '.') ?: '0' }}</span>
+                            <span class="text-gray-500">SEK</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Σ (komponent.cost_price_avg × antal) över {{ $bundleComponents->count() }} komponenter.
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">EAN / GTIN</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 font-mono">{{ $article->ean ?: '—' }}</div>
+                        @if ($article->ean)
+                            <div class="text-xs text-green-700 mt-1">✓ GTIN finns</div>
+                        @else
+                            <div class="text-xs text-gray-500 mt-1">Ingen EAN — generera via GS1 Validoo-knappen till höger.</div>
+                        @endif
+                    </div>
+                    <div class="flex items-end">
+                        <form method="POST"
+                              action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/generate-gtin?api_key={{ urlencode($apiKey) }}"
+                              class="w-full"
+                              onsubmit="return confirm('Ringa GS1 Validoo och generera + aktivera en riktig GTIN nu?');">
+                            <button type="submit"
+                                    @if (!$gs1Configured) disabled title="GS1 ej konfigurerat: saknar GS1_API_KEY / GS1_COMPANY_PREFIX" @endif
+                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded {{ !$gs1Configured ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                Generera GTIN via GS1 →
+                            </button>
+                            <div class="text-xs text-gray-500 mt-1">
+                                @if ($gs1Configured)
+                                    Anropar services.validoo.se — skriver ny GTIN till <code class="bg-gray-100 px-1 rounded">articles.ean</code>.
+                                @else
+                                    <span class="text-amber-700">GS1 ej konfigurerat.</span> Sätt <code class="bg-gray-100 px-1 rounded">GS1_API_KEY</code> + <code class="bg-gray-100 px-1 rounded">GS1_COMPANY_PREFIX</code> i Railway-envet.
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Komponenter --}}
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-xs text-gray-500 uppercase font-semibold">Komponenter</h4>
+                        <span class="text-xs text-gray-400">Grunddata ärvs från respektive komponent-artikel</span>
+                    </div>
+
+                    @if ($bundleComponents->isEmpty())
+                        <div class="text-sm text-gray-500 italic mb-3">Inga komponenter. Lägg till nedan för att göra detta till en bundle.</div>
+                    @else
+                        <div class="space-y-2 mb-3">
+                            @foreach ($bundleComponents as $bc)
+                                <form method="POST"
+                                      action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}?api_key={{ urlencode($apiKey) }}"
+                                      class="grid grid-cols-12 gap-2 items-center p-2 border rounded bg-gray-50">
+                                    <div class="col-span-3 font-mono text-sm">
+                                        <a href="/admin/articles/{{ rawurlencode($bc->component_article_number) }}?api_key={{ urlencode($apiKey) }}"
+                                           class="text-blue-600 hover:underline">{{ $bc->component_article_number }}</a>
+                                    </div>
+                                    <div class="col-span-5 text-sm text-gray-700 truncate">
+                                        {{ $bc->component?->description ?? '— artikel saknas —' }}
+                                        @if ($bc->component?->brand)
+                                            <span class="text-xs text-gray-400">· {{ $bc->component->brand }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-span-1 text-right text-xs text-gray-600">
+                                        {{ rtrim(rtrim(number_format((float) ($bc->component?->cost_price_avg ?? 0), 2), '0'), '.') ?: '0' }} kr
+                                    </div>
+                                    <div class="col-span-1">
+                                        <input type="number" name="quantity" value="{{ $bc->quantity }}" min="1"
+                                               class="border rounded px-2 py-1 text-sm w-full text-right">
+                                    </div>
+                                    <div class="col-span-2 flex gap-1 justify-end">
+                                        <button type="submit"
+                                                class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
+                                        <button type="submit"
+                                                formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}/delete?api_key={{ urlencode($apiKey) }}"
+                                                onclick="return confirm('Ta bort {{ $bc->component_article_number }} från bundlen?');"
+                                                class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
+                                    </div>
+                                </form>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Lägg till komponent --}}
+                    <form method="POST"
+                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components?api_key={{ urlencode($apiKey) }}"
+                          class="grid grid-cols-12 gap-2 items-end p-2 border border-dashed rounded">
+                        <div class="col-span-8">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Komponent-artikelnummer</label>
+                            <input type="text" name="component_article_number" required
+                                   placeholder="t.ex. TS-2258"
+                                   class="border rounded px-2 py-1 text-sm w-full font-mono">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
+                            <input type="number" name="quantity" value="1" min="1"
+                                   class="border rounded px-2 py-1 text-sm w-full text-right">
+                        </div>
+                        <div class="col-span-2 flex justify-end">
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded w-full">+ Lägg till</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             {{-- BID-varianter — varje variant ärver grunddata (namn, EAN, brand, kostnad) från artikeln ovan --}}
             <div class="bg-white border rounded p-6 mt-6">
                 <div class="flex justify-between items-center mb-4">
