@@ -51,12 +51,24 @@ return [
     ],
 
     'gs1' => [
+        // Legacy — kept for any callers that still read it.
         'api_key' => env('GS1_API_KEY', ''),
+
         'company_prefix' => env('GS1_COMPANY_PREFIX', ''),
         'generate_url' => env('GS1_GENERATE_URL', 'https://services.validoo.se/licence.api/licences/key/generate'),
         'activate_url' => env('GS1_ACTIVATE_URL', 'https://services.validoo.se/tradeitem.api/activate/gtins'),
         'default_brand' => env('GS1_DEFAULT_BRAND', 'BUNDLE'),
         'country_code' => env('GS1_COUNTRY_CODE', '752'),
+
+        // OAuth2 password-grant credentials from MyGS1 Technical
+        // Integration page. Scope must include the APIs we call +
+        // "offline_access" to get a refresh token.
+        'token_url' => env('GS1_TOKEN_URL', 'https://validoopwe-apimanagement.azure-api.net/connect/token'),
+        'client_id' => env('GS1_CLIENT_ID', ''),
+        'client_secret' => env('GS1_CLIENT_SECRET', ''),
+        'username' => env('GS1_USERNAME', ''),
+        'password' => env('GS1_PASSWORD', ''),
+        'scope' => env('GS1_SCOPE', 'numberseries tradeitem offline_access'),
     ],
 
     'vendora_crm' => [

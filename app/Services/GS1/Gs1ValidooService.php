@@ -2,23 +2,38 @@
 
 namespace App\Services\GS1;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * GS1 Sweden / Validoo integration for generating and activating GTIN numbers.
+ * GS1 Sweden / Validoo integration.
  *
- * Config lives in config/services.php under 'gs1'. Token is obtained from
- * my.gs1.se → API-åtkomst.
+ * Auth: OAuth2 password grant against
+ * https://validoopwe-apimanagement.azure-api.net/connect/token.
+ * The access_token is cached in Laravel's Cache driver for ~55 minutes
+ * (Validoo issues them for 60m), with a refresh_token used to extend
+ * until it also expires (~120m). When both are expired we fall back
+ * to a fresh password grant.
  *
- * @see https://developer.gs1.se/api-details#api=numberseries&operation=post-licence-api-licences-key-generate
- * @see https://developer.gs1.se/api-details#api=tradeitem&operation=post-tradeitem-api-activate-gtins
+ * Credentials live on MyGS1 → Technical Integration. Each user has
+ * clientId/clientSecret + api-username/password.
+ *
+ * @see https://validoopwe-apimanagement.azure-api.net/ (API portal)
  */
 class Gs1ValidooService
 {
+    private const CACHE_KEY = 'gs1_validoo_token';
+    private const TOKEN_LEEWAY_SECONDS = 60; // refresh this long before expiry
+
     public function __construct(
-        private readonly string $apiKey,
+        private readonly string $tokenUrl,
+        private readonly string $clientId,
+        private readonly string $clientSecret,
+        private readonly string $username,
+        private readonly string $password,
+        private readonly string $scope,
         private readonly string $companyPrefix,
         private readonly string $generateUrl,
         private readonly string $activateUrl,
@@ -31,7 +46,12 @@ class Gs1ValidooService
     {
         $c = config('services.gs1');
         return new self(
-            apiKey: $c['api_key'] ?? '',
+            tokenUrl: $c['token_url'] ?? 'https://validoopwe-apimanagement.azure-api.net/connect/token',
+            clientId: $c['client_id'] ?? '',
+            clientSecret: $c['client_secret'] ?? '',
+            username: $c['username'] ?? '',
+            password: $c['password'] ?? '',
+            scope: $c['scope'] ?? 'numberseries tradeitem offline_access',
             companyPrefix: $c['company_prefix'] ?? '',
             generateUrl: $c['generate_url'],
             activateUrl: $c['activate_url'],
@@ -42,11 +62,15 @@ class Gs1ValidooService
 
     public function isConfigured(): bool
     {
-        return $this->apiKey !== '' && $this->companyPrefix !== '';
+        return $this->clientId !== ''
+            && $this->clientSecret !== ''
+            && $this->username !== ''
+            && $this->password !== ''
+            && $this->companyPrefix !== '';
     }
 
     /**
-     * Generate one or more GTIN-13 numbers from the company's number series.
+     * Generate one or more GTIN numbers from the company's number series.
      *
      * @return string[] Array of generated GTIN strings.
      * @throws RuntimeException if not configured or the API call fails.
@@ -55,23 +79,14 @@ class Gs1ValidooService
     {
         $this->assertConfigured();
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Ocp-Apim-Subscription-Key' => $this->apiKey,
-        ])->post($this->generateUrl, [
+        $response = $this->authedRequest()->post($this->generateUrl, [
             'gs1KeyType' => 'GTIN',
             'companyPrefix' => $this->companyPrefix,
             'amountOfNumbers' => $amount,
             'leadingNumber' => 0,
         ]);
 
-        if ($response->status() === 401 || $response->status() === 403) {
-            $body = trim(substr($response->body(), 0, 300));
-            throw new RuntimeException(
-                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY. Validoo says: " . ($body ?: '(empty body)')
-            );
-        }
-
+        $this->assertAuthOk($response, 'generate');
         if (!$response->successful()) {
             throw new RuntimeException(
                 'GS1 generate error ' . $response->status() . ': ' . $response->body()
@@ -79,13 +94,9 @@ class Gs1ValidooService
         }
 
         $data = $response->json();
-
-        // Response: { keys: ["7350076480033", ...], code: "1" }
-        // code "1" = Created successfully, "5" = Failed
         if (($data['code'] ?? null) === '5' || ($data['code'] ?? null) === 5) {
             throw new RuntimeException('GS1 generation failed: ' . json_encode($data));
         }
-
         if (empty($data['keys']) || !is_array($data['keys'])) {
             throw new RuntimeException('GS1 returned no keys');
         }
@@ -96,10 +107,6 @@ class Gs1ValidooService
     /**
      * Register a GTIN in GS1's Global Registry Platform.
      *
-     * @param string $gtin        GTIN-13 or GTIN-14 (13-digit input is padded with a leading zero)
-     * @param string $productName Product name (sv)
-     * @param string|null $brandName Optional brand name, defaults to configured default brand
-     * @param string $status     'ACTIVE' | 'DRAFT' | 'INACTIVE'
      * @return string batchId returned by the API
      * @throws RuntimeException
      */
@@ -107,7 +114,6 @@ class Gs1ValidooService
     {
         $this->assertConfigured();
 
-        // GTIN must be 14 digits for activate API
         $gtin14 = strlen($gtin) === 13 ? '0' . $gtin : $gtin;
 
         $payload = [[
@@ -120,35 +126,18 @@ class Gs1ValidooService
             'isTradeItemABaseUnit' => true,
         ]];
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Ocp-Apim-Subscription-Key' => $this->apiKey,
-        ])->post($this->activateUrl, $payload);
+        $response = $this->authedRequest()->post($this->activateUrl, $payload);
 
-        if ($response->status() === 401 || $response->status() === 403) {
-            $body = trim(substr($response->body(), 0, 300));
-            throw new RuntimeException(
-                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY. Validoo says: " . ($body ?: '(empty body)')
-            );
-        }
-
+        $this->assertAuthOk($response, 'activate');
         if (!$response->successful()) {
             throw new RuntimeException(
                 'GS1 activate error ' . $response->status() . ': ' . $response->body()
             );
         }
 
-        // 202 Accepted → batchId as string
         return trim($response->body(), " \t\n\r\"");
     }
 
-    /**
-     * Generate a single GTIN and immediately submit it as DRAFT. Convenience
-     * for the auto-GTIN flow on bundle creation.
-     *
-     * Returns the generated GTIN. If activation fails the GTIN is still
-     * returned (it's already allocated — activation can be retried).
-     */
     public function generateAndActivate(string $productName, ?string $brandName = null): string
     {
         $keys = $this->generateGTIN(1);
@@ -171,12 +160,147 @@ class Gs1ValidooService
         return $this->companyPrefix;
     }
 
+    /**
+     * Force a fresh token exchange — useful when the cached token has
+     * been invalidated server-side. Clears any cached entry first.
+     */
+    public function refreshTokenNow(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+        $this->getAccessToken();
+    }
+
+    private function authedRequest(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::withToken($this->getAccessToken());
+    }
+
+    private function assertAuthOk(\Illuminate\Http\Client\Response $response, string $op): void
+    {
+        if ($response->status() !== 401 && $response->status() !== 403) {
+            return;
+        }
+        // Drop the cached token so the next call re-auths cleanly.
+        Cache::forget(self::CACHE_KEY);
+        $body = trim(substr($response->body(), 0, 300));
+        throw new RuntimeException(
+            "GS1 {$op} auth failed ({$response->status()}). Validoo says: " . ($body ?: '(empty body)')
+        );
+    }
+
     private function assertConfigured(): void
     {
         if (!$this->isConfigured()) {
             throw new RuntimeException(
-                'GS1 not configured. Set GS1_API_KEY and GS1_COMPANY_PREFIX in .env'
+                'GS1 not configured. Set GS1_CLIENT_ID, GS1_CLIENT_SECRET, GS1_USERNAME, GS1_PASSWORD, GS1_COMPANY_PREFIX.'
             );
         }
+    }
+
+    /**
+     * Return a valid access token. Tries cache → refresh → password grant.
+     */
+    private function getAccessToken(): string
+    {
+        $cached = Cache::get(self::CACHE_KEY);
+        if (is_array($cached)
+            && !empty($cached['access_token'])
+            && ($cached['expires_at'] ?? 0) > time() + self::TOKEN_LEEWAY_SECONDS) {
+            return $cached['access_token'];
+        }
+
+        // Cached access is gone/expired — try refresh if we have one.
+        if (is_array($cached) && !empty($cached['refresh_token'])) {
+            try {
+                $tokens = $this->requestRefresh($cached['refresh_token']);
+                $this->cacheTokens($tokens);
+                return $tokens['access_token'];
+            } catch (\Throwable $e) {
+                Log::info('GS1 refresh token failed; falling back to password grant', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $tokens = $this->requestPasswordGrant();
+        $this->cacheTokens($tokens);
+        return $tokens['access_token'];
+    }
+
+    /**
+     * @return array{access_token: string, refresh_token: ?string, expires_in: int}
+     */
+    private function requestPasswordGrant(): array
+    {
+        $response = Http::asForm()->post($this->tokenUrl, [
+            'grant_type' => 'password',
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+            'scope' => $this->scope,
+            'username' => $this->username,
+            'password' => $this->password,
+        ]);
+
+        if (!$response->successful()) {
+            throw new RuntimeException(
+                'GS1 token exchange failed (' . $response->status() . '): '
+                . substr($response->body(), 0, 300)
+            );
+        }
+
+        $data = $response->json();
+        if (empty($data['access_token'])) {
+            throw new RuntimeException('GS1 token response missing access_token: ' . json_encode($data));
+        }
+
+        return [
+            'access_token' => (string) $data['access_token'],
+            'refresh_token' => $data['refresh_token'] ?? null,
+            'expires_in' => (int) ($data['expires_in'] ?? 3600),
+        ];
+    }
+
+    private function requestRefresh(string $refreshToken): array
+    {
+        $response = Http::asForm()->post($this->tokenUrl, [
+            'grant_type' => 'refresh_token',
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+            'refresh_token' => $refreshToken,
+        ]);
+
+        if (!$response->successful()) {
+            throw new RuntimeException(
+                'GS1 refresh failed (' . $response->status() . '): '
+                . substr($response->body(), 0, 300)
+            );
+        }
+
+        $data = $response->json();
+        if (empty($data['access_token'])) {
+            throw new RuntimeException('GS1 refresh response missing access_token');
+        }
+
+        return [
+            'access_token' => (string) $data['access_token'],
+            'refresh_token' => $data['refresh_token'] ?? null,
+            'expires_in' => (int) ($data['expires_in'] ?? 3600),
+        ];
+    }
+
+    private function cacheTokens(array $tokens): void
+    {
+        $expiresIn = (int) $tokens['expires_in'];
+        Cache::put(
+            self::CACHE_KEY,
+            [
+                'access_token' => $tokens['access_token'],
+                'refresh_token' => $tokens['refresh_token'],
+                'expires_at' => time() + $expiresIn,
+            ],
+            // Keep in cache a bit past expiry so refresh_token remains
+            // available for the refresh code path after access expires.
+            now()->addSeconds(max($expiresIn, 7200))
+        );
     }
 }
