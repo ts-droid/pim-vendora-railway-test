@@ -61,8 +61,7 @@ class AdminArticleController extends Controller
 
         // Create the bundle article. category_ids is NOT NULL in schema.
         // Copy brand + supplier_number from parent so the new bundle has
-        // coherent metadata for cascade + sourcing. EAN stays empty so
-        // the Article::saving hook auto-generates via GS1.
+        // coherent metadata for cascade + sourcing.
         $bundle = new Article();
         $bundle->article_number = $newNumber;
         $bundle->description = $description;
@@ -83,14 +82,30 @@ class AdminArticleController extends Controller
             'sort_order' => 1,
         ]);
 
-        $msg = "Bundle {$bundle->article_number} skapad med {$parent->article_number} × {$firstQty} som första komponent";
-        if ($bundle->ean) {
-            $msg .= " · GTIN: {$bundle->ean}";
-        } elseif ($gs1->isConfigured()) {
-            $msg .= ' · GS1 försökte generera GTIN men fick ingen';
+        // GS1 generation — explicit (not relying on the saving-hook's
+        // silent catch) so any Validoo error surfaces in the flash.
+        $gtinNote = '';
+        if (!$gs1->isConfigured()) {
+            $gtinNote = 'GS1 ej konfigurerat — EAN lämnad tom';
+        } elseif ($bundle->ean) {
+            // Hook already ran successfully during save().
+            $gtinNote = "GTIN: {$bundle->ean}";
         } else {
-            $msg .= ' · GS1 ej konfigurerat — EAN lämnad tom';
+            try {
+                $gtin = $gs1->generateAndActivate((string) ($description ?: 'Bundle'), null);
+                $bundle->ean = $gtin;
+                $bundle->save();
+                $gtinNote = "GTIN: {$gtin}";
+            } catch (\Throwable $e) {
+                \Log::warning('GS1 GTIN generation failed on create-bundle', [
+                    'bundle' => $bundle->article_number,
+                    'error' => $e->getMessage(),
+                ]);
+                $gtinNote = 'GS1-fel: ' . $e->getMessage();
+            }
         }
+
+        $msg = "Bundle {$bundle->article_number} skapad med {$parent->article_number} × {$firstQty} som första komponent · {$gtinNote}";
 
         return redirect('/admin/articles/' . rawurlencode($bundle->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
             ->with('saved', $msg);
@@ -121,11 +136,27 @@ class AdminArticleController extends Controller
             $article->save();
         }
 
+        // Upsert: if this component already exists on the bundle,
+        // bump its quantity rather than 500 on the UNIQUE constraint.
+        $existing = BundleComponent::where('bundle_article_number', $article->article_number)
+            ->where('component_article_number', $componentNumber)
+            ->first();
+        $addQty = (int) ($validated['quantity'] ?? 1);
+        if ($existing) {
+            $existing->quantity = (int) $existing->quantity + $addQty;
+            $existing->save();
+            return $this->redirectToPricing(
+                $article->article_number,
+                $apiKey,
+                "Komponent {$componentNumber} finns redan — kvantitet ökad till {$existing->quantity}"
+            );
+        }
+
         $nextSort = 1 + (int) BundleComponent::where('bundle_article_number', $article->article_number)->max('sort_order');
         BundleComponent::create([
             'bundle_article_number' => $article->article_number,
             'component_article_number' => $componentNumber,
-            'quantity' => (int) ($validated['quantity'] ?? 1),
+            'quantity' => $addQty,
             'sort_order' => $nextSort,
         ]);
 
