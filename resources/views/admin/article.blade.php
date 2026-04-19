@@ -428,54 +428,57 @@
                 @if ($supports->isEmpty())
                     <div class="text-sm text-gray-500 italic">Inga stöd på artikelnivå.</div>
                 @else
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         @foreach ($supports as $s)
                             <form method="POST"
                                   action="/admin/articles/{{ rawurlencode($article->article_number) }}/supports/{{ $s->id }}?api_key={{ urlencode($apiKey) }}"
-                                  class="grid grid-cols-12 gap-2 items-end p-2 border rounded bg-gray-50">
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Lager</label>
-                                    <select name="layer" class="border rounded px-2 py-1 text-sm w-full">
-                                        <option value="supplier" {{ $s->layer === 'supplier' ? 'selected' : '' }}>Leverantör</option>
-                                        <option value="brand" {{ $s->layer === 'brand' ? 'selected' : '' }}>Varumärke</option>
-                                    </select>
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Kundtyp</label>
-                                    <select name="customer_type" class="border rounded px-2 py-1 text-sm w-full">
-                                        <option value="upfront" {{ $s->customer_type === 'upfront' ? 'selected' : '' }}>Upfront</option>
-                                        <option value="rebate" {{ $s->customer_type === 'rebate' ? 'selected' : '' }}>Rebate</option>
-                                        <option value="other" {{ $s->customer_type === 'other' ? 'selected' : '' }}>Övrigt</option>
-                                    </select>
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Värde</label>
-                                    <div class="flex gap-1">
+                                  class="p-3 border rounded bg-gray-50">
+                                <div class="grid grid-cols-12 gap-3 items-start">
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Lager</label>
+                                        <select name="layer" class="border rounded px-2 py-1.5 text-sm w-full">
+                                            <option value="supplier" {{ $s->layer === 'supplier' ? 'selected' : '' }}>Leverantör</option>
+                                            <option value="brand" {{ $s->layer === 'brand' ? 'selected' : '' }}>Varumärke</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Kundtyp</label>
+                                        <select name="customer_type" class="border rounded px-2 py-1.5 text-sm w-full">
+                                            <option value="upfront" {{ $s->customer_type === 'upfront' ? 'selected' : '' }}>Upfront</option>
+                                            <option value="rebate" {{ $s->customer_type === 'rebate' ? 'selected' : '' }}>Rebate</option>
+                                            <option value="other" {{ $s->customer_type === 'other' ? 'selected' : '' }}>Övrigt</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Värde</label>
                                         <input type="number" step="0.01" min="0" name="value" value="{{ rtrim(rtrim(number_format((float) $s->value, 4, '.', ''), '0'), '.') ?: '0' }}"
-                                               class="border rounded px-2 py-1 text-sm flex-1 text-right">
-                                        <label class="inline-flex items-center gap-1 text-xs">
-                                            <input type="checkbox" name="is_percentage" value="1" {{ $s->is_percentage ? 'checked' : '' }}>
-                                            %
-                                        </label>
+                                               class="border rounded px-2 py-1.5 text-sm w-full text-right">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Enhet</label>
+                                        <select name="is_percentage" class="border rounded px-2 py-1.5 text-sm w-full">
+                                            <option value="0" {{ !$s->is_percentage ? 'selected' : '' }}>kr (fast belopp)</option>
+                                            <option value="1" {{ $s->is_percentage ? 'selected' : '' }}>% (procent)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Fr.o.m.</label>
+                                        <input type="date" name="date_from" value="{{ $s->date_from?->format('Y-m-d') }}"
+                                               class="border rounded px-2 py-1.5 text-sm w-full">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">T.o.m.</label>
+                                        <input type="date" name="date_to" value="{{ $s->date_to?->format('Y-m-d') }}"
+                                               class="border rounded px-2 py-1.5 text-sm w-full">
                                     </div>
                                 </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Fr.o.m.</label>
-                                    <input type="date" name="date_from" value="{{ $s->date_from?->format('Y-m-d') }}"
-                                           class="border rounded px-2 py-1 text-sm w-full">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">T.o.m.</label>
-                                    <input type="date" name="date_to" value="{{ $s->date_to?->format('Y-m-d') }}"
-                                           class="border rounded px-2 py-1 text-sm w-full">
-                                </div>
-                                <div class="col-span-2 flex gap-1 justify-end">
+                                <div class="flex gap-2 justify-end mt-3 pt-2 border-t">
                                     <button type="submit"
-                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
+                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded">Spara</button>
                                     <button type="submit"
                                             formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/supports/{{ $s->id }}/delete?api_key={{ urlencode($apiKey) }}"
                                             onclick="return confirm('Ta bort stöd #{{ $s->id }}?');"
-                                            class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
+                                            class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-3 py-1.5 rounded">Ta bort</button>
                                 </div>
                             </form>
                         @endforeach
