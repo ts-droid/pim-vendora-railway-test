@@ -99,59 +99,51 @@ HAS_DATA=$(
 )
 
 if [ "$HAS_DATA" = "yes" ]; then
-    echo "=== DB has articles (imported) — skipping seed, running pending migrations only ==="
+    echo "=== DB has articles (imported) — running pending migrations only ==="
     # migrate --force is idempotent: it only runs migrations that aren't
     # in the `migrations` table yet. Safe to run even with populated data.
     php artisan migrate --force --no-interaction || echo "Note: migrate failed, continuing anyway"
-
-    # Only seed the API key if missing, so /pricing URLs work
-    php artisan tinker --execute="
-        if (\App\Models\ApiKey::where('api_key', 'pim-vendora-dev-key')->doesntExist()) {
-            \App\Models\ApiKey::create([
-                'api_key' => 'pim-vendora-dev-key',
-            ]);
-            echo \"Added api_key: pim-vendora-dev-key\n\";
-        }
-    " 2>/dev/null || echo "Note: could not add api_key via tinker (not critical)"
 else
     echo "=== Empty DB — running migrations ==="
     php artisan migrate --force --no-interaction
-
-    echo "=== Seeding test fixtures ==="
-    php artisan tinker --execute="
-        if (\App\Models\ApiKey::where('api_key', 'pim-vendora-dev-key')->doesntExist()) {
-            \App\Models\ApiKey::create([
-                'api_key' => 'pim-vendora-dev-key',
-            ]);
-            echo \"Seeded api_key\n\";
-        }
-
-        if (\App\Models\Article::where('article_number', 'TEST-001')->doesntExist()) {
-            \App\Models\Article::create([
-                'article_number' => 'TEST-001',
-                'description' => 'Test Wireless Charger',
-                'article_type' => 'FinishedGoodItem',
-                'ean' => '7350167970017',
-                'cost_price_avg' => 150.00,
-                'rek_price_SEK' => 799.00,
-                'standard_reseller_margin' => 35.0,
-                'minimum_margin' => 20.0,
-            ]);
-            echo \"Seeded TEST-001\n\";
-        }
-
-        if (\App\Models\Article::where('article_number', 'BUN-001')->doesntExist()) {
-            \App\Models\Article::create([
-                'article_number' => 'BUN-001',
-                'description' => 'Test Starter Bundle',
-                'article_type' => 'Bundle',
-                'standard_reseller_margin' => 35.0,
-                'minimum_margin' => 25.0,
-            ]);
-            echo \"Seeded BUN-001\n\";
-        }
-    " || echo "Seeding skipped"
 fi
+
+# Fixtures seeded idempotently in both modes — so BUN-001 / TEST-001
+# stay available for the admin mocks even on imported-dump instances.
+echo "=== Seeding idempotent test fixtures ==="
+php artisan tinker --execute="
+    if (\App\Models\ApiKey::where('api_key', 'pim-vendora-dev-key')->doesntExist()) {
+        \App\Models\ApiKey::create([
+            'api_key' => 'pim-vendora-dev-key',
+        ]);
+        echo \"Seeded api_key\n\";
+    }
+
+    if (\App\Models\Article::where('article_number', 'TEST-001')->doesntExist()) {
+        \App\Models\Article::create([
+            'article_number' => 'TEST-001',
+            'description' => 'Test Wireless Charger',
+            'article_type' => 'FinishedGoodItem',
+            'ean' => '7350167970017',
+            'cost_price_avg' => 150.00,
+            'rek_price_SEK' => 799.00,
+            'standard_reseller_margin' => 35.0,
+            'minimum_margin' => 20.0,
+        ]);
+        echo \"Seeded TEST-001\n\";
+    }
+
+    if (\App\Models\Article::where('article_number', 'BUN-001')->doesntExist()) {
+        \App\Models\Article::create([
+            'article_number' => 'BUN-001',
+            'description' => 'Test Starter Bundle',
+            'article_type' => 'Bundle',
+            'standard_reseller_margin' => 35.0,
+            'minimum_margin' => 25.0,
+        ]);
+        echo \"Seeded BUN-001\n\";
+    }
+" 2>/dev/null || echo "Note: fixture seeding skipped (non-fatal)"
 
 echo "=== Starting server on port ${PORT:-8080} ==="
 exec php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
