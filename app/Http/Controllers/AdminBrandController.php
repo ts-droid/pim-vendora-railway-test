@@ -141,11 +141,15 @@ class AdminBrandController extends Controller
             ->get();
 
         // Category IDs + article counts for this brand. articles.category_ids
-        // is json-ish; expand in PHP.
+        // is json-ish; expand in PHP. Using the query builder (not Eloquent)
+        // so the Article model's retrieved-hook doesn't fire on partial
+        // rows — it needs article_number to drive downstream services.
         $categoryArticleCounts = [];
-        Article::where('brand', $brand->name)
+        DB::table('articles')
+            ->where('brand', $brand->name)
             ->whereNotNull('category_ids')
             ->select('category_ids')
+            ->orderBy('id')
             ->chunk(500, function ($rows) use (&$categoryArticleCounts) {
                 foreach ($rows as $r) {
                     $ids = $this->decodeCategoryIds($r->category_ids);
