@@ -236,19 +236,19 @@ Route::post('/admin/articles/{articleNumber}/supports/{supportId}/delete', [Admi
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
-    ->where('brandName', '.*')
+    ->where('brandName', '[^/]+')
     ->name('admin.brand.show');
 Route::post('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'update'])
-    ->where('brandName', '.*')
+    ->where('brandName', '[^/]+')
     ->name('admin.brand.update');
 Route::post('/admin/brands/{brandName}/rules', [App\Http\Controllers\AdminBrandController::class, 'addRule'])
-    ->where('brandName', '.*')
+    ->where('brandName', '[^/]+')
     ->name('admin.brand.rules.add');
 Route::post('/admin/brands/{brandName}/rules/{ruleId}', [App\Http\Controllers\AdminBrandController::class, 'updateRule'])
-    ->where('brandName', '.*')
+    ->where('brandName', '[^/]+')
     ->name('admin.brand.rules.update');
 Route::post('/admin/brands/{brandName}/rules/{ruleId}/delete', [App\Http\Controllers\AdminBrandController::class, 'deleteRule'])
-    ->where('brandName', '.*')
+    ->where('brandName', '[^/]+')
     ->name('admin.brand.rules.delete');
 
 require __DIR__ . '/supplierPortal.php';
