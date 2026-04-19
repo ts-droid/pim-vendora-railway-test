@@ -65,6 +65,39 @@
         </div>
     </div>
 
+    <div class="bg-white border rounded p-6 mb-6">
+        <h3 class="text-sm font-semibold uppercase text-gray-500 mb-3">Leverantörer som bär detta varumärke</h3>
+        @if ($suppliers->isEmpty())
+            <div class="text-sm text-gray-500 italic">Ingen leverantör har detta varumärke i <code class="bg-gray-100 px-1 rounded">suppliers.brand_name</code>.</div>
+        @else
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                    <tr>
+                        <th class="px-3 py-2 text-left font-semibold">Nr</th>
+                        <th class="px-3 py-2 text-left font-semibold">Namn</th>
+                        <th class="px-3 py-2 text-left font-semibold">Typ</th>
+                        <th class="px-3 py-2 text-left font-semibold">Land</th>
+                        <th class="px-3 py-2 text-left font-semibold">Valuta</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    @foreach ($suppliers as $s)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-1.5 font-mono">
+                                <a href="/admin/suppliers/{{ rawurlencode($s->number) }}?api_key={{ urlencode($apiKey) }}"
+                                   class="text-blue-600 hover:underline">{{ $s->number }}</a>
+                            </td>
+                            <td class="px-3 py-1.5 text-gray-700">{{ $s->name }}</td>
+                            <td class="px-3 py-1.5 text-gray-600">{{ $s->type ?: '—' }}</td>
+                            <td class="px-3 py-1.5 text-gray-600">{{ $s->country ?: '—' }}</td>
+                            <td class="px-3 py-1.5 text-gray-600 font-mono text-xs">{{ $s->currency ?: '—' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+    </div>
+
     <div class="bg-white border rounded p-6">
         <h3 class="text-sm font-semibold uppercase text-gray-500 mb-3">Artiklar som ärver (top 15 senast uppdaterade)</h3>
         @if ($articles->isEmpty())

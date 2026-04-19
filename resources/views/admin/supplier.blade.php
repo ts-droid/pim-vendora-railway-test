@@ -50,7 +50,13 @@
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Brand name</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">{{ $supplier->brand_name ?: '—' }}</div>
+                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between items-center">
+                            <span>{{ $supplier->brand_name ?: '—' }}</span>
+                            @if ($brand)
+                                <a href="/admin/brands/{{ rawurlencode($brand->name) }}?api_key={{ urlencode($apiKey) }}"
+                                   class="text-xs text-blue-600 hover:underline">Öppna varumärke →</a>
+                            @endif
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Supplier type <span class="text-red-500">*</span></label>

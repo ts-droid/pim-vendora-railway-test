@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApiKey;
 use App\Models\Article;
 use App\Models\Brand;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
@@ -53,12 +54,20 @@ class AdminBrandController extends Controller
             ->limit(15)
             ->get(['article_number', 'description', 'standard_reseller_margin', 'minimum_margin']);
 
+        // Suppliers som bär detta brand — kopplingen är en fri
+        // sträng-match i suppliers.brand_name, samma värde som
+        // articles.brand och brands.name.
+        $suppliers = Supplier::where('brand_name', $brand->name)
+            ->orderBy('name')
+            ->get(['number', 'name', 'main_address_country as country', 'currency', 'type']);
+
         return View::make('admin.brand', [
             'apiKey' => $apiKey,
             'activeNav' => 'brands',
             'brand' => $brand,
             'articleCount' => $articleCount,
             'articles' => $articles,
+            'suppliers' => $suppliers,
         ]);
     }
 

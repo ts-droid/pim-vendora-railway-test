@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
+use App\Models\Brand;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -37,10 +38,17 @@ class AdminSupplierController extends Controller
             $tab = 'general';
         }
 
+        // Link supplier → brand when suppliers.brand_name matches a
+        // brands.name row. Data connection already exists in the dump.
+        $brand = $supplier->brand_name
+            ? Brand::where('name', $supplier->brand_name)->first()
+            : null;
+
         return View::make('admin.supplier', [
             'supplier' => $supplier,
             'apiKey' => $apiKey,
             'activeTab' => $tab,
+            'brand' => $brand,
         ]);
     }
 }
