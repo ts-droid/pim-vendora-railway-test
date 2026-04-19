@@ -241,6 +241,15 @@ Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandControll
 Route::post('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'update'])
     ->where('brandName', '.*')
     ->name('admin.brand.update');
+Route::post('/admin/brands/{brandName}/rules', [App\Http\Controllers\AdminBrandController::class, 'addRule'])
+    ->where('brandName', '.*')
+    ->name('admin.brand.rules.add');
+Route::post('/admin/brands/{brandName}/rules/{ruleId}', [App\Http\Controllers\AdminBrandController::class, 'updateRule'])
+    ->where('brandName', '.*')
+    ->name('admin.brand.rules.update');
+Route::post('/admin/brands/{brandName}/rules/{ruleId}/delete', [App\Http\Controllers\AdminBrandController::class, 'deleteRule'])
+    ->where('brandName', '.*')
+    ->name('admin.brand.rules.delete');
 
 require __DIR__ . '/supplierPortal.php';
 
