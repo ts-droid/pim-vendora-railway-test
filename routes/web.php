@@ -221,6 +221,10 @@ Route::get('/admin/brands', [App\Http\Controllers\AdminIndexController::class, '
 
 Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
 Route::post('/admin/articles/{articleNumber}/pricing', [AdminArticleController::class, 'updatePricing'])->name('admin.article.update-pricing');
+Route::post('/admin/articles/{articleNumber}/bid/toggle', [AdminArticleController::class, 'toggleBid'])->name('admin.article.bid.toggle');
+Route::post('/admin/articles/{articleNumber}/bid/variants', [AdminArticleController::class, 'addBidVariant'])->name('admin.article.bid.variants.add');
+Route::post('/admin/articles/{articleNumber}/bid/variants/{variantId}', [AdminArticleController::class, 'updateBidVariant'])->name('admin.article.bid.variants.update');
+Route::post('/admin/articles/{articleNumber}/bid/variants/{variantId}/delete', [AdminArticleController::class, 'deleteBidVariant'])->name('admin.article.bid.variants.delete');
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])

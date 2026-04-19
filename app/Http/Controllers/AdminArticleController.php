@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ApiKey;
+use App\Models\BidVariant;
 use App\Models\Brand;
 use App\Models\SupplierArticlePrice;
 use App\Services\Pricing\PriceCalculatorService;
@@ -25,6 +26,93 @@ class AdminArticleController extends Controller
     public function __construct(
         private readonly PriceCalculatorService $calculator,
     ) {
+    }
+
+    public function toggleBid(string $articleNumber, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $article->bid_enabled = (bool) $request->boolean('bid_enabled');
+        $article->save();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'BID ' . ($article->bid_enabled ? 'aktiverat' : 'avaktiverat'));
+    }
+
+    public function addBidVariant(string $articleNumber, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $nextSort = 1 + (int) BidVariant::where('article_number', $article->article_number)->max('sort_order');
+        BidVariant::create([
+            'article_number' => $article->article_number,
+            'variant_sku' => '',
+            'cost' => 0,
+            'fixed_price' => 0,
+            'min_margin' => 0,
+            'sort_order' => $nextSort,
+        ]);
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Ny BID-variant tillagd');
+    }
+
+    public function updateBidVariant(string $articleNumber, int $variantId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $variant = BidVariant::where('id', $variantId)
+            ->where('article_number', $article->article_number)
+            ->first();
+        abort_if(!$variant, 404, 'BID variant not found for this article');
+
+        $validated = $request->validate([
+            'variant_sku' => 'nullable|string|max:255',
+            'cost' => 'nullable|numeric|min:0',
+            'fixed_price' => 'nullable|numeric|min:0',
+            'min_margin' => 'nullable|numeric|min:0|max:100',
+        ]);
+        $variant->variant_sku = (string) ($validated['variant_sku'] ?? '');
+        $variant->cost = (float) ($validated['cost'] ?? 0);
+        $variant->fixed_price = (float) ($validated['fixed_price'] ?? 0);
+        $variant->min_margin = (float) ($validated['min_margin'] ?? 0);
+        $variant->save();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Variant uppdaterad');
+    }
+
+    public function deleteBidVariant(string $articleNumber, int $variantId, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        BidVariant::where('id', $variantId)
+            ->where('article_number', $article->article_number)
+            ->delete();
+
+        return $this->redirectToPricing($article->article_number, $apiKey, 'Variant borttagen');
+    }
+
+    private function requireArticle(string $articleNumber): Article
+    {
+        $article = Article::where('article_number', $articleNumber)->first();
+        abort_if(!$article, 404);
+        return $article;
+    }
+
+    private function requireApiKey(Request $request): string
+    {
+        $apiKey = (string) $request->input('api_key', '');
+        abort_if(!$apiKey, 403, 'api_key query parameter required');
+        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+        return $apiKey;
+    }
+
+    private function redirectToPricing(string $articleNumber, string $apiKey, string $msg)
+    {
+        return redirect('/admin/articles/' . rawurlencode($articleNumber) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
+            ->with('saved', $msg);
     }
 
     public function updatePricing(string $articleNumber, Request $request)
@@ -92,6 +180,15 @@ class AdminArticleController extends Controller
             ->orderByDesc('updated_at')
             ->first();
 
+        // BID variants — loaded only on the pricing tab (the only place
+        // they are rendered) to keep other tabs light.
+        $bidVariants = $tab === 'pricing'
+            ? BidVariant::where('article_number', $article->article_number)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+            : collect();
+
         return View::make('admin.article', [
             'article' => $article,
             'apiKey' => $apiKey,
@@ -100,6 +197,7 @@ class AdminArticleController extends Controller
             'initial' => $initial,
             'brand' => $brand,
             'supplierPrice' => $supplierPrice,
+            'bidVariants' => $bidVariants,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,
                 'articleName' => $article->description,

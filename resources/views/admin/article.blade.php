@@ -110,19 +110,73 @@
                 </form>
             </div>
 
-            {{-- BID-varianter (mocked) --}}
+            {{-- BID-varianter — varje variant ärver grunddata (namn, EAN, brand, kostnad) från artikeln ovan --}}
             <div class="bg-white border rounded p-6 mt-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm font-semibold uppercase text-gray-500">BID-varianter</h3>
                     <div class="flex items-center gap-3">
-                        <label class="inline-flex items-center gap-2 text-xs text-gray-600">
-                            <input type="checkbox" disabled class="rounded cursor-not-allowed">
-                            <span>Aktivera BID</span>
-                        </label>
-                        <button disabled title="Mocked" class="border rounded text-xs px-3 py-1 text-gray-600 opacity-50 cursor-not-allowed">+ Variant</button>
+                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/toggle?api_key={{ urlencode($apiKey) }}" class="inline">
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                <input type="checkbox" name="bid_enabled" value="1" onchange="this.form.submit()"
+                                       class="rounded"
+                                       {{ $article->bid_enabled ? 'checked' : '' }}>
+                                <span>Aktivera BID</span>
+                            </label>
+                        </form>
+                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants?api_key={{ urlencode($apiKey) }}" class="inline">
+                            <button type="submit" class="border rounded text-xs px-3 py-1 text-gray-700 hover:bg-gray-50">+ Variant</button>
+                        </form>
                     </div>
                 </div>
-                <div class="text-sm text-gray-500">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
+
+                <div class="text-xs text-gray-500 mb-3">
+                    Grunddata ärvs från artikeln ovan:
+                    <span class="font-mono">{{ $article->article_number }}</span>
+                    · {{ \Illuminate\Support\Str::limit($article->description, 50) }}
+                    @if ($article->brand) · {{ $article->brand }} @endif
+                </div>
+
+                @if ($bidVariants->isEmpty())
+                    <div class="text-sm text-gray-500 italic">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($bidVariants as $v)
+                            <form method="POST"
+                                  action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}?api_key={{ urlencode($apiKey) }}"
+                                  class="grid grid-cols-12 gap-2 items-end p-3 border rounded bg-gray-50">
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Variant-SKU</label>
+                                    <input type="text" name="variant_sku" value="{{ $v->variant_sku }}"
+                                           placeholder="t.ex. {{ $article->article_number }}-BID01"
+                                           class="border rounded px-2 py-1 text-sm w-full font-mono">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">BID-kostnad</label>
+                                    <input type="number" step="0.01" min="0" name="cost" value="{{ rtrim(rtrim(number_format((float) $v->cost, 4, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Fast pris</label>
+                                    <input type="number" step="0.01" min="0" name="fixed_price" value="{{ rtrim(rtrim(number_format((float) $v->fixed_price, 4, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. marginal %</label>
+                                    <input type="number" step="0.01" min="0" max="100" name="min_margin" value="{{ rtrim(rtrim(number_format((float) $v->min_margin, 2, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2 flex gap-1 justify-end">
+                                    <button type="submit"
+                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
+                                    <button type="submit"
+                                            formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}/delete?api_key={{ urlencode($apiKey) }}"
+                                            onclick="return confirm('Ta bort variant {{ $v->variant_sku ?: $v->id }}?');"
+                                            class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
+                                </div>
+                            </form>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             {{-- Stöd & kampanjer (mocked) --}}
