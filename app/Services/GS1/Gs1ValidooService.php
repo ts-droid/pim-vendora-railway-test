@@ -66,8 +66,9 @@ class Gs1ValidooService
         ]);
 
         if ($response->status() === 401 || $response->status() === 403) {
+            $body = trim(substr($response->body(), 0, 300));
             throw new RuntimeException(
-                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY."
+                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY. Validoo says: " . ($body ?: '(empty body)')
             );
         }
 
@@ -125,8 +126,9 @@ class Gs1ValidooService
         ])->post($this->activateUrl, $payload);
 
         if ($response->status() === 401 || $response->status() === 403) {
+            $body = trim(substr($response->body(), 0, 300));
             throw new RuntimeException(
-                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY."
+                "GS1 auth failed ({$response->status()}). Check GS1_API_KEY. Validoo says: " . ($body ?: '(empty body)')
             );
         }
 
