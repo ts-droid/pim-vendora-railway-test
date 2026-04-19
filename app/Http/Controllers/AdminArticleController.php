@@ -9,6 +9,7 @@ use App\Models\Brand;
 use App\Models\BundleComponent;
 use App\Models\SupplierArticlePrice;
 use App\Services\GS1\Gs1ValidooService;
+use App\Services\Pricing\CostResolver;
 use App\Services\Pricing\PriceCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -28,6 +29,71 @@ class AdminArticleController extends Controller
     public function __construct(
         private readonly PriceCalculatorService $calculator,
     ) {
+    }
+
+    /**
+     * Create a brand-new Bundle article, using the current article as
+     * its first component. Flow:
+     *   1. Create new Article row (article_type='Bundle', empty EAN).
+     *   2. Insert first BundleComponent pointing at the parent article.
+     *   3. Article::saving hook auto-calls GS1 for a GTIN if configured
+     *      and empty-EAN.
+     *   4. Redirect to the new bundle's Pricing tab so user can add
+     *      more components.
+     */
+    public function createBundleFromArticle(string $articleNumber, Request $request, Gs1ValidooService $gs1)
+    {
+        $parent = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $validated = $request->validate([
+            'bundle_article_number' => 'required|string|max:255',
+            'bundle_description' => 'nullable|string|max:500',
+            'first_component_quantity' => 'nullable|integer|min:1',
+        ]);
+        $newNumber = trim($validated['bundle_article_number']);
+        if (Article::where('article_number', $newNumber)->exists()) {
+            return redirect('/admin/articles/' . rawurlencode($parent->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
+                ->with('saved', "Artikelnummer '{$newNumber}' finns redan — välj ett unikt");
+        }
+        $description = $validated['bundle_description'] ?? ($parent->description . ' Bundle');
+        $firstQty = (int) ($validated['first_component_quantity'] ?? 1);
+
+        // Create the bundle article. category_ids is NOT NULL in schema.
+        // Copy brand + supplier_number from parent so the new bundle has
+        // coherent metadata for cascade + sourcing. EAN stays empty so
+        // the Article::saving hook auto-generates via GS1.
+        $bundle = new Article();
+        $bundle->article_number = $newNumber;
+        $bundle->description = $description;
+        $bundle->article_type = 'Bundle';
+        $bundle->brand = $parent->brand;
+        $bundle->supplier_number = $parent->supplier_number;
+        $bundle->standard_reseller_margin = (float) ($parent->standard_reseller_margin ?? 0);
+        $bundle->minimum_margin = (float) ($parent->minimum_margin ?? 0);
+        $bundle->category_ids = '[]';
+        $bundle->cost_price_avg = 0;
+        $bundle->save();
+
+        // First component row: parent × firstQty.
+        BundleComponent::create([
+            'bundle_article_number' => $bundle->article_number,
+            'component_article_number' => $parent->article_number,
+            'quantity' => $firstQty,
+            'sort_order' => 1,
+        ]);
+
+        $msg = "Bundle {$bundle->article_number} skapad med {$parent->article_number} × {$firstQty} som första komponent";
+        if ($bundle->ean) {
+            $msg .= " · GTIN: {$bundle->ean}";
+        } elseif ($gs1->isConfigured()) {
+            $msg .= ' · GS1 försökte generera GTIN men fick ingen';
+        } else {
+            $msg .= ' · GS1 ej konfigurerat — EAN lämnad tom';
+        }
+
+        return redirect('/admin/articles/' . rawurlencode($bundle->article_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
+            ->with('saved', $msg);
     }
 
     public function addBundleComponent(string $articleNumber, Request $request)
@@ -292,20 +358,49 @@ class AdminArticleController extends Controller
                 ->get()
             : collect();
 
-        // Bundle components + computed bundle cost (sum of component
-        // cost_price_avg × quantity). Only queried on the pricing tab.
+        // Bundle components + computed bundle cost + available stock.
+        // Cost uses CostResolver (falls back to supplier price converted
+        // to SEK when cost_price_avg is 0). Stock is MIN of
+        // component.stock_on_hand ÷ quantity_in_bundle.
         $bundleComponents = collect();
         $bundleCost = 0.0;
+        $bundleStock = null;
+        $componentCostBreakdowns = [];
         if ($tab === 'pricing') {
             $bundleComponents = BundleComponent::where('bundle_article_number', $article->article_number)
                 ->orderBy('sort_order')
                 ->orderBy('id')
-                ->with('component:article_number,description,brand,cost_price_avg,ean')
+                ->with('component:article_number,description,brand,cost_price_avg,external_cost,stock_on_hand,ean')
                 ->get();
-            foreach ($bundleComponents as $bc) {
-                $bundleCost += (float) ($bc->component->cost_price_avg ?? 0) * (int) $bc->quantity;
+
+            if ($bundleComponents->isNotEmpty()) {
+                $bundleStock = PHP_INT_MAX;
+                foreach ($bundleComponents as $bc) {
+                    $compArt = $bc->component;
+                    if (!$compArt) {
+                        $bundleStock = 0;
+                        continue;
+                    }
+                    $breakdown = CostResolver::resolveBreakdown($compArt);
+                    $componentCostBreakdowns[$bc->id] = $breakdown;
+                    $bundleCost += $breakdown['sek'] * (int) $bc->quantity;
+
+                    $qty = max(1, (int) $bc->quantity);
+                    $compStock = (int) ($compArt->stock_on_hand ?? 0);
+                    $bundleStock = min($bundleStock, intdiv($compStock, $qty));
+                }
+                if ($bundleStock === PHP_INT_MAX) {
+                    $bundleStock = 0;
+                }
             }
         }
+
+        // Own-cost breakdown (non-bundle articles) — lets us show where
+        // the SEK figure comes from on the Pricing tab.
+        $ownCostBreakdown = $tab === 'pricing'
+            ? CostResolver::resolveBreakdown($article)
+            : null;
+
         $gs1Configured = app(Gs1ValidooService::class)->isConfigured();
 
         return View::make('admin.article', [
@@ -319,6 +414,9 @@ class AdminArticleController extends Controller
             'bidVariants' => $bidVariants,
             'bundleComponents' => $bundleComponents,
             'bundleCost' => $bundleCost,
+            'bundleStock' => $bundleStock,
+            'componentCostBreakdowns' => $componentCostBreakdowns,
+            'ownCostBreakdown' => $ownCostBreakdown,
             'gs1Configured' => $gs1Configured,
             'calcConfig' => [
                 'articleNumber' => $article->article_number,

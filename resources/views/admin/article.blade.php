@@ -110,7 +110,50 @@
                 </form>
             </div>
 
-            {{-- Bundling — artikeln består av andra artiklar. Bundle-kostnad summeras från komponenterna. GS1 GTIN kan genereras via Validoo. --}}
+            {{-- Bundling — artikeln består av andra artiklar. Bundle-kostnad summeras via CostResolver (supplier-pris → SEK som fallback). Tillgänglig bundle = MIN(komponent-lager ÷ antal i bundle). --}}
+
+            @if ($article->article_type !== 'Bundle' && $bundleComponents->isEmpty())
+                {{-- Skapa-bundling-CTA visas bara när artikeln INTE redan är en bundle --}}
+                <div class="bg-blue-50 border border-blue-200 rounded p-6 mt-6">
+                    <h3 class="text-sm font-semibold uppercase text-gray-600 mb-2">Skapa bundlings-SKU</h3>
+                    <p class="text-sm text-gray-700 mb-4">
+                        Bygg en ny bundle där denna artikel ({{ $article->article_number }}) är första komponenten.
+                        @if ($gs1Configured)
+                            GTIN genereras automatiskt via GS1 Validoo när bundlen sparas.
+                        @else
+                            GS1 är ej konfigurerat — bundlen sparas utan EAN (kan genereras senare).
+                        @endif
+                    </p>
+                    <form method="POST"
+                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/create-bundle?api_key={{ urlencode($apiKey) }}"
+                          class="grid grid-cols-12 gap-2 items-end">
+                        <div class="col-span-4">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-SKU <span class="text-red-500">*</span></label>
+                            <input type="text" name="bundle_article_number" required
+                                   placeholder="t.ex. BUN-{{ $article->article_number }}"
+                                   class="border rounded px-2 py-1.5 text-sm w-full font-mono">
+                        </div>
+                        <div class="col-span-5">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Beskrivning</label>
+                            <input type="text" name="bundle_description"
+                                   placeholder="{{ $article->description }} Bundle"
+                                   class="border rounded px-2 py-1.5 text-sm w-full">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
+                            <input type="number" name="first_component_quantity" value="1" min="1"
+                                   class="border rounded px-2 py-1.5 text-sm w-full text-right">
+                        </div>
+                        <div class="col-span-2">
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded w-full">
+                                Skapa bundle →
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
+
             <div class="bg-white border rounded p-6 mt-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm font-semibold uppercase text-gray-500">
@@ -121,8 +164,8 @@
                     </h3>
                 </div>
 
-                {{-- Summary-rad: kostnad + EAN + GS1-knapp --}}
-                <div class="grid grid-cols-3 gap-4 mb-4">
+                {{-- Summary-rad: kostnad + tillgänglighet + EAN + GS1-knapp --}}
+                <div class="grid grid-cols-4 gap-4 mb-4">
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-kostnad</label>
                         <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
@@ -130,7 +173,22 @@
                             <span class="text-gray-500">SEK</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-1">
-                            Σ (komponent.cost_price_avg × antal) över {{ $bundleComponents->count() }} komponenter.
+                            Σ komponent-kostnader × antal. Fallback till leverantörens pris (USD/EUR/…) konverterat till SEK om average saknas.
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Tillgänglighet</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
+                            @if ($bundleStock === null)
+                                <span class="text-gray-400">—</span>
+                                <span class="text-gray-500">ej bundle</span>
+                            @else
+                                <span class="{{ $bundleStock === 0 ? 'text-red-600' : '' }}">{{ $bundleStock }}</span>
+                                <span class="text-gray-500">st</span>
+                            @endif
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            MIN(lager ÷ antal) över komponenterna. Begränsande komponent avgör.
                         </div>
                     </div>
                     <div>
@@ -139,7 +197,7 @@
                         @if ($article->ean)
                             <div class="text-xs text-green-700 mt-1">✓ GTIN finns</div>
                         @else
-                            <div class="text-xs text-gray-500 mt-1">Ingen EAN — generera via GS1 Validoo-knappen till höger.</div>
+                            <div class="text-xs text-gray-500 mt-1">Ingen EAN — generera via GS1 Validoo-knappen.</div>
                         @endif
                     </div>
                     <div class="flex items-end">
@@ -154,9 +212,9 @@
                             </button>
                             <div class="text-xs text-gray-500 mt-1">
                                 @if ($gs1Configured)
-                                    Anropar services.validoo.se — skriver ny GTIN till <code class="bg-gray-100 px-1 rounded">articles.ean</code>.
+                                    Anropar services.validoo.se live.
                                 @else
-                                    <span class="text-amber-700">GS1 ej konfigurerat.</span> Sätt <code class="bg-gray-100 px-1 rounded">GS1_API_KEY</code> + <code class="bg-gray-100 px-1 rounded">GS1_COMPANY_PREFIX</code> i Railway-envet.
+                                    <span class="text-amber-700">GS1 ej konfigurerat.</span>
                                 @endif
                             </div>
                         </form>
@@ -175,21 +233,41 @@
                     @else
                         <div class="space-y-2 mb-3">
                             @foreach ($bundleComponents as $bc)
+                                @php
+                                    $br = $componentCostBreakdowns[$bc->id] ?? ['sek' => 0, 'source' => 'none', 'raw_amount' => 0, 'raw_currency' => 'SEK'];
+                                    $stockOH = (int) ($bc->component?->stock_on_hand ?? 0);
+                                    $bundlesFromThis = (int) $bc->quantity > 0 ? intdiv($stockOH, (int) $bc->quantity) : 0;
+                                @endphp
                                 <form method="POST"
                                       action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}?api_key={{ urlencode($apiKey) }}"
                                       class="grid grid-cols-12 gap-2 items-center p-2 border rounded bg-gray-50">
-                                    <div class="col-span-3 font-mono text-sm">
+                                    <div class="col-span-2 font-mono text-sm">
                                         <a href="/admin/articles/{{ rawurlencode($bc->component_article_number) }}?api_key={{ urlencode($apiKey) }}"
                                            class="text-blue-600 hover:underline">{{ $bc->component_article_number }}</a>
                                     </div>
-                                    <div class="col-span-5 text-sm text-gray-700 truncate">
+                                    <div class="col-span-4 text-sm text-gray-700 truncate">
                                         {{ $bc->component?->description ?? '— artikel saknas —' }}
                                         @if ($bc->component?->brand)
                                             <span class="text-xs text-gray-400">· {{ $bc->component->brand }}</span>
                                         @endif
                                     </div>
-                                    <div class="col-span-1 text-right text-xs text-gray-600">
-                                        {{ rtrim(rtrim(number_format((float) ($bc->component?->cost_price_avg ?? 0), 2), '0'), '.') ?: '0' }} kr
+                                    <div class="col-span-2 text-right text-xs">
+                                        <span class="text-gray-700 font-medium">{{ rtrim(rtrim(number_format($br['sek'], 2), '0'), '.') ?: '0' }} kr</span>
+                                        @if ($br['source'] === 'supplier_article_prices')
+                                            <div class="text-[11px] text-amber-600">
+                                                fb: {{ rtrim(rtrim(number_format($br['raw_amount'], 2), '0'), '.') }} {{ $br['raw_currency'] }}
+                                            </div>
+                                        @elseif ($br['source'] === 'cost_price_avg')
+                                            <div class="text-[11px] text-gray-400">average</div>
+                                        @elseif ($br['source'] === 'external_cost')
+                                            <div class="text-[11px] text-gray-400">external</div>
+                                        @else
+                                            <div class="text-[11px] text-red-500">ingen kostnad</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-span-1 text-right text-xs text-gray-700">
+                                        {{ $stockOH }} st
+                                        <div class="text-[11px] {{ $bundlesFromThis === 0 ? 'text-red-600' : 'text-gray-400' }}">→ {{ $bundlesFromThis }} bd</div>
                                     </div>
                                     <div class="col-span-1">
                                         <input type="number" name="quantity" value="{{ $bc->quantity }}" min="1"

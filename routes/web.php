@@ -229,6 +229,7 @@ Route::post('/admin/articles/{articleNumber}/bundle/components', [AdminArticleCo
 Route::post('/admin/articles/{articleNumber}/bundle/components/{componentId}', [AdminArticleController::class, 'updateBundleComponent'])->name('admin.article.bundle.components.update');
 Route::post('/admin/articles/{articleNumber}/bundle/components/{componentId}/delete', [AdminArticleController::class, 'deleteBundleComponent'])->name('admin.article.bundle.components.delete');
 Route::post('/admin/articles/{articleNumber}/bundle/generate-gtin', [AdminArticleController::class, 'generateGTIN'])->name('admin.article.bundle.gtin');
+Route::post('/admin/articles/{articleNumber}/create-bundle', [AdminArticleController::class, 'createBundleFromArticle'])->name('admin.article.create-bundle');
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
