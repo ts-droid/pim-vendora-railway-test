@@ -31,6 +31,7 @@
             'overview' => 'Översikt',
             'margins'  => 'Marginaler',
             'articles' => 'Alla produkter',
+            'supports' => 'Stöd & kampanjer',
         ],
         'queryPrefix' => 'api_key=' . urlencode($apiKey) . '&',
     ])
@@ -268,6 +269,97 @@
                         Visar max 300 rader. ÅF-marginalen följer CostResolver + MarginResolver-cascaden — "Källa" visar var värdet kom ifrån.
                     </div>
                 @endif
+            </div>
+            @break
+
+        @case('supports')
+            @php
+                $statusBadge = function (string $status) {
+                    return match ($status) {
+                        'expired'      => ['text' => 'Utgången',    'class' => 'bg-gray-200 text-gray-600'],
+                        'expires_soon' => ['text' => 'Snart slut',  'class' => 'bg-amber-100 text-amber-800'],
+                        default        => ['text' => 'Aktiv',       'class' => 'bg-green-100 text-green-800'],
+                    };
+                };
+                $renderTable = function ($items, $colorClass, $emptyLabel) use ($statusBadge) {
+                    if ($items->isEmpty()) {
+                        return '<div class="text-sm text-gray-500 italic">' . $emptyLabel . '</div>';
+                    }
+                    $html = '<table class="w-full text-sm">';
+                    $html .= '<thead class="bg-gray-50 text-xs text-gray-500 uppercase"><tr>';
+                    $html .= '<th class="px-3 py-2 text-left font-semibold">Artikel</th>';
+                    $html .= '<th class="px-3 py-2 text-left font-semibold">Typ</th>';
+                    $html .= '<th class="px-3 py-2 text-right font-semibold">Belopp</th>';
+                    $html .= '<th class="px-3 py-2 text-left font-semibold">Period</th>';
+                    $html .= '<th class="px-3 py-2 text-left font-semibold">Status</th>';
+                    $html .= '</tr></thead><tbody class="divide-y">';
+                    foreach ($items as $r) {
+                        $b = $statusBadge($r['status']);
+                        $html .= '<tr class="hover:bg-gray-50">';
+                        $html .= '<td class="px-3 py-1.5"><span class="font-mono text-xs text-blue-600">' . e($r['article_number']) . '</span><br><span class="text-xs text-gray-500">' . e(\Illuminate\Support\Str::limit($r['description'], 50)) . '</span></td>';
+                        $html .= '<td class="px-3 py-1.5 text-xs text-gray-700">' . e(ucfirst($r['customer_type'])) . '</td>';
+                        $html .= '<td class="px-3 py-1.5 text-right">' . e(rtrim(rtrim(number_format((float) $r['value'], 2), '0'), '.') ?: '0') . ' <span class="text-xs text-gray-500">' . e($r['unit_label']) . '</span></td>';
+                        $html .= '<td class="px-3 py-1.5 text-xs text-gray-600">' . e($r['date_from'] ?: '—') . ' → ' . e($r['date_to'] ?: '—') . '</td>';
+                        $html .= '<td class="px-3 py-1.5"><span class="rounded-full text-xs px-2 py-0.5 font-semibold ' . $b['class'] . '">' . e($b['text']) . '</span></td>';
+                        $html .= '</tr>';
+                    }
+                    $html .= '</tbody></table>';
+                    return $html;
+                };
+            @endphp
+
+            <div class="bg-white border rounded p-6 mb-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase text-gray-500">Från leverantör (inkommande)</h3>
+                        <p class="text-xs text-gray-500 mt-1">Det vi fakturerar tillbaka till varumärket/leverantören.</p>
+                    </div>
+                    <a href="/admin/brands/{{ rawurlencode($brand->name) }}/supports/export.csv?api_key={{ urlencode($apiKey) }}&direction=supplier"
+                       class="border rounded text-xs px-3 py-1.5 text-gray-700 hover:bg-gray-50">
+                        Exportera CSV
+                    </a>
+                </div>
+                {!! $renderTable($supplierSupports, 'blue', 'Inga leverantörsstöd på artiklar i detta varumärke.') !!}
+            </div>
+
+            <div class="bg-white border rounded p-6 mb-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase text-gray-500">Till kund (utgående)</h3>
+                        <p class="text-xs text-gray-500 mt-1">Det vi krediterar / visar i prislistor till kund.</p>
+                    </div>
+                    <a href="/admin/brands/{{ rawurlencode($brand->name) }}/supports/export.csv?api_key={{ urlencode($apiKey) }}&direction=customer"
+                       class="border rounded text-xs px-3 py-1.5 text-gray-700 hover:bg-gray-50">
+                        Exportera CSV
+                    </a>
+                </div>
+                {!! $renderTable($customerSupports, 'amber', 'Inga kundstöd / kampanjer på artiklar i detta varumärke.') !!}
+            </div>
+
+            @if ($supportsExpiringSoon->isNotEmpty())
+                <div class="bg-amber-50 border border-amber-200 rounded p-4 text-sm">
+                    <h4 class="font-semibold text-amber-900 mb-2">Stöd som löper ut inom 30 dagar ({{ $supportsExpiringSoon->count() }})</h4>
+                    <ul class="space-y-1 text-xs text-amber-800">
+                        @foreach ($supportsExpiringSoon as $r)
+                            <li>
+                                <span class="font-mono">{{ $r['article_number'] }}</span> —
+                                {{ $r['layer_normalized'] === 'supplier' ? 'Från leverantör' : 'Till kund' }},
+                                {{ rtrim(rtrim(number_format((float) $r['value'], 2), '0'), '.') ?: '0' }} {{ $r['unit_label'] }},
+                                t.o.m. {{ $r['date_to'] }}
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="text-xs text-amber-700 mt-3 italic">
+                        TODO: Mejl/Slack-notifikation när period avslutas — kräver cron + webhook-config.
+                    </div>
+                </div>
+            @endif
+
+            <div class="flex gap-2 mt-4">
+                <a href="/admin/brands/{{ rawurlencode($brand->name) }}/supports/export.csv?api_key={{ urlencode($apiKey) }}&direction=all"
+                   class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">
+                    Exportera alla stöd (CSV)
+                </a>
             </div>
             @break
 

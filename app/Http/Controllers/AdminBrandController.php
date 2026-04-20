@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ApiKey;
 use App\Models\Article;
 use App\Models\ArticleCategory;
+use App\Models\ArticleSupport;
 use App\Models\Brand;
 use App\Models\MarginRule;
 use App\Models\Supplier;
@@ -13,6 +14,7 @@ use App\Services\Pricing\MarginResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Brand detail page with three sub-tabs:
@@ -104,7 +106,7 @@ class AdminBrandController extends Controller
         $brand = $this->requireBrand($brandName);
 
         $tab = $request->input('tab', 'overview');
-        $allowedTabs = ['overview', 'margins', 'articles'];
+        $allowedTabs = ['overview', 'margins', 'articles', 'supports'];
         if (!in_array($tab, $allowedTabs, true)) {
             $tab = 'overview';
         }
@@ -127,9 +129,130 @@ class AdminBrandController extends Controller
             $data += $this->marginsTabData($brand);
         } elseif ($tab === 'articles') {
             $data += $this->articlesTabData($brand);
+        } elseif ($tab === 'supports') {
+            $data += $this->supportsTabData($brand);
         }
 
         return View::make('admin.brand', $data);
+    }
+
+    public function exportSupports(string $brandName, Request $request): StreamedResponse
+    {
+        $this->requireApiKey($request);
+        $brand = $this->requireBrand($brandName);
+
+        $direction = $request->input('direction', 'all');
+        if (!in_array($direction, ['supplier', 'customer', 'all'], true)) {
+            $direction = 'all';
+        }
+
+        $supports = $this->loadSupportsForBrand($brand);
+        if ($direction !== 'all') {
+            $supports['items'] = $supports['items']->where('layer_normalized', $direction)->values();
+        }
+
+        $filename = 'stod_' . $brand->name . '_' . $direction . '_' . date('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($supports) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, [
+                'Artikelnummer', 'Artikel', 'Riktning', 'Kundtyp',
+                'Värde', 'Enhet', 'Fr.o.m.', 'T.o.m.', 'Status',
+                'Vad att fakturera / kreditera',
+            ], ';');
+            foreach ($supports['items'] as $row) {
+                fputcsv($out, [
+                    $row['article_number'],
+                    $row['description'],
+                    $row['layer_normalized'] === 'supplier' ? 'Från leverantör' : 'Till kund',
+                    $row['customer_type'],
+                    $row['value'],
+                    $row['unit_label'],
+                    $row['date_from'],
+                    $row['date_to'],
+                    $row['status'],
+                    $row['invoice_direction'],
+                ], ';');
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=utf-8']);
+    }
+
+    private function supportsTabData(Brand $brand): array
+    {
+        $loaded = $this->loadSupportsForBrand($brand);
+        $supplier = $loaded['items']->where('layer_normalized', 'supplier')->values();
+        $customer = $loaded['items']->where('layer_normalized', 'customer')->values();
+
+        return [
+            'supplierSupports' => $supplier,
+            'customerSupports' => $customer,
+            'supportsExpiringSoon' => $loaded['items']
+                ->where('status', 'expires_soon')
+                ->values(),
+        ];
+    }
+
+    /**
+     * Gemensam loader för stöd-tabben och CSV-exporten.
+     * Returnerar Collection<array{...}> med beräknade kolumner.
+     */
+    private function loadSupportsForBrand(Brand $brand): array
+    {
+        $articleNumbers = DB::table('articles')
+            ->where('brand', $brand->name)
+            ->pluck('article_number');
+
+        if ($articleNumbers->isEmpty()) {
+            return ['items' => collect()];
+        }
+
+        $supports = ArticleSupport::whereIn('article_number', $articleNumbers)
+            ->orderBy('date_to', 'asc')
+            ->orderBy('article_number')
+            ->get();
+
+        $articles = DB::table('articles')
+            ->whereIn('article_number', $articleNumbers)
+            ->select('article_number', 'description')
+            ->get()
+            ->keyBy('article_number');
+
+        $today = now()->startOfDay();
+        $soonCutoff = now()->addDays(30);
+
+        $items = $supports->map(function (ArticleSupport $s) use ($articles, $today, $soonCutoff) {
+            $article = $articles->get($s->article_number);
+            $layer = in_array($s->layer, ['supplier', 'brand'], true) ? 'supplier' : 'customer';
+            $unit = $s->is_percentage ? '%' : ($s->currency ?: 'SEK');
+            $status = 'active';
+            if ($s->date_to && $s->date_to->lt($today)) {
+                $status = 'expired';
+            } elseif ($s->date_to && $s->date_to->lt($soonCutoff)) {
+                $status = 'expires_soon';
+            }
+
+            $invoiceDir = $layer === 'supplier'
+                ? ('Fakturera ' . ($s->value) . ' ' . $unit . ' till ' . $article?->description . ' leverantör')
+                : ('Kreditera ' . ($s->value) . ' ' . $unit . ' till kund per enhet');
+
+            return [
+                'id' => $s->id,
+                'article_number' => $s->article_number,
+                'description' => $article?->description ?? '—',
+                'layer_normalized' => $layer,
+                'customer_type' => $s->customer_type,
+                'value' => $s->value,
+                'is_percentage' => $s->is_percentage,
+                'unit_label' => $unit,
+                'date_from' => $s->date_from?->format('Y-m-d') ?? '',
+                'date_to' => $s->date_to?->format('Y-m-d') ?? '',
+                'status' => $status,
+                'invoice_direction' => $invoiceDir,
+            ];
+        });
+
+        return ['items' => $items];
     }
 
     private function marginsTabData(Brand $brand): array

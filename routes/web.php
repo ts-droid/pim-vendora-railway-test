@@ -254,6 +254,9 @@ Route::post('/admin/brands/{brandName}/rules/{ruleId}', [App\Http\Controllers\Ad
 Route::post('/admin/brands/{brandName}/rules/{ruleId}/delete', [App\Http\Controllers\AdminBrandController::class, 'deleteRule'])
     ->where('brandName', '[^/]+')
     ->name('admin.brand.rules.delete');
+Route::get('/admin/brands/{brandName}/supports/export.csv', [App\Http\Controllers\AdminBrandController::class, 'exportSupports'])
+    ->where('brandName', '[^/]+')
+    ->name('admin.brand.supports.export');
 
 require __DIR__ . '/supplierPortal.php';
 
