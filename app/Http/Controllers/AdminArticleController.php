@@ -71,8 +71,12 @@ class AdminArticleController extends Controller
         }
 
         // Create the bundle article. category_ids is NOT NULL in schema.
-        // Copy brand + supplier_number from parent so the new bundle has
-        // coherent metadata for cascade + sourcing.
+        // Metadata som ärvs från huvudprodukten så bundlen har coherent
+        // tull- och ursprungsinformation utan manuell påfyllning:
+        //   brand + supplier_number          (för cascade + sourcing)
+        //   standard_reseller_margin + min   (för marginal-cascaden)
+        //   hs_code (KN/HS-kod)              (tullklassning)
+        //   origin_country (COO)             (ursprungsland)
         $bundle = new Article();
         $bundle->article_number = $newNumber;
         $bundle->description = $description;
@@ -81,6 +85,8 @@ class AdminArticleController extends Controller
         $bundle->supplier_number = $parent->supplier_number;
         $bundle->standard_reseller_margin = (float) ($parent->standard_reseller_margin ?? 0);
         $bundle->minimum_margin = (float) ($parent->minimum_margin ?? 0);
+        $bundle->hs_code = $parent->hs_code;
+        $bundle->origin_country = $parent->origin_country;
         $bundle->category_ids = '[]';
         $bundle->cost_price_avg = 0;
         $bundle->save();

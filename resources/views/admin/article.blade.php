@@ -260,8 +260,8 @@
                 {{-- Row: KN code / UN code --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">KN code <span class="text-red-500">*</span></label>
-                        <div class="border rounded px-3 py-2 bg-gray-50 font-mono">{{ $article->kn_code ?? '—' }}</div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">KN / HS code <span class="text-red-500">*</span></label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 font-mono">{{ $article->hs_code ?: '—' }}</div>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">UN code</label>
@@ -272,8 +272,8 @@
                 {{-- Row: Country of origin / Lot / Serial Number Management --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Country of origin <span class="text-red-500">*</span></label>
-                        <div class="border rounded px-3 py-2 bg-gray-50">{{ $article->country_of_origin ?? '—' }}</div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Country of origin (COO) <span class="text-red-500">*</span></label>
+                        <div class="border rounded px-3 py-2 bg-gray-50">{{ $article->origin_country ?: '—' }}</div>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Lot / Serial Number Management</label>
