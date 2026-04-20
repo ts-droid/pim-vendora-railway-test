@@ -95,7 +95,7 @@
                 </label>
                 <input type="range"
                        :min="Math.max(1, Math.round(state.cost * 1.25))"
-                       :max="Math.min(200000, Math.max(5000, Math.round(state.cost * 30)))"
+                       :max="rrpSliderMax()"
                        :value="state.rrp_inc_sek"
                        :disabled="locks.rrp"
                        @input="onSliderInput('rrp', $event.target.valueAsNumber)"
@@ -306,6 +306,22 @@ if (!window.priceCalculator) {
                     this.saveState = 'error';
                     this.saveMessage = 'Nätverksfel: ' + e.message;
                 }
+            },
+
+            // RRP-slide-taket härleds från maxmarginalerna på de två
+            // marginalsliderna (65 % vår marginal + 65 % ÅF-marginal).
+            // basePriceEx_max = cost / (1 - 0.65)        (vår marginal på 65 %)
+            // rrp_ex_max      = basePriceEx_max / (1 - 0.65)
+            // rrp_inc_max     = rrp_ex_max × 1.25         (25 % moms)
+            //                 = cost × 1.25 / 0.35²  ≈ cost × 10.204
+            // Ger samma tak överallt på kalkylatorn — över det går
+            // marginalsliderna inte högre ändå.
+            rrpSliderMax() {
+                const MARGIN_MAX = 0.65;
+                const VAT = 1.25;
+                const mult = VAT / ((1 - MARGIN_MAX) * (1 - MARGIN_MAX));
+                const theoretical = Math.round((this.state.cost || 1) * mult);
+                return Math.max(500, theoretical);
             },
 
             formatCur(currency, value) {
