@@ -110,312 +110,6 @@
                 </form>
             </div>
 
-            {{-- Bundling — artikeln består av andra artiklar. Bundle-kostnad summeras via CostResolver (supplier-pris → SEK som fallback). Tillgänglig bundle = MIN(komponent-lager ÷ antal i bundle). --}}
-
-            @if ($article->article_type !== 'Bundle' && $bundleComponents->isEmpty())
-                {{-- Skapa-bundling-CTA visas bara när artikeln INTE redan är en bundle --}}
-                <div class="bg-blue-50 border border-blue-200 rounded p-6 mt-6">
-                    <h3 class="text-sm font-semibold uppercase text-gray-600 mb-2">Skapa bundlings-SKU</h3>
-                    <p class="text-sm text-gray-700 mb-4">
-                        Bygg en ny bundle där denna artikel ({{ $article->article_number }}) är första komponenten.
-                        @if ($gs1Configured)
-                            GTIN genereras automatiskt via GS1 Validoo när bundlen sparas.
-                        @else
-                            GS1 är ej konfigurerat — bundlen sparas utan EAN (kan genereras senare).
-                        @endif
-                    </p>
-                    <form method="POST"
-                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/create-bundle?api_key={{ urlencode($apiKey) }}"
-                          class="grid grid-cols-12 gap-2 items-end"
-                          data-create-bundle-form
-                          data-original-number="{{ $article->article_number }}"
-                          data-original-description="{{ $article->description }}">
-                        <div class="col-span-4">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-SKU <span class="text-red-500">*</span></label>
-                            <input type="text" name="bundle_article_number" required
-                                   value="{{ $article->article_number }}"
-                                   data-original-number-input
-                                   class="border rounded px-2 py-1.5 text-sm w-full font-mono">
-                        </div>
-                        <div class="col-span-5">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Beskrivning <span class="text-red-500">*</span></label>
-                            <input type="text" name="bundle_description" required
-                                   value="{{ $article->description }}"
-                                   data-original-description-input
-                                   class="border rounded px-2 py-1.5 text-sm w-full">
-                        </div>
-                        <div class="col-span-1">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
-                            <input type="number" name="first_component_quantity" value="1" min="1"
-                                   class="border rounded px-2 py-1.5 text-sm w-full text-right">
-                        </div>
-                        <div class="col-span-2">
-                            <button type="submit"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded w-full">
-                                Skapa bundle →
-                            </button>
-                        </div>
-                        <div class="col-span-12 text-xs text-amber-700 hidden" data-unchanged-warning>
-                            ⚠ Bundle-SKU och beskrivning måste ändras från grundartikelns värden innan du kan spara.
-                        </div>
-                    </form>
-
-                    <script>
-                        (() => {
-                            const form = document.querySelector('[data-create-bundle-form]');
-                            if (!form) return;
-                            const numberEl = form.querySelector('[data-original-number-input]');
-                            const descEl = form.querySelector('[data-original-description-input]');
-                            const warn = form.querySelector('[data-unchanged-warning]');
-                            const origNumber = form.dataset.originalNumber;
-                            const origDesc = form.dataset.originalDescription;
-                            form.addEventListener('submit', (e) => {
-                                const unchangedNumber = numberEl.value.trim() === origNumber;
-                                const unchangedDesc = descEl.value.trim() === origDesc;
-                                if (unchangedNumber || unchangedDesc) {
-                                    e.preventDefault();
-                                    warn.classList.remove('hidden');
-                                    if (unchangedNumber) numberEl.classList.add('border-amber-500');
-                                    if (unchangedDesc) descEl.classList.add('border-amber-500');
-                                }
-                            });
-                            [numberEl, descEl].forEach((el) => {
-                                el.addEventListener('input', () => {
-                                    el.classList.remove('border-amber-500');
-                                    if (numberEl.value.trim() !== origNumber && descEl.value.trim() !== origDesc) {
-                                        warn.classList.add('hidden');
-                                    }
-                                });
-                            });
-                        })();
-                    </script>
-                </div>
-            @endif
-
-            <div class="bg-white border rounded p-6 mt-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold uppercase text-gray-500">
-                        Bundling
-                        @if ($article->article_type === 'Bundle')
-                            <span class="ml-2 bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded uppercase tracking-wide">Bundle</span>
-                        @endif
-                    </h3>
-                </div>
-
-                {{-- Summary-rad: kostnad + tillgänglighet + EAN + GS1-knapp --}}
-                <div class="grid grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-kostnad</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
-                            <span>{{ rtrim(rtrim(number_format($bundleCost, 2), '0'), '.') ?: '0' }}</span>
-                            <span class="text-gray-500">SEK</span>
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            Σ komponent-kostnader × antal. Fallback till leverantörens pris (USD/EUR/…) konverterat till SEK om average saknas.
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Tillgänglighet</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
-                            @if ($bundleStock === null)
-                                <span class="text-gray-400">—</span>
-                                <span class="text-gray-500">ej bundle</span>
-                            @else
-                                <span class="{{ $bundleStock === 0 ? 'text-red-600' : '' }}">{{ $bundleStock }}</span>
-                                <span class="text-gray-500">st</span>
-                            @endif
-                        </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            MIN(lager ÷ antal) över komponenterna. Begränsande komponent avgör.
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">EAN / GTIN</label>
-                        <div class="border rounded px-3 py-2 bg-gray-50 font-mono">{{ $article->ean ?: '—' }}</div>
-                        @if ($article->ean)
-                            <div class="text-xs text-green-700 mt-1">✓ GTIN finns</div>
-                        @else
-                            <div class="text-xs text-gray-500 mt-1">Ingen EAN — generera via GS1 Validoo-knappen.</div>
-                        @endif
-                    </div>
-                    <div class="flex items-end">
-                        <form method="POST"
-                              action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/generate-gtin?api_key={{ urlencode($apiKey) }}"
-                              class="w-full"
-                              onsubmit="return confirm('Ringa GS1 Validoo och generera + aktivera en riktig GTIN nu?');">
-                            <button type="submit"
-                                    @if (!$gs1Configured) disabled title="GS1 ej konfigurerat: saknar GS1_API_KEY / GS1_COMPANY_PREFIX" @endif
-                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded {{ !$gs1Configured ? 'opacity-50 cursor-not-allowed' : '' }}">
-                                Generera GTIN via GS1 →
-                            </button>
-                            <div class="text-xs text-gray-500 mt-1">
-                                @if ($gs1Configured)
-                                    Anropar services.validoo.se live.
-                                @else
-                                    <span class="text-amber-700">GS1 ej konfigurerat.</span>
-                                @endif
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                {{-- Komponenter --}}
-                <div class="border-t pt-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="text-xs text-gray-500 uppercase font-semibold">Komponenter</h4>
-                        <span class="text-xs text-gray-400">Grunddata ärvs från respektive komponent-artikel</span>
-                    </div>
-
-                    @if ($bundleComponents->isEmpty())
-                        <div class="text-sm text-gray-500 italic mb-3">Inga komponenter. Lägg till nedan för att göra detta till en bundle.</div>
-                    @else
-                        <div class="space-y-2 mb-3">
-                            @foreach ($bundleComponents as $bc)
-                                @php
-                                    $br = $componentCostBreakdowns[$bc->id] ?? ['sek' => 0, 'source' => 'none', 'raw_amount' => 0, 'raw_currency' => 'SEK'];
-                                    $stockOH = (int) ($bc->component?->stock_on_hand ?? 0);
-                                    $bundlesFromThis = (int) $bc->quantity > 0 ? intdiv($stockOH, (int) $bc->quantity) : 0;
-                                @endphp
-                                <form method="POST"
-                                      action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}?api_key={{ urlencode($apiKey) }}"
-                                      class="grid grid-cols-12 gap-2 items-center p-2 border rounded bg-gray-50">
-                                    <div class="col-span-2 font-mono text-sm">
-                                        <a href="/admin/articles/{{ rawurlencode($bc->component_article_number) }}?api_key={{ urlencode($apiKey) }}"
-                                           class="text-blue-600 hover:underline">{{ $bc->component_article_number }}</a>
-                                    </div>
-                                    <div class="col-span-4 text-sm text-gray-700 truncate">
-                                        {{ $bc->component?->description ?? '— artikel saknas —' }}
-                                        @if ($bc->component?->brand)
-                                            <span class="text-xs text-gray-400">· {{ $bc->component->brand }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="col-span-2 text-right text-xs">
-                                        <span class="text-gray-700 font-medium">{{ rtrim(rtrim(number_format($br['sek'], 2), '0'), '.') ?: '0' }} kr</span>
-                                        @if ($br['source'] === 'supplier_article_prices')
-                                            <div class="text-[11px] text-amber-600">
-                                                fb: {{ rtrim(rtrim(number_format($br['raw_amount'], 2), '0'), '.') }} {{ $br['raw_currency'] }}
-                                            </div>
-                                        @elseif ($br['source'] === 'cost_price_avg')
-                                            <div class="text-[11px] text-gray-400">average</div>
-                                        @elseif ($br['source'] === 'external_cost')
-                                            <div class="text-[11px] text-gray-400">external</div>
-                                        @else
-                                            <div class="text-[11px] text-red-500">ingen kostnad</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-span-1 text-right text-xs text-gray-700">
-                                        {{ $stockOH }} st
-                                        <div class="text-[11px] {{ $bundlesFromThis === 0 ? 'text-red-600' : 'text-gray-400' }}">→ {{ $bundlesFromThis }} bd</div>
-                                    </div>
-                                    <div class="col-span-1">
-                                        <input type="number" name="quantity" value="{{ $bc->quantity }}" min="1"
-                                               class="border rounded px-2 py-1 text-sm w-full text-right">
-                                    </div>
-                                    <div class="col-span-2 flex gap-1 justify-end">
-                                        <button type="submit"
-                                                class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
-                                        <button type="submit"
-                                                formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}/delete?api_key={{ urlencode($apiKey) }}"
-                                                onclick="return confirm('Ta bort {{ $bc->component_article_number }} från bundlen?');"
-                                                class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
-                                    </div>
-                                </form>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- Lägg till komponent --}}
-                    <form method="POST"
-                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components?api_key={{ urlencode($apiKey) }}"
-                          class="grid grid-cols-12 gap-2 items-end p-2 border border-dashed rounded">
-                        <div class="col-span-8">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Komponent-artikelnummer</label>
-                            <input type="text" name="component_article_number" required
-                                   placeholder="t.ex. TS-2258"
-                                   class="border rounded px-2 py-1 text-sm w-full font-mono">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
-                            <input type="number" name="quantity" value="1" min="1"
-                                   class="border rounded px-2 py-1 text-sm w-full text-right">
-                        </div>
-                        <div class="col-span-2 flex justify-end">
-                            <button type="submit"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded w-full">+ Lägg till</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            {{-- BID-varianter — varje variant ärver grunddata (namn, EAN, brand, kostnad) från artikeln ovan --}}
-            <div class="bg-white border rounded p-6 mt-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold uppercase text-gray-500">BID-varianter</h3>
-                    <div class="flex items-center gap-3">
-                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/toggle?api_key={{ urlencode($apiKey) }}" class="inline">
-                            <label class="inline-flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-                                <input type="checkbox" name="bid_enabled" value="1" onchange="this.form.submit()"
-                                       class="rounded"
-                                       {{ $article->bid_enabled ? 'checked' : '' }}>
-                                <span>Aktivera BID</span>
-                            </label>
-                        </form>
-                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants?api_key={{ urlencode($apiKey) }}" class="inline">
-                            <button type="submit" class="border rounded text-xs px-3 py-1 text-gray-700 hover:bg-gray-50">+ Variant</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="text-xs text-gray-500 mb-3">
-                    Grunddata ärvs från artikeln ovan:
-                    <span class="font-mono">{{ $article->article_number }}</span>
-                    · {{ \Illuminate\Support\Str::limit($article->description, 50) }}
-                    @if ($article->brand) · {{ $article->brand }} @endif
-                </div>
-
-                @if ($bidVariants->isEmpty())
-                    <div class="text-sm text-gray-500 italic">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
-                @else
-                    <div class="space-y-3">
-                        @foreach ($bidVariants as $v)
-                            <form method="POST"
-                                  action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}?api_key={{ urlencode($apiKey) }}"
-                                  class="grid grid-cols-12 gap-2 items-end p-3 border rounded bg-gray-50">
-                                <div class="col-span-4">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Variant-SKU</label>
-                                    <input type="text" name="variant_sku" value="{{ $v->variant_sku }}"
-                                           placeholder="t.ex. {{ $article->article_number }}-BID01"
-                                           class="border rounded px-2 py-1 text-sm w-full font-mono">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">BID-kostnad</label>
-                                    <input type="number" step="0.01" min="0" name="cost" value="{{ rtrim(rtrim(number_format((float) $v->cost, 4, '.', ''), '0'), '.') ?: '0' }}"
-                                           class="border rounded px-2 py-1 text-sm w-full text-right">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Fast pris</label>
-                                    <input type="number" step="0.01" min="0" name="fixed_price" value="{{ rtrim(rtrim(number_format((float) $v->fixed_price, 4, '.', ''), '0'), '.') ?: '0' }}"
-                                           class="border rounded px-2 py-1 text-sm w-full text-right">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. marginal %</label>
-                                    <input type="number" step="0.01" min="0" max="100" name="min_margin" value="{{ rtrim(rtrim(number_format((float) $v->min_margin, 2, '.', ''), '0'), '.') ?: '0' }}"
-                                           class="border rounded px-2 py-1 text-sm w-full text-right">
-                                </div>
-                                <div class="col-span-2 flex gap-1 justify-end">
-                                    <button type="submit"
-                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
-                                    <button type="submit"
-                                            formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}/delete?api_key={{ urlencode($apiKey) }}"
-                                            onclick="return confirm('Ta bort variant {{ $v->variant_sku ?: $v->id }}?');"
-                                            class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
-                                </div>
-                            </form>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-
             {{-- Stöd & kampanjer — leverantörs- eller varumärkesstöd per artikel och kundtyp --}}
             <div class="bg-white border rounded p-6 mt-6">
                 <div class="flex justify-between items-center mb-4">
@@ -733,6 +427,312 @@
                 <div class="text-xs text-gray-400 text-right">
                     Last updated: {{ $article->updated_at ?? '—' }}
                 </div>
+            </div>
+
+            {{-- Bundling — artikeln består av andra artiklar. Bundle-kostnad summeras via CostResolver (supplier-pris → SEK som fallback). Tillgänglig bundle = MIN(komponent-lager ÷ antal i bundle). --}}
+
+            @if ($article->article_type !== 'Bundle' && $bundleComponents->isEmpty())
+                {{-- Skapa-bundling-CTA visas bara när artikeln INTE redan är en bundle --}}
+                <div class="bg-blue-50 border border-blue-200 rounded p-6 mt-6">
+                    <h3 class="text-sm font-semibold uppercase text-gray-600 mb-2">Skapa bundlings-SKU</h3>
+                    <p class="text-sm text-gray-700 mb-4">
+                        Bygg en ny bundle där denna artikel ({{ $article->article_number }}) är första komponenten.
+                        @if ($gs1Configured)
+                            GTIN genereras automatiskt via GS1 Validoo när bundlen sparas.
+                        @else
+                            GS1 är ej konfigurerat — bundlen sparas utan EAN (kan genereras senare).
+                        @endif
+                    </p>
+                    <form method="POST"
+                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/create-bundle?api_key={{ urlencode($apiKey) }}"
+                          class="grid grid-cols-12 gap-2 items-end"
+                          data-create-bundle-form
+                          data-original-number="{{ $article->article_number }}"
+                          data-original-description="{{ $article->description }}">
+                        <div class="col-span-4">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-SKU <span class="text-red-500">*</span></label>
+                            <input type="text" name="bundle_article_number" required
+                                   value="{{ $article->article_number }}"
+                                   data-original-number-input
+                                   class="border rounded px-2 py-1.5 text-sm w-full font-mono">
+                        </div>
+                        <div class="col-span-5">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Beskrivning <span class="text-red-500">*</span></label>
+                            <input type="text" name="bundle_description" required
+                                   value="{{ $article->description }}"
+                                   data-original-description-input
+                                   class="border rounded px-2 py-1.5 text-sm w-full">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
+                            <input type="number" name="first_component_quantity" value="1" min="1"
+                                   class="border rounded px-2 py-1.5 text-sm w-full text-right">
+                        </div>
+                        <div class="col-span-2">
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded w-full">
+                                Skapa bundle →
+                            </button>
+                        </div>
+                        <div class="col-span-12 text-xs text-amber-700 hidden" data-unchanged-warning>
+                            ⚠ Bundle-SKU och beskrivning måste ändras från grundartikelns värden innan du kan spara.
+                        </div>
+                    </form>
+
+                    <script>
+                        (() => {
+                            const form = document.querySelector('[data-create-bundle-form]');
+                            if (!form) return;
+                            const numberEl = form.querySelector('[data-original-number-input]');
+                            const descEl = form.querySelector('[data-original-description-input]');
+                            const warn = form.querySelector('[data-unchanged-warning]');
+                            const origNumber = form.dataset.originalNumber;
+                            const origDesc = form.dataset.originalDescription;
+                            form.addEventListener('submit', (e) => {
+                                const unchangedNumber = numberEl.value.trim() === origNumber;
+                                const unchangedDesc = descEl.value.trim() === origDesc;
+                                if (unchangedNumber || unchangedDesc) {
+                                    e.preventDefault();
+                                    warn.classList.remove('hidden');
+                                    if (unchangedNumber) numberEl.classList.add('border-amber-500');
+                                    if (unchangedDesc) descEl.classList.add('border-amber-500');
+                                }
+                            });
+                            [numberEl, descEl].forEach((el) => {
+                                el.addEventListener('input', () => {
+                                    el.classList.remove('border-amber-500');
+                                    if (numberEl.value.trim() !== origNumber && descEl.value.trim() !== origDesc) {
+                                        warn.classList.add('hidden');
+                                    }
+                                });
+                            });
+                        })();
+                    </script>
+                </div>
+            @endif
+
+            <div class="bg-white border rounded p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">
+                        Bundling
+                        @if ($article->article_type === 'Bundle')
+                            <span class="ml-2 bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded uppercase tracking-wide">Bundle</span>
+                        @endif
+                    </h3>
+                </div>
+
+                {{-- Summary-rad: kostnad + tillgänglighet + EAN + GS1-knapp --}}
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bundle-kostnad</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
+                            <span>{{ rtrim(rtrim(number_format($bundleCost, 2), '0'), '.') ?: '0' }}</span>
+                            <span class="text-gray-500">SEK</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Σ komponent-kostnader × antal. Fallback till leverantörens pris (USD/EUR/…) konverterat till SEK om average saknas.
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Tillgänglighet</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 flex justify-between">
+                            @if ($bundleStock === null)
+                                <span class="text-gray-400">—</span>
+                                <span class="text-gray-500">ej bundle</span>
+                            @else
+                                <span class="{{ $bundleStock === 0 ? 'text-red-600' : '' }}">{{ $bundleStock }}</span>
+                                <span class="text-gray-500">st</span>
+                            @endif
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            MIN(lager ÷ antal) över komponenterna. Begränsande komponent avgör.
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">EAN / GTIN</label>
+                        <div class="border rounded px-3 py-2 bg-gray-50 font-mono">{{ $article->ean ?: '—' }}</div>
+                        @if ($article->ean)
+                            <div class="text-xs text-green-700 mt-1">✓ GTIN finns</div>
+                        @else
+                            <div class="text-xs text-gray-500 mt-1">Ingen EAN — generera via GS1 Validoo-knappen.</div>
+                        @endif
+                    </div>
+                    <div class="flex items-end">
+                        <form method="POST"
+                              action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/generate-gtin?api_key={{ urlencode($apiKey) }}"
+                              class="w-full"
+                              onsubmit="return confirm('Ringa GS1 Validoo och generera + aktivera en riktig GTIN nu?');">
+                            <button type="submit"
+                                    @if (!$gs1Configured) disabled title="GS1 ej konfigurerat: saknar GS1_API_KEY / GS1_COMPANY_PREFIX" @endif
+                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded {{ !$gs1Configured ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                Generera GTIN via GS1 →
+                            </button>
+                            <div class="text-xs text-gray-500 mt-1">
+                                @if ($gs1Configured)
+                                    Anropar services.validoo.se live.
+                                @else
+                                    <span class="text-amber-700">GS1 ej konfigurerat.</span>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Komponenter --}}
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-xs text-gray-500 uppercase font-semibold">Komponenter</h4>
+                        <span class="text-xs text-gray-400">Grunddata ärvs från respektive komponent-artikel</span>
+                    </div>
+
+                    @if ($bundleComponents->isEmpty())
+                        <div class="text-sm text-gray-500 italic mb-3">Inga komponenter. Lägg till nedan för att göra detta till en bundle.</div>
+                    @else
+                        <div class="space-y-2 mb-3">
+                            @foreach ($bundleComponents as $bc)
+                                @php
+                                    $br = $componentCostBreakdowns[$bc->id] ?? ['sek' => 0, 'source' => 'none', 'raw_amount' => 0, 'raw_currency' => 'SEK'];
+                                    $stockOH = (int) ($bc->component?->stock_on_hand ?? 0);
+                                    $bundlesFromThis = (int) $bc->quantity > 0 ? intdiv($stockOH, (int) $bc->quantity) : 0;
+                                @endphp
+                                <form method="POST"
+                                      action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}?api_key={{ urlencode($apiKey) }}"
+                                      class="grid grid-cols-12 gap-2 items-center p-2 border rounded bg-gray-50">
+                                    <div class="col-span-2 font-mono text-sm">
+                                        <a href="/admin/articles/{{ rawurlencode($bc->component_article_number) }}?api_key={{ urlencode($apiKey) }}"
+                                           class="text-blue-600 hover:underline">{{ $bc->component_article_number }}</a>
+                                    </div>
+                                    <div class="col-span-4 text-sm text-gray-700 truncate">
+                                        {{ $bc->component?->description ?? '— artikel saknas —' }}
+                                        @if ($bc->component?->brand)
+                                            <span class="text-xs text-gray-400">· {{ $bc->component->brand }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-span-2 text-right text-xs">
+                                        <span class="text-gray-700 font-medium">{{ rtrim(rtrim(number_format($br['sek'], 2), '0'), '.') ?: '0' }} kr</span>
+                                        @if ($br['source'] === 'supplier_article_prices')
+                                            <div class="text-[11px] text-amber-600">
+                                                fb: {{ rtrim(rtrim(number_format($br['raw_amount'], 2), '0'), '.') }} {{ $br['raw_currency'] }}
+                                            </div>
+                                        @elseif ($br['source'] === 'cost_price_avg')
+                                            <div class="text-[11px] text-gray-400">average</div>
+                                        @elseif ($br['source'] === 'external_cost')
+                                            <div class="text-[11px] text-gray-400">external</div>
+                                        @else
+                                            <div class="text-[11px] text-red-500">ingen kostnad</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-span-1 text-right text-xs text-gray-700">
+                                        {{ $stockOH }} st
+                                        <div class="text-[11px] {{ $bundlesFromThis === 0 ? 'text-red-600' : 'text-gray-400' }}">→ {{ $bundlesFromThis }} bd</div>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <input type="number" name="quantity" value="{{ $bc->quantity }}" min="1"
+                                               class="border rounded px-2 py-1 text-sm w-full text-right">
+                                    </div>
+                                    <div class="col-span-2 flex gap-1 justify-end">
+                                        <button type="submit"
+                                                class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
+                                        <button type="submit"
+                                                formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components/{{ $bc->id }}/delete?api_key={{ urlencode($apiKey) }}"
+                                                onclick="return confirm('Ta bort {{ $bc->component_article_number }} från bundlen?');"
+                                                class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
+                                    </div>
+                                </form>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Lägg till komponent --}}
+                    <form method="POST"
+                          action="/admin/articles/{{ rawurlencode($article->article_number) }}/bundle/components?api_key={{ urlencode($apiKey) }}"
+                          class="grid grid-cols-12 gap-2 items-end p-2 border border-dashed rounded">
+                        <div class="col-span-8">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Komponent-artikelnummer</label>
+                            <input type="text" name="component_article_number" required
+                                   placeholder="t.ex. TS-2258"
+                                   class="border rounded px-2 py-1 text-sm w-full font-mono">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Antal</label>
+                            <input type="number" name="quantity" value="1" min="1"
+                                   class="border rounded px-2 py-1 text-sm w-full text-right">
+                        </div>
+                        <div class="col-span-2 flex justify-end">
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded w-full">+ Lägg till</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {{-- BID-varianter — varje variant ärver grunddata (namn, EAN, brand, kostnad) från artikeln ovan --}}
+            <div class="bg-white border rounded p-6 mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold uppercase text-gray-500">BID-varianter</h3>
+                    <div class="flex items-center gap-3">
+                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/toggle?api_key={{ urlencode($apiKey) }}" class="inline">
+                            <label class="inline-flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                                <input type="checkbox" name="bid_enabled" value="1" onchange="this.form.submit()"
+                                       class="rounded"
+                                       {{ $article->bid_enabled ? 'checked' : '' }}>
+                                <span>Aktivera BID</span>
+                            </label>
+                        </form>
+                        <form method="POST" action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants?api_key={{ urlencode($apiKey) }}" class="inline">
+                            <button type="submit" class="border rounded text-xs px-3 py-1 text-gray-700 hover:bg-gray-50">+ Variant</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 mb-3">
+                    Grunddata ärvs från artikeln ovan:
+                    <span class="font-mono">{{ $article->article_number }}</span>
+                    · {{ \Illuminate\Support\Str::limit($article->description, 50) }}
+                    @if ($article->brand) · {{ $article->brand }} @endif
+                </div>
+
+                @if ($bidVariants->isEmpty())
+                    <div class="text-sm text-gray-500 italic">Inga BID-varianter. Klicka "+ Variant" för att lägga till.</div>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($bidVariants as $v)
+                            <form method="POST"
+                                  action="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}?api_key={{ urlencode($apiKey) }}"
+                                  class="grid grid-cols-12 gap-2 items-end p-3 border rounded bg-gray-50">
+                                <div class="col-span-4">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Variant-SKU</label>
+                                    <input type="text" name="variant_sku" value="{{ $v->variant_sku }}"
+                                           placeholder="t.ex. {{ $article->article_number }}-BID01"
+                                           class="border rounded px-2 py-1 text-sm w-full font-mono">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">BID-kostnad</label>
+                                    <input type="number" step="0.01" min="0" name="cost" value="{{ rtrim(rtrim(number_format((float) $v->cost, 4, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Fast pris</label>
+                                    <input type="number" step="0.01" min="0" name="fixed_price" value="{{ rtrim(rtrim(number_format((float) $v->fixed_price, 4, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Min. marginal %</label>
+                                    <input type="number" step="0.01" min="0" max="100" name="min_margin" value="{{ rtrim(rtrim(number_format((float) $v->min_margin, 2, '.', ''), '0'), '.') ?: '0' }}"
+                                           class="border rounded px-2 py-1 text-sm w-full text-right">
+                                </div>
+                                <div class="col-span-2 flex gap-1 justify-end">
+                                    <button type="submit"
+                                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-2.5 py-1 rounded">Spara</button>
+                                    <button type="submit"
+                                            formaction="/admin/articles/{{ rawurlencode($article->article_number) }}/bid/variants/{{ $v->id }}/delete?api_key={{ urlencode($apiKey) }}"
+                                            onclick="return confirm('Ta bort variant {{ $v->variant_sku ?: $v->id }}?');"
+                                            class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2.5 py-1 rounded">Ta bort</button>
+                                </div>
+                            </form>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             @break

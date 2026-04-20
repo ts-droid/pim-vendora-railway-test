@@ -520,24 +520,23 @@ class AdminArticleController extends Controller
             ->orderByDesc('updated_at')
             ->first();
 
-        // BID variants — loaded only on the pricing tab (the only place
-        // they are rendered) to keep other tabs light.
-        $bidVariants = $tab === 'pricing'
+        // BID variants + Bundle-komponenter visas nu på General-taben
+        // (strukturell info) snarare än Pricing. Ladda för båda tabbarna
+        // så länkar och sektionerna fungerar.
+        $loadStructural = in_array($tab, ['general', 'pricing'], true);
+
+        $bidVariants = $loadStructural
             ? BidVariant::where('article_number', $article->article_number)
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
             : collect();
 
-        // Bundle components + computed bundle cost + available stock.
-        // Cost uses CostResolver (falls back to supplier price converted
-        // to SEK when cost_price_avg is 0). Stock is MIN of
-        // component.stock_on_hand ÷ quantity_in_bundle.
         $bundleComponents = collect();
         $bundleCost = 0.0;
         $bundleStock = null;
         $componentCostBreakdowns = [];
-        if ($tab === 'pricing') {
+        if ($loadStructural) {
             $bundleComponents = BundleComponent::where('bundle_article_number', $article->article_number)
                 ->orderBy('sort_order')
                 ->orderBy('id')
