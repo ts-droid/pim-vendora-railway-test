@@ -94,8 +94,8 @@
                     </label>
                 </label>
                 <input type="range"
-                       :min="Math.round(state.cost * 1.25)"
-                       :max="Math.max(5000, Math.round(state.rrp_inc_sek * 2))"
+                       :min="Math.max(1, Math.round(state.cost * 1.25))"
+                       :max="Math.min(200000, Math.max(5000, Math.round(state.cost * 30)))"
                        :value="state.rrp_inc_sek"
                        :disabled="locks.rrp"
                        @input="onSliderInput('rrp', $event.target.valueAsNumber)"
