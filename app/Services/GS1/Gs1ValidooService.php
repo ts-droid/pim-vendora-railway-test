@@ -39,6 +39,7 @@ class Gs1ValidooService
         private readonly string $activateUrl,
         private readonly string $defaultBrand,
         private readonly string $countryCode,
+        private readonly string $environment = 'Production',
     ) {
     }
 
@@ -46,18 +47,40 @@ class Gs1ValidooService
     {
         $c = config('services.gs1');
         return new self(
-            tokenUrl: $c['token_url'] ?? 'https://validoopwe-apimanagement.azure-api.net/connect/token',
-            clientId: $c['client_id'] ?? '',
-            clientSecret: $c['client_secret'] ?? '',
-            username: $c['username'] ?? '',
-            password: $c['password'] ?? '',
-            scope: $c['scope'] ?? 'numberseries tradeitem offline_access',
-            companyPrefix: $c['company_prefix'] ?? '',
+            tokenUrl: self::readSetting('token_url', 'token_url', $c) ?: 'https://validoopwe-apimanagement.azure-api.net/connect/token',
+            clientId: self::readSetting('client_id', 'client_id', $c),
+            clientSecret: self::readSetting('client_secret', 'client_secret', $c),
+            username: self::readSetting('username', 'username', $c),
+            password: self::readSetting('password', 'password', $c),
+            scope: self::readSetting('scope', 'scope', $c) ?: 'numberseries tradeitem offline_access',
+            companyPrefix: self::readSetting('company_prefix', 'company_prefix', $c),
             generateUrl: $c['generate_url'],
             activateUrl: $c['activate_url'],
             defaultBrand: $c['default_brand'] ?? 'BUNDLE',
             countryCode: $c['country_code'] ?? '752',
+            environment: self::readSetting('environment', 'environment', $c) ?: 'Production',
         );
+    }
+
+    /**
+     * Read a GS1 credential: configs-tabellen (UI-skrivna) först,
+     * sen config/services.php-värdet (ENV-backed) som fallback.
+     * Secrets i configs-tabellen är Crypt-krypterade.
+     */
+    private static function readSetting(string $dbKey, string $configKey, array $c): string
+    {
+        try {
+            $row = \App\Models\Config::where('config', 'gs1_' . $dbKey)->first();
+            if ($row && $row->content !== '') {
+                if (in_array($dbKey, ['client_secret', 'password'], true)) {
+                    return \Illuminate\Support\Facades\Crypt::decryptString($row->content);
+                }
+                return (string) $row->content;
+            }
+        } catch (\Throwable $e) {
+            // DB kan saknas under migrationer / Crypt-fel → env-fallback
+        }
+        return (string) ($c[$configKey] ?? '');
     }
 
     public function isConfigured(): bool
@@ -232,14 +255,21 @@ class Gs1ValidooService
      */
     private function requestPasswordGrant(): array
     {
-        $response = Http::asForm()->post($this->tokenUrl, [
+        $body = [
             'grant_type' => 'password',
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'scope' => $this->scope,
             'username' => $this->username,
             'password' => $this->password,
-        ]);
+        ];
+        // GS1/Validoo requires an environment marker alongside the
+        // credentials — typically 'Production' for live data. Skippas
+        // om inte satt.
+        if ($this->environment !== '') {
+            $body['environment'] = $this->environment;
+        }
+        $response = Http::asForm()->post($this->tokenUrl, $body);
 
         if (!$response->successful()) {
             throw new RuntimeException(

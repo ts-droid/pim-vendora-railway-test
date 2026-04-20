@@ -69,6 +69,7 @@ return [
         'username' => env('GS1_USERNAME', ''),
         'password' => env('GS1_PASSWORD', ''),
         'scope' => env('GS1_SCOPE', 'numberseries tradeitem offline_access'),
+        'environment' => env('GS1_ENVIRONMENT', 'Production'),
     ],
 
     'vendora_crm' => [

@@ -13,6 +13,7 @@
                 'suppliers' => ['label' => 'Leverantörer',  'href' => '/admin/suppliers'],
                 'customers' => ['label' => 'Kunder',        'href' => '/admin/customers'],
                 'brands'    => ['label' => 'Varumärken',    'href' => '/admin/brands'],
+                'gs1'       => ['label' => 'GS1',           'href' => '/admin/integrations/gs1'],
             ];
         @endphp
         @foreach ($links as $key => $l)
