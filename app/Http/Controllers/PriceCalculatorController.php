@@ -55,6 +55,13 @@ class PriceCalculatorController extends Controller
             return ApiResponseController::error("source must be 'rrp', 'margin', or 'reseller'");
         }
 
+        $locksInput = $request->input('locks', []);
+        $locks = [
+            'rrp' => !empty($locksInput['rrp']),
+            'margin' => !empty($locksInput['margin']),
+            'reseller' => !empty($locksInput['reseller']),
+        ];
+
         return ApiResponseController::success(
             $this->calculator->calculate(
                 article: $article,
@@ -62,6 +69,7 @@ class PriceCalculatorController extends Controller
                 rrpExSEK: $request->filled('rrp_ex_sek') ? (float) $request->input('rrp_ex_sek') : null,
                 ourMargin: $request->filled('our_margin') ? (float) $request->input('our_margin') : null,
                 resellerMargin: $request->filled('reseller_margin') ? (float) $request->input('reseller_margin') : null,
+                locks: $locks,
             )
         );
     }

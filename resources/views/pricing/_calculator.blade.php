@@ -231,22 +231,20 @@ if (!window.priceCalculator) {
             },
 
             async recalc(source, value) {
+                // Servern deriverar nu rätt fält från (source, locks)
+                // så vi skickar med locks och litar på servermattet
+                // istället för att overrida låsta värden client-side.
                 const body = {
                     source,
                     rrp_ex_sek: this.state.rrp_ex_sek,
                     our_margin: this.state.our_margin,
                     reseller_margin: this.state.reseller_margin,
+                    locks: {
+                        rrp: !!this.locks.rrp,
+                        margin: !!this.locks.margin,
+                        reseller: !!this.locks.reseller,
+                    },
                 };
-
-                // Snapshot låsta värden så vi kan återställa dem efter
-                // servern har räknat om allt.
-                const locked = {};
-                if (this.locks.rrp) {
-                    locked.rrp_inc_sek = this.state.rrp_inc_sek;
-                    locked.rrp_ex_sek = this.state.rrp_ex_sek;
-                }
-                if (this.locks.margin) locked.our_margin = this.state.our_margin;
-                if (this.locks.reseller) locked.reseller_margin = this.state.reseller_margin;
 
                 try {
                     const res = await fetch(
@@ -260,7 +258,6 @@ if (!window.priceCalculator) {
                     const data = await res.json();
                     if (data.success) {
                         this.state = data.data;
-                        Object.assign(this.state, locked);
                     }
                 } catch (e) {
                     console.error('recalc failed', e);

@@ -65,35 +65,69 @@ class PriceCalculatorService
         ?float $rrpExSEK = null,
         ?float $ourMargin = null,
         ?float $resellerMargin = null,
+        array $locks = [],
     ): array {
         $cost = CostResolver::resolve($article);
         $margins = MarginResolver::resolve($article);
 
         $effResellerMargin = $resellerMargin ?? $margins['reseller_margin'];
-        $effOurMargin = $ourMargin;
+        $effOurMargin = $ourMargin ?? 0.0;
         $effRrpEx = $rrpExSEK ?? 0;
 
-        // Derive missing value from the two others based on which slider moved
-        if ($source === 'margin' && $effOurMargin !== null) {
-            // Keep reseller margin, recalculate RRP
-            if ($cost > 0 && $effOurMargin < 100 && $effResellerMargin < 100) {
-                $basePriceEx = $cost / max(0.01, 1 - $effOurMargin / 100);
-                $effRrpEx = $basePriceEx / max(0.01, 1 - $effResellerMargin / 100);
-            }
-        } elseif ($source === 'reseller' && $resellerMargin !== null) {
-            // Keep our margin (if known), recalculate RRP
-            if ($effOurMargin !== null && $cost > 0 && $effOurMargin < 100 && $effResellerMargin < 100) {
-                $basePriceEx = $cost / max(0.01, 1 - $effOurMargin / 100);
-                $effRrpEx = $basePriceEx / max(0.01, 1 - $effResellerMargin / 100);
+        // Pick which of {rrp, margin, reseller} to derive.
+        //
+        // The user-moved slider ($source) and any ticked 🔒-locks are
+        // "anchors" — their values should be preserved through the
+        // recalc. Whatever's left gets derived from the anchors via
+        // the pricing identity
+        //   basePriceEx = cost / (1 - our_margin)
+        //              = rrp_ex × (1 - reseller_margin)
+        //
+        // If all three are anchored, nothing is derived (should not
+        // happen via the UI but handle gracefully).
+        $anchors = [];
+        if ($source) {
+            $anchors[] = $source;
+        }
+        foreach (['rrp', 'margin', 'reseller'] as $f) {
+            if (!empty($locks[$f]) && !in_array($f, $anchors, true)) {
+                $anchors[] = $f;
             }
         }
-        // source === 'rrp' or null: leave $effRrpEx as given
+        $derive = null;
+        foreach (['rrp', 'margin', 'reseller'] as $f) {
+            if (!in_array($f, $anchors, true)) {
+                $derive = $f;
+                break;
+            }
+        }
+
+        if ($derive === 'rrp' && $cost > 0 && $effOurMargin > 0 && $effOurMargin < 100 && $effResellerMargin < 100) {
+            // Anchors: margin + reseller. Derive RRP.
+            $basePriceEx = $cost / max(0.01, 1 - $effOurMargin / 100);
+            $effRrpEx = $basePriceEx / max(0.01, 1 - $effResellerMargin / 100);
+        } elseif ($derive === 'reseller' && $cost > 0 && $effOurMargin > 0 && $effOurMargin < 100 && $effRrpEx > 0) {
+            // Anchors: rrp + margin. Derive ÅF-marginal.
+            $basePriceEx = $cost / max(0.01, 1 - $effOurMargin / 100);
+            $effResellerMargin = $basePriceEx < $effRrpEx
+                ? (1 - $basePriceEx / $effRrpEx) * 100
+                : 0.0;
+        }
+        // $derive === 'margin' or null → let the final math below compute
+        // our_margin from (rrp_ex, reseller_margin, cost). That matches
+        // the old behavior when source='rrp'.
 
         $rrpIncSEK = $effRrpEx * (1 + self::VAT_RATE);
         $basePriceEx = $effRrpEx * max(0.0, 1 - $effResellerMargin / 100);
         $brutto = $basePriceEx - $cost;
         $distMarginPct = $basePriceEx > 0 ? (($basePriceEx - $cost) / $basePriceEx) * 100 : 0.0;
-        $belowMinMargin = $distMarginPct < $margins['minimum_margin'];
+
+        // If our_margin is an anchor, keep it; otherwise it follows the math.
+        $finalOurMargin = in_array('margin', $anchors, true) && $ourMargin !== null
+            ? $effOurMargin
+            : $distMarginPct;
+
+        $belowMinMargin = $finalOurMargin < $margins['minimum_margin'];
 
         return [
             'cost' => round($cost, 2),
@@ -103,12 +137,12 @@ class PriceCalculatorService
             'rrp_ex_sek' => round($effRrpEx, 2),
             'rrp_inc_sek' => round($rrpIncSEK, 0),
             'final_price_ex' => round($basePriceEx, 2),
-            'our_margin' => round($distMarginPct, 2),
+            'our_margin' => round($finalOurMargin, 2),
             'reseller_margin' => round($effResellerMargin, 2),
             'brutto' => round($brutto, 2),
             'below_min_margin' => $belowMinMargin,
             'currencies' => $this->buildCurrencyGrid($rrpIncSEK),
-            'rates_live' => true, // EcbService caches 10h — assume live unless it throws
+            'rates_live' => true,
         ];
     }
 
