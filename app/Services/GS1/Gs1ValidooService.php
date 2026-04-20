@@ -255,21 +255,19 @@ class Gs1ValidooService
      */
     private function requestPasswordGrant(): array
     {
-        $body = [
+        // Validoo returnerade 500 "Internal server error" när vi skickade
+        // ett 'environment'-fält i bodyn — antar att credentials räcker
+        // och att "Production" är en egenskap hos själva nyckeln snarare
+        // än ett request-fält. UI-fältet 'environment' lagras för
+        // informationsändamål men skickas inte med OAuth-requesten.
+        $response = Http::asForm()->post($this->tokenUrl, [
             'grant_type' => 'password',
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'scope' => $this->scope,
             'username' => $this->username,
             'password' => $this->password,
-        ];
-        // GS1/Validoo requires an environment marker alongside the
-        // credentials — typically 'Production' for live data. Skippas
-        // om inte satt.
-        if ($this->environment !== '') {
-            $body['environment'] = $this->environment;
-        }
-        $response = Http::asForm()->post($this->tokenUrl, $body);
+        ]);
 
         if (!$response->successful()) {
             throw new RuntimeException(
