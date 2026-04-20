@@ -40,7 +40,7 @@
             'password'       => ['label' => 'API-lösenord *',   'hint' => 'Skickades via SMS vid setup',                        'secret' => true],
             'company_prefix' => ['label' => 'Company prefix *', 'hint' => 'T.ex. 735016797 — ska matcha din GS1-prefix',        'secret' => false],
             'scope'          => ['label' => 'Scope',            'hint' => 'Default: numberseries tradeitem offline_access',     'secret' => false],
-            'token_url'      => ['label' => 'Token URL',        'hint' => 'Default: https://validoopwe-apimanagement.azure-api.net/connect/token', 'secret' => false],
+            'token_url'      => ['label' => 'Token URL',        'hint' => 'Default: https://identity.validoo.se/connect/token', 'secret' => false],
             'environment'    => ['label' => 'Environment *',    'hint' => 'Vanligtvis "Production". GS1 Support anger vilken miljö er nyckel är för.', 'secret' => false],
         ] as $key => $meta)
             @php

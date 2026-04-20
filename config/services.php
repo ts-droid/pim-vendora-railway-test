@@ -63,7 +63,7 @@ return [
         // OAuth2 password-grant credentials from MyGS1 Technical
         // Integration page. Scope must include the APIs we call +
         // "offline_access" to get a refresh token.
-        'token_url' => env('GS1_TOKEN_URL', 'https://validoopwe-apimanagement.azure-api.net/connect/token'),
+        'token_url' => env('GS1_TOKEN_URL', 'https://identity.validoo.se/connect/token'),
         'client_id' => env('GS1_CLIENT_ID', ''),
         'client_secret' => env('GS1_CLIENT_SECRET', ''),
         'username' => env('GS1_USERNAME', ''),

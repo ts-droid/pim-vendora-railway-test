@@ -47,7 +47,7 @@ class Gs1ValidooService
     {
         $c = config('services.gs1');
         return new self(
-            tokenUrl: self::readSetting('token_url', 'token_url', $c) ?: 'https://validoopwe-apimanagement.azure-api.net/connect/token',
+            tokenUrl: self::readSetting('token_url', 'token_url', $c) ?: 'https://identity.validoo.se/connect/token',
             clientId: self::readSetting('client_id', 'client_id', $c),
             clientSecret: self::readSetting('client_secret', 'client_secret', $c),
             username: self::readSetting('username', 'username', $c),
