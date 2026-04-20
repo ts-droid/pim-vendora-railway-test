@@ -221,6 +221,7 @@ Route::get('/admin/brands', [App\Http\Controllers\AdminIndexController::class, '
 
 Route::get('/admin/articles/{articleNumber}', [AdminArticleController::class, 'show'])->name('admin.article.show');
 Route::post('/admin/articles/{articleNumber}/pricing', [AdminArticleController::class, 'updatePricing'])->name('admin.article.update-pricing');
+Route::post('/admin/articles/{articleNumber}/pricing/save', [AdminArticleController::class, 'savePricing'])->name('admin.article.save-pricing');
 Route::post('/admin/articles/{articleNumber}/bid/toggle', [AdminArticleController::class, 'toggleBid'])->name('admin.article.bid.toggle');
 Route::post('/admin/articles/{articleNumber}/bid/variants', [AdminArticleController::class, 'addBidVariant'])->name('admin.article.bid.variants.add');
 Route::post('/admin/articles/{articleNumber}/bid/variants/{variantId}', [AdminArticleController::class, 'updateBidVariant'])->name('admin.article.bid.variants.update');

@@ -82,27 +82,42 @@
             </div>
         </div>
 
-        {{-- Sliders --}}
+        {{-- Sliders med lås-checkboxar. Låst fält fryses efter recalc så
+             man kan justera ett annat fält utan att det låsta ändras. --}}
         <div class="grid grid-cols-3 gap-4 mb-6">
             <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">RRP inkl. moms (SEK)</label>
+                <label class="flex justify-between items-center text-xs font-semibold text-gray-700 mb-1">
+                    <span>RRP inkl. moms (SEK)</span>
+                    <label class="inline-flex items-center gap-1 text-gray-500 cursor-pointer">
+                        <input type="checkbox" x-model="locks.rrp" class="rounded">
+                        <span x-text="locks.rrp ? '🔒' : '🔓'"></span>
+                    </label>
+                </label>
                 <input type="range"
                        :min="Math.round(state.cost * 1.25)"
                        :max="Math.max(5000, Math.round(state.rrp_inc_sek * 2))"
                        :value="state.rrp_inc_sek"
+                       :disabled="locks.rrp"
                        @input="onSliderInput('rrp', $event.target.valueAsNumber)"
-                       class="w-full">
+                       :class="locks.rrp ? 'w-full opacity-50 cursor-not-allowed' : 'w-full'">
                 <div class="flex justify-between text-xs font-bold mt-1">
                     <span x-text="formatCur('SEK', state.rrp_inc_sek)"></span>
                     <span x-text="'ex: ' + formatCur('SEK', state.rrp_ex_sek)"></span>
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Vår marginal (%)</label>
+                <label class="flex justify-between items-center text-xs font-semibold text-gray-700 mb-1">
+                    <span>Vår marginal (%)</span>
+                    <label class="inline-flex items-center gap-1 text-gray-500 cursor-pointer">
+                        <input type="checkbox" x-model="locks.margin" class="rounded">
+                        <span x-text="locks.margin ? '🔒' : '🔓'"></span>
+                    </label>
+                </label>
                 <input type="range" min="0" max="65" step="0.5"
                        :value="state.our_margin"
+                       :disabled="locks.margin"
                        @input="onSliderInput('margin', $event.target.valueAsNumber)"
-                       class="w-full">
+                       :class="locks.margin ? 'w-full opacity-50 cursor-not-allowed' : 'w-full'">
                 <div class="flex justify-between text-xs font-bold mt-1">
                     <span :class="state.below_min_margin ? 'text-red-700' : state.our_margin >= 20 ? 'text-green-700' : ''"
                           x-text="state.our_margin.toFixed(1) + '%'"></span>
@@ -110,16 +125,36 @@
                 </div>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">ÅF-marginal vid RRP (%)</label>
+                <label class="flex justify-between items-center text-xs font-semibold text-gray-700 mb-1">
+                    <span>ÅF-marginal vid RRP (%)</span>
+                    <label class="inline-flex items-center gap-1 text-gray-500 cursor-pointer">
+                        <input type="checkbox" x-model="locks.reseller" class="rounded">
+                        <span x-text="locks.reseller ? '🔒' : '🔓'"></span>
+                    </label>
+                </label>
                 <input type="range" min="5" max="65" step="0.5"
                        :value="state.reseller_margin"
+                       :disabled="locks.reseller"
                        @input="onSliderInput('reseller', $event.target.valueAsNumber)"
-                       class="w-full">
+                       :class="locks.reseller ? 'w-full opacity-50 cursor-not-allowed' : 'w-full'">
                 <div class="flex justify-between text-xs font-bold mt-1">
                     <span x-text="state.reseller_margin.toFixed(1) + '%'"></span>
                     <span x-text="state.margin_source"></span>
                 </div>
             </div>
+        </div>
+
+        {{-- Save button + flash feedback --}}
+        <div class="flex justify-between items-center pt-4 border-t mt-4">
+            <div class="text-xs"
+                 :class="saveState === 'saved' ? 'text-green-700' : (saveState === 'error' ? 'text-red-700' : 'text-gray-500')"
+                 x-text="saveMessage"></div>
+            <button type="button"
+                    @click="savePricing()"
+                    :disabled="saveState === 'saving'"
+                    class="bg-green-600 hover:bg-green-700 text-white text-sm px-5 py-2 rounded disabled:opacity-50">
+                <span x-text="saveState === 'saving' ? 'Sparar…' : 'Spara priser på artikelkortet'"></span>
+            </button>
         </div>
 
         {{-- Currency input grid --}}
@@ -167,9 +202,19 @@ if (!window.priceCalculator) {
             lastAdjusted: '',
             _debounce: null,
 
+            // Lås-flaggor för de tre reglagen. Ett låst fält fryses
+            // efter varje recalc — man kan justera ett annat fält
+            // utan att det låsta ändras från server-derivering.
+            locks: { rrp: false, margin: false, reseller: false },
+
+            // Spara-status för flash feedback i UI:et.
+            saveState: '',
+            saveMessage: '',
+
             init() {},
 
             onSliderInput(source, value) {
+                if (this.locks[source]) return; // slider är låst, ignorera
                 this.lastAdjusted = source;
 
                 if (source === 'rrp') {
@@ -193,6 +238,16 @@ if (!window.priceCalculator) {
                     reseller_margin: this.state.reseller_margin,
                 };
 
+                // Snapshot låsta värden så vi kan återställa dem efter
+                // servern har räknat om allt.
+                const locked = {};
+                if (this.locks.rrp) {
+                    locked.rrp_inc_sek = this.state.rrp_inc_sek;
+                    locked.rrp_ex_sek = this.state.rrp_ex_sek;
+                }
+                if (this.locks.margin) locked.our_margin = this.state.our_margin;
+                if (this.locks.reseller) locked.reseller_margin = this.state.reseller_margin;
+
                 try {
                     const res = await fetch(
                         `/api/v1/price-calculator/${encodeURIComponent(this.articleNumber)}/calculate?api_key=${this.apiKey}`,
@@ -205,9 +260,54 @@ if (!window.priceCalculator) {
                     const data = await res.json();
                     if (data.success) {
                         this.state = data.data;
+                        Object.assign(this.state, locked);
                     }
                 } catch (e) {
                     console.error('recalc failed', e);
+                }
+            },
+
+            async savePricing() {
+                this.saveState = 'saving';
+                this.saveMessage = '';
+
+                const body = {
+                    rek_price_SEK: Math.round(this.state.currencies?.SEK?.rrp_inc_rounded ?? this.state.rrp_inc_sek ?? 0),
+                    rek_price_EUR: this.state.currencies?.EUR?.rrp_inc_rounded ?? 0,
+                    rek_price_NOK: this.state.currencies?.NOK?.rrp_inc_rounded ?? 0,
+                    rek_price_DKK: this.state.currencies?.DKK?.rrp_inc_rounded ?? 0,
+                    standard_reseller_margin: this.state.reseller_margin,
+                    minimum_margin: this.state.our_margin,
+                };
+
+                try {
+                    const res = await fetch(
+                        `/admin/articles/${encodeURIComponent(this.articleNumber)}/pricing/save?api_key=${this.apiKey}`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify(body),
+                        }
+                    );
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        this.saveState = 'saved';
+                        this.saveMessage = '✓ ' + (data.message || 'Sparat') + (data.saved_at ? ` (${data.saved_at})` : '');
+                        setTimeout(() => {
+                            if (this.saveState === 'saved') { this.saveState = ''; this.saveMessage = ''; }
+                        }, 5000);
+                    } else {
+                        this.saveState = 'error';
+                        this.saveMessage = 'Fel: ' + (data.message || res.statusText);
+                    }
+                } catch (e) {
+                    console.error('save failed', e);
+                    this.saveState = 'error';
+                    this.saveMessage = 'Nätverksfel: ' + e.message;
                 }
             },
 

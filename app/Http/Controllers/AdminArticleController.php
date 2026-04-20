@@ -414,6 +414,47 @@ class AdminArticleController extends Controller
             ->with('saved', $msg);
     }
 
+    /**
+     * Save full pricing state from the live calculator:
+     *   rek_price_SEK/EUR/NOK/DKK (RRP inkl. moms per currency)
+     *   standard_reseller_margin (ÅF-marginal target)
+     *   minimum_margin (golvvärde för vår marginal)
+     */
+    public function savePricing(string $articleNumber, Request $request)
+    {
+        $article = $this->requireArticle($articleNumber);
+        $apiKey = $this->requireApiKey($request);
+
+        $validated = $request->validate([
+            'rek_price_SEK' => 'nullable|numeric|min:0',
+            'rek_price_EUR' => 'nullable|numeric|min:0',
+            'rek_price_NOK' => 'nullable|numeric|min:0',
+            'rek_price_DKK' => 'nullable|numeric|min:0',
+            'standard_reseller_margin' => 'nullable|numeric|min:0|max:100',
+            'minimum_margin' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $article->rek_price_SEK = (float) ($validated['rek_price_SEK'] ?? 0);
+        $article->rek_price_EUR = (float) ($validated['rek_price_EUR'] ?? 0);
+        $article->rek_price_NOK = (float) ($validated['rek_price_NOK'] ?? 0);
+        $article->rek_price_DKK = (float) ($validated['rek_price_DKK'] ?? 0);
+        $article->standard_reseller_margin = (float) ($validated['standard_reseller_margin'] ?? 0);
+        $article->minimum_margin = (float) ($validated['minimum_margin'] ?? 0);
+        $article->save();
+
+        // JSON API so the Alpine component can show a flash in-place
+        // without leaving the Pricing tab.
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Sparade priser för {$article->article_number}",
+                'saved_at' => $article->updated_at?->format('H:i:s'),
+            ]);
+        }
+
+        return $this->redirectToPricing($article->article_number, $apiKey, "Sparade priser för {$article->article_number}");
+    }
+
     public function updatePricing(string $articleNumber, Request $request)
     {
         $article = Article::where('article_number', $articleNumber)->first();
