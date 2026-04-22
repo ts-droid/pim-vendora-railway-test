@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
+use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\Brand;
 use App\Models\MarginRule;
 use App\Models\Supplier;
+use App\Models\SupplierArticlePrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -116,22 +118,142 @@ class AdminSupplierController extends Controller
 
         $request->validate([
             'price_file' => 'required|file|mimes:csv,txt|max:10240',
+            'apply' => 'nullable|boolean',
         ]);
 
-        // Parse-steget kommer i nästa iteration. För nu — spara filen
-        // temporärt och visa rad-räkning så användaren ser att det kom
-        // fram. Kolumnmappning + faktisk artikeluppdatering/-skapande
-        // byggs ut när vi kommer överens om förväntade kolumner.
         $file = $request->file('price_file');
-        $rows = 0;
-        if ($handle = fopen($file->getRealPath(), 'r')) {
-            while (fgetcsv($handle, 0, ';') !== false) {
-                $rows++;
+        $apply = (bool) $request->boolean('apply');
+
+        $parse = $this->parsePriceFile($file->getRealPath(), $supplier);
+        $result = [
+            'total_rows' => $parse['total_rows'],
+            'matched_updates' => count($parse['matches']),
+            'new_articles' => count($parse['creates']),
+            'skipped' => count($parse['skipped']),
+            'applied' => 0,
+            'created' => 0,
+        ];
+
+        if ($apply) {
+            $currency = $supplier->currency ?: 'SEK';
+            foreach ($parse['matches'] as $row) {
+                // external_cost lagras i SEK; lämna cost_price_avg orörd
+                // (det är inventeringsberäknat snitt). För raw supplier-
+                // pris i deras valuta går vi genom supplier_article_prices.
+                SupplierArticlePrice::updateOrCreate(
+                    ['article_number' => $row['article_number']],
+                    ['price' => $row['cost'], 'currency' => $row['currency'] ?: $currency]
+                );
+                $result['applied']++;
             }
-            fclose($handle);
+            foreach ($parse['creates'] as $row) {
+                try {
+                    Article::create([
+                        'article_number' => $row['article_number'],
+                        'manufacturer_article_number' => $row['manufacturer_article_number'] ?: $row['article_number'],
+                        'description' => $row['description'] ?: $row['article_number'],
+                        'ean' => $row['ean'] ?: null,
+                        'supplier_number' => $supplier->number,
+                        'brand' => $supplier->brand_name ?: '',
+                        'article_type' => 'Stock Item',
+                        'category_ids' => '[]',
+                        'cost_price_avg' => 0,
+                        'external_cost' => 0,
+                    ]);
+                    SupplierArticlePrice::updateOrCreate(
+                        ['article_number' => $row['article_number']],
+                        ['price' => $row['cost'], 'currency' => $row['currency'] ?: $currency]
+                    );
+                    $result['created']++;
+                } catch (\Throwable $e) {
+                    \Log::warning('Price-file article create failed', [
+                        'article' => $row['article_number'],
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
         }
 
+        $msg = $apply
+            ? "Tillämpat: {$result['applied']} pris-uppdateringar, {$result['created']} nya artiklar skapade"
+            : "Förhandsvisning: {$result['matched_updates']} matchade, {$result['new_articles']} nya, {$result['skipped']} skippade · välj Tillämpa för att skriva";
+
         return redirect('/admin/suppliers/' . rawurlencode($supplier->number) . '?api_key=' . urlencode($apiKey) . '&tab=pricing')
-            ->with('saved', "Prisfil mottagen: {$file->getClientOriginalName()} ({$rows} rader). Parsning + matchning mot artikelregistret byggs ut i nästa steg.");
+            ->with('saved', $msg)
+            ->with('priceFileResult', $result);
+    }
+
+    /**
+     * Läs CSV (semikolon) och mappa rader mot articles-tabellen.
+     *
+     * Förväntade kolumner (header-raden):
+     *   article_number;manufacturer_article_number;description;cost;currency;ean
+     *
+     * Alla kolumner utom article_number + cost är valfria. Matchning:
+     *   1. Exakt article_number
+     *   2. Fallback: manufacturer_article_number
+     *
+     * @return array{total_rows:int, matches:array, creates:array, skipped:array}
+     */
+    private function parsePriceFile(string $path, Supplier $supplier): array
+    {
+        $matches = $creates = $skipped = [];
+        $handle = fopen($path, 'r');
+        if (!$handle) {
+            return ['total_rows' => 0, 'matches' => [], 'creates' => [], 'skipped' => []];
+        }
+
+        $header = fgetcsv($handle, 0, ';');
+        if ($header === false) {
+            fclose($handle);
+            return ['total_rows' => 0, 'matches' => [], 'creates' => [], 'skipped' => []];
+        }
+        $header = array_map(fn ($h) => strtolower(trim((string) $h)), $header);
+        $col = array_flip($header);
+
+        $total = 0;
+        while (($cols = fgetcsv($handle, 0, ';')) !== false) {
+            $total++;
+            $get = fn (string $name) => isset($col[$name]) ? trim((string) ($cols[$col[$name]] ?? '')) : '';
+            $artNum = $get('article_number');
+            $costStr = str_replace([' ', ','], ['', '.'], $get('cost'));
+            $cost = $costStr === '' ? null : (float) $costStr;
+
+            if ($artNum === '' || $cost === null) {
+                $skipped[] = ['reason' => 'saknar article_number eller cost', 'row' => $artNum];
+                continue;
+            }
+
+            $row = [
+                'article_number' => $artNum,
+                'manufacturer_article_number' => $get('manufacturer_article_number'),
+                'description' => $get('description'),
+                'cost' => $cost,
+                'currency' => strtoupper($get('currency')) ?: ($supplier->currency ?: 'SEK'),
+                'ean' => $get('ean'),
+            ];
+
+            // Match mot befintlig artikel. Första försök: artnr-exakt.
+            $exists = DB::table('articles')->where('article_number', $artNum)->exists();
+            if (!$exists && $row['manufacturer_article_number'] !== '') {
+                $exists = DB::table('articles')
+                    ->where('manufacturer_article_number', $row['manufacturer_article_number'])
+                    ->exists();
+            }
+
+            if ($exists) {
+                $matches[] = $row;
+            } else {
+                $creates[] = $row;
+            }
+        }
+        fclose($handle);
+
+        return [
+            'total_rows' => $total,
+            'matches' => $matches,
+            'creates' => $creates,
+            'skipped' => $skipped,
+        ];
     }
 }

@@ -232,30 +232,59 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Ladda upp en CSV från leverantören. Systemet matchar raderna mot
                     <code class="bg-gray-100 px-1 rounded">articles.article_number</code>
-                    (eller <code class="bg-gray-100 px-1 rounded">articles.manufacturer_article_number</code>)
-                    och uppdaterar kostpris + skapar nya artiklar för obefintliga rader.
+                    (eller <code class="bg-gray-100 px-1 rounded">manufacturer_article_number</code> som fallback).
+                    Kryssa i <strong>Tillämpa</strong> för att faktiskt skriva — annars bara förhandsvisning.
                 </p>
+
                 <form method="POST"
                       action="/admin/suppliers/{{ rawurlencode($supplier->number) }}/price-file?api_key={{ urlencode($apiKey) }}"
                       enctype="multipart/form-data"
-                      class="flex items-end gap-3">
-                    <div class="flex-1">
+                      class="grid grid-cols-12 gap-3 items-end">
+                    <div class="col-span-7">
                         <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Prisfil (CSV, semikolon-avgränsad, max 10 MB)</label>
                         <input type="file" name="price_file" accept=".csv,.txt" required
                                class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer">
                     </div>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">
-                        Läs in
-                    </button>
+                    <div class="col-span-3">
+                        <label class="inline-flex items-center gap-2 text-sm text-gray-700 pb-2">
+                            <input type="checkbox" name="apply" value="1" class="rounded">
+                            <span>Tillämpa ändringarna</span>
+                        </label>
+                    </div>
+                    <div class="col-span-2">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded w-full">
+                            Läs in
+                        </button>
+                    </div>
                 </form>
-                <div class="text-xs text-amber-700 mt-3 bg-amber-50 border border-amber-200 rounded p-3">
-                    <strong>Status:</strong> Fil-upload fungerar men parsning + artikel-match/skapande byggs ut i nästa iteration.
-                    Fil mottas och rad-räknas bara just nu.
-                </div>
-                <div class="text-xs text-gray-500 mt-3">
-                    <strong>Förväntade kolumner (första raden = header):</strong>
+
+                @if (session('priceFileResult'))
+                    @php $r = session('priceFileResult'); @endphp
+                    <div class="mt-4 border rounded p-4 bg-gray-50 text-sm">
+                        <h4 class="font-semibold text-gray-700 mb-2">Senaste resultat</h4>
+                        <ul class="space-y-1 text-xs text-gray-600">
+                            <li>Totalt inlästa rader: <strong>{{ $r['total_rows'] }}</strong></li>
+                            <li>Matchade (uppdatering): <strong class="text-blue-700">{{ $r['matched_updates'] }}</strong></li>
+                            <li>Nya artiklar (skapas): <strong class="text-green-700">{{ $r['new_articles'] }}</strong></li>
+                            <li>Skippade (saknar article_number/cost): <strong class="text-amber-700">{{ $r['skipped'] }}</strong></li>
+                            @if ($r['applied'] > 0 || $r['created'] > 0)
+                                <li class="pt-1 border-t">Applicerade uppdateringar: <strong>{{ $r['applied'] }}</strong></li>
+                                <li>Nyskapade artiklar: <strong>{{ $r['created'] }}</strong></li>
+                            @endif
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="text-xs text-gray-500 mt-4">
+                    <strong>Förväntade kolumner (första raden = header, semikolon):</strong><br>
                     <code class="bg-gray-100 px-1 rounded">article_number;manufacturer_article_number;description;cost;currency;ean</code>
                 </div>
+                <ul class="text-xs text-gray-500 mt-2 space-y-0.5 list-disc pl-5">
+                    <li><code>article_number</code> + <code>cost</code> obligatoriska — annars skippas raden</li>
+                    <li><code>currency</code> default: leverantörens valuta ({{ $supplier->currency ?: 'SEK' }})</li>
+                    <li>Uppdateringar går till <code>supplier_article_prices</code> (råpris i leverantörens valuta), rör inte <code>cost_price_avg</code> som är inventeringsberäknat</li>
+                    <li>Nya artiklar skapas med brand + supplier_number från leverantören</li>
+                </ul>
             </div>
             @break
 

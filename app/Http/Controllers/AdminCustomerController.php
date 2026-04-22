@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
+use App\Models\Article;
 use App\Models\ArticlePrice;
 use App\Models\ArticleSupport;
 use App\Models\BidVariant;
 use App\Models\Customer;
+use App\Models\CustomerBidAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -86,6 +88,7 @@ class AdminCustomerController extends Controller
         //      prislistor som rabatt "Till kund"
         $pricelist = collect();
         $bidVariantsAvailable = collect();
+        $bidAccessRows = collect();
         $customerDiscountsByBrand = collect();
 
         if ($tab === 'pricelist') {
@@ -94,17 +97,37 @@ class AdminCustomerController extends Controller
                 ->limit(200)
                 ->get();
 
-            // BID-varianter på alla artiklar där BID är aktiverat.
-            // Grund-artiklarnas data laddas via 'article'-relation.
-            $bidVariantsAvailable = BidVariant::whereIn(
-                'article_number',
-                DB::table('articles')->where('bid_enabled', 1)->pluck('article_number')
-            )
-                ->with('article:article_number,description,brand,supplier_number')
+            // BID-varianter filtrerade på kundens access-whitelist.
+            // Utan access-rad → kunden ser inga BID för artikeln
+            // oavsett articles.bid_enabled.
+            $accessArticleNumbers = CustomerBidAccess::where('customer_number', $customer->customer_number)
+                ->pluck('article_number');
+
+            $bidVariantsAvailable = $accessArticleNumbers->isEmpty()
+                ? collect()
+                : BidVariant::whereIn('article_number', $accessArticleNumbers)
+                    ->whereIn('article_number', DB::table('articles')->where('bid_enabled', 1)->pluck('article_number'))
+                    ->with('article:article_number,description,brand,supplier_number')
+                    ->orderBy('article_number')
+                    ->orderBy('sort_order')
+                    ->limit(200)
+                    ->get();
+
+            // Full access-lista (även utan bid_enabled) så användaren
+            // kan revoke även gamla rader.
+            $bidAccessRows = CustomerBidAccess::where('customer_number', $customer->customer_number)
                 ->orderBy('article_number')
-                ->orderBy('sort_order')
-                ->limit(200)
-                ->get();
+                ->get()
+                ->map(function ($row) {
+                    $a = DB::table('articles')->where('article_number', $row->article_number)->first(['description', 'brand', 'bid_enabled']);
+                    return [
+                        'id' => $row->id,
+                        'article_number' => $row->article_number,
+                        'description' => $a?->description ?? '—',
+                        'brand' => $a?->brand ?? '',
+                        'bid_enabled' => (bool) ($a?->bid_enabled ?? false),
+                    ];
+                });
 
             // Kundrabatter per brand: article_supports där layer='customer'
             // grupperat på artikelns brand. Join via DB::table för att
@@ -141,8 +164,67 @@ class AdminCustomerController extends Controller
             'crmStats' => $crmStats,
             'pricelist' => $pricelist,
             'bidVariantsAvailable' => $bidVariantsAvailable,
+            'bidAccessRows' => $bidAccessRows,
             'customerDiscountsByBrand' => $customerDiscountsByBrand,
         ]);
+    }
+
+    public function grantBidAccess(string $customerNumber, Request $request)
+    {
+        $apiKey = (string) $request->input('api_key', '');
+        abort_if(!$apiKey, 403, 'api_key query parameter required');
+        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+
+        $customer = Customer::where('customer_number', $customerNumber)->first();
+        abort_if(!$customer, 404);
+
+        $validated = $request->validate([
+            'article_number' => 'required|string|max:255',
+        ]);
+        $articleNumber = trim($validated['article_number']);
+
+        $backPath = '/admin/customers/' . rawurlencode($customer->customer_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricelist';
+
+        if (!Article::where('article_number', $articleNumber)->exists()) {
+            return redirect($backPath)->with('saved', "Hittade inte artikel '{$articleNumber}'");
+        }
+
+        // Idempotent upsert — unique-index säkrar mot dubletter men
+        // firstOrCreate ger snyggare flash-text.
+        $existed = CustomerBidAccess::where('customer_number', $customer->customer_number)
+            ->where('article_number', $articleNumber)
+            ->exists();
+        if ($existed) {
+            return redirect($backPath)->with('saved', "BID-access till {$articleNumber} fanns redan");
+        }
+
+        CustomerBidAccess::create([
+            'customer_number' => $customer->customer_number,
+            'article_number' => $articleNumber,
+        ]);
+
+        return redirect($backPath)->with('saved', "BID-access till {$articleNumber} beviljad");
+    }
+
+    public function revokeBidAccess(string $customerNumber, int $accessId, Request $request)
+    {
+        $apiKey = (string) $request->input('api_key', '');
+        abort_if(!$apiKey, 403, 'api_key query parameter required');
+        abort_if(!ApiKey::where('api_key', $apiKey)->exists(), 403, 'Invalid api_key');
+
+        $customer = Customer::where('customer_number', $customerNumber)->first();
+        abort_if(!$customer, 404);
+
+        $access = CustomerBidAccess::where('id', $accessId)
+            ->where('customer_number', $customer->customer_number)
+            ->first();
+        abort_if(!$access, 404);
+
+        $articleNumber = $access->article_number;
+        $access->delete();
+
+        return redirect('/admin/customers/' . rawurlencode($customer->customer_number) . '?api_key=' . urlencode($apiKey) . '&tab=pricelist')
+            ->with('saved', "BID-access till {$articleNumber} borttagen");
     }
 
     /**

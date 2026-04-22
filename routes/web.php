@@ -240,6 +240,8 @@ Route::post('/admin/articles/{articleNumber}/supports/{supportId}/delete', [Admi
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
 Route::post('/admin/suppliers/{supplierNumber}/price-file', [AdminSupplierController::class, 'uploadPriceFile'])->name('admin.supplier.price-file');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
+Route::post('/admin/customers/{customerNumber}/bid-access', [AdminCustomerController::class, 'grantBidAccess'])->name('admin.customer.bid-access.grant');
+Route::post('/admin/customers/{customerNumber}/bid-access/{accessId}/delete', [AdminCustomerController::class, 'revokeBidAccess'])->name('admin.customer.bid-access.revoke');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
     ->where('brandName', '[^/]+')
     ->name('admin.brand.show');

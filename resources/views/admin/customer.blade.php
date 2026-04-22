@@ -154,53 +154,118 @@
                 @endif
             </div>
 
-            {{-- BID-artiklar tillgängliga för kunden --}}
+            {{-- BID-åtkomst + tillgängliga varianter för kunden --}}
             <div class="bg-white border rounded p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700">BID-artiklar tillgängliga</h3>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700">BID-artiklar tillgängliga</h3>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Kunden ser bara BID-varianter för artiklar som finns i åtkomst-listan nedan.
+                        </p>
+                    </div>
                     <span class="text-xs text-gray-400">
-                        BID-varianter på artiklar där offertpris är aktiverat
+                        {{ $bidAccessRows->count() }} artiklar i access-listan
                     </span>
                 </div>
+
+                {{-- Tillgängliga BID-varianter (filtrerade på access) --}}
                 @if ($bidVariantsAvailable->isEmpty())
-                    <div class="border border-dashed rounded p-8 text-center text-sm text-gray-500">
-                        Inga BID-artiklar är aktiverade just nu.
+                    <div class="border border-dashed rounded p-6 text-center text-sm text-gray-500 mb-5">
+                        @if ($bidAccessRows->isEmpty())
+                            Ingen access beviljad ännu. Lägg till artikel-BID-access nedan.
+                        @else
+                            Access-artiklarna har inga aktiva BID-varianter just nu (articles.bid_enabled=false eller inga varianter skapade).
+                        @endif
                     </div>
                 @else
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
-                            <tr>
-                                <th class="px-3 py-2 text-left font-semibold">Artikel</th>
-                                <th class="px-3 py-2 text-left font-semibold">Variant-SKU</th>
-                                <th class="px-3 py-2 text-left font-semibold">Varumärke</th>
-                                <th class="px-3 py-2 text-right font-semibold">BID-kostnad</th>
-                                <th class="px-3 py-2 text-right font-semibold">Fast pris</th>
-                                <th class="px-3 py-2 text-right font-semibold">Min-marg %</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            @foreach ($bidVariantsAvailable as $v)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-3 py-1.5 font-mono text-xs">
-                                        <a href="/admin/articles/{{ rawurlencode($v->article_number) }}?api_key={{ urlencode($apiKey) }}"
-                                           class="text-blue-600 hover:underline">{{ $v->article_number }}</a>
-                                        <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit($v->article?->description ?? '', 40) }}</div>
-                                    </td>
-                                    <td class="px-3 py-1.5 font-mono text-xs">{{ $v->variant_sku ?: '—' }}</td>
-                                    <td class="px-3 py-1.5 text-xs text-gray-600">{{ $v->article?->brand ?: '—' }}</td>
-                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->cost, 2), '0'), '.') ?: '—' }}</td>
-                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->fixed_price, 2), '0'), '.') ?: '—' }}</td>
-                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->min_margin, 2), '0'), '.') ?: '—' }}</td>
+                    <div class="mb-5">
+                        <h4 class="text-xs uppercase text-gray-500 font-semibold mb-2">Varianter tillgängliga för denna kund</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold">Artikel</th>
+                                    <th class="px-3 py-2 text-left font-semibold">Variant-SKU</th>
+                                    <th class="px-3 py-2 text-left font-semibold">Varumärke</th>
+                                    <th class="px-3 py-2 text-right font-semibold">BID-kostnad</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Fast pris</th>
+                                    <th class="px-3 py-2 text-right font-semibold">Min-marg %</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="text-xs text-gray-400 mt-3 text-right">
-                        {{ $bidVariantsAvailable->count() }} varianter · max 200 visas
+                            </thead>
+                            <tbody class="divide-y">
+                                @foreach ($bidVariantsAvailable as $v)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-1.5 font-mono text-xs">
+                                            <a href="/admin/articles/{{ rawurlencode($v->article_number) }}?api_key={{ urlencode($apiKey) }}"
+                                               class="text-blue-600 hover:underline">{{ $v->article_number }}</a>
+                                            <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit($v->article?->description ?? '', 40) }}</div>
+                                        </td>
+                                        <td class="px-3 py-1.5 font-mono text-xs">{{ $v->variant_sku ?: '—' }}</td>
+                                        <td class="px-3 py-1.5 text-xs text-gray-600">{{ $v->article?->brand ?: '—' }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->cost, 2), '0'), '.') ?: '—' }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->fixed_price, 2), '0'), '.') ?: '—' }}</td>
+                                        <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->min_margin, 2), '0'), '.') ?: '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 @endif
-                <div class="text-xs text-gray-500 mt-3 italic">
-                    Just nu visas alla BID-aktiva artiklar. Schema-stöd för "per-kund BID-behörighet" är inte implementerat ännu.
+
+                {{-- Access-lista + grant-form --}}
+                <div class="border-t pt-4">
+                    <h4 class="text-xs uppercase text-gray-500 font-semibold mb-2">BID-access (artiklar kunden får se BID-pris för)</h4>
+
+                    @if ($bidAccessRows->isNotEmpty())
+                        <table class="w-full text-sm mb-3">
+                            <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                                <tr>
+                                    <th class="px-3 py-1.5 text-left font-semibold">Artikel</th>
+                                    <th class="px-3 py-1.5 text-left font-semibold">Brand</th>
+                                    <th class="px-3 py-1.5 text-center font-semibold">BID aktivt</th>
+                                    <th class="px-3 py-1.5 text-right font-semibold"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                @foreach ($bidAccessRows as $row)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-1 font-mono text-xs">
+                                            <a href="/admin/articles/{{ rawurlencode($row['article_number']) }}?api_key={{ urlencode($apiKey) }}"
+                                               class="text-blue-600 hover:underline">{{ $row['article_number'] }}</a>
+                                            <span class="text-gray-500"> · {{ \Illuminate\Support\Str::limit($row['description'], 40) }}</span>
+                                        </td>
+                                        <td class="px-3 py-1 text-xs text-gray-600">{{ $row['brand'] ?: '—' }}</td>
+                                        <td class="px-3 py-1 text-center text-xs">
+                                            @if ($row['bid_enabled'])
+                                                <span class="text-green-700">✓ ja</span>
+                                            @else
+                                                <span class="text-gray-400">nej</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-3 py-1 text-right">
+                                            <form method="POST"
+                                                  action="/admin/customers/{{ rawurlencode($customer->customer_number) }}/bid-access/{{ $row['id'] }}/delete?api_key={{ urlencode($apiKey) }}"
+                                                  class="inline"
+                                                  onsubmit="return confirm('Ta bort BID-access till {{ $row['article_number'] }}?');">
+                                                <button type="submit" class="border border-red-300 text-red-600 hover:bg-red-50 text-xs px-2 py-0.5 rounded">Återkalla</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+
+                    <form method="POST"
+                          action="/admin/customers/{{ rawurlencode($customer->customer_number) }}/bid-access?api_key={{ urlencode($apiKey) }}"
+                          class="flex items-end gap-2 p-3 border border-dashed rounded">
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Bevilja BID-access till artikel</label>
+                            <input type="text" name="article_number" required
+                                   placeholder="t.ex. TS-2258"
+                                   class="border rounded px-2 py-1.5 text-sm w-full font-mono">
+                        </div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded">+ Bevilja</button>
+                    </form>
                 </div>
             </div>
 
