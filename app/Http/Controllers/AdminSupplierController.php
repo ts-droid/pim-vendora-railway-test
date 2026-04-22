@@ -150,7 +150,6 @@ class AdminSupplierController extends Controller
                 try {
                     Article::create([
                         'article_number' => $row['article_number'],
-                        'manufacturer_article_number' => $row['manufacturer_article_number'] ?: $row['article_number'],
                         'description' => $row['description'] ?: $row['article_number'],
                         'ean' => $row['ean'] ?: null,
                         'supplier_number' => $supplier->number,
@@ -187,11 +186,10 @@ class AdminSupplierController extends Controller
      * Läs CSV (semikolon) och mappa rader mot articles-tabellen.
      *
      * Förväntade kolumner (header-raden):
-     *   article_number;manufacturer_article_number;description;cost;currency;ean
+     *   article_number;description;cost;currency;ean
      *
-     * Alla kolumner utom article_number + cost är valfria. Matchning:
-     *   1. Exakt article_number
-     *   2. Fallback: manufacturer_article_number
+     * Alla kolumner utom article_number + cost är valfria. Matchning
+     *   på articles.article_number (exakt).
      *
      * @return array{total_rows:int, matches:array, creates:array, skipped:array}
      */
@@ -226,20 +224,13 @@ class AdminSupplierController extends Controller
 
             $row = [
                 'article_number' => $artNum,
-                'manufacturer_article_number' => $get('manufacturer_article_number'),
                 'description' => $get('description'),
                 'cost' => $cost,
                 'currency' => strtoupper($get('currency')) ?: ($supplier->currency ?: 'SEK'),
                 'ean' => $get('ean'),
             ];
 
-            // Match mot befintlig artikel. Första försök: artnr-exakt.
             $exists = DB::table('articles')->where('article_number', $artNum)->exists();
-            if (!$exists && $row['manufacturer_article_number'] !== '') {
-                $exists = DB::table('articles')
-                    ->where('manufacturer_article_number', $row['manufacturer_article_number'])
-                    ->exists();
-            }
 
             if ($exists) {
                 $matches[] = $row;

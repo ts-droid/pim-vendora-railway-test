@@ -231,8 +231,7 @@
                 <h3 class="text-sm font-semibold uppercase text-gray-500 mb-2">Koppla prisfil mot artikelregistret</h3>
                 <p class="text-sm text-gray-600 mb-4">
                     Ladda upp en CSV från leverantören. Systemet matchar raderna mot
-                    <code class="bg-gray-100 px-1 rounded">articles.article_number</code>
-                    (eller <code class="bg-gray-100 px-1 rounded">manufacturer_article_number</code> som fallback).
+                    <code class="bg-gray-100 px-1 rounded">articles.article_number</code>.
                     Kryssa i <strong>Tillämpa</strong> för att faktiskt skriva — annars bara förhandsvisning.
                 </p>
 
@@ -277,7 +276,7 @@
 
                 <div class="text-xs text-gray-500 mt-4">
                     <strong>Förväntade kolumner (första raden = header, semikolon):</strong><br>
-                    <code class="bg-gray-100 px-1 rounded">article_number;manufacturer_article_number;description;cost;currency;ean</code>
+                    <code class="bg-gray-100 px-1 rounded">article_number;description;cost;currency;ean</code>
                 </div>
                 <ul class="text-xs text-gray-500 mt-2 space-y-0.5 list-disc pl-5">
                     <li><code>article_number</code> + <code>cost</code> obligatoriska — annars skippas raden</li>
