@@ -22,9 +22,16 @@
             'contacts'   => 'Contacts',
             'logistics'  => 'Logistics',
             'purchasing' => 'Purchasing',
+            'pricing'    => 'Pricing',
         ],
         'queryPrefix' => 'api_key=' . urlencode($apiKey) . '&',
     ])
+
+    @if (session('saved'))
+        <div class="bg-green-50 border border-green-200 text-green-800 rounded p-3 mb-4 text-sm flex items-center justify-between">
+            <span>✓ {{ session('saved') }}</span>
+        </div>
+    @endif
 
     @switch($activeTab)
 
@@ -148,6 +155,106 @@
                 <div class="grid grid-cols-3 gap-4">
                     <div><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">General delivery time</label><div class="border rounded px-3 py-2 bg-gray-50">{{ (int) $supplier->general_delivery_time }} days</div></div>
                     <div class="col-span-2"><label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Shipping instructions</label><div class="border rounded px-3 py-2 bg-gray-50 whitespace-pre-line">{{ $supplier->shipping_instructions ?: '—' }}</div></div>
+                </div>
+            </div>
+            @break
+
+        @case('pricing')
+            {{-- Marginalregler som påverkar detta varumärkes artiklar --}}
+            <div class="bg-white border rounded p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase text-gray-500">Marginalregler</h3>
+                        @if ($brand)
+                            <p class="text-xs text-gray-500 mt-1">
+                                Regler som gäller <span class="font-semibold">{{ $brand->name }}</span>-artiklar.
+                                Underhålls under <a href="/admin/brands/{{ rawurlencode($brand->name) }}?api_key={{ urlencode($apiKey) }}&tab=margins" class="text-blue-600 hover:underline">varumärkesvyn → Marginaler</a>.
+                            </p>
+                        @else
+                            <p class="text-xs text-gray-500 mt-1">Leverantören har ingen varumärkes-koppling (brand_name saknas) så inga marginalregler kan matchas.</p>
+                        @endif
+                    </div>
+                    @if ($brand)
+                        <span class="text-xs text-gray-500">{{ number_format($pricingArticleCount, 0, ',', ' ') }} artiklar</span>
+                    @endif
+                </div>
+
+                @if (!$brand)
+                    <div class="text-sm text-gray-500 italic">—</div>
+                @elseif ($pricingRules->isEmpty())
+                    <div class="text-sm text-gray-500 italic">
+                        Inga kategoriregler — alla {{ $brand->name }}-artiklar ärver varumärkets standardmarginaler.
+                    </div>
+                @else
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-semibold">Kategori</th>
+                                <th class="px-3 py-2 text-right font-semibold">ÅF-marginal (%)</th>
+                                <th class="px-3 py-2 text-right font-semibold">Min. vår (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            @foreach ($pricingRules as $r)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-1.5 text-gray-700">
+                                        {{ $r->category?->title_sv ?? 'Alla kategorier (brand-default)' }}
+                                    </td>
+                                    <td class="px-3 py-1.5 text-right text-gray-700">
+                                        {{ $r->reseller_margin !== null ? rtrim(rtrim(number_format((float) $r->reseller_margin, 2), '0'), '.') . '%' : '—' }}
+                                    </td>
+                                    <td class="px-3 py-1.5 text-right text-gray-700">
+                                        {{ $r->minimum_margin !== null ? rtrim(rtrim(number_format((float) $r->minimum_margin, 2), '0'), '.') . '%' : '—' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+
+                @if ($pricingCategories->isNotEmpty())
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="text-xs uppercase text-gray-500 font-semibold mb-2">
+                            Kategorier som varumärkets artiklar ligger i
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach ($pricingCategories as $c)
+                                <span class="bg-gray-100 border rounded-full text-xs px-2 py-0.5 text-gray-700">{{ $c->title_sv }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Prisfil från leverantör — koppla mot artikelregistret --}}
+            <div class="bg-white border rounded p-6">
+                <h3 class="text-sm font-semibold uppercase text-gray-500 mb-2">Koppla prisfil mot artikelregistret</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Ladda upp en CSV från leverantören. Systemet matchar raderna mot
+                    <code class="bg-gray-100 px-1 rounded">articles.article_number</code>
+                    (eller <code class="bg-gray-100 px-1 rounded">articles.manufacturer_article_number</code>)
+                    och uppdaterar kostpris + skapar nya artiklar för obefintliga rader.
+                </p>
+                <form method="POST"
+                      action="/admin/suppliers/{{ rawurlencode($supplier->number) }}/price-file?api_key={{ urlencode($apiKey) }}"
+                      enctype="multipart/form-data"
+                      class="flex items-end gap-3">
+                    <div class="flex-1">
+                        <label class="block text-xs text-gray-500 uppercase font-semibold mb-1">Prisfil (CSV, semikolon-avgränsad, max 10 MB)</label>
+                        <input type="file" name="price_file" accept=".csv,.txt" required
+                               class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer">
+                    </div>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">
+                        Läs in
+                    </button>
+                </form>
+                <div class="text-xs text-amber-700 mt-3 bg-amber-50 border border-amber-200 rounded p-3">
+                    <strong>Status:</strong> Fil-upload fungerar men parsning + artikel-match/skapande byggs ut i nästa iteration.
+                    Fil mottas och rad-räknas bara just nu.
+                </div>
+                <div class="text-xs text-gray-500 mt-3">
+                    <strong>Förväntade kolumner (första raden = header):</strong>
+                    <code class="bg-gray-100 px-1 rounded">article_number;manufacturer_article_number;description;cost;currency;ean</code>
                 </div>
             </div>
             @break

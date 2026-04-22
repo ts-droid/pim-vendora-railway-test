@@ -153,6 +153,123 @@
                     </div>
                 @endif
             </div>
+
+            {{-- BID-artiklar tillgängliga för kunden --}}
+            <div class="bg-white border rounded p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">BID-artiklar tillgängliga</h3>
+                    <span class="text-xs text-gray-400">
+                        BID-varianter på artiklar där offertpris är aktiverat
+                    </span>
+                </div>
+                @if ($bidVariantsAvailable->isEmpty())
+                    <div class="border border-dashed rounded p-8 text-center text-sm text-gray-500">
+                        Inga BID-artiklar är aktiverade just nu.
+                    </div>
+                @else
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-semibold">Artikel</th>
+                                <th class="px-3 py-2 text-left font-semibold">Variant-SKU</th>
+                                <th class="px-3 py-2 text-left font-semibold">Varumärke</th>
+                                <th class="px-3 py-2 text-right font-semibold">BID-kostnad</th>
+                                <th class="px-3 py-2 text-right font-semibold">Fast pris</th>
+                                <th class="px-3 py-2 text-right font-semibold">Min-marg %</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            @foreach ($bidVariantsAvailable as $v)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-1.5 font-mono text-xs">
+                                        <a href="/admin/articles/{{ rawurlencode($v->article_number) }}?api_key={{ urlencode($apiKey) }}"
+                                           class="text-blue-600 hover:underline">{{ $v->article_number }}</a>
+                                        <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit($v->article?->description ?? '', 40) }}</div>
+                                    </td>
+                                    <td class="px-3 py-1.5 font-mono text-xs">{{ $v->variant_sku ?: '—' }}</td>
+                                    <td class="px-3 py-1.5 text-xs text-gray-600">{{ $v->article?->brand ?: '—' }}</td>
+                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->cost, 2), '0'), '.') ?: '—' }}</td>
+                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->fixed_price, 2), '0'), '.') ?: '—' }}</td>
+                                    <td class="px-3 py-1.5 text-right">{{ rtrim(rtrim(number_format((float) $v->min_margin, 2), '0'), '.') ?: '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="text-xs text-gray-400 mt-3 text-right">
+                        {{ $bidVariantsAvailable->count() }} varianter · max 200 visas
+                    </div>
+                @endif
+                <div class="text-xs text-gray-500 mt-3 italic">
+                    Just nu visas alla BID-aktiva artiklar. Schema-stöd för "per-kund BID-behörighet" är inte implementerat ännu.
+                </div>
+            </div>
+
+            {{-- Kundrabatter per varumärke --}}
+            <div class="bg-white border rounded p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Kundrabatter per varumärke</h3>
+                    <span class="text-xs text-gray-400">
+                        Rabatter som visas mot kund i prislistor
+                        (<code class="bg-gray-100 px-1 rounded">article_supports · layer=customer</code>)
+                    </span>
+                </div>
+                @if ($customerDiscountsByBrand->isEmpty())
+                    <div class="border border-dashed rounded p-8 text-center text-sm text-gray-500">
+                        Inga kundrabatter ligger aktiva på artiklar.
+                    </div>
+                @else
+                    <div class="space-y-5">
+                        @foreach ($customerDiscountsByBrand as $brandName => $rows)
+                            <div>
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <h4 class="text-sm font-semibold text-gray-700">
+                                        <a href="/admin/brands/{{ rawurlencode($brandName) }}?api_key={{ urlencode($apiKey) }}"
+                                           class="text-blue-600 hover:underline">{{ $brandName }}</a>
+                                    </h4>
+                                    <span class="text-xs text-gray-500">{{ $rows->count() }} rabatter</span>
+                                </div>
+                                <table class="w-full text-xs">
+                                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                                        <tr>
+                                            <th class="px-3 py-1.5 text-left font-semibold">Artikel</th>
+                                            <th class="px-3 py-1.5 text-left font-semibold">Typ</th>
+                                            <th class="px-3 py-1.5 text-right font-semibold">Rabatt</th>
+                                            <th class="px-3 py-1.5 text-left font-semibold">Period</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y">
+                                        @foreach ($rows as $r)
+                                            @php
+                                                $unit = $r->is_percentage ? '%' : ($r->currency ?: 'SEK');
+                                                $period = '—';
+                                                if ($r->date_from || $r->date_to) {
+                                                    $period = ($r->date_from ?? '—') . ' → ' . ($r->date_to ?? '—');
+                                                }
+                                            @endphp
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-3 py-1 font-mono">
+                                                    <a href="/admin/articles/{{ rawurlencode($r->article_number) }}?api_key={{ urlencode($apiKey) }}"
+                                                       class="text-blue-600 hover:underline">{{ $r->article_number }}</a>
+                                                    <span class="text-gray-500"> · {{ \Illuminate\Support\Str::limit($r->description, 35) }}</span>
+                                                </td>
+                                                <td class="px-3 py-1 text-gray-600">{{ ucfirst($r->customer_type) }}</td>
+                                                <td class="px-3 py-1 text-right">
+                                                    {{ rtrim(rtrim(number_format((float) $r->value, 2), '0'), '.') ?: '0' }}
+                                                    <span class="text-gray-500">{{ $unit }}</span>
+                                                </td>
+                                                <td class="px-3 py-1 text-gray-600">{{ $period }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+                <div class="text-xs text-gray-500 mt-3 italic">
+                    Rabatter är artikel-scopade idag. Ett separat schema för rena brand- eller kategori-rabatter per kund är en senare utbyggnad.
+                </div>
+            </div>
             @break
 
         @case('logins')

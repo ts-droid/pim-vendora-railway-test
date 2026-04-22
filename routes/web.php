@@ -238,6 +238,7 @@ Route::post('/admin/articles/{articleNumber}/supports', [AdminArticleController:
 Route::post('/admin/articles/{articleNumber}/supports/{supportId}', [AdminArticleController::class, 'updateSupport'])->name('admin.article.supports.update');
 Route::post('/admin/articles/{articleNumber}/supports/{supportId}/delete', [AdminArticleController::class, 'deleteSupport'])->name('admin.article.supports.delete');
 Route::get('/admin/suppliers/{supplierNumber}', [AdminSupplierController::class, 'show'])->name('admin.supplier.show');
+Route::post('/admin/suppliers/{supplierNumber}/price-file', [AdminSupplierController::class, 'uploadPriceFile'])->name('admin.supplier.price-file');
 Route::get('/admin/customers/{customerNumber}', [AdminCustomerController::class, 'show'])->name('admin.customer.show');
 Route::get('/admin/brands/{brandName}', [App\Http\Controllers\AdminBrandController::class, 'show'])
     ->where('brandName', '[^/]+')

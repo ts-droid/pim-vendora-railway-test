@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ApiKey;
 use App\Models\ArticlePrice;
+use App\Models\ArticleSupport;
+use App\Models\BidVariant;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,15 +76,61 @@ class AdminCustomerController extends Controller
         }
         $crmIframe = (bool) config('services.vendora_crm.embed_in_iframe');
 
-        // Pricelist — optional per-customer article prices. Empty in the
-        // imported Railway dataset; we render "inga kundspecifika priser"
-        // when none exist.
-        $pricelist = ($tab === 'pricelist')
-            ? ArticlePrice::where('customer_id', $customer->customer_number)
+        // Pricelist-tabben samlar all specialprissättning som rör kunden:
+        //   1. Kundspecifika priser (article_prices)
+        //   2. BID-varianter tillgängliga (bid_variants på artiklar med
+        //      bid_enabled=true) — representerar offert-priser som kan
+        //      erbjudas kunden
+        //   3. Kundrabatter per varumärke (article_supports layer=customer
+        //      grupperade per brand) — visar vad som redan ligger i
+        //      prislistor som rabatt "Till kund"
+        $pricelist = collect();
+        $bidVariantsAvailable = collect();
+        $customerDiscountsByBrand = collect();
+
+        if ($tab === 'pricelist') {
+            $pricelist = ArticlePrice::where('customer_id', $customer->customer_number)
                 ->orderBy('article_number')
                 ->limit(200)
-                ->get()
-            : collect();
+                ->get();
+
+            // BID-varianter på alla artiklar där BID är aktiverat.
+            // Grund-artiklarnas data laddas via 'article'-relation.
+            $bidVariantsAvailable = BidVariant::whereIn(
+                'article_number',
+                DB::table('articles')->where('bid_enabled', 1)->pluck('article_number')
+            )
+                ->with('article:article_number,description,brand,supplier_number')
+                ->orderBy('article_number')
+                ->orderBy('sort_order')
+                ->limit(200)
+                ->get();
+
+            // Kundrabatter per brand: article_supports där layer='customer'
+            // grupperat på artikelns brand. Join via DB::table för att
+            // undvika Eloquent retrieved-hook på partiella articles-rader.
+            $customerSupportRows = DB::table('article_supports as s')
+                ->join('articles as a', 'a.article_number', '=', 's.article_number')
+                ->whereIn('s.layer', ['customer'])
+                ->whereNotNull('a.brand')
+                ->where('a.brand', '!=', '')
+                ->select(
+                    'a.brand',
+                    's.article_number',
+                    'a.description',
+                    's.customer_type',
+                    's.value',
+                    's.is_percentage',
+                    's.currency',
+                    's.date_from',
+                    's.date_to'
+                )
+                ->orderBy('a.brand')
+                ->orderBy('s.article_number')
+                ->get();
+
+            $customerDiscountsByBrand = $customerSupportRows->groupBy('brand');
+        }
 
         return View::make('admin.customer', [
             'customer' => $customer,
@@ -92,6 +140,8 @@ class AdminCustomerController extends Controller
             'crmIframe' => $crmIframe,
             'crmStats' => $crmStats,
             'pricelist' => $pricelist,
+            'bidVariantsAvailable' => $bidVariantsAvailable,
+            'customerDiscountsByBrand' => $customerDiscountsByBrand,
         ]);
     }
 
